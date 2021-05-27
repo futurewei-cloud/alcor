@@ -1,17 +1,17 @@
 /*
-Copyright 2019 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package com.futurewei.alcor.portmanager.config;
 
@@ -22,6 +22,9 @@ public class UnitTestConfig {
     public static String nodeMacAddress = "90:17:ac:c1:34:64";
     public static String nodeVeth = "eth0";
     public static int nodeGRPCServerPort = 0;
+    public static String nodeUnicastTopic = "unicast-topic-1";
+    public static String nodeMulticastTopic = "multicast-topic-1";
+    public static String nodeGroupTopic = "group-topic-1";
 
     public static String portId1 = "3d53801c-32ce-4e97-9572-bb966f4aa53e";
     public static String portId2 = "3d53801c-32ce-4e97-9572-bb966f4625ba";
@@ -58,6 +61,8 @@ public class UnitTestConfig {
     public static String subnetId2 = "3d53801c-32ce-4e97-9572-bb966fe82b1";
     public static String rangeId = "3d53801c-32ce-4e97-9572-bb966f6ba29";
     public static String vpcCidr = "11.11.1.0/24";
+    public static String subnet1Cidr = "11.11.1.0/25";
+    public static String subnet2Cidr = "11.11.1.128/25";
     public static String ip1 = "11.11.11.100";
     public static String ip2 = "11.11.11.101";
     public static String ipv6Address = "2001:3CA1:310F:201A:121B:4231:2345:1010";

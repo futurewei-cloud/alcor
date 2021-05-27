@@ -1,25 +1,24 @@
 /*
-Copyright 2019 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package com.futurewei.alcor.route;
 
 import com.futurewei.alcor.common.enumClass.RouteTableType;
 import com.futurewei.alcor.route.config.UnitTestConfig;
 import com.futurewei.alcor.route.service.*;
-import com.futurewei.alcor.web.entity.route.RouteTable;
-import com.futurewei.alcor.web.entity.route.Router;
+import com.futurewei.alcor.web.entity.route.*;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetsWebJson;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
@@ -41,7 +40,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -70,6 +69,12 @@ public class VpcRouterTests {
 
     @MockBean
     private RouteEntryDatabaseService routeEntryDatabaseService;
+
+    @MockBean
+    private NeutronRouterService neutronRouterService;
+
+    @MockBean
+    private RouterToDPMService routerToDPMService;
 
     private String vpcRouterUri = "/project/" + UnitTestConfig.projectId + "/vpcs/" + UnitTestConfig.vpcId + "/router";
     private String vpcRouteTableUri = "/project/" + UnitTestConfig.projectId + "/vpcs/" + UnitTestConfig.vpcId + "/vpcroutetable";
@@ -137,7 +142,7 @@ public class VpcRouterTests {
 
         Router router = new Router();
         router.setId(UnitTestConfig.routerId);
-        router.setVpcRouteTable(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.VPC.getRouteTableType());}});}});
+        router.setVpcRouteTables(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.VPC.getRouteTableType());}});}});
 
         Mockito.when(routerDatabaseService.getAllRouters(anyMap()))
                 .thenReturn(new HashMap<String, Router>(){{put(UnitTestConfig.routerId, router);}});
@@ -158,7 +163,7 @@ public class VpcRouterTests {
 
         Router router = new Router();
         router.setId(UnitTestConfig.routerId);
-        router.setVpcRouteTable(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.PRIVATE_SUBNET.getRouteTableType());}});}});
+        router.setVpcRouteTables(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.PRIVATE_SUBNET.getRouteTableType());}});}});
 
         SubnetsWebJson subnetsWebJson = new SubnetsWebJson();
         ArrayList<SubnetEntity> subnets = new ArrayList<>(){{add(new SubnetEntity());add(new SubnetEntity());}};
@@ -191,7 +196,7 @@ public class VpcRouterTests {
 
         Router router = new Router();
         router.setId(UnitTestConfig.routerId);
-        router.setVpcRouteTable(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.VPC.getRouteTableType());setId(UnitTestConfig.routeTableId);}});}});
+        router.setVpcRouteTables(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.VPC.getRouteTableType());setId(UnitTestConfig.routeTableId);}});}});
 
         Mockito.when(routerDatabaseService.getAllRouters(anyMap()))
                 .thenReturn(new HashMap<String, Router>(){{put(UnitTestConfig.routerId, router);}});
@@ -214,7 +219,7 @@ public class VpcRouterTests {
         Router router = new Router();
         router.setId(UnitTestConfig.routerId);
         router.setVpcDefaultRouteTableId(UnitTestConfig.routeTableId);
-        router.setVpcRouteTable(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.VPC.getRouteTableType());setId(UnitTestConfig.routeTableId);setRouteEntities(new ArrayList<>());}});}});
+        router.setVpcRouteTables(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.VPC.getRouteTableType());setId(UnitTestConfig.routeTableId);setRouteEntities(new ArrayList<>());}});}});
 
         Mockito.when(routerDatabaseService.getAllRouters(anyMap()))
                 .thenReturn(new HashMap<String, Router>(){{put(UnitTestConfig.routerId, router);}});
@@ -239,7 +244,7 @@ public class VpcRouterTests {
 
         Router router = new Router();
         router.setId(UnitTestConfig.routerId);
-        router.setVpcRouteTable(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.VPC.getRouteTableType());setId(UnitTestConfig.routeTableId);setRouteEntities(new ArrayList<>());}});}});
+        router.setVpcRouteTables(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.VPC.getRouteTableType());setId(UnitTestConfig.routeTableId);setRouteEntities(new ArrayList<>());}});}});
 
         Mockito.when(routerDatabaseService.getAllRouters(anyMap()))
                 .thenReturn(new HashMap<String, Router>(){{put(UnitTestConfig.routerId, router);}});
@@ -305,13 +310,17 @@ public class VpcRouterTests {
         routetable2.setId(UnitTestConfig.routeTableId2);
 
         Mockito.when(routeTableDatabaseService.getAllRouteTables(anyMap()))
-                .thenReturn(new HashMap<String, RouteTable>(){{put(UnitTestConfig.routeTableId, routetable1);put(UnitTestConfig.routeTableId2, routetable2);}});
-
+                .thenReturn(new HashMap<String, RouteTable>() {
+                    {
+                        put(UnitTestConfig.routeTableId, routetable1);
+                        put(UnitTestConfig.routeTableId2, routetable2);
+                    }
+                });
         try {
             this.mockMvc.perform(get(subnetRouteTableUri))
                     .andDo(print())
                     .andExpect(status().is(500));
-        }catch (Exception e) {
+        } catch (Exception e) {
             assertEquals("exist multiple subnet routetable searched by subnet id", e.getMessage());
             System.out.println("-----json returned =" + e.getMessage());
         }
@@ -321,9 +330,21 @@ public class VpcRouterTests {
     public void updateSubnetRouteTable_pass () throws Exception {
         RouteTable routetable = new RouteTable();
         routetable.setId(UnitTestConfig.routeTableId);
+        routetable.setRouteEntities(new ArrayList<>());
 
         Mockito.when(routeTableDatabaseService.getAllRouteTables(anyMap()))
                 .thenReturn(new HashMap<String, RouteTable>(){{put(UnitTestConfig.routeTableId, routetable);}});
+        Mockito.when(neutronRouterService.updateRoutingRule(anyString(), any(NewRoutesWebRequest.class), anyBoolean()))
+                .thenReturn(new UpdateRoutingRuleResponse() {
+                    {
+                        setHostRouteToSubnet(new ArrayList<>());
+                        setInternalSubnetRoutingTable(new InternalSubnetRoutingTable() {
+                            {
+                                setRoutingRules(new ArrayList<>());
+                            }
+                        });
+                    }
+                });
         this.mockMvc.perform(put(subnetRouteTableUri).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.subnetRouteTableResource))
                 .andDo(print())
@@ -338,6 +359,8 @@ public class VpcRouterTests {
 
         Mockito.when(routeTableDatabaseService.getAllRouteTables(anyMap()))
                 .thenReturn(new HashMap<String, RouteTable>(){{put(UnitTestConfig.routeTableId, routetable);}});
+        Mockito.when(neutronRouterService.updateRoutingRule(anyString(), any(NewRoutesWebRequest.class), anyBoolean()))
+                .thenReturn(new UpdateRoutingRuleResponse(){{setHostRouteToSubnet(new ArrayList<>());}});
         this.mockMvc.perform(delete(subnetRouteTableUri))
                 .andDo(print())
                 .andExpect(status().isOk())

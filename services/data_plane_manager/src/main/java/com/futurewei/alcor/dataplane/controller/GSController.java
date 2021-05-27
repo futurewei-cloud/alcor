@@ -1,17 +1,17 @@
 /*
-Copyright 2019 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 package com.futurewei.alcor.dataplane.controller;
@@ -31,10 +31,14 @@ import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -61,7 +65,7 @@ public class GSController {
   public InternalDPMResultList createPort(@RequestBody NetworkConfiguration gs) throws Exception {
     gs.setOpType(Common.OperationType.CREATE);
     gs.setRsType(Common.ResourceType.PORT);
-    return program(gs);
+    return program(gs).get();
   }
 
   /**
@@ -78,7 +82,7 @@ public class GSController {
   public InternalDPMResultList updatePort(@RequestBody NetworkConfiguration gs) throws Exception {
     gs.setRsType(Common.ResourceType.PORT);
     gs.setOpType(Common.OperationType.UPDATE);
-    return program(gs);
+    return program(gs).get();
   }
 
   /**
@@ -95,7 +99,7 @@ public class GSController {
   public InternalDPMResultList deletePort(@RequestBody NetworkConfiguration gs) throws Exception {
     gs.setOpType(Common.OperationType.DELETE);
     gs.setRsType(Common.ResourceType.PORT);
-    return program(gs);
+    return program(gs).get();
   }
 
   /**
@@ -113,7 +117,7 @@ public class GSController {
   public InternalDPMResultList createSubnet(@RequestBody NetworkConfiguration gs) throws Exception {
     gs.setOpType(Common.OperationType.CREATE);
     gs.setRsType(Common.ResourceType.SUBNET);
-    return program(gs);
+    return program(gs).get();
   }
 
   /**
@@ -130,7 +134,7 @@ public class GSController {
   public InternalDPMResultList updateSubnet(@RequestBody NetworkConfiguration gs) throws Exception {
     gs.setOpType(Common.OperationType.UPDATE);
     gs.setRsType(Common.ResourceType.SUBNET);
-    return program(gs);
+    return program(gs).get();
   }
 
   /**
@@ -147,11 +151,12 @@ public class GSController {
   public InternalDPMResultList deleteSubnet(@RequestBody NetworkConfiguration gs) throws Exception {
     gs.setOpType(Common.OperationType.DELETE);
     gs.setRsType(Common.ResourceType.SUBNET);
-    return program(gs);
+    return program(gs).get();
   }
 
   // method do the real job
-  private InternalDPMResultList program(NetworkConfiguration gs) {
+  @Async
+  private Future<InternalDPMResultList> program(NetworkConfiguration gs) {
     // TODO: Create a verification framework for all resources
     // leave isFast as true since SB GSinfo does not have fastpath attr
     long start = System.currentTimeMillis();
@@ -162,9 +167,9 @@ public class GSController {
       result =
           goalStateManager
               .talkToACA(
-                  goalStateManager.transformNorthToSouth(gs),
+                  goalStateManager.transformNorthToSouth(gs).get(),
                   true,
-                  Integer.parseInt(config.getPort()),
+                  config.getPort(),
                   Boolean.valueOf(config.getOvs()))
               .stream()
               .flatMap(Collection::stream)
@@ -172,38 +177,40 @@ public class GSController {
                   f -> {
                     return new InternalDPMResult(
                         f.getResourceId(),
-                        f.getResourceType().toString(),
+                        null,
                         f.getOperationStatus().toString(),
-                        f.getStateElapseTime());
+                        f.getStateElapseTime(),null);
                   })
               .collect(Collectors.toList());
       resultAll.setResultMessage("Successfully Handle request !!");
 
     } catch (ClientOfDPMFailureException e) {
       e.printStackTrace();
-      LOG.log(Level.SEVERE,e.getMessage());
+      LOG.log(Level.SEVERE, e.getMessage());
       resultAll.setResultMessage("Client of DPM sending invalid payload: " + e.getMessage());
-    }
-    catch (ACAFailureException e) {
+    } catch (ACAFailureException e) {
       e.printStackTrace();
-      LOG.log(Level.SEVERE,e.getMessage());
+      LOG.log(Level.SEVERE, e.getMessage());
       resultAll.setResultMessage("Alcor Agent Handle request failure reason: " + e.getMessage());
-    }
-    catch (DPMFailureException e) {
+    } catch (DPMFailureException e) {
       e.printStackTrace();
-      LOG.log(Level.SEVERE,e.getMessage());
-      resultAll.setResultMessage("DataPlaneManager Handle request failure reason: " + e.getMessage());
-    }
-    catch (RuntimeException e) {
+      LOG.log(Level.SEVERE, e.getMessage());
+      resultAll.setResultMessage(
+          "DataPlaneManager Handle request failure reason: " + e.getMessage());
+    } catch (RuntimeException e) {
       e.printStackTrace();
-      LOG.log(Level.SEVERE,e.getMessage());
+      LOG.log(Level.SEVERE, e.getMessage());
       resultAll.setResultMessage("Failure Handle request reason: " + e.getMessage());
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    } catch (ExecutionException e) {
+      e.printStackTrace();
     }
     long done = System.currentTimeMillis();
     resultAll.setResultList(result);
     resultAll.setOverrallTime(done - start);
-    LOG.log(Level.INFO,"DPM+ACA time cost: goalState= "+gs+" time: "+(done - start)+" ms");
-    return resultAll;
+    LOG.log(Level.INFO, "DPM+ACA time cost: goalState= " + gs + " time: " + (done - start) + " ms");
+    return new AsyncResult<InternalDPMResultList>(resultAll);
   }
 
   public Config getConfig() {
@@ -221,6 +228,4 @@ public class GSController {
   public void setGoalStateManager(GoalStateManager goalStateManager) {
     this.goalStateManager = goalStateManager;
   }
-
-
 }

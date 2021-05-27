@@ -1,30 +1,33 @@
 /*
-Copyright 2019 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package com.futurewei.alcor.portmanager.service;
 
 import com.futurewei.alcor.common.db.CacheException;
+import com.futurewei.alcor.common.enumClass.NetworkStatusEnum;
+import com.futurewei.alcor.common.enumClass.StatusEnum;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.portmanager.exception.PortEntityNotFound;
 import com.futurewei.alcor.portmanager.processor.*;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
+import com.futurewei.alcor.portmanager.request.CreateNetworkConfigRequest;
+import com.futurewei.alcor.portmanager.request.IRestRequest;
 import com.futurewei.alcor.portmanager.request.UpdateNetworkConfigRequest;
 import com.futurewei.alcor.schema.Common;
-import com.futurewei.alcor.web.entity.dataplane.NeighborEntry;
-import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
-import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
+import com.futurewei.alcor.web.entity.dataplane.*;
+import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortWebBulkJson;
 import com.futurewei.alcor.web.entity.port.PortWebJson;
@@ -34,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 
@@ -116,8 +120,6 @@ public class PortServiceImpl implements PortService {
         } catch (Exception e) {
             handleException(context, e);
         }
-
-        portWebJson.setPortEntity(portEntity);
 
         LOG.info("Update port success, projectId: {}, portId: {}, PortWebJson: {}",
                 projectId, portId, portWebJson);
@@ -208,25 +210,51 @@ public class PortServiceImpl implements PortService {
         return result;
     }
 
-    private List<NeighborEntry> buildNeighborTable(List<NeighborInfo> localNeighborInfos, List<NeighborInfo> l3Neighbors) {
-        List<NeighborEntry> neighborTable = new ArrayList<>();
+    private Map<String, List<NeighborEntry>> buildNeighborTable(List<NeighborInfo> localNeighborInfos, List<NeighborInfo> l3Neighbors) {
+        Map<String, List<NeighborEntry>> neighborTable = new HashMap<>();
         for (NeighborInfo localNeighborInfo: localNeighborInfos) {
+            List<NeighborEntry> neighborEntries = new ArrayList<>();
             for (NeighborInfo l3Neighbor: l3Neighbors) {
                 NeighborEntry neighborEntry = new NeighborEntry();
                 neighborEntry.setNeighborType(NeighborEntry.NeighborType.L3);
                 neighborEntry.setLocalIp(localNeighborInfo.getPortIp());
                 neighborEntry.setNeighborIp(l3Neighbor.getPortIp());
-                neighborTable.add(neighborEntry);
+                neighborEntries.add(neighborEntry);
             }
+
+            String portIp = localNeighborInfo.getPortIp();
+            neighborTable.put(portIp, neighborEntries);
         }
 
         return neighborTable;
     }
 
-    private List<NeighborEntry> updateNeighborTable(RouterUpdateInfo routerUpdateInfo, List<NeighborInfo> neighborInfos) throws CacheException {
+    private Map<String, List<NeighborEntry>> updateNeighborTable(RouterUpdateInfo routerUpdateInfo, Map<String, NeighborInfo> neighborInfos) throws CacheException {
         String vpcId = routerUpdateInfo.getVpcId();
         String subnetId = routerUpdateInfo.getSubnetId();
-        List<String> oldSubnetIds = routerUpdateInfo.getOldSubnetIds();
+        List<String> gatewayPortIds = routerUpdateInfo.getGatewayPortIds();
+        List<String> gatewaySubnetIds = new ArrayList<>();
+
+        Map<String, Object[]> filterParams = new HashMap<>();
+        filterParams.put("id", gatewayPortIds.toArray());
+        Map<String, PortEntity> gatewayPortEntities = portRepository.findAllPortEntities(filterParams);
+        if (gatewayPortEntities != null) {
+            for (Map.Entry<String, PortEntity> entry: gatewayPortEntities.entrySet()) {
+                PortEntity portEntity = entry.getValue();
+                List<PortEntity.FixedIp> fixedIps = portEntity.getFixedIps();
+                if (fixedIps == null) {
+                    LOG.warn("Can not find fixedIp of gateway port: {}", portEntity);
+                    continue;
+                }
+
+                for (PortEntity.FixedIp fixedIp: fixedIps) {
+                    String subnetId1 = fixedIp.getSubnetId();
+                    if (!StringUtils.isEmpty(subnetId1)) {
+                        gatewaySubnetIds.add(subnetId1);
+                    }
+                }
+            }
+        }
 
         Map<String, NeighborInfo> neighbors = portRepository.getNeighbors(vpcId);
 
@@ -237,10 +265,10 @@ public class PortServiceImpl implements PortService {
             NeighborInfo neighborInfo = entry.getValue();
             if (subnetId.equals(neighborInfo.getSubnetId())) {
                 localNeighborInfos.add(neighborInfo);
-                neighborInfos.add(neighborInfo);
-            }else if (oldSubnetIds.contains(neighborInfo.getSubnetId())) {
+                neighborInfos.put(neighborInfo.getPortIp(), neighborInfo);
+            }else if (gatewaySubnetIds.contains(neighborInfo.getSubnetId())) {
                 l3Neighbors.add(neighborInfo);
-                neighborInfos.add(neighborInfo);
+                neighborInfos.put(neighborInfo.getPortIp(), neighborInfo);
             }
         }
 
@@ -250,17 +278,20 @@ public class PortServiceImpl implements PortService {
     @Override
     @DurationStatistics
     public RouterUpdateInfo updateL3Neighbors(String projectId, RouterUpdateInfo routerUpdateInfo) throws Exception {
-        List<NeighborInfo> neighborInfos = new ArrayList<>();
-        List<NeighborEntry> neighborTable = updateNeighborTable(routerUpdateInfo, neighborInfos);
+        Map<String, NeighborInfo> neighborInfos = new HashMap<>();
+        Map<String, List<NeighborEntry>> neighborTable = updateNeighborTable(routerUpdateInfo, neighborInfos);
 
+        for (String privateIp: neighborTable.keySet()) {
+            LOG.info("NeighborTable- key: {}, size: {}", privateIp, neighborTable.get(privateIp).size());
+        }
         if (neighborTable.size() > 0) {
             NetworkConfiguration networkConfiguration = new NetworkConfiguration();
             networkConfiguration.setRsType(Common.ResourceType.NEIGHBOR);
             String operationType = routerUpdateInfo.getOperationType();
             if (RouterUpdateInfo.OperationType.ADD.getType().equals(operationType)) {
-                networkConfiguration.setOpType(Common.OperationType.NEIGHBOR_CREATE_UPDATE);
+                networkConfiguration.setOpType(Common.OperationType.CREATE);
             } else {
-                networkConfiguration.setOpType(Common.OperationType.NEIGHBOR_DELETE);
+                networkConfiguration.setOpType(Common.OperationType.DELETE);
             }
             networkConfiguration.setNeighborInfos(neighborInfos);
             networkConfiguration.setNeighborTable(neighborTable);
@@ -268,5 +299,45 @@ public class PortServiceImpl implements PortService {
         }
 
         return routerUpdateInfo;
+    }
+
+    @Override
+    public int getSubnetPortCount(String projectId, String subnetId) throws Exception {
+        return portRepository.getSubnetPortCount(subnetId);
+    }
+
+    @DurationStatistics
+    @Override
+    public void updatePortStatus(IRestRequest request,NetworkConfiguration configuration,String status) throws Exception {
+        List<InternalPortEntity> internalPortEntities = configuration.getPortEntities();
+        List<PortEntity> portEntities = new ArrayList<>();
+        String name = request.getClass().getName();
+        InternalDPMResultList result = null;
+        if (CreateNetworkConfigRequest.class.getName().equals(name)) {
+            CreateNetworkConfigRequest createRequest = (CreateNetworkConfigRequest)request;
+            result = createRequest.getResultList();
+        }
+        if (UpdateNetworkConfigRequest.class.getName().equals(name)) {
+            UpdateNetworkConfigRequest updateRequest = (UpdateNetworkConfigRequest)request;
+            result = updateRequest.getResultList();
+        }
+        if(result == null){
+            return;
+        }
+        for (InternalDPMResult internalDPMResult : result.getResultList()) {
+            List<String> failedHosts = internalDPMResult.getFailedHosts();
+            for (InternalPortEntity internalPortEntity : internalPortEntities) {
+                PortEntity portEntity = portRepository.findPortEntity(internalPortEntity.getId());
+                if (status != null) {
+                    portEntity.setStatus(status);
+                }else if (failedHosts.contains(internalPortEntity.getBindingHostIP())){
+                    portEntity.setStatus(StatusEnum.FAILED.getStatus());
+                }else {
+                    portEntity.setStatus(NetworkStatusEnum.ACTIVE.getNetworkStatus());
+                }
+                portEntities.add(portEntity);
+            }
+        }
+        portRepository.addPortEntities(portEntities);
     }
 }

@@ -1,14 +1,17 @@
 /*
-Copyright 2019 The Alcor Authors.
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
-        http://www.apache.org/licenses/LICENSE-2.0
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
+
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package com.futurewei.alcor.web.entity.dataplane;
 
@@ -26,137 +29,136 @@ import java.util.List;
 @Data
 public class NetworkConfiguration {
 
-  private ResourceType rsType;
-  private OperationType opType;
+    private ResourceType rsType;
+    private OperationType opType;
 
-  @JsonProperty("ports_internal")
-  private List<InternalPortEntity> portEntities;
+    @JsonProperty("ports_internal")
+    private List<InternalPortEntity> portEntities;
 
-  @JsonProperty("vpcs_internal")
-  private List<VpcEntity> vpcs;
+    @JsonProperty("vpcs_internal")
+    private List<VpcEntity> vpcs;
 
-  @JsonProperty("subnets_internal")
-  private List<InternalSubnetEntity> subnets;
+    @JsonProperty("subnets_internal")
+    private List<InternalSubnetEntity> subnets;
 
-  @JsonProperty("security_groups_internal")
-  private List<SecurityGroup> securityGroups;
+    @JsonProperty("security_groups_internal")
+    private List<SecurityGroup> securityGroups;
 
-  @JsonProperty("neighbor_info")
-  private List<NeighborInfo> neighborInfos;
+    @JsonProperty("neighbor_info")
+    private List<NeighborInfo> neighborInfos;
 
-  @JsonProperty("neighbor_table")
-  private List<NeighborEntry> neighborTable;
+    @JsonProperty("neighbor_table")
+    private List<NeighborEntry> neighborTable;
 
-  @JsonProperty("routers_internal")
-  private List<InternalRouterInfo> internalRouterInfos;
+    @JsonProperty("routers_internal")
+    private List<InternalRouterInfo> internalRouterInfos;
 
-  @Override
-  public String toString() {
-    return "NetworkConfiguration{" + "rsType=" + rsType + ", opType=" + opType + ", portEntities=" + portEntities + ", vpcs=" + vpcs + ", subnets=" + subnets + ", securityGroups=" + securityGroups + ", neighborInfos=" + neighborInfos + ", neighborTable=" + neighborTable + ", routerTable=" + internalRouterInfos + '}';
-  }
-
-  public List<InternalRouterInfo> getInternalRouterInfos() {
-    return internalRouterInfos;
-  }
-
-  public void setInternalRouterInfos(List<InternalRouterInfo> internalRouterInfos) {
-    this.internalRouterInfos = internalRouterInfos;
-  }
-
-  public void addPortEntity(InternalPortEntity portEntity) {
-    if (this.portEntities == null) {
-      this.portEntities = new ArrayList<>();
+    @Override
+    public String toString() {
+        return "NetworkConfiguration{" + "rsType=" + rsType + ", opType=" + opType + ", portEntities=" + portEntities + ", vpcs=" + vpcs + ", subnets=" + subnets + ", securityGroups=" + securityGroups + ", neighborInfos=" + neighborInfos + ", neighborTable=" + neighborTable + ", routerTable=" + internalRouterInfos + '}';
     }
 
-    this.portEntities.add(portEntity);
-  }
-
-  public void addVpcEntity(VpcEntity vpcEntity) {
-    if (this.vpcs == null) {
-      this.vpcs = new ArrayList<>();
+    public List<InternalRouterInfo> getInternalRouterInfos() {
+        return internalRouterInfos;
     }
 
-    this.vpcs.add(vpcEntity);
-  }
-
-  public void addSubnetEntity(InternalSubnetEntity subnetEntity) {
-    if (this.subnets == null) {
-      this.subnets = new ArrayList<>();
+    public void setInternalRouterInfos(List<InternalRouterInfo> internalRouterInfos) {
+        this.internalRouterInfos = internalRouterInfos;
     }
 
-    this.subnets.add(subnetEntity);
-  }
+    public void addPortEntity(InternalPortEntity portEntity) {
+        if (this.portEntities == null) {
+            this.portEntities = new ArrayList<>();
+        }
 
-  public void addSecurityGroupEntity(SecurityGroup securityGroup) {
-    if (this.securityGroups == null) {
-      this.securityGroups = new ArrayList<>();
+        this.portEntities.add(portEntity);
     }
 
-    this.securityGroups.add(securityGroup);
-  }
+    public void addVpcEntity(VpcEntity vpcEntity) {
+        if (this.vpcs == null) {
+            this.vpcs = new ArrayList<>();
+        }
 
-  public ResourceType getRsType() {
-    return rsType;
-  }
+        this.vpcs.add(vpcEntity);
+    }
 
-  public void setRsType(ResourceType rsType) {
-    this.rsType = rsType;
-  }
+    public void addSubnetEntity(InternalSubnetEntity subnetEntity) {
+        if (this.subnets == null) {
+            this.subnets = new ArrayList<>();
+        }
 
-  public OperationType getOpType() {
-    return opType;
-  }
+        this.subnets.add(subnetEntity);
+    }
 
-  public void setOpType(OperationType opType) {
-    this.opType = opType;
-  }
+    public void addSecurityGroupEntity(SecurityGroup securityGroup) {
+        if (this.securityGroups == null) {
+            this.securityGroups = new ArrayList<>();
+        }
 
-  public List<InternalPortEntity> getPortEntities() {
-    return portEntities;
-  }
+        this.securityGroups.add(securityGroup);
+    }
 
-  public void setPortEntities(List<InternalPortEntity> portEntities) {
-    this.portEntities = portEntities;
-  }
+    public ResourceType getRsType() {
+        return rsType;
+    }
 
-  public List<VpcEntity> getVpcs() {
-    return vpcs;
-  }
+    public void setRsType(ResourceType rsType) {
+        this.rsType = rsType;
+    }
 
-  public void setVpcs(List<VpcEntity> vpcs) {
-    this.vpcs = vpcs;
-  }
+    public OperationType getOpType() {
+        return opType;
+    }
 
-  public List<InternalSubnetEntity> getSubnets() {
-    return subnets;
-  }
+    public void setOpType(OperationType opType) {
+        this.opType = opType;
+    }
 
-  public void setSubnets(List<InternalSubnetEntity> subnets) {
-    this.subnets = subnets;
-  }
+    public List<InternalPortEntity> getPortEntities() {
+        return portEntities;
+    }
 
-  public List<SecurityGroup> getSecurityGroups() {
-    return securityGroups;
-  }
+    public void setPortEntities(List<InternalPortEntity> portEntities) {
+        this.portEntities = portEntities;
+    }
 
-  public void setSecurityGroups(List<SecurityGroup> securityGroups) {
-    this.securityGroups = securityGroups;
-  }
+    public List<VpcEntity> getVpcs() {
+        return vpcs;
+    }
 
-  public List<NeighborInfo> getNeighborInfos() {
-    return neighborInfos;
-  }
+    public void setVpcs(List<VpcEntity> vpcs) {
+        this.vpcs = vpcs;
+    }
 
-  public void setNeighborInfos(List<NeighborInfo> neighborInfos) {
-    this.neighborInfos = neighborInfos;
-  }
+    public List<InternalSubnetEntity> getSubnets() {
+        return subnets;
+    }
 
-  public List<NeighborEntry> getNeighborTable() {
-    return neighborTable;
-  }
+    public void setSubnets(List<InternalSubnetEntity> subnets) {
+        this.subnets = subnets;
+    }
 
-  public void setNeighborTable(List<NeighborEntry> neighborTable) {
-    this.neighborTable = neighborTable;
-  }
+    public List<SecurityGroup> getSecurityGroups() {
+        return securityGroups;
+    }
 
+    public void setSecurityGroups(List<SecurityGroup> securityGroups) {
+        this.securityGroups = securityGroups;
+    }
+
+    public List<NeighborInfo> getNeighborInfos() {
+        return neighborInfos;
+    }
+
+    public void setNeighborInfos(List<NeighborInfo> neighborInfos) {
+        this.neighborInfos = neighborInfos;
+    }
+
+    public List<NeighborEntry> getNeighborTable() {
+        return neighborTable;
+    }
+
+    public void setNeighborTable(List<NeighborEntry> neighborTable) {
+        this.neighborTable = neighborTable;
+    }
 }

@@ -1,20 +1,21 @@
 /*
-Copyright 2019 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package com.futurewei.alcor.web.entity.port;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
 import lombok.Data;
@@ -22,12 +23,13 @@ import lombok.Data;
 import java.util.List;
 
 @Data
+@JsonInclude(JsonInclude.Include.NON_ABSENT)
 public class PortEntity extends CustomerResource {
     @JsonProperty("network_id")
     private String vpcId;
 
     @JsonProperty("admin_state_up")
-    private boolean adminStateUp;
+    private Boolean adminStateUp;
 
     @JsonProperty("mac_address")
     private String macAddress;
@@ -36,7 +38,7 @@ public class PortEntity extends CustomerResource {
     private String vethName;
 
     @JsonProperty("fast_path")
-    private boolean fastPath;
+    private Boolean fastPath;
 
     @JsonProperty("device_id")
     private String deviceId;
@@ -96,7 +98,7 @@ public class PortEntity extends CustomerResource {
     private String ipAllocation;
 
     @JsonProperty("port_security_enabled")
-    private boolean portSecurityEnabled = true;
+    private Boolean portSecurityEnabled = true;
 
     @JsonProperty("qos_network_policy_id")
     private String qosNetworkPolicyId;
@@ -105,7 +107,7 @@ public class PortEntity extends CustomerResource {
     private String qosPolicyId;
 
     @JsonProperty("revision_number")
-    private int revisionNumber;
+    private Integer revisionNumber;
 
     @JsonProperty("resource_request")
     private ResourceRequest resourceRequest;
@@ -114,22 +116,22 @@ public class PortEntity extends CustomerResource {
     private List<String> tags;
 
     @JsonProperty("uplink_status_propagation")
-    private boolean uplinkStatusPropagation;
+    private Boolean uplinkStatusPropagation;
 
     @JsonProperty("mac_learning_enabled")
-    private boolean macLearningEnabled;
+    private Boolean macLearningEnabled;
 
     public PortEntity() {
     }
 
-    public PortEntity(String vpcId, boolean adminStateUp, String macAddress, String vethName,
-                      boolean fastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps,
+    public PortEntity(String vpcId, Boolean adminStateUp, String macAddress, String vethName,
+                      Boolean fastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps,
                       List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups,
                       String bindingHostId, BindingProfile bindingProfile, BindingVifDetails bindingVifDetails, String bindingVifType,
                       String bindingVnicType, String networkNamespace, String dnsName, String dnsDomain,
                       DnsRecord dnsAssignment, String createAt, String updateAt, String ipAllocation,
-                      boolean portSecurityEnabled, String qosNetworkPolicyId, String qosPolicyId, int revisionNumber,
-                      ResourceRequest resourceRequest, List<String> tags, boolean uplinkStatusPropagation, boolean macLearningEnabled) {
+                      Boolean portSecurityEnabled, String qosNetworkPolicyId, String qosPolicyId, Integer revisionNumber,
+                      ResourceRequest resourceRequest, List<String> tags, Boolean uplinkStatusPropagation, Boolean macLearningEnabled) {
         this.vpcId = vpcId;
         this.adminStateUp = adminStateUp;
         this.macAddress = macAddress;
@@ -164,7 +166,7 @@ public class PortEntity extends CustomerResource {
         this.macLearningEnabled = macLearningEnabled;
     }
 
-    public PortEntity(CustomerResource state, String vpcId, boolean adminStateUp, String macAddress, String vethName, boolean fastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, BindingProfile bindingProfile, BindingVifDetails bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, String dnsDomain, DnsRecord dnsAssignment, String createAt, String updateAt, String ipAllocation, boolean portSecurityEnabled, String qosNetworkPolicyId, String qosPolicyId, int revisionNumber, ResourceRequest resourceRequest, List<String> tags, boolean uplinkStatusPropagation, boolean macLearningEnabled) {
+    public PortEntity(CustomerResource state, String vpcId, Boolean adminStateUp, String macAddress, String vethName, Boolean fastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, BindingProfile bindingProfile, BindingVifDetails bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, String dnsDomain, DnsRecord dnsAssignment, String createAt, String updateAt, String ipAllocation, Boolean portSecurityEnabled, String qosNetworkPolicyId, String qosPolicyId, Integer revisionNumber, ResourceRequest resourceRequest, List<String> tags, Boolean uplinkStatusPropagation, Boolean macLearningEnabled) {
         super(state);
         this.vpcId = vpcId;
         this.adminStateUp = adminStateUp;
@@ -200,7 +202,7 @@ public class PortEntity extends CustomerResource {
         this.macLearningEnabled = macLearningEnabled;
     }
 
-    public PortEntity(String projectId, String id, String name, String description, String vpcId, boolean adminStateUp, String macAddress, String vethName, boolean fastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, BindingProfile bindingProfile, BindingVifDetails bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, String dnsDomain, DnsRecord dnsAssignment, String createAt, String updateAt, String ipAllocation, boolean portSecurityEnabled, String qosNetworkPolicyId, String qosPolicyId, int revisionNumber, ResourceRequest resourceRequest, List<String> tags, boolean uplinkStatusPropagation, boolean macLearningEnabled) {
+    public PortEntity(String projectId, String id, String name, String description, String vpcId, Boolean adminStateUp, String macAddress, String vethName, Boolean fastPath, String deviceId, String deviceOwner, String status, List<FixedIp> fixedIps, List<AllowAddressPair> allowedAddressPairs, List<ExtraDhcpOpt> extraDhcpOpts, List<String> securityGroups, String bindingHostId, BindingProfile bindingProfile, BindingVifDetails bindingVifDetails, String bindingVifType, String bindingVnicType, String networkNamespace, String dnsName, String dnsDomain, DnsRecord dnsAssignment, String createAt, String updateAt, String ipAllocation, Boolean portSecurityEnabled, String qosNetworkPolicyId, String qosPolicyId, Integer revisionNumber, ResourceRequest resourceRequest, List<String> tags, Boolean uplinkStatusPropagation, Boolean macLearningEnabled) {
         super(projectId, id, name, description);
         this.vpcId = vpcId;
         this.adminStateUp = adminStateUp;
@@ -253,6 +255,9 @@ public class PortEntity extends CustomerResource {
         @JsonProperty("subnet_id")
         private String subnetId;
 
+        @JsonProperty(value = "ipV4_rangeId",access = JsonProperty.Access.WRITE_ONLY)
+        private String ipV4RangeId;
+
         @JsonProperty("ip_address")
         private String ipAddress;
 
@@ -262,6 +267,12 @@ public class PortEntity extends CustomerResource {
 
         public FixedIp(String subnetId, String ipAddress) {
             this.subnetId = subnetId;
+            this.ipAddress = ipAddress;
+        }
+
+        public FixedIp(String subnetId, String ipV4RangeId, String ipAddress) {
+            this.subnetId = subnetId;
+            this.ipV4RangeId = ipV4RangeId;
             this.ipAddress = ipAddress;
         }
 
@@ -279,6 +290,14 @@ public class PortEntity extends CustomerResource {
 
         public void setIpAddress(String ipAddress) {
             this.ipAddress = ipAddress;
+        }
+
+        public String getIpV4RangeId() {
+            return ipV4RangeId;
+        }
+
+        public void setIpV4RangeId(String ipV4RangeId) {
+            this.ipV4RangeId = ipV4RangeId;
         }
 
         @Override
@@ -301,7 +320,11 @@ public class PortEntity extends CustomerResource {
 
             FixedIp fixedIp = (FixedIp)object;
 
-            return this.subnetId == fixedIp.getSubnetId() && this.ipAddress == fixedIp.getIpAddress();
+            if(this.subnetId == null || this.ipAddress == null){
+                return false;
+            }
+
+            return this.subnetId.equals(fixedIp.getSubnetId()) && this.ipAddress.equals(fixedIp.getIpAddress());
         }
     }
 
@@ -443,11 +466,11 @@ public class PortEntity extends CustomerResource {
         this.vpcId = vpcId;
     }
 
-    public boolean isAdminStateUp() {
+    public Boolean getAdminStateUp() {
         return adminStateUp;
     }
 
-    public void setAdminStateUp(boolean adminStateUp) {
+    public void setAdminStateUp(Boolean adminStateUp) {
         this.adminStateUp = adminStateUp;
     }
 
@@ -467,11 +490,11 @@ public class PortEntity extends CustomerResource {
         this.vethName = vethName;
     }
 
-    public boolean isFastPath() {
+    public Boolean getFastPath() {
         return fastPath;
     }
 
-    public void setFastPath(boolean fastPath) {
+    public void setFastPath(Boolean fastPath) {
         this.fastPath = fastPath;
     }
 
@@ -536,7 +559,11 @@ public class PortEntity extends CustomerResource {
     }
 
     public void setBindingHostId(String bindingHostId) {
-        this.bindingHostId = bindingHostId;
+        if (bindingHostId == null) {
+            this.bindingHostId = "";
+        } else {
+            this.bindingHostId = bindingHostId;
+        }
     }
 
     public BindingProfile getBindingProfile() {
@@ -560,7 +587,11 @@ public class PortEntity extends CustomerResource {
     }
 
     public void setBindingVifType(String bindingVifType) {
-        this.bindingVifType = bindingVifType;
+        if (bindingVifType == null) {
+            this.bindingVifType = "";
+        } else {
+            this.bindingVifType = bindingVifType;
+        }
     }
 
     public String getBindingVnicType() {
@@ -568,7 +599,11 @@ public class PortEntity extends CustomerResource {
     }
 
     public void setBindingVnicType(String bindingVnicType) {
-        this.bindingVnicType = bindingVnicType;
+        if (bindingVnicType == null) {
+            this.bindingVnicType = "";
+        } else {
+            this.bindingVnicType = bindingVnicType;
+        }
     }
 
     public String getNetworkNamespace() {
@@ -627,11 +662,11 @@ public class PortEntity extends CustomerResource {
         this.ipAllocation = ipAllocation;
     }
 
-    public boolean isPortSecurityEnabled() {
+    public Boolean getPortSecurityEnabled() {
         return portSecurityEnabled;
     }
 
-    public void setPortSecurityEnabled(boolean portSecurityEnabled) {
+    public void setPortSecurityEnabled(Boolean portSecurityEnabled) {
         this.portSecurityEnabled = portSecurityEnabled;
     }
 
@@ -651,11 +686,11 @@ public class PortEntity extends CustomerResource {
         this.qosPolicyId = qosPolicyId;
     }
 
-    public int getRevisionNumber() {
+    public Integer getRevisionNumber() {
         return revisionNumber;
     }
 
-    public void setRevisionNumber(int revisionNumber) {
+    public void setRevisionNumber(Integer revisionNumber) {
         this.revisionNumber = revisionNumber;
     }
 
@@ -675,19 +710,19 @@ public class PortEntity extends CustomerResource {
         this.tags = tags;
     }
 
-    public boolean isUplinkStatusPropagation() {
+    public Boolean getUplinkStatusPropagation() {
         return uplinkStatusPropagation;
     }
 
-    public void setUplinkStatusPropagation(boolean uplinkStatusPropagation) {
+    public void setUplinkStatusPropagation(Boolean uplinkStatusPropagation) {
         this.uplinkStatusPropagation = uplinkStatusPropagation;
     }
 
-    public boolean isMacLearningEnabled() {
+    public Boolean getMacLearningEnabled() {
         return macLearningEnabled;
     }
 
-    public void setMacLearningEnabled(boolean macLearningEnabled) {
+    public void setMacLearningEnabled(Boolean macLearningEnabled) {
         this.macLearningEnabled = macLearningEnabled;
     }
 }

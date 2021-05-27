@@ -1,17 +1,17 @@
 /*
-Copyright 2019 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package com.futurewei.alcor.portmanager.util;
 
@@ -19,7 +19,7 @@ import com.futurewei.alcor.portmanager.entity.PortBindingHost;
 import com.futurewei.alcor.portmanager.entity.PortBindingRoute;
 import com.futurewei.alcor.portmanager.entity.PortNeighbors;
 import com.futurewei.alcor.portmanager.exception.*;
-import com.futurewei.alcor.web.entity.NodeInfo;
+import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
 import com.futurewei.alcor.web.entity.dataplane.InternalSubnetEntity;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
@@ -102,6 +102,9 @@ public class NetworkConfigurationUtil {
             } else if (entity instanceof PortNeighbors) {
                 PortNeighbors portNeighbors = (PortNeighbors) entity;
                 portNeighborsMap.put(portNeighbors.getVpcId(), portNeighbors);
+            } else if (entity instanceof RouteEntity) {
+                // NOTE: Router implementation is supported in the new control path in PM v2.0 implementation
+                //       Please check com.futurewei.alcor.portmanager.service.PortServiceImpl for PM v2.0 implementation
             }
         }
 
@@ -127,6 +130,8 @@ public class NetworkConfigurationUtil {
             VpcEntity vpcEntity = vpcEntityMap.get(portEntity.getVpcId());
             if (vpcEntity == null) {
                 throw new VpcEntityNotFound();
+            } else if (vpcEntity.getSegmentationId() == null || vpcEntity.getSegmentationId() <= 0) {
+                throw new VpcTunnelIdInvalid(vpcEntity.getId(), vpcEntity.getSegmentationId());
             }
 
             if (!vpcUniqueIds.contains(portEntity.getVpcId())) {
@@ -143,8 +148,7 @@ public class NetworkConfigurationUtil {
                 }
 
                 if (!subnetUniqueIds.contains(subnetId)) {
-                    // FIXME ：subnetEntity.getVpcId().hashCode() need to be changed to segmentId
-                    Long tunnelId = getTunnelId(subnetEntity);
+                    Long tunnelId = vpcEntity.getSegmentationId().longValue();
                     InternalSubnetEntity internalSubnetEntity = new InternalSubnetEntity(subnetEntity, tunnelId);
                     networkConfigMessage.addSubnetEntity(internalSubnetEntity);
                     subnetUniqueIds.add(subnetId);
@@ -186,22 +190,22 @@ public class NetworkConfigurationUtil {
 
         return networkConfigMessage;
     }
-    
-    public static Long getTunnelId (SubnetEntity subnetEntity) {
-        if (subnetEntity.getTenantId() == null) {
-            return null;
-        }
 
-        return Long.valueOf(getHashCode(subnetEntity.getVpcId()));
-    }
+//    public static Long getTunnelId (SubnetEntity subnetEntity) {
+//        if (subnetEntity.getTenantId() == null) {
+//            return null;
+//        }
+//
+//        return Long.valueOf(getHashCode(subnetEntity.getVpcId()));
+//    }
 
-    public static int getHashCode (String vpcId) {
+    public static int getHashCode(String vpcId) {
         int hashcode = vpcId.hashCode();
         if (hashcode < 0) {
             hashcode = -hashcode;
         }
-        double num = (double)(4096 * 4096) / (double)Integer.MAX_VALUE;
-        hashcode = (int)(hashcode * num);
+        double num = (double) (4096 * 4096) / (double) Integer.MAX_VALUE;
+        hashcode = (int) (hashcode * num);
 
         return hashcode;
     }

@@ -1,12 +1,14 @@
 = Message Queue Subsystem Design - Under Development
-Liguang Xie <lxie@futurewei.com>
-v0.1, 2019-10-27
+Xuwei Yang, Liguang Xie <lxie@futurewei.com>
+v0.1, 2021-01-24
 :toc: right
+:imagesdir: ../../images
 
 NOTE: This document is under development
 
 == Overview
 
+Alcor provides messaging services for controller and agent communication. Messaging services consists of two channels. GRPC and pulsar MQ.
 //[.lead]
 
 //Choosing the right data store system is always the key of developing any data-intensive application including Alcor control plane.
@@ -23,25 +25,69 @@ NOTE: This document is under development
 
 [#system-requirements]
 == System Requirements
+1. DPM can split the network configuration into multiple goal states. DPM can appropriately choose MQ or GRPC channel to send goal state to the corresponding ACA.
+2. When ACA configures goal state successfully, it returns success reply. When DPM receives replies of all goal states for a network configuration, it returns successful configuration to the caller
+3. Messaging services can support 1000,000 data compute nodes.
+4. Working together with other services including Node, Port, VPC, Data Plane managers.
+5. Fast, reliable and scalable
 
-=== Must-have features
+== Design
+=== Architecture
+image::MessageArchitecture.png[]
 
-=== Nice-to-have features
+We have two architectural design options.
 
-=== Throughput and Latency Requirements
+==== Design Option: MQ (Node Group Topic)
+===== Workflow
+image::file.png[]
+===== Data Schema for Design Option: MQ (Node Group Topic)
+image::dataSchema1.png[]
 
-== Review of Popular MQ Systems
+==== Design Option: MQ (VPC Topic) + GRPC
+===== Workflow
+image::vpcGroup.png[]
 
+===== Workflow UML
+image::MQportcreate.png[]
+
+===== MQ topic subscription or unsubscription
+image::MQsubscribe.png[600,400]
 [#FeatureComp]
-=== Feature Comparision among Selective MQ
 
-[width="100%",cols="<.^,^.<,^.<,^.<,^.<",options="header"]
+
+
+===== Channel & MQ topic Selection for each goal state
+image::channelType.png[]
+[width="100%",cols="<.^,^.<,^.<",options="header"]
 |====================
-|Name| Apache Kafka | Apache Pulsar | RocketMQ | NATS
-
+|Category| Topic | Examples
+|Unicast goal state| unicast topic | port bind、dhcp create、route info
+|Multicast goal state| multicast topic | neighbor table
+|Group multicast goal state| unicast topic & multicast topic | security group metadata & rule
 |====================
 
-Note: * means that the feature is available only in the enterprise edition.
+===== Channel Selection Algorithm
+image::channelSelectionAlg.png[]
+image::algProcess.png[]
+image::channelSelection.png[]
+
+
+
+===== Data Schema for Design Option: MQ (VPC Topic) + GRPC
+image::dataSchema2.png[]
+
+=== Task Allocation
+[width="100%",cols="<.^,^.<",options="header"]
+|====================
+|Name| Task
+|Min Chen| Interaction among managers (steps 1-5 in Workflow UML:select MQ Channel & select GRPC channel); Channel selection ALG (step 6 in Workflow UML:select MQ Channel & select GRPC channel)
+|Luyao Luo| ACA subscript/unsubscript (steps 8,9 in Workflow UML:select MQ Channel & select GRPC channel)
+|Jiawei Liu| subscript/unsubscript API (step 7 in Workflow UML:select MQ Channel & select GRPC channel); Goalstate send (steps 10,11 in Workflow UML:select MQ Channel; step 10 in Workflow UML:select GRPC channel)
+|====================
+
+
+
+//Note: * means that the feature is available only in the enterprise edition.
 
 //=== Review of Cache Store
 //
@@ -89,10 +135,10 @@ Note: * means that the feature is available only in the enterprise edition.
 //* Remove cache entry then modify database (ensure atomic operation)
 
 
-[#architecture]
-== Architectural Design
-
-Based on <<system-requirements>> and <<FeatureComp>>,
+//[#architecture]
+//== Architectural Design
+//
+//Based on <<system-requirements>> and <<FeatureComp>>,
 //Apache Ignite provides a very rich feature set that matches most of our system requirements. Specifically, it offers the following features:
 //
 //* Standalone distributed database and built-in cache services
@@ -119,24 +165,24 @@ Based on <<system-requirements>> and <<FeatureComp>>,
 //TIP: To get more details about how to scale Ignite cluster to meet the storage requirements,
 //refer to <<capacity>>.
 
-We have two architectural design options.
-
-[#MQ-only-option]
-=== Design Option: Message Queue Only
-
-MQ only
-
-[#MQ-NFS-option]
-=== Design Option: Message Queue & NFS
-
-MQ + NFS
-
-[#MQ-self-learning]
-=== Design Option: Selective Messaging & Host Self Learning
-
-Selective messaging through MQ + host self learning
+//We have two architectural design options.
+//
+//[#MQ-only-option]
+//=== Design Option: Message Queue Only
+//
+//MQ only
+//
+//[#MQ-NFS-option]
+//=== Design Option: Message Queue & NFS
+//
+//MQ + NFS
+//
+//[#MQ-self-learning]
+//=== Design Option: Selective Messaging & Host Self Learning
+//
+//Selective messaging through MQ + host self learning
 
 [bibliography]
 == References
-
 - [[[ignite_home,1]]] Apache Ignite: https://ignite.apache.org/
+- [[[pulsar_home,2]]] Apache Pulsar: http://pulsar.apache.org/

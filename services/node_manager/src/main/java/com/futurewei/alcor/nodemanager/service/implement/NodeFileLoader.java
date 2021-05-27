@@ -1,25 +1,25 @@
 /*
-Copyright 2019 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-
 package com.futurewei.alcor.nodemanager.service.implement;
 
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.nodemanager.exception.InvalidDataException;
+import com.futurewei.alcor.nodemanager.service.NodeService;
 import com.futurewei.alcor.nodemanager.utils.NodeManagerConstant;
-import com.futurewei.alcor.web.entity.NodeInfo;
+import com.futurewei.alcor.web.entity.node.NodeInfo;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -90,12 +90,13 @@ public class NodeFileLoader {
         String strMethodName = "parseNodeObject";
         NodeInfo node = null;
         String id = (String) nodeJson.get(NodeManagerConstant.JSON_ID1);
+        String name = (String)nodeJson.get(NodeManagerConstant.JSON_NAME);
         String ip = (String) nodeJson.get(NodeManagerConstant.JSON_IP1);
         String mac = (String) nodeJson.get(NodeManagerConstant.JSON_MAC1);
         String veth = (String) nodeJson.get(NodeManagerConstant.JSON_VETH1);
         int gRPCServerPort = NodeManagerConstant.GRPC_SERVER_PORT;
         try {
-            node = new NodeInfo(id, id, ip, mac, veth, gRPCServerPort);
+            node = new NodeInfo(id, name, ip, mac, veth, gRPCServerPort);
             String message = "";
             if (node.validateIp(ip) == false)
                 message = NodeManagerConstant.NODE_EXCEPTION_IP_FORMAT_INVALID;
@@ -109,6 +110,8 @@ public class NodeFileLoader {
                 logger.error(strMethodName+NodeManagerConstant.NODE_EXCEPTION_IP_FORMAT_INVALID);
                 throw new InvalidDataException(NodeManagerConstant.NODE_EXCEPTION_IP_FORMAT_INVALID);
             }
+            String ncm_id = (String)nodeJson.get(NodeManagerConstant.JSON_NCM_ID);
+            node.setNcmId(ncm_id);
         } catch (Exception e) {
             logger.error(strMethodName+e.getMessage());
             throw e;

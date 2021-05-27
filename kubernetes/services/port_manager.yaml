@@ -7,6 +7,8 @@ data:
     ignite.thin.client.enable=true
     ignite.host=ignite-alcor-port-service.ignite-alcor-port.svc.cluster.local
     ignite.port=10802
+    server.max-http-header-size=16384
+    server.max-initial-line-length=65536
     logging.level.root=DEBUG
     microservices.vpc.service.url=http://vpcmanager-service.default.svc.cluster.local:9001
     microservices.subnet.service.url=http://subnetmanager-service.default.svc.cluster.local:9002
@@ -14,10 +16,13 @@ data:
     microservices.mac.service.url=http://macmanager-service.default.svc.cluster.local:9005/macs
     microservices.sg.service.url=http://sgmanager-service.default.svc.cluster.local:9008
     microservices.route.service.url=http://routemanager-service.default.svc.cluster.local:9003/routes
+    microservices.router.service.url=http://routemanager-service.default.svc.cluster.local:9003
     microservices.node.service.url=http://nodemanager-service.default.svc.cluster.local:9007/nodes
-    microservices.dataplane.service.url=http://dataplanemanager-service.default.svc.cluster.local:9010/v4/port/
+    microservices.dataplane.service.url=http://dataplanemanager-service.default.svc.cluster.local:9010/network-configuration
     microservices.elasticip.service.url=http://eipmanager-service.default.svc.cluster.local:9011
     alcor.vif_type=ovs
+    Spring.mvc.async.request-timeout=30000
+
 ---
 apiVersion: apps/v1
 kind: Deployment

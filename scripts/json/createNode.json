@@ -1,0 +1,10 @@
+{
+  "host_info": {
+    "local_ip": "10.213.43.161",
+    "mac_address": "90:17:ac:c1:34:64",
+    "node_id": "9192a4d4-ffff-4ece-b3f0-8d36e3d85002",
+    "node_name": "node2",
+    "server_port": 8080,
+    "veth": "eth0"
+  }
+}

@@ -1,19 +1,18 @@
 /*
-Copyright 2019 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-
 package com.futurewei.alcor.privateipmanager.service.implement;
 
 import com.futurewei.alcor.common.stats.DurationStatistics;
@@ -288,5 +287,80 @@ public class IpAddrServiceImpl implements IpAddrService {
         LOG.info("List ip address range success, result: {}", result);
 
         return result;
+    }
+
+    @Override
+    @DurationStatistics
+    public List<IpAddrRequest> updateIpAddr(IpAddrUpdateRequest request) throws Exception {
+
+        Map<String, List<String>> rangeToIpAddrList = null;
+
+        Map<String, List<IpAddrRequest>> rangeRequests = null;
+        Map<String, List<IpAddrRequest>> vpcIpv4Requests = null;
+        Map<String, List<IpAddrRequest>> vpcIpv6Requests = null;
+
+        if (request.getOldIpAddrRequests().size()>0){
+            if (request.getOldIpAddrRequests().size()>1){
+                LOG.debug("Release ip address bulk, requestBulk: {}", request.getOldIpAddrRequests());
+                rangeToIpAddrList = new HashMap<>();
+                for (IpAddrRequest ipAddrRequest: request.getOldIpAddrRequests()) {
+                    List<String> ipAddrList = rangeToIpAddrList.computeIfAbsent(ipAddrRequest.getRangeId(), k -> new ArrayList<>());
+                    ipAddrList.add(ipAddrRequest.getIp());
+                    ipAddrRequest.setState(IpAddrState.FREE.getState());
+                }
+            }else {
+                LOG.debug("Release ip address, ipAddr: {}", request.getOldIpAddrRequests().get(0).getIp());
+            }
+        }
+
+        if (request.getNewIpAddrRequests().size()>0){
+            if (request.getNewIpAddrRequests().size()>1){
+                LOG.debug("Allocate ip address bulk, requestBulk: {}", request.getNewIpAddrRequests());
+                rangeRequests = new HashMap<>();
+                vpcIpv4Requests = new HashMap<>();
+                vpcIpv6Requests = new HashMap<>();
+
+                for (IpAddrRequest ipAddrRequest: request.getNewIpAddrRequests()) {
+                    if (ipAddrRequest.getRangeId() != null) {
+                        if (!rangeRequests.containsKey(ipAddrRequest.getRangeId())) {
+                            rangeRequests.put(ipAddrRequest.getRangeId(), new ArrayList<>());
+                        }
+                        rangeRequests.get(ipAddrRequest.getRangeId()).add(ipAddrRequest);
+                    } else if (ipAddrRequest.getVpcId() != null) {
+                        if (IpVersion.IPV4.getVersion() == ipAddrRequest.getIpVersion()) {
+                            if (!vpcIpv4Requests.containsKey(ipAddrRequest.getVpcId())) {
+                                vpcIpv4Requests.put(ipAddrRequest.getVpcId(), new ArrayList<>());
+                            }
+                            vpcIpv4Requests.get(ipAddrRequest.getVpcId()).add(ipAddrRequest);
+                        } else {
+                            if (!vpcIpv6Requests.containsKey(ipAddrRequest.getVpcId())) {
+                                vpcIpv6Requests.put(ipAddrRequest.getVpcId(), new ArrayList<>());
+                            }
+                            vpcIpv6Requests.get(ipAddrRequest.getVpcId()).add(ipAddrRequest);
+                        }
+                    }
+                }
+            }else {
+                LOG.debug("Allocate ip address, request: {}", request.getNewIpAddrRequests().get(0));
+            }
+        }
+
+        List<IpAddrAlloc> ipAddrAllocList = ipAddrRangeRepo.updateIpAddr(request, rangeToIpAddrList, rangeRequests, vpcIpv4Requests, vpcIpv6Requests);
+
+        List<IpAddrRequest> ipAddrRequests = new ArrayList<>();
+        if(ipAddrAllocList!=null){
+            for (IpAddrAlloc ipAddrAlloc: ipAddrAllocList) {
+                IpAddrRequest ipAddrRequest = new IpAddrRequest();
+                ipAddrRequest.setIpVersion(ipAddrAlloc.getIpVersion());
+                ipAddrRequest.setSubnetId(ipAddrAlloc.getSubnetId());
+                ipAddrRequest.setRangeId(ipAddrAlloc.getRangeId());
+                ipAddrRequest.setIp(ipAddrAlloc.getIpAddr());
+                ipAddrRequest.setState(ipAddrAlloc.getState());
+                ipAddrRequests.add(ipAddrRequest);
+            }
+            LOG.info("Update Ip Success, ipAddrRequests: {}",ipAddrRequests);
+        }
+
+        return ipAddrRequests;
     }
 }

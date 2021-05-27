@@ -1,17 +1,17 @@
 /*
-Copyright 2019 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package com.futurewei.alcor.portmanager.util;
 
@@ -20,8 +20,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.common.enumClass.RouteTableType;
 import com.futurewei.alcor.portmanager.config.UnitTestConfig;
 import com.futurewei.alcor.portmanager.entity.PortNeighbors;
-import com.futurewei.alcor.web.entity.NodeInfo;
-import com.futurewei.alcor.web.entity.NodeInfoJson;
+import com.futurewei.alcor.portmanager.entity.SubnetPortIds;
+import com.futurewei.alcor.web.entity.ip.IpAddrUpdateRequest;
+import com.futurewei.alcor.web.entity.node.NodeInfo;
+import com.futurewei.alcor.web.entity.node.NodeInfoJson;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.elasticip.ElasticIpInfo;
 import com.futurewei.alcor.web.entity.elasticip.ElasticIpInfoWrapper;
@@ -33,14 +35,12 @@ import com.futurewei.alcor.web.entity.mac.MacStateBulkJson;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortWebJson;
-import com.futurewei.alcor.web.entity.route.ConnectedSubnetsWebResponse;
-import com.futurewei.alcor.web.entity.route.RouteEntity;
-import com.futurewei.alcor.web.entity.route.RouteWebJson;
-import com.futurewei.alcor.web.entity.route.RoutesWebJson;
+import com.futurewei.alcor.web.entity.route.*;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupsJson;
+import com.futurewei.alcor.web.entity.subnet.GatewayPortDetail;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
 import com.futurewei.alcor.web.entity.subnet.SubnetsWebJson;
@@ -91,6 +91,15 @@ public class ResourceBuilder {
         ipAddrRequest.setState(IpAddrState.ACTIVATED.getState());
 
         return ipAddrRequest;
+    }
+
+    public static IpAddrUpdateRequest buildIpAddrUpdateRequest(String ipAddress) {
+        IpAddrUpdateRequest ipAddrUpdateRequest = new IpAddrUpdateRequest();
+        IpAddrRequest ipAddrRequest = buildIpv4AddrRequest(ipAddress);
+        ipAddrUpdateRequest.setOldIpAddrRequests(Collections.singletonList(ipAddrRequest));
+        ipAddrUpdateRequest.setNewIpAddrRequests(Collections.singletonList(ipAddrRequest));
+
+        return ipAddrUpdateRequest;
     }
 
     public static IpAddrRequestBulk buildIpAddrRequestBulk() {
@@ -157,7 +166,7 @@ public class ResourceBuilder {
         subnetEntity.setVpcId(UnitTestConfig.vpcId);
         subnetEntity.setIpV4RangeId(UnitTestConfig.rangeId);
         subnetEntity.setGatewayIp(UnitTestConfig.ip1);
-        subnetEntity.setGatewayMacAddress(UnitTestConfig.mac1);
+        subnetEntity.setGatewayPortDetail(new GatewayPortDetail(UnitTestConfig.mac1, UnitTestConfig.portId1));
 
         return new SubnetWebJson(subnetEntity);
     }
@@ -171,7 +180,7 @@ public class ResourceBuilder {
         subnetEntity.setVpcId(UnitTestConfig.vpcId);
         subnetEntity.setIpV4RangeId(UnitTestConfig.rangeId);
         subnetEntity.setGatewayIp(UnitTestConfig.ip1);
-        subnetEntity.setGatewayMacAddress(UnitTestConfig.mac1);
+        subnetEntity.setGatewayPortDetail(new GatewayPortDetail(UnitTestConfig.mac1, UnitTestConfig.portId1));
 
         return new SubnetsWebJson(Collections.singletonList(subnetEntity));
     }
@@ -338,10 +347,26 @@ public class ResourceBuilder {
     }
 
     public static ConnectedSubnetsWebResponse buildRouterSubnets() {
-        List<String> subnetIds = new ArrayList<>();
-        subnetIds.add(UnitTestConfig.subnetId);
-        subnetIds.add(UnitTestConfig.subnetId2);
-        ConnectedSubnetsWebResponse routerSubnets = new ConnectedSubnetsWebResponse(null, subnetIds);
+        List<SubnetEntity> subnetEntities = new ArrayList<>();
+        SubnetEntity subnetEntity1 = new SubnetEntity(UnitTestConfig.projectId, UnitTestConfig.vpcId, UnitTestConfig.subnetId, "Subnet1", UnitTestConfig.subnet1Cidr);
+        SubnetEntity subnetEntity2 = new SubnetEntity(UnitTestConfig.projectId, UnitTestConfig.vpcId, UnitTestConfig.subnetId2, "Subnet2", UnitTestConfig.subnet2Cidr);
+        subnetEntities.add(subnetEntity1);
+        subnetEntities.add(subnetEntity1);
+
+        InternalRouterInfo router = new InternalRouterInfo();
+        ConnectedSubnetsWebResponse routerSubnets = new ConnectedSubnetsWebResponse(router, subnetEntities);
         return routerSubnets;
+    }
+
+    public static int buildSubnetPorts() {
+        SubnetPortIds subnetPortIds = new SubnetPortIds();
+        subnetPortIds.setSubnetId(UnitTestConfig.subnetId);
+
+        Set<String> portIds = new HashSet<>();
+        portIds.add(UnitTestConfig.portId1);
+        portIds.add(UnitTestConfig.portId2);
+        subnetPortIds.setPortIds(portIds);
+
+        return subnetPortIds.getPortIds().size();
     }
 }

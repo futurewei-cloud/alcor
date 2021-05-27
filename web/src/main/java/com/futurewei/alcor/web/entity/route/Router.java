@@ -1,17 +1,17 @@
 /*
-Copyright 2019 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package com.futurewei.alcor.web.entity.route;
 
@@ -33,7 +33,7 @@ public class Router extends CustomerResource {
     private List<RouteTable> neutronSubnetRouteTables;
 
     @JsonProperty("routetables")
-    private List<RouteTable> vpcRouteTable;
+    private List<RouteTable> vpcRouteTables;
 
     // store vpc_default_route_table_id
     @JsonProperty("vpc_default_route_table_id")
@@ -48,8 +48,8 @@ public class Router extends CustomerResource {
     private String routerExtraAttributeId;
 
     // store subnet_gateway_port_id
-    @JsonProperty("ports")
-    private List<String> ports;
+    @JsonProperty("gateway_ports")
+    private List<String> gatewayPorts;
 
     @JsonProperty("tenant_id")
     private String tenantId;
@@ -68,28 +68,39 @@ public class Router extends CustomerResource {
     @JsonProperty("updated_at")
     private String updated_at;
 
-    public Router() {}
+    public Router() {
+    }
 
     public Router(String projectId, String Id, String name, String description, RouteTable neutronRouteTable) {
         super(projectId, Id, name, description);
         this.neutronRouteTable = neutronRouteTable;
     }
 
-    public Router(String projectId, String Id, String name, String description, List<RouteTable> vpcRouteTable) {
+    public Router(String projectId, String Id, String name, String description, List<RouteTable> vpcRouteTables) {
         super(projectId, Id, name, description);
-        this.vpcRouteTable = vpcRouteTable;
+        this.vpcRouteTables = vpcRouteTables;
     }
 
-    public Router(String projectId, String id, String name, String description, RouteTable neutronRouteTable, List<RouteTable> vpcRouteTable, String owner, List<String> ports, String tenantId, boolean adminStateUp, String status, String routerExtraAttributeId, String vpcDefaultRouteTableId) {
+    public Router(String projectId, String id, String name, String description,
+                  RouteTable neutronRouteTable, List<RouteTable> vpcRouteTables, String owner, List<String> gatewayPorts,
+                  String tenantId, boolean adminStateUp, String status, String routerExtraAttributeId,
+                  String vpcDefaultRouteTableId) {
         super(projectId, id, name, description);
         this.neutronRouteTable = neutronRouteTable;
-        this.vpcRouteTable = vpcRouteTable;
+        this.vpcRouteTables = vpcRouteTables;
         this.owner = owner;
-        this.ports = ports;
+        this.gatewayPorts = gatewayPorts;
         this.tenantId = tenantId;
         this.adminStateUp = adminStateUp;
         this.status = status;
         this.routerExtraAttributeId = routerExtraAttributeId;
         this.vpcDefaultRouteTableId = vpcDefaultRouteTableId;
+    }
+
+    public Router(Router r) {
+        this(r.getProjectId(), r.getId(), r.getName(), r.getDescription(),
+                r.getNeutronRouteTable(), r.getVpcRouteTables(), r.getOwner(), r.getGatewayPorts(),
+                r.getTenantId(), true, r.getStatus(), r.getRouterExtraAttributeId(),
+                r.getVpcDefaultRouteTableId());
     }
 }

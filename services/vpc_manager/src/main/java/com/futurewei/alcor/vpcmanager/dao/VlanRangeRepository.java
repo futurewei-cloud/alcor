@@ -1,3 +1,18 @@
+/*
+MIT License
+Copyright(c) 2020 Futurewei Cloud
+
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
 package com.futurewei.alcor.vpcmanager.dao;
 
 import com.futurewei.alcor.common.db.CacheException;
@@ -7,22 +22,24 @@ import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.vpcmanager.config.ConstantsConfig;
+import com.futurewei.alcor.vpcmanager.entity.KeyAlloc;
+import com.futurewei.alcor.vpcmanager.entity.NetworkRangeRequest;
+import com.futurewei.alcor.vpcmanager.entity.NetworkVlanRange;
 import com.futurewei.alcor.vpcmanager.exception.InternalDbOperationException;
 import com.futurewei.alcor.vpcmanager.exception.NetworkRangeExistException;
 import com.futurewei.alcor.vpcmanager.exception.NetworkRangeNotFoundException;
-import com.futurewei.alcor.vpcmanager.entity.NetworkVlanRange;
-import com.futurewei.alcor.vpcmanager.entity.NetworkRangeRequest;
-import com.futurewei.alcor.vpcmanager.entity.KeyAlloc;
 import com.futurewei.alcor.vpcmanager.exception.RangeNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Repository
 public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
@@ -88,6 +105,13 @@ public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
             e.printStackTrace();
             logger.error("VlanRangeRepository addItem() exception:", e);
         }
+    }
+
+    @Override
+    @DurationStatistics
+    public synchronized void addItems(List<NetworkVlanRange> items) throws CacheException {
+        Map<String, NetworkVlanRange> networkVlanRangeMap = items.stream().collect(Collectors.toMap(NetworkVlanRange::getId, Function.identity()));
+        cache.putAll(networkVlanRangeMap);
     }
 
     @Override

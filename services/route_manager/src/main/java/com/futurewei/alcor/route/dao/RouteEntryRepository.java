@@ -1,23 +1,24 @@
 /*
-Copyright 2019 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package com.futurewei.alcor.route.dao;
 
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
@@ -27,8 +28,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 @Repository
 public class RouteEntryRepository implements ICacheRepository<RouteEntry> {
@@ -71,15 +75,35 @@ public class RouteEntryRepository implements ICacheRepository<RouteEntry> {
     @Override
     @DurationStatistics
     public void addItem(RouteEntry routeEntry) throws CacheException {
-        logger.log(Level.INFO, "Add route entry, route entry Id:" + routeEntry.getId());
-        cache.put(routeEntry.getId(), routeEntry);
+        try (Transaction tx = cache.getTransaction().start()) {
 
+            logger.log(Level.INFO, "Add route entry, route entry Id:" + routeEntry.getId());
+            cache.put(routeEntry.getId(), routeEntry);
+
+            tx.commit();
+        } catch (Exception e) {
+            throw new CacheException();
+        }
+    }
+
+    @Override
+    @DurationStatistics
+    public void addItems(List<RouteEntry> items) throws CacheException {
+        Map<String, RouteEntry> routeEntryMap = items.stream().collect(Collectors.toMap(RouteEntry::getId, Function.identity()));
+        cache.putAll(routeEntryMap);
     }
 
     @Override
     @DurationStatistics
     public void deleteItem(String id) throws CacheException {
-        logger.log(Level.INFO, "Delete route entry, route entry Id:" + id);
-        cache.remove(id);
+        try (Transaction tx = cache.getTransaction().start()) {
+
+            logger.log(Level.INFO, "Delete route entry, route entry Id:" + id);
+            cache.remove(id);
+
+            tx.commit();
+        } catch (Exception e) {
+            throw new CacheException();
+        }
     }
 }

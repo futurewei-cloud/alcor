@@ -34,13 +34,19 @@ To set up your local development environment, we recommend to use fork-and-branc
     $ git add .
     & git commit -m "commit message"
     ```
-6. Push changes to your remote fork
+6. Rebase your feature branch when there are changes in offical master, this is needed before submitting a PR
+    ```
+    $ git fetch upstream
+    $ git rebase upstream/master
+    $ git push
+    ```
+7. Push changes to your remote fork
     ```
     $ git push origin <new_branch_name>
     ```
-7. Open a Pull Request on Alcor home page, notify community on [Alcor Slack](https://alcor-networking.slack.com/) channels.
+8. Open a Pull Request on Alcor home page, notify community on [Alcor Slack](https://alcor-networking.slack.com/) channels.
 You will need approval from at least one maintainer, who will merge your codes to Alcor master.
-8. Clean up after a merged Pull Request
+9. Clean up after a merged Pull Request
     ```
     $ git checkout master
     $ git pull upstream master
@@ -58,7 +64,7 @@ $  mvn clean install
 
 You could expect to see _BUILD SUCCESS_ at the end of the build console.
 
-![Alcor Build](modules/ROOT/images/alcor_build.JPG)
+<img src="modules/ROOT/images/alcor_build.png" alt="Alcor Build" width="720">
 
 Deploy an Ignite database for local testing and run unit tests.
 If this step passes, then you have everything needed to develop, test, and run Alcor.

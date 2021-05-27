@@ -6,6 +6,40 @@ data:
   application.properties: |
     dataplane.grpc.port = 50001
     dataplane.isovs=true
+    # the zipkin host should be YOURS
+    spring.zipkin.base-url=http://10.213.43.187:9411
+    
+    grpc.min-threads = 100
+    grpc.max-threads = 200
+    grpc.threads-pool-name = grpc-thread-pool
+    #DPM v1 is statically using version 101
+    #DPM v2 will start with version 102
+    protobuf.goal-state-message.version = 102
+
+    #logging.file.path=./
+    #logging.file.name=data-plane-manager.log
+    logging.level.root=DEBUG
+
+    ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
+    ignite.port=10800
+    ignite.thin.client.enable=true
+    #ignite.key-store-path=keystore.jks
+    #ignite.key-store-password=123456
+    #ignite.trust-store-path=truststore.jks
+    #ignite.trust-store-password=123456
+
+    mq.type=pulsar
+    pulsar.url=pulsar://127.0.0.1:6650
+    pulsar.unicast.topic=unicast-topic1
+    host.ip.to.group.topic.map=group-topic1:192.168.131.131,10.10.10.11 group-topic2:192.168.131.131,11.11.11.12
+    group.topic.to.multicast.topic.map=multicast-topic1:group-topic1,group-topic3 multicast-topic2:group-topic2,group-topic4
+
+    zetaGateway.enabled=false
+    microservices.zeta.management.url=http://10.213.43.90
+    microservices.gateway.service.url=http://localhost:9015
+    zetaGateway.check.timeout = 30
+    zetaGateway.check.interval = 2
+
 ---
 apiVersion: apps/v1
 kind: Deployment

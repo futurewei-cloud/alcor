@@ -1,10 +1,28 @@
+/*
+MIT License
+Copyright(c) 2020 Futurewei Cloud
+
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
 package com.futurewei.alcor.vpcmanager.service.Impl;
 
+import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
 import com.futurewei.alcor.vpcmanager.exception.SubnetsNotEmptyException;
 import com.futurewei.alcor.vpcmanager.service.SegmentService;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.vpcmanager.service.VpcService;
+import com.futurewei.alcor.web.entity.gateway.VpcInfo;
+import com.futurewei.alcor.web.entity.gateway.VpcInfoJson;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
@@ -29,6 +47,9 @@ public class VpcServiceImpl implements VpcService {
 
     @Value("${microservices.route.service.url}")
     private String routeUrl;
+
+    @Value("${microservices.gateway.service.url}")
+    private String gatewayUrl;
 
     private RestTemplate restTemplate = new RestTemplate();
 
@@ -101,5 +122,20 @@ public class VpcServiceImpl implements VpcService {
             throw new SubnetsNotEmptyException();
         }
         return true;
+    }
+
+    @Override
+    public ResponseId registerVpc(VpcEntity vpcEntity) {
+        String url = gatewayUrl + "project/" + vpcEntity.getProjectId() + "/gatewayinfo";
+        VpcInfo vpcInfo = new VpcInfo(vpcEntity.getId(), vpcEntity.getSegmentationId().toString(), vpcEntity.getProjectId());
+        HttpEntity<VpcInfoJson> vpcHttpEntity = new HttpEntity<>(new VpcInfoJson(vpcInfo));
+        return restTemplate.postForObject(url, vpcHttpEntity, ResponseId.class);
+    }
+
+    @Override
+    public ResponseId unRegisterVpc(VpcEntity vpcEntity) {
+        String url = gatewayUrl + "project/" + vpcEntity.getProjectId() + "/gatewayinfo/" + vpcEntity.getId();
+        restTemplate.delete(url);
+        return new ResponseId(vpcEntity.getId());
     }
 }

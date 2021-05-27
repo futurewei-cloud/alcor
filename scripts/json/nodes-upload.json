@@ -1,0 +1,49 @@
+{
+   "host_infos": [
+      {
+         "local_ip": "30.213.43.10",
+         "node_id": "e109465c-5ed6-400e-806d-fbefd12f94a9",
+         "mac_address": "D1:A0:C9:34:C8:29",
+         "node_name": "upl009030",
+         "server_port": 50001,
+         "veth": "eth0",
+         "ncm_id" : "test_ncm_001"
+      },
+      {
+         "local_ip": "30.213.43.11",
+         "node_id": "e209465c-5ed6-400e-806d-fbefd12f94a9",
+         "mac_address": "D2:A0:C9:34:C8:29",
+         "node_name": "upl009031",
+         "server_port": 50001,
+         "veth": "eth0",
+         "ncm_id" : "test_ncm_001"
+      },
+      {
+         "local_ip": "30.213.43.13",
+         "node_id": "e309465c-5ed6-400e-806d-fbefd12f94a9",
+         "mac_address": "D3:A0:C9:34:C8:29",
+         "node_name": "upl009032",
+         "server_port": 50001,
+         "veth": "eth0",
+         "ncm_id" : "test_ncm_001"
+      },
+      {
+         "local_ip": "30.213.43.14",
+         "node_id": "e409465c-5ed6-400e-806d-fbefd12f94a9",
+         "mac_address": "D4:A0:C9:34:C8:29",
+         "node_name": "upl009033",
+         "server_port": 50001,
+         "veth": "eth0",
+         "ncm_id" : "test_ncm_001"
+      },
+      {
+         "local_ip": "30.213.43.15",
+         "node_id": "e509465c-5ed6-400e-806d-fbefd12f94a9",
+         "mac_address": "D5:A0:C9:34:C8:29",
+         "node_name": "upl009034",
+         "server_port": 50001,
+         "veth": "eth0",
+         "ncm_id" : "test_ncm_001"
+      }
+   ]
+}

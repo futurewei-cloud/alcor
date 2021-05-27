@@ -1,3 +1,19 @@
+/*
+MIT License
+Copyright(c) 2020 Futurewei Cloud
+
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
 package com.futurewei.alcor.dataplane.config;
 
 public class UnitTestConfig {
@@ -1093,7 +1109,7 @@ public class UnitTestConfig {
             "{\n" +
             "   \"rsType\":\"PORT\",\n" +
             "   \"opType\":\"CREATE\",\n" +
-            "   \"portEntities\":[\n" +
+            "   \"ports_internal\":[\n" +
             "      {\n" +
             "         \"bindingHostIP\":\"10.213.43.187\",\n" +
             "         \"adminStateUp\":true,\n" +
@@ -1187,7 +1203,7 @@ public class UnitTestConfig {
             "         \"id\":\"f37810eb-7f83-45fa-a4d4-1b31e75399d7\"\n" +
             "      }\n" +
             "   ],\n" +
-            "   \"vpcs\":[\n" +
+            "   \"vpcs_internal\":[\n" +
             "      {\n" +
             "         \"cidr\":\"192.168.0.0/16\",\n" +
             "         \"adminStateUp\":false,\n" +
@@ -1202,7 +1218,7 @@ public class UnitTestConfig {
             "         \"id\":\"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\"\n" +
             "      }\n" +
             "   ],\n" +
-            "   \"subnets\":[\n" +
+            "   \"subnets_internal\":[\n" +
             "      {\n" +
             "         \"tunnelId\":88889,\n" +
             "         \"vpcId\":\"9192a4d4-ffff-4ece-b3f0-8d36e3d88038\",\n" +
@@ -1217,7 +1233,7 @@ public class UnitTestConfig {
             "         \"id\":\"a87e0f87-a2d9-44ef-9194-9a62f178594f\"\n" +
             "      }\n" +
             "   ],\n" +
-            "   \"securityGroups\":[\n" +
+            "   \"security_groups_internal\":[\n" +
             "      {\n" +
             "\n" +
             "      },\n" +
