@@ -15,8 +15,6 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.dataplane.service.impl;
 
-import com.futurewei.alcor.common.db.CacheException;
-import com.futurewei.alcor.dataplane.cache.SubnetPortsCache;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.exception.NeighborInfoNotFound;
@@ -27,17 +25,12 @@ import com.futurewei.alcor.web.entity.dataplane.NeighborEntry;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortEntity;
-import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
 public class NeighborService extends ResourceService {
-    @Autowired
-    private SubnetPortsCache subnetPortsCache;
-
     public Neighbor.NeighborState buildNeighborState(NeighborEntry.NeighborType type, NeighborInfo neighborInfo, Common.OperationType operationType) {
         Neighbor.NeighborConfiguration.Builder neighborConfigBuilder = Neighbor.NeighborConfiguration.newBuilder();
         neighborConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
@@ -140,7 +133,7 @@ public class NeighborService extends ResourceService {
                         throw new NeighborInfoNotFound();
                     }
 
-                    if (hostIp.equals(neighborInfo.getHostIp())) {
+                    if (hostIp.equals(neighborInfo.getHostIp()) && !neighborEntry.getNeighborType().equals(NeighborEntry.NeighborType.L3)) {
                         continue;
                     }
 
