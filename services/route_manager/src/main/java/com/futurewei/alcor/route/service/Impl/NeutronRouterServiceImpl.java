@@ -57,6 +57,8 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
     @Autowired
     private RouterToPMService routerToPMService;
 
+    @Autowired
+    private RouterService routerService;
 
     @Override
     public NeutronRouterWebRequestObject getNeutronRouter(String routerId) throws ResourceNotFoundException, ResourcePersistenceException, RouterUnavailable {
@@ -292,6 +294,10 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         // check if you try to delete the router interface for subnets that are used by one or more route
         projectId = subnet.getProjectId();
         attachedRouterId = subnet.getAttachedRouterId();
+        if (attachedRouterId == null) {
+            throw new ResourceNotFoundException();
+        }
+
         String gatewayIp = subnet.getGatewayIp();
         if (gatewayIp != null) {
             RouteTable routeTable = router.getNeutronRouteTable();
@@ -759,13 +765,26 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         List<InternalSubnetRoutingTable> subnetRoutingTables = new ArrayList<>();
         for (Map.Entry<String,String> entry : gwPortToSubnetIdMap.entrySet()) {
             // NOTE: We assume that Neutron router only has one route table here
+            // TODO: need to deal with Neutron router's default routing table
             RouteTable neutronRouteTable = router.getNeutronRouteTable();
 
             InternalSubnetRoutingTable internalSubnetRoutingTable = new InternalSubnetRoutingTable();
             internalSubnetRoutingTable.setSubnetId(entry.getValue());
+            RouteTable subnetRouteTable = null;
+            try {
+                subnetRouteTable = this.routerService.getSubnetRouteTable(router.getProjectId(), entry.getValue());
+            } catch (CanNotFindSubnet | CacheException | OwnMultipleSubnetRouteTablesException |
+                    DatabasePersistenceException | ResourceNotFoundException | ResourcePersistenceException |
+                    OwnMultipleVpcRouterException | CanNotFindVpc canNotFindSubnet) {
+                logger.log(Level.WARNING, "Subnet" + entry.getValue() + "'s routing table is empty!");;
+            }
 
             List<InternalRoutingRule> routingRules = new ArrayList<>();
-            List<RouteEntry> routeEntities = neutronRouteTable.getRouteEntities();
+            List<RouteEntry> routeEntities = new ArrayList<>();
+            //List<RouteEntry> routeEntities = neutronRouteTable.getRouteEntities();
+            if (subnetRouteTable != null) {
+                routeEntities = subnetRouteTable.getRouteEntities();
+            }
             for (RouteEntry routeEntry : routeEntities) {
                 InternalRoutingRule internalRoutingRule = new InternalRoutingRule();
                 internalRoutingRule.setId(routeEntry.getId());

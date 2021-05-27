@@ -39,6 +39,8 @@ public class DhcpService extends ResourceService {
                 dhcpConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
                 dhcpConfigBuilder.setMacAddress(macAddress);
                 dhcpConfigBuilder.setIpv4Address(fixedIp.getIpAddress());
+                dhcpConfigBuilder.setSubnetId(fixedIp.getSubnetId());
+
                 //TODO: support ipv6
                 //dhcpConfigBuilder.setIpv6Address();
                 //dhcpConfigBuilder.setPortHostName();

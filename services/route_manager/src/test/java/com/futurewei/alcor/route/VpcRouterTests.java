@@ -18,10 +18,7 @@ package com.futurewei.alcor.route;
 import com.futurewei.alcor.common.enumClass.RouteTableType;
 import com.futurewei.alcor.route.config.UnitTestConfig;
 import com.futurewei.alcor.route.service.*;
-import com.futurewei.alcor.web.entity.route.NewRoutesWebRequest;
-import com.futurewei.alcor.web.entity.route.RouteTable;
-import com.futurewei.alcor.web.entity.route.Router;
-import com.futurewei.alcor.web.entity.route.UpdateRoutingRuleResponse;
+import com.futurewei.alcor.web.entity.route.*;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetsWebJson;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
@@ -313,13 +310,17 @@ public class VpcRouterTests {
         routetable2.setId(UnitTestConfig.routeTableId2);
 
         Mockito.when(routeTableDatabaseService.getAllRouteTables(anyMap()))
-                .thenReturn(new HashMap<String, RouteTable>(){{put(UnitTestConfig.routeTableId, routetable1);put(UnitTestConfig.routeTableId2, routetable2);}});
-
+                .thenReturn(new HashMap<String, RouteTable>() {
+                    {
+                        put(UnitTestConfig.routeTableId, routetable1);
+                        put(UnitTestConfig.routeTableId2, routetable2);
+                    }
+                });
         try {
             this.mockMvc.perform(get(subnetRouteTableUri))
                     .andDo(print())
                     .andExpect(status().is(500));
-        }catch (Exception e) {
+        } catch (Exception e) {
             assertEquals("exist multiple subnet routetable searched by subnet id", e.getMessage());
             System.out.println("-----json returned =" + e.getMessage());
         }
@@ -334,7 +335,16 @@ public class VpcRouterTests {
         Mockito.when(routeTableDatabaseService.getAllRouteTables(anyMap()))
                 .thenReturn(new HashMap<String, RouteTable>(){{put(UnitTestConfig.routeTableId, routetable);}});
         Mockito.when(neutronRouterService.updateRoutingRule(anyString(), any(NewRoutesWebRequest.class), anyBoolean()))
-                .thenReturn(new UpdateRoutingRuleResponse(){{setHostRouteToSubnet(new ArrayList<>());}});
+                .thenReturn(new UpdateRoutingRuleResponse() {
+                    {
+                        setHostRouteToSubnet(new ArrayList<>());
+                        setInternalSubnetRoutingTable(new InternalSubnetRoutingTable() {
+                            {
+                                setRoutingRules(new ArrayList<>());
+                            }
+                        });
+                    }
+                });
         this.mockMvc.perform(put(subnetRouteTableUri).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.subnetRouteTableResource))
                 .andDo(print())

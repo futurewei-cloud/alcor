@@ -61,6 +61,12 @@ public class SubnetService extends ResourceService {
         }
 
         for (InternalSubnetEntity subnetEntity: subnetEntities) {
+            // check if subnet state already exists in the unicastGoalState
+            if (unicastGoalState.getGoalStateBuilder().getSubnetStatesList().stream()
+                    .filter(e -> e.getConfiguration().getId().equals(subnetEntity.getId()))
+                    .findFirst().orElse(null) != null) {
+                continue;
+            }
             Subnet.SubnetConfiguration.Builder subnetConfigBuilder = Subnet.SubnetConfiguration.newBuilder();
             subnetConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
             subnetConfigBuilder.setId(subnetEntity.getId());
