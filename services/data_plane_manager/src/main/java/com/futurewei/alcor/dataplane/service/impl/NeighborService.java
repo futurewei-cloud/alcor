@@ -133,6 +133,10 @@ public class NeighborService extends ResourceService {
                         throw new NeighborInfoNotFound();
                     }
 
+                    if (hostIp.equals(neighborInfo.getHostIp()) && !neighborEntry.getNeighborType().equals(NeighborEntry.NeighborType.L3)) {
+                        continue;
+                    }
+
                     unicastGoalState.getGoalStateBuilder().addNeighborStates(buildNeighborState(
                             neighborEntry.getNeighborType(), neighborInfo, networkConfig.getOpType()));
                     multicastNeighborEntries.add(neighborEntry);
