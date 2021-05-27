@@ -137,6 +137,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 public void onNext(Goalstate.GoalStateV2 value) {
 
                     logger.log(Level.INFO, "pushGoalStatesStream : receiving GS V2 message " + value.toString());
+                    Long start = System.currentTimeMillis();
 
                     //prepare GS message based on host
                     Map<String, HostGoalState> hostGoalStates = NetworkConfigManagerUtil.splitClusterToHostGoalState(value);
@@ -153,7 +154,8 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                             e.printStackTrace();
                         }
                     }
-
+                    long end = System.currentTimeMillis();
+                    logger.log(Level.INFO, "pushGoalStatesStream : finished putting GS into cache, elapsed time in milliseconds: " + + (end-start));
                     // filter neighbor/SG update, and send them down to target ACA
                     try {
                         Map<String, HostGoalState> filteredGoalStates = NetworkConfigManagerUtil.filterNeighbors(hostGoalStates);
@@ -170,6 +172,8 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                                     .setFormatVersion(100)
                                     .build();
                     responseObserver.onNext(reply);
+                    long end1 = System.currentTimeMillis();
+                    logger.log(Level.INFO, "pushGoalStatesStream : Replied to DPM, from received to replied, elapsed time in milliseconds: " + + (end1-end));
                 }
 
                 @Override
