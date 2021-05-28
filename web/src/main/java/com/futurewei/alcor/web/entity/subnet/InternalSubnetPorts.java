@@ -24,17 +24,31 @@ public class InternalSubnetPorts {
     private String gatewayPortId;
     private String gatewayPortIp;
     private String gatewayPortMac;
+    private String name;
+    private String cidr;
+    private String vpcId;
+    private Long tunnelId;
+    private Boolean dhcpEnable;
     private List<PortHostInfo> ports;
+    private String routerId;
 
     public InternalSubnetPorts() {
 
     }
 
-    public InternalSubnetPorts(String subnetId, String gatewayPortId, String gatewayPortIp, String gatewayPortMac, List<PortHostInfo> ports) {
+    public InternalSubnetPorts(String subnetId, String gatewayPortId, String gatewayPortIp, String gatewayPortMac,
+                               String name, String cidr, String vpcId, Long tunnelId, Boolean dhcpEnable, String routerId,
+                               List<PortHostInfo> ports) {
         this.subnetId = subnetId;
         this.gatewayPortId = gatewayPortId;
         this.gatewayPortIp = gatewayPortIp;
         this.gatewayPortMac = gatewayPortMac;
+        this.name = name;
+        this.cidr = cidr;
+        this.vpcId = vpcId;
+        this.tunnelId = tunnelId;
+        this.dhcpEnable = dhcpEnable;
+        this.routerId = routerId;
         this.ports = ports;
     }
 
@@ -77,4 +91,22 @@ public class InternalSubnetPorts {
     public void setPorts(List<PortHostInfo> ports) {
         this.ports = ports;
     }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public String getCidr() { return cidr; }
+    public void setCidr(String cidr) { this.cidr = cidr; }
+
+    public String getVpcId() { return vpcId; }
+    public void setVpcId(String vpcId) { this.vpcId = vpcId; }
+
+    public Long getTunnelId() { return tunnelId; }
+    public void setTunnelId(Long tunnelId) { this.tunnelId = tunnelId; }
+
+    public Boolean getDhcpEnable() { return dhcpEnable; }
+    public void setDhcpEnable(Boolean dhcpEnable) { this.dhcpEnable = dhcpEnable; }
+
+    public String getRouterId() { return routerId; }
+    public void setRouterId(String routerId) { this.routerId = routerId; }
 }

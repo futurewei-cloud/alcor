@@ -19,9 +19,7 @@ import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.exception.NeighborInfoNotFound;
 import com.futurewei.alcor.dataplane.exception.PortFixedIpNotFound;
-import com.futurewei.alcor.schema.Common;
-import com.futurewei.alcor.schema.Neighbor;
-import com.futurewei.alcor.schema.Port;
+import com.futurewei.alcor.schema.*;
 import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
 import com.futurewei.alcor.web.entity.dataplane.NeighborEntry;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
@@ -135,13 +133,12 @@ public class NeighborService extends ResourceService {
                         throw new NeighborInfoNotFound();
                     }
 
-                    if (hostIp.equals(neighborInfo.getHostIp())) {
+                    if (hostIp.equals(neighborInfo.getHostIp()) && !neighborEntry.getNeighborType().equals(NeighborEntry.NeighborType.L3)) {
                         continue;
                     }
 
                     unicastGoalState.getGoalStateBuilder().addNeighborStates(buildNeighborState(
                             neighborEntry.getNeighborType(), neighborInfo, networkConfig.getOpType()));
-
                     multicastNeighborEntries.add(neighborEntry);
                 }
             }

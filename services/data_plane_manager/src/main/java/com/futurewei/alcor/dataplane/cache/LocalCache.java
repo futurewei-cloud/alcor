@@ -23,7 +23,7 @@ import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
 import java.util.List;
 
 public interface LocalCache {
-    void addSubnetPorts(NetworkConfiguration networkConfig) throws Exception;
+    void setSubnetPorts(NetworkConfiguration networkConfig) throws Exception;
     void updateSubnetPorts(NetworkConfiguration networkConfig) throws Exception;
     void deleteSubnetPorts(NetworkConfiguration networkConfig);
     InternalSubnetPorts getSubnetPorts(String subnetId) throws Exception;
