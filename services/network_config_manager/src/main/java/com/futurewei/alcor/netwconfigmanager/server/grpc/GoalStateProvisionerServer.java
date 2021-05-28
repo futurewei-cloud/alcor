@@ -199,7 +199,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             String state_request_uuid = "";
             if (request.getStateRequestsList().size() == 1){
                 state_request_uuid = request.getStateRequests(0).getRequestId();
-                logger.log(Level.INFO, "requestGoalStates : received HostRequest with UUID: " + state_request_uuid + "at: " + start);
+                logger.log(Level.INFO, "requestGoalStates : received HostRequest with UUID: " + state_request_uuid + " at: " + start);
             }
             logger.log(Level.INFO, "requestGoalStates : receiving request " + request.toString());
             logger.log(Level.INFO, "requestGoalStates : receiving request list " + request.getStateRequestsList());
@@ -262,7 +262,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
                 GoalStateClient grpcGoalStateClient = new GoalStateClientImpl();
                 long end = System.currentTimeMillis();
-                logger.log(Level.INFO, "requestGoalStates : Pushing GS with UUID: " + state_request_uuid + "at: " + end);
+                logger.log(Level.INFO, "requestGoalStates : Pushing GS with UUID: " + state_request_uuid + " at: " + end);
                 grpcGoalStateClient.sendGoalStates(hostGoalStates);
                 logger.log(Level.INFO, "[requestGoalStates] From retrieving goalstate to sent goalstate to host, elapsed Time in milli seconds: "+ (end-start));
             } catch (Exception e) {
@@ -302,7 +302,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             // Step 3: Send response to target ACAs
             long end = System.currentTimeMillis();
             logger.log(Level.INFO, "[requestGoalStates] From received hostOperation to before response, elapsed Time in milli seconds: "+ (end-start));
-            logger.log(Level.INFO, "requestGoalStates : replying HostRequest with UUID: " + state_request_uuid + "at: " + end);
+            logger.log(Level.INFO, "requestGoalStates : replying HostRequest with UUID: " + state_request_uuid + " at: " + end);
             responseObserver.onNext(reply);
             responseObserver.onCompleted();
             long end1 = System.currentTimeMillis();
