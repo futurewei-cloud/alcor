@@ -102,6 +102,13 @@ public class GoalStateClientImpl implements GoalStateClient {
         String hostIp = hostGoalState.getHostIp();
         logger.log(Level.INFO, "Setting up a channel to ACA on: " + hostIp);
         long start = System.currentTimeMillis();
+        if(hostGoalState.getGoalState().getNeighborStatesCount() == 1 && hostIp.equals("10.213.43.92")){
+            // If there's only one neighbor state and it is trying to send it to aca_node_one, the IP of which is now
+            // hardcoded) this send goalstate action is probably caused by on-demand workflow, need to record when it
+            // sends this goalState so what we can look into this and the ACA log to see how much time was spent.
+            String neighbor_id = hostGoalState.getGoalState().getNeighborStatesMap().keySet().iterator().next();
+            logger.log(Level.INFO, "Sending neighbor ID: " + neighbor_id +" at: " + start);
+        }
         ManagedChannel channel = ManagedChannelBuilder.forAddress(hostIp, this.hostAgentPort)
                 .usePlaintext()
                 .build();
