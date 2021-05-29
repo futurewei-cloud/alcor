@@ -22,7 +22,7 @@ from termcolor import colored
 
 def busybox_container_cleanup(aca_node_ip, con):
     print("Cleaning up busybox container", con)
-    command = "sudo ovs-docker del-ports br-int ".format(con)
+    command = "sudo ovs-docker del-ports br-int {}".format(con)
     output = run_command_on_host(aca_node_ip, command)
     print("Cleanup task: ", command, "\n", output, "\n")
     command = "sudo docker container stop {}".format(con)

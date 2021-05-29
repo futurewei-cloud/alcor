@@ -70,17 +70,17 @@ def prepare_test_case_1(ip_mac, ser_port):
     print("Test case 1 setup starts...")
     serv = read_config_file_section("services")
     create_default_segment_table(ser_port["vpm"])
+    create_node(ser_port["nm"], ip_mac)
     change = {'change':'cidr','cidr':"10.0.0.0/16"}
     create_vpc(ser_port["vpm"], change)
-    get_vpcs(ser_port["vpm"])
-    create_node(ser_port["nm"], ip_mac)
+    create_security_group(ser_port["sgm"])
     router_id =create_router_interface(ser_port["rm"])
+    get_vpcs(ser_port["vpm"])
     id_list, device_ids, ip_addrs = attach_subnets_to_router(ser_port["rm"], ser_port["snm"], router_id)
     print("DDD: prepare_test_case_1: id_list = {}, device_list = {}".format(id_list, device_ids))
     get_subnets(ser_port["snm"])
     change_ports = {"change":["subnet_id","device_id","ip_addrs"],"subnet_id":id_list,"device_id":device_ids,"ip_addrs":ip_addrs}
     print("DDD: prepare_test_case_1: chnage_ports = ", change_ports)
-    create_security_group(ser_port["sgm"])
     print("DDD: prepare_test_case_1: calling create_port_goal_states");
     create_port_goal_states(ser_port["pm"], change_ports)
     print("DDD: prepare_test_case_1: returned from create_port_goal_states");
