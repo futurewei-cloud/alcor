@@ -76,10 +76,14 @@ def prepare_test_case_1(ip_mac, ser_port):
     create_node(ser_port["nm"], ip_mac)
     router_id =create_router_interface(ser_port["rm"])
     id_list, device_ids, ip_addrs = attach_subnets_to_router(ser_port["rm"], ser_port["snm"], router_id)
+    print("DDD: prepare_test_case_1: id_list = {}, device_list = {}".format(id_list, device_ids))
     get_subnets(ser_port["snm"])
     change_ports = {"change":["subnet_id","device_id","ip_addrs"],"subnet_id":id_list,"device_id":device_ids,"ip_addrs":ip_addrs}
+    print("DDD: prepare_test_case_1: chnage_ports = ", change_ports)
     create_security_group(ser_port["sgm"])
+    print("DDD: prepare_test_case_1: calling create_port_goal_states");
     create_port_goal_states(ser_port["pm"], change_ports)
+    print("DDD: prepare_test_case_1: returned from create_port_goal_states");
 
     ip_mac_db = get_mac_from_db()
     print("Test case 1. IP/MAC in ignite DB: ", ip_mac_db)
@@ -103,6 +107,7 @@ def prepare_test_case_2(ip_mac, ser_port):
 
 
 def create_port_goal_states(port, change_ports):
+    print("DDD: create_port_goal_states: port = {}, change_ports = {}".format(port, change_ports))
     url= 'http://localhost:{}/project/{}/ports'.format(port,get_projectid())
     port_info  = read_config_file_section("port_info")
     port_dict  = port_info['port_info']
@@ -120,9 +125,11 @@ def create_port_goal_states(port, change_ports):
       # Adding the same subnet ID twice because it is going to be same for two ports we are creating
       subnet_ids.append(port_dict['subnet_id'])
       subnet_ids.append(port_dict['subnet_id'])
+      print("DDD changes: ", changes)
+      print("DDD change_ports: ", change_ports)
     if 'device_id' in changes:
-      print("DDD device_id",change_ports['device_ids'])
-      device_ids = change_ports['device_ids']
+      print("DDD device_id",change_ports['device_id'])
+      device_ids = change_ports['device_id']
     else:
       print("Adding same device id twice...")
       # Adding the same device ID twice because it is going to be same for two ports we are creating

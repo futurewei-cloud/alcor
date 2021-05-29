@@ -77,10 +77,12 @@ def run_ping_test(target_machines, ip_addrs, container_names):
     HOST = target_machines[index_0]
     print("Ping test on ", HOST)
     output1 = run_command_on_host(HOST, ping_0_to_1)
+    print("DDD: run_ping_test: 0 -> 1: ", output1)
 
     HOST = target_machines[index_1]
     print("Ping test on ", HOST)
     output2 = run_command_on_host(HOST, ping_1_to_0)
+    print("DDD: run_ping_test: 1 -> 0: ", output2)
 
     expected_output = "2 packets transmitted, 2 packets received"
     if expected_output in str(output1) and expected_output in str(output2):
