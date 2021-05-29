@@ -114,6 +114,7 @@ def get_username():
 # Returns output on success, otherwise prints error code
 def run_command_on_host(HOST, COMMAND):
     try:
+      print("DDD: run_cmd: U = {}, H = {}, C = {}".format(get_username(), HOST, COMMAND))
       ssh1 = sp.Popen(['ssh',
                        '-o StrictHostKeyChecking=no',
                        '-o UserKnownHostsFile=/dev/null',
@@ -124,11 +125,11 @@ def run_command_on_host(HOST, COMMAND):
                        stderr=sp.PIPE,
                        encoding='utf8')
       result = ssh1.communicate()
-      #print("Remote output",result)
+      print("Remote output",result)
       retcode = ssh1.returncode
       if "Segmentation fault" in str(result):
         return "segmentation  fault"
-      #print(retcode)
+      print("Remote: ", retcode)
       if retcode > 0:
         print(result[1],retcode)
         if 'Connection to' not in result[1] and 'closed' not in result[1]:
