@@ -32,6 +32,9 @@ public class RouterUpdateInfo {
     @JsonProperty("gateway_port_ids")
     private List<String> gatewayPortIds;
 
+    @JsonProperty("internal_router_info")
+    private InternalRouterInfo internalRouterInfo;
+
     public enum OperationType {
         ADD("add"),
         DELETE("delete");
@@ -55,11 +58,20 @@ public class RouterUpdateInfo {
 
     }
 
-    public RouterUpdateInfo(String vpcId, String subnetId, String operationType, List<String> gatewayPortIds) {
+    public RouterUpdateInfo(String vpcId, String subnetId, String operationType, List<String> gatewayPortIds, InternalRouterInfo internalRouterInfo) {
         this.vpcId = vpcId;
         this.subnetId = subnetId;
         this.operationType = operationType;
         this.gatewayPortIds = gatewayPortIds;
+        this.internalRouterInfo = internalRouterInfo;
+    }
+
+    public InternalRouterInfo getInternalRouterInfo() {
+        return internalRouterInfo;
+    }
+
+    public void setInternalRouterInfo(InternalRouterInfo internalRouterInfo) {
+        this.internalRouterInfo = internalRouterInfo;
     }
 
     public String getVpcId() {

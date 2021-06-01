@@ -301,7 +301,10 @@ public class NeutronRouterController {
         //Need to check if there is only one gateway port exists in the current router, we don't need to request PM for update-l3-neighbors. This operation only happen when there are more than 2 ports exist in the router.
         if (gatewayPorts != null && gatewayPorts.size() > 0) {
             // TODO: waiting for PM new API
-            this.routerToPMService.updateL3Neighbors(projectid, router.getOwner(), subnetId, "add", gatewayPorts);
+            // construct InternalRouterInfo
+            List<InternalSubnetRoutingTable> internalSubnetRoutingTableList = this.neutronRouterService.constructInternalSubnetRoutingTables(router);
+            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTableList);
+            this.routerToPMService.updateL3Neighbors(projectid, router.getOwner(), subnetId, "add", gatewayPorts, internalRouterInfo);
         }
 
         return routerInterfaceResponse;
@@ -335,7 +338,10 @@ public class NeutronRouterController {
         //Need to check if there is only one gateway port exists in the current router, we don't need to request PM for update-l3-neighbors. This operation only happen when there are more than 2 ports exist in the router.
         if (gatewayPorts != null && gatewayPorts.size() > 1) {
             // TODO: waiting for PM new API
-            this.routerToPMService.updateL3Neighbors(projectid, router.getOwner(), subnetId, "delete", gatewayPorts);
+            // construct InternalRouterInfo
+            List<InternalSubnetRoutingTable> internalSubnetRoutingTableList = this.neutronRouterService.constructInternalSubnetRoutingTables(router);
+            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTableList);
+            this.routerToPMService.updateL3Neighbors(projectid, router.getOwner(), subnetId, "delete", gatewayPorts, internalRouterInfo);
         }
 
         return routerInterfaceResponse;
