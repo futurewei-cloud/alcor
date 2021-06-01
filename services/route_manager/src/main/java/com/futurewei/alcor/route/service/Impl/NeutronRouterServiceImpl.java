@@ -643,6 +643,45 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
 
     }
 
+    @Override
+    public List<InternalSubnetRoutingTable> constructInternalSubnetRoutingTables(Router router) {
+        if (router == null) {
+            return new ArrayList<>();
+        }
+
+        List<RouteTable> neutronSubnetRouteTables = router.getNeutronSubnetRouteTables();
+        if (neutronSubnetRouteTables == null) {
+            return new ArrayList<>();
+        }
+
+        List<InternalSubnetRoutingTable> internalSubnetRoutingTables = new ArrayList<>();
+
+        for (RouteTable routeTable : neutronSubnetRouteTables) {
+            InternalSubnetRoutingTable internalSubnetRoutingTable = new InternalSubnetRoutingTable();
+            List<RouteEntry> routeEntities = routeTable.getRouteEntities();
+            String owner = routeTable.getOwner();
+
+            List<InternalRoutingRule> routing_rules = new ArrayList<>();
+            for (RouteEntry routeEntry : routeEntities) {
+                InternalRoutingRule internalRoutingRule = new InternalRoutingRule(
+                        routeEntry.getId(),
+                        routeEntry.getName(),
+                        routeEntry.getDestination(),
+                        routeEntry.getNexthop(),
+                        routeEntry.getPriority(),
+                        OperationType.INFO,
+                        null);
+                routing_rules.add(internalRoutingRule);
+            }
+
+
+            internalSubnetRoutingTable.setSubnetId(owner);
+            internalSubnetRoutingTable.setRoutingRules(routing_rules);
+            internalSubnetRoutingTables.add(internalSubnetRoutingTable);
+        }
+        return internalSubnetRoutingTables;
+    }
+
     private InternalRoutingRule constructNewInternalRoutingRule(OperationType operationType, RoutingRuleType routingRuleType, RouteEntry route, NewRoutesRequest newRouteRequest) {
         if (route == null && newRouteRequest == null) {
             return new InternalRoutingRule();
