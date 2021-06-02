@@ -229,7 +229,7 @@ public class RouterController {
                 internalSubnetRoutingTableList.add(internalSubnetRoutingTable);
             }
 
-            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTableList);
+            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTableList, null);
 
             // send InternalRouterInfo contract to DPM
 //            this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
@@ -434,7 +434,7 @@ public class RouterController {
             InternalSubnetRoutingTable internalSubnetRoutingTable = updateRoutingRuleResponse.getInternalSubnetRoutingTable();
             List<InternalSubnetRoutingTable> internalSubnetRoutingTables = new ArrayList<>();
             internalSubnetRoutingTables.add(internalSubnetRoutingTable);
-            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTables);
+            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTables, null);
             List<HostRoute> hostRouteToSubnet = updateRoutingRuleResponse.getHostRouteToSubnet();
 
             this.routerService.updateSubnetRouteTable(projectid, subnetid, updateRoutingRuleResponse);
@@ -487,7 +487,7 @@ public class RouterController {
             InternalSubnetRoutingTable internalSubnetRoutingTable = updateRoutingRuleResponse.getInternalSubnetRoutingTable();
             List<InternalSubnetRoutingTable> internalSubnetRoutingTables = new ArrayList<>();
             internalSubnetRoutingTables.add(internalSubnetRoutingTable);
-            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTables);
+            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTables, null);
             List<HostRoute> hostRouteToSubnet = updateRoutingRuleResponse.getHostRouteToSubnet();
 
             // send InternalRouterInfo contract to DPM
