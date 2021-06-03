@@ -28,7 +28,7 @@ RUN apt-get update && apt-get install -y \
     && wget https://downloads.apache.org//ignite/2.9.1/apache-ignite-2.9.1-bin.zip \
     &&    unzip -d . apache-ignite-2.9.1-bin.zip \
     && cd apache-ignite-2.9.1-bin/bin \
-    && echo '<?xml version="1.0" encoding="UTF-8"?><beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"><bean class="org.apache.ignite.configuration.IgniteConfiguration"> <property name="peerClassLoadingEnabled" value="true"/> </bean></beans>' > config.xml
+#    && echo '<?xml version="1.0" encoding="UTF-8"?><beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"><bean class="org.apache.ignite.configuration.IgniteConfiguration"> <property name="peerClassLoadingEnabled" value="true"/> </bean></beans>' > config.xml
 
 COPY ./target/common-0.1.0-SNAPSHOT.jar /code/apache-ignite-2.9.1-bin/libs/common-0.1.0-SNAPSHOT.jar
 COPY ./ncm-ignite.sh /code/apache-ignite-2.9.1-bin/bin/ignite.sh

@@ -34,6 +34,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 @Service
 @ComponentScan(value = "com.futurewei.alcor.netwconfigmanager.cache")
@@ -57,15 +58,28 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
         // TODO: Use Ignite transaction here
 
         // Step 1: Populate host resource metadata cache
+        Long t1 = System.currentTimeMillis();
         ResourceMeta existing = hostResourceMetadataCache.getResourceMeta(hostId);
+        Long t2 = System.currentTimeMillis();
         ResourceMeta latest = NetworkConfigManagerUtil.convertGoalStateToHostResourceMeta(
                 hostId, hostGoalState.getGoalState().getHostResourcesMap().get(hostId));
+        logger.log(Level.INFO, "updateGoalstate : hostId: "+hostId+", finished getting resource meta from cache, elapsed time in milliseconds: " + (t2-t1));
+
+        Long t3 = 0l;
+        Long t4 = 0l;
         if (existing == null) {
+            t3 = System.currentTimeMillis();
             hostResourceMetadataCache.addResourceMeta(latest);
+            t4 = System.currentTimeMillis();
+            logger.log(Level.INFO, "updateGoalstate : hostId: "+hostId+", existing is null, finished adding resource meta from cache, elapsed time in milliseconds: " + (t4-t3));
         } else {
             ResourceMeta updated = NetworkConfigManagerUtil.consolidateResourceMeta(existing, latest);
+            t3 = System.currentTimeMillis();
             hostResourceMetadataCache.addResourceMeta(updated);
+            t4 = System.currentTimeMillis();
+            logger.log(Level.INFO, "updateGoalstate : hostId: "+hostId+", existing is NOT null, finished adding resource meta from cache, elapsed time in milliseconds: " + (t4-t3));
         }
+        Long t5 = System.currentTimeMillis();
 
         // Step 2: Populate resource state cache
         Map<String, Integer> vpcIdToVniMap = processVpcStates(hostGoalState);
@@ -79,6 +93,11 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
 
         // Step 3
         populateVpcResourceCache(hostGoalState, vpcIdToVniMap);
+        Long t6 = System.currentTimeMillis();
+        Long t_total = (t6 - t5) + (t4 - t3) + (t2 - t1);
+        logger.log(Level.INFO, "updateGoalstate : hostId: "+hostId+", finished populating vpc resource cache, elapsed time in milliseconds: " + (t6-t5));
+        logger.log(Level.INFO, "updateGoalstate : hostId: "+hostId+", total time, elapsed time in milliseconds: " + t_total);
+
         return false;
     }
 
