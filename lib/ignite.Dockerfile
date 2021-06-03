@@ -21,7 +21,7 @@ EXPOSE 10081
 EXPOSE 47100
 EXPOSE 47500
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt install -y net-tools && apt-get install -y \
     wget openjdk-11-jdk unzip \
     && mkdir /code \
     && cd /code/ \
