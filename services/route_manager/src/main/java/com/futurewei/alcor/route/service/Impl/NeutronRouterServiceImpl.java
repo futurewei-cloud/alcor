@@ -223,6 +223,9 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         router.setGatewayPorts(ports);
         //update subnet_ids
         List<String> subnet_Ids = router.getSubnetIds();
+        if (subnet_Ids == null) {
+            subnet_Ids = new ArrayList<>();
+        }
         subnet_Ids.add(subnetid);
         router.setSubnetIds(subnet_Ids);
 
@@ -341,6 +344,9 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         router.setGatewayPorts(ports);
         //update subnet_ids
         List<String> subnet_Ids = router.getSubnetIds();
+        if (subnet_Ids == null) {
+            subnet_Ids = new ArrayList<>();
+        }
         subnet_Ids.remove(subnetid);
         router.setSubnetIds(subnet_Ids);
 
@@ -679,18 +685,19 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             String owner = routeTable.getOwner();
 
             List<InternalRoutingRule> routing_rules = new ArrayList<>();
-            for (RouteEntry routeEntry : routeEntities) {
-                InternalRoutingRule internalRoutingRule = new InternalRoutingRule(
-                        routeEntry.getId(),
-                        routeEntry.getName(),
-                        routeEntry.getDestination(),
-                        routeEntry.getNexthop(),
-                        routeEntry.getPriority(),
-                        OperationType.INFO,
-                        null);
-                routing_rules.add(internalRoutingRule);
+            if (routeEntities != null) {
+                for (RouteEntry routeEntry : routeEntities) {
+                    InternalRoutingRule internalRoutingRule = new InternalRoutingRule(
+                            routeEntry.getId(),
+                            routeEntry.getName(),
+                            routeEntry.getDestination(),
+                            routeEntry.getNexthop(),
+                            routeEntry.getPriority(),
+                            OperationType.INFO,
+                            null);
+                    routing_rules.add(internalRoutingRule);
+                }
             }
-
 
             internalSubnetRoutingTable.setSubnetId(owner);
             internalSubnetRoutingTable.setRoutingRules(routing_rules);
@@ -711,7 +718,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             RouteTable routeTable = new RouteTable(this.routerService.getSubnetRouteTable(projectid, subnetId));
             routeTables.add(routeTable);
         }
-        
+
         return routeTables;
     }
 
