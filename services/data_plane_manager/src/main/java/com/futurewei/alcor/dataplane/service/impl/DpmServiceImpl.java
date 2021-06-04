@@ -389,9 +389,9 @@ public class DpmServiceImpl implements DpmService {
                 unicastGoalState.getGoalStateBuilder().addAllSubnetStates(unicastGoalStateTemp.getGoalStateBuilder().getSubnetStatesList());
                 unicastGoalState.getGoalStateBuilder().addAllRouterStates(unicastGoalStateTemp.getGoalStateBuilder().getRouterStatesList());
                 unicastGoalState.getGoalStateBuilder().addAllSubnetStates(multicastGoalState.getGoalStateBuilder().getSubnetStatesList());
-                unicastGoalState.getGoalStateBuilder().addAllRouterStates(multicastGoalState.getGoalStateBuilder().getRouterStatesList());
+                rebuildRouterState(unicastGoalState.getGoalStateBuilder(), multicastGoalState.getGoalStateBuilder());
                 multicastGoalState.getGoalStateBuilder().addAllSubnetStates(unicastGoalStateTemp.getGoalStateBuilder().getSubnetStatesList());
-                multicastGoalState.getGoalStateBuilder().addAllRouterStates(unicastGoalStateTemp.getGoalStateBuilder().getRouterStatesList());
+                rebuildRouterState(multicastGoalState.getGoalStateBuilder(), unicastGoalStateTemp.getGoalStateBuilder());
                 unicastGoalStates.add(unicastGoalState);
             }
         }
@@ -408,6 +408,38 @@ public class DpmServiceImpl implements DpmService {
         }
 
         return grpcDataPlaneClient.sendGoalStates(unicastGoalStates, multicastGoalState);
+    }
+
+    private void rebuildRouterState(Goalstate.GoalState.Builder goalStateBuilder, Goalstate.GoalState.Builder newGoalState) {
+        List<Router.RouterConfiguration.SubnetRoutingTable> subnetRoutingTables = new ArrayList<>();
+
+        for (Router.RouterConfiguration.SubnetRoutingTable subnetRoutingTable : newGoalState.getRouterStates(0).getConfiguration().getSubnetRoutingTablesList()) {
+            Router.RouterConfiguration.SubnetRoutingTable.Builder subnetRoutingTableBuilder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
+            subnetRoutingTableBuilder.setSubnetId(subnetRoutingTable.getSubnetId());
+            subnetRoutingTables.add(subnetRoutingTableBuilder.build());
+        }
+
+        List<Router.RouterState.Builder> routerStatesBuilders = goalStateBuilder.getRouterStatesBuilderList();
+        if (routerStatesBuilders != null && routerStatesBuilders.size() > 0) {
+            subnetRoutingTables.addAll(goalStateBuilder.
+                    getRouterStatesBuilder(0).
+                    getConfiguration().
+                    getSubnetRoutingTablesList());
+            String routerId = goalStateBuilder.getRouterStates(0).getConfiguration().getId();
+            String hostDvrMac = goalStateBuilder.getRouterStates(0).getConfiguration().getHostDvrMacAddress();
+            goalStateBuilder.removeRouterStates(0);
+
+            Router.RouterConfiguration.Builder routerConfigBuilder = Router.RouterConfiguration.newBuilder();
+            routerConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
+
+            //TODO: where does the hostDvrMacAddress come from ?
+            routerConfigBuilder.setHostDvrMacAddress(hostDvrMac);
+            routerConfigBuilder.setId(routerId);
+            routerConfigBuilder.addAllSubnetRoutingTables(subnetRoutingTables);
+            Router.RouterState.Builder routerStateBuilder = Router.RouterState.newBuilder();
+            routerStateBuilder.setConfiguration(routerConfigBuilder.build());
+            goalStateBuilder.addRouterStates(routerStateBuilder.build());
+        }
     }
 
     private List<String> processSecurityGroupConfiguration(NetworkConfiguration networkConfig) throws Exception {
