@@ -34,7 +34,7 @@ public class CacheFactory {
 
     @Autowired
     private ICacheFactory iCacheFactory;
-
+    private Transaction transaction;
     public <K, V> ICache<K, V> getCache(Class<V> v) {
         return iCacheFactory.getCache(v);
     }
@@ -46,4 +46,28 @@ public class CacheFactory {
     public <K, V> ICache<K, V> getExpireCache(Class<V> v, long timeout, TimeUnit timeUnit){
         return iCacheFactory.getExpireCache(v, timeout, timeUnit);
     }
+        public Transaction getTransaction() {
+                transaction = iCacheFactory.getTransaction();
+                return transaction;
+            }
+
+            public void commit() throws CacheException {
+                try {
+                        transaction.commit();
+                        transaction = null;
+                    }
+                catch (Exception e) {
+                        throw e;
+                    }
+            }
+
+            public void rollback() throws CacheException {
+                try {
+                        transaction.rollback();
+                        transaction = null;
+                    }
+                catch (Exception e) {
+                        throw e;
+                    }
+            }
 }

@@ -15,8 +15,10 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.netwconfigmanager.cache;
 
+import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.netwconfigmanager.entity.ResourceMeta;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +31,24 @@ public class HostResourceMetadataCache {
 
     // Map <HostId, List<ResoruceIDType>>
     private ICache<String, ResourceMeta> hostResourceMetas;
+    private CacheFactory cacheFactory;
+
+    public Transaction getTransaction() {
+        return cacheFactory.getTransaction();
+    }
+
+    public void commit() throws CacheException {
+        cacheFactory.commit();
+    }
+
+    public void rollback() throws CacheException {
+        cacheFactory.rollback();
+    }
 
     @Autowired
     public HostResourceMetadataCache(CacheFactory cacheFactory) {
         this.hostResourceMetas = cacheFactory.getCache(ResourceMeta.class);
+        this.cacheFactory = cacheFactory;
     }
 
     @DurationStatistics

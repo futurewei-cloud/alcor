@@ -56,7 +56,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
     public boolean updateGoalState(String hostId, HostGoalState hostGoalState) throws Exception {
 
         // TODO: Use Ignite transaction here
-
+        hostResourceMetadataCache.getTransaction();
         // Step 1: Populate host resource metadata cache
         Long t1 = System.currentTimeMillis();
         ResourceMeta existing = hostResourceMetadataCache.getResourceMeta(hostId);
@@ -99,7 +99,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
         Long t_total = (t6 - t5) + (t4 - t3) + (t2 - t1);
         logger.log(Level.INFO, "updateGoalstate : hostId: "+hostId+", finished populating vpc resource cache, elapsed time in milliseconds: " + (t6-t5_plus));
         logger.log(Level.INFO, "updateGoalstate : hostId: "+hostId+", total time, elapsed time in milliseconds: " + t_total);
-
+        hostResourceMetadataCache.commit();
         return false;
     }
 
