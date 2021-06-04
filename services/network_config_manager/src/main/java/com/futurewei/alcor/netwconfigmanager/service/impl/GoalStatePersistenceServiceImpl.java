@@ -90,12 +90,14 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
         processSecurityGroupStates(hostGoalState);
         processRouterStates(hostGoalState);
         processGatewayStates(hostGoalState);
+        Long t5_plus = System.currentTimeMillis();
+        logger.log(Level.INFO, "updateGoalstate : hostId: "+hostId+", finished processing goalState, elapsed time in milliseconds: " + (t5_plus-t5));
 
         // Step 3
         populateVpcResourceCache(hostGoalState, vpcIdToVniMap);
         Long t6 = System.currentTimeMillis();
         Long t_total = (t6 - t5) + (t4 - t3) + (t2 - t1);
-        logger.log(Level.INFO, "updateGoalstate : hostId: "+hostId+", finished populating vpc resource cache, elapsed time in milliseconds: " + (t6-t5));
+        logger.log(Level.INFO, "updateGoalstate : hostId: "+hostId+", finished populating vpc resource cache, elapsed time in milliseconds: " + (t6-t5_plus));
         logger.log(Level.INFO, "updateGoalstate : hostId: "+hostId+", total time, elapsed time in milliseconds: " + t_total);
 
         return false;
@@ -170,6 +172,10 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
     }
 
     private void populateVpcResourceCache(HostGoalState hostGoalState, Map<String, Integer> vpcIdToVniMap) throws Exception {
+        Long start = System.currentTimeMillis();
+
+        logger.log(Level.INFO, "populateVpcResourceCache : beginning");
+
         Map<String, Port.PortState> portStatesMap = hostGoalState.getGoalState().getPortStatesMap();
 
         for (String resourceId : portStatesMap.keySet()) {
@@ -182,13 +188,15 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
             String routerId = "";
             String gatewayId = "";
             String securityGroupId = "";
-
+            Long t1 = System.currentTimeMillis();
             VpcResourceMeta vpcResourceMeta = vpcResourceCache.getResourceMeta(vni);
+            Long t2 = System.currentTimeMillis();
+            logger.log(Level.INFO, "populateVpcResourceCache : retrieved resource meta for vni: "+vni+",  elapsed time in milliseconds: " + (t2 - t1));
             if (vpcResourceMeta == null) {
                 // This is a new VPC
                 vpcResourceMeta = new VpcResourceMeta(vni, new HashMap<String, ResourceMeta>());
             }
-
+            Long t3 = System.currentTimeMillis();
             for (Port.PortConfiguration.FixedIp fixedIp : portState.getConfiguration().getFixedIpsList()) {
                 String subnetId = fixedIp.getSubnetId();
                 String portPrivateIp = fixedIp.getIpAddress();
@@ -211,9 +219,15 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
 
                 vpcResourceMeta.setResourceMeta(portPrivateIp, portResourceMeta);
             }
-
+            Long t4 = System.currentTimeMillis();
+            logger.log(Level.INFO, "populateVpcResourceCache : looped throught the port states for vpc with vni: "+vni+",  elapsed time in milliseconds: " + (t4 - t3));
+            Long t5 = System.currentTimeMillis();
             vpcResourceCache.addResourceMeta(vpcResourceMeta);
+            Long t6 = System.currentTimeMillis();
+            logger.log(Level.INFO, "populateVpcResourceCache : added resource metadata for vpc with vni: "+vni+",  elapsed time in milliseconds: " + (t6 - t5));
         }
+        Long end = System.currentTimeMillis();
+        logger.log(Level.INFO, "populateVpcResourceCache : end,  elapsed time in milliseconds: " + (end-start));
     }
 
 }
