@@ -18,6 +18,7 @@ package com.futurewei.alcor.dataplane.entity;
 
 import com.futurewei.alcor.schema.Goalstate.GoalStateV2;
 import com.futurewei.alcor.web.entity.dataplane.UnicastGoalStateByte;
+import com.futurewei.alcor.web.entity.dataplane.VpcUnicastGoalStateByte;
 
 public class UnicastGoalStateV2 {
     private String hostIp;
@@ -94,6 +95,14 @@ public class UnicastGoalStateV2 {
     public UnicastGoalStateByte getUnicastGoalStateByte() {
         UnicastGoalStateByte unicastGoalStateByte = new UnicastGoalStateByte();
         unicastGoalStateByte.setNextTopic(this.topic);
+        unicastGoalStateByte.setGoalStateByte(this.goalState.toByteArray());
+        return unicastGoalStateByte;
+    }
+
+    public VpcUnicastGoalStateByte getVpcUnicastGoalStateByte() {
+        VpcUnicastGoalStateByte unicastGoalStateByte = new VpcUnicastGoalStateByte();
+        unicastGoalStateByte.setNextTopic(this.topic);
+        unicastGoalStateByte.setNextSubTopic(this.subTopic);
         unicastGoalStateByte.setGoalStateByte(this.goalState.toByteArray());
         return unicastGoalStateByte;
     }

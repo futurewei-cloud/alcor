@@ -19,6 +19,7 @@ package com.futurewei.alcor.dataplane.entity;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstate.GoalStateV2;
 import com.futurewei.alcor.web.entity.dataplane.MulticastGoalStateByte;
+import com.futurewei.alcor.web.entity.dataplane.VpcMulticastGoalStateByte;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,6 +100,15 @@ public class MulticastGoalStateV2 {
     public MulticastGoalStateByte getMulticastGoalStateByte() {
         MulticastGoalStateByte multicastGoalStateByte = new MulticastGoalStateByte();
         multicastGoalStateByte.setNextTopics(this.topics);
+        multicastGoalStateByte.setGoalStateByte(this.goalState.toByteArray());
+
+        return multicastGoalStateByte;
+    }
+
+    public VpcMulticastGoalStateByte getVpcMulticastGoalStateByte() {
+        VpcMulticastGoalStateByte multicastGoalStateByte = new VpcMulticastGoalStateByte();
+        multicastGoalStateByte.setNextTopics(this.topics);
+        multicastGoalStateByte.setNextSubTopics(this.subTopics);
         multicastGoalStateByte.setGoalStateByte(this.goalState.toByteArray());
 
         return multicastGoalStateByte;
