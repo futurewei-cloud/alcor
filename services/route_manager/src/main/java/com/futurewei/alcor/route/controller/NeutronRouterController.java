@@ -303,7 +303,7 @@ public class NeutronRouterController {
             // TODO: waiting for PM new API
             // construct InternalRouterInfo
             List<InternalSubnetRoutingTable> internalSubnetRoutingTableList = this.neutronRouterService.constructInternalSubnetRoutingTables(router);
-            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTableList);
+            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(routerid, internalSubnetRoutingTableList);
             this.routerToPMService.updateL3Neighbors(projectid, router.getOwner(), subnetId, "add", gatewayPorts, internalRouterInfo);
         }
 
@@ -336,11 +336,11 @@ public class NeutronRouterController {
         List<String> gatewayPorts = router.getGatewayPorts();
         //2. call Port Manager's /project/{project_id}/update-l3-neighbors/{new_subnet_id} with BODY {operation_type, vpcid, [old_subnet_ids]}.
         //Need to check if there is only one gateway port exists in the current router, we don't need to request PM for update-l3-neighbors. This operation only happen when there are more than 2 ports exist in the router.
-        if (gatewayPorts != null && gatewayPorts.size() > 1) {
+        if (gatewayPorts != null && gatewayPorts.size() > 0) {
             // TODO: waiting for PM new API
             // construct InternalRouterInfo
             List<InternalSubnetRoutingTable> internalSubnetRoutingTableList = this.neutronRouterService.constructInternalSubnetRoutingTables(router);
-            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTableList);
+            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(routerid, internalSubnetRoutingTableList);
             this.routerToPMService.updateL3Neighbors(projectid, router.getOwner(), subnetId, "delete", gatewayPorts, internalRouterInfo);
         }
 
@@ -379,7 +379,7 @@ public class NeutronRouterController {
                 internalSubnetRoutingTableList.add(internalSubnetRoutingTable);
             }
 
-            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTableList);
+            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(routerid, internalSubnetRoutingTableList);
 
             // send InternalRouterInfo contract to DPM
             this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
@@ -419,7 +419,7 @@ public class NeutronRouterController {
                 internalSubnetRoutingTableList.add(internalSubnetRoutingTable);
             }
 
-            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTableList);
+            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(routerid, internalSubnetRoutingTableList);
 
             // send InternalRouterInfo contract to DPM
             this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
