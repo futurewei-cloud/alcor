@@ -190,6 +190,8 @@ public class DpmServiceImpl implements DpmService {
                             }
 
                             String routerId = subnetEntity.getRouterId();
+                            // If subnet has attached to a router (test scenario #4), we just use the routerId in the subnet.
+                            // Otherwise, we need to get router_state in the networkConfig for test scenario #5.
                             if (routerId == null) {
                                 List<InternalRouterInfo> internalRouterInfos = networkConfig.getInternalRouterInfos();
                                 for (InternalRouterInfo internalRouterInfo : internalRouterInfos) {
@@ -383,9 +385,13 @@ public class DpmServiceImpl implements DpmService {
                 //unicastGoalState.setHostIp(neighborInfo.getHostIp());
                 unicastGoalState.setHostIp(hostIp);
                 unicastGoalState.getGoalStateBuilder().addNeighborStates(neighborState);
+
+                // use unicastGoalStateTemp object to get patchGoalStates for neighborState update
+                // unicasGoalStateTemp will include subnet_states and a consolidated router_state based on the current neighborState
                 UnicastGoalState unicastGoalStateTemp = new UnicastGoalState();
                 unicastGoalStateTemp.getGoalStateBuilder().addNeighborStates(neighborState);
                 patchGoalstateForNeighbor(networkConfig, unicastGoalStateTemp);
+
                 unicastGoalState.getGoalStateBuilder().addAllSubnetStates(unicastGoalStateTemp.getGoalStateBuilder().getSubnetStatesList());
                 unicastGoalState.getGoalStateBuilder().addAllRouterStates(unicastGoalStateTemp.getGoalStateBuilder().getRouterStatesList());
                 unicastGoalState.getGoalStateBuilder().addAllSubnetStates(multicastGoalState.getGoalStateBuilder().getSubnetStatesList());
