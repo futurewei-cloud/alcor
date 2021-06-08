@@ -19,6 +19,30 @@
 
 from create_test_setup import *
 
+def create_subnets_for_s4(snm_port):
+    print("creating subnets for S4")
+    subnet_info = read_config_file_section("test_case1")
+    id_list = json.loads(subnet_info['subnet_ids'])
+    id_names = json.loads(subnet_info['subnet_names'])
+    device_ids = json.loads(subnet_info['device_ids'])
+    cidrs  = json.loads(subnet_info['cidrs'])
+    ip_addrs  = json.loads(subnet_info['ip_addrs'])
+    subnet_info = read_config_file_section("subnet_info")
+    subnetinfo = json.loads(subnet_info['subnet_info'])
+    url = 'http://localhost:{}/project/{}/subnets'.format(snm_port, get_projectid())
+    subnet = {}
+    for cidr, id, name in zip(cidrs, id_list, id_names):
+       subnetinfo['cidr'] = cidr
+       subnetinfo['id'] = id
+       subnetinfo['name'] = name
+       subnet["subnet"] = subnetinfo
+       post_httprequest(url, subnet)
+    print("verifying created subnets")
+    print(get_httprequest(url))
+    print("created subnets for S4")
+    return id_list,device_ids,ip_addrs
+
+
 def create_security_groups(port):
     print("Creating security groups")
     security_groups ={}
@@ -40,32 +64,23 @@ def create_security_groups(port):
 
 
 def attach_subnets_to_router(rm_port, snm_port, router_id):
+    id_list, device_ids, ip_addrs = create_subnets_for_s4(snm_port)
     url = 'http://localhost:{}/project/{}/routers/{}/add_router_interface'.format(rm_port, get_projectid(),router_id)
     print("attaching subnets to test cases")
-    subnet_info = read_config_file_section("test_case1")
-    id_list = json.loads(subnet_info['subnet_ids'])
-    id_names = json.loads(subnet_info['subnet_names'])
-    device_ids = json.loads(subnet_info['device_ids'])
-    cidrs  = json.loads(subnet_info['cidrs'])
-    ip_addrs  = json.loads(subnet_info['ip_addrs'])
 
     for id in id_list:
        subnet_info = {"subnet_id":id}
+       print("DDD: ASTR: subnet_info ", subnet_info)
+       print("DDD: ASTR: ARTI URL: ", url)
        put_httprequest(url, subnet_info)
-    subnet = {}
-    url = 'http://localhost:{}/project/{}/subnets'.format(snm_port, get_projectid())
-    subnet_info = read_config_file_section("subnet_info")
-    subnetinfo = json.loads(subnet_info['subnet_info'])
-    for cidr, id, name in zip(cidrs, id_list, id_names):
-       subnetinfo['cidr'] = cidr
-       subnetinfo['id'] = id
-       subnetinfo['name'] = name
-       subnet["subnet"] = subnetinfo
-       post_httprequest(url, subnet)
+    req="http://localhost:{}/project/{}/routers".format(rm_port, get_projectid())
+    print("ROUTER INFO")
+    print(get_httprequest(req))
     return id_list,device_ids,ip_addrs
 
 
 #test case 1 is with two nodes with different subnet ids in same same sg
+# S4
 def prepare_test_case_1(ip_mac, ser_port):
     print("Test case 1 setup starts...")
     serv = read_config_file_section("services")
@@ -88,6 +103,7 @@ def prepare_test_case_1(ip_mac, ser_port):
     ip_mac_db = get_mac_from_db()
     print("Test case 1. IP/MAC in ignite DB: ", ip_mac_db)
     return ip_mac_db
+
 
 
 # test case 2 is with two nodes in same subnet and different seurity groups
