@@ -53,7 +53,11 @@ def busybox_container_deploy(target_ips, ip_mac_db, container_names):
        command2 = "sudo ovs-docker add-port br-int eth1 " + con + " --ipaddress=" + db_ip + "/24" + " --macaddress=" + db_mac
        command3 = "sudo ovs-docker set-vlan br-int eth1 " + con + " 1"
        print("deploying busybox " + con + " on " + aca_ip)
-
+       if con == "con1":
+            gw = "10.0.1.1"
+       else:
+            gw = "10.0.2.1"
+       command4 = "sudo docker exec -u root --privileged -it " + con + " route add default gw " + gw
        output = run_command_on_host(aca_ip, command1)
        print(con, "deploy task: ", output, "\n")
 
@@ -62,6 +66,8 @@ def busybox_container_deploy(target_ips, ip_mac_db, container_names):
 
        output = run_command_on_host(aca_ip, command3)
        print(con, "deploy task: ", output, "\n")
+       output = run_command_on_host(aca_ip, command4)
+       print(con, "add default gw : ", output, "\n")
 
        ip_addrs = list(ip_mac_db.keys())
 

@@ -133,7 +133,7 @@ def main():
       print("Check the target nodes and run again")
       print("ERROR: Quitting test\n")
       sys.exit(1)
-    time.sleep(10)
+    time.sleep(60)
 
     aca_nodes_ip_mac = get_macaddr_alcor_agents(aca)
     print("ACA nodes IP MAC pair::", aca_nodes_ip_mac)
