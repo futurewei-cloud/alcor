@@ -621,7 +621,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
     }
 
     @Override
-    public InternalRouterInfo constructInternalRouterInfo (List<InternalSubnetRoutingTable> internalSubnetRoutingTableList) {
+    public InternalRouterInfo constructInternalRouterInfo (String routerId, List<InternalSubnetRoutingTable> internalSubnetRoutingTableList) {
 
         String requestId = UUID.randomUUID().toString();
         InternalRouterInfo internalRouterInfo = new InternalRouterInfo();
@@ -630,6 +630,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
 
         internalRouterConfiguration.setSubnetRoutingTables(internalSubnetRoutingTableList);
 
+        internalRouterConfiguration.setId(routerId);
         internalRouterConfiguration.setRevisionNumber(ConstantsConfig.REVISION_NUMBER);
         internalRouterConfiguration.setFormatVersion(ConstantsConfig.FORMAT_VERSION);
         internalRouterConfiguration.setRequestId(requestId);
