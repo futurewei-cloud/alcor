@@ -24,6 +24,7 @@ import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
 import com.futurewei.alcor.schema.GoalStateProvisionerGrpc;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
+import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
@@ -37,11 +38,24 @@ import java.util.stream.Collectors;
 
 @Service("grpcGoalStateClient")
 public class GoalStateClientImpl implements GoalStateClient {
+
+    private static GoalStateClientImpl instance = null;
+
     private static final Logger logger = LoggerFactory.getLogger();
 
     private int hostAgentPort;
 
     private final ExecutorService executor;
+
+    private SortedMap<String, ManagedChannel> hostIpGrpcChannelMap;
+
+
+    public static GoalStateClientImpl getInstance(){
+        if (instance == null){
+            instance = new GoalStateClientImpl();
+        }
+        return instance;
+    }
 
     //    @Autowired
     public GoalStateClientImpl() {
@@ -61,6 +75,7 @@ public class GoalStateClientImpl implements GoalStateClient {
                 new DefaultThreadFactory("grpc-thread-pool"));
 
         //TODO: Setup a connection pool. one ACA, one client.
+        this.hostIpGrpcChannelMap = new TreeMap<>();
     }
 
     @Override
@@ -97,6 +112,34 @@ public class GoalStateClientImpl implements GoalStateClient {
         }).collect(Collectors.toList());
     }
 
+    private ManagedChannel getOrCreateGrpcChannel(String hostIp){
+        if(!this.hostIpGrpcChannelMap.containsKey(hostIp)){
+            ManagedChannel channel = ManagedChannelBuilder.forAddress(hostIp, this.hostAgentPort)
+                    .usePlaintext()
+                    .keepAliveWithoutCalls(true)
+                    .keepAliveTime(Long.MAX_VALUE, TimeUnit.SECONDS)
+                    .build();
+            this.hostIpGrpcChannelMap.put(hostIp, channel);
+            logger.log(Level.INFO, "[getOrCreateGrpcChannel] Created a channel to host IP: " + hostIp);
+        }
+        ManagedChannel chan = this.hostIpGrpcChannelMap.get(hostIp);
+        //checks the channel status, reconnects if the channel is IDLE
+
+        ConnectivityState channelState =chan.getState(true);
+        if (channelState != ConnectivityState.READY && channelState != ConnectivityState.CONNECTING && channelState != ConnectivityState.IDLE){
+            // if the state is not good, we can always create another channel to replace the current one
+            ManagedChannel channel = ManagedChannelBuilder.forAddress(hostIp, this.hostAgentPort)
+                    .usePlaintext()
+                    .keepAliveWithoutCalls(true)
+                    .keepAliveTime(Long.MAX_VALUE, TimeUnit.SECONDS)
+                    .build();
+            this.hostIpGrpcChannelMap.put(hostIp, channel);
+            logger.log(Level.INFO, "[getOrCreateGrpcChannel] Replaced a channel to host IP: " + hostIp);
+        }
+        return this.hostIpGrpcChannelMap.get(hostIp);
+    }
+
+
     private void doSendGoalState(HostGoalState hostGoalState) throws InterruptedException {
 
         String hostIp = hostGoalState.getHostIp();
@@ -109,9 +152,10 @@ public class GoalStateClientImpl implements GoalStateClient {
             String neighbor_id = hostGoalState.getGoalState().getNeighborStatesMap().keySet().iterator().next();
             logger.log(Level.INFO, "Sending neighbor ID: " + neighbor_id +" at: " + start);
         }
-        ManagedChannel channel = ManagedChannelBuilder.forAddress(hostIp, this.hostAgentPort)
-                .usePlaintext()
-                .build();
+//        ManagedChannel channel = ManagedChannelBuilder.forAddress(hostIp, this.hostAgentPort)
+//                .usePlaintext()
+//                .build();
+        ManagedChannel channel = getOrCreateGrpcChannel(hostIp);
         long chan_established = System.currentTimeMillis();
         logger.log(Level.INFO, "[doSendGoalState] Established channel, elapsed Time in milli seconds: "+ (chan_established-start));
         GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub = GoalStateProvisionerGrpc.newStub(channel);
@@ -154,8 +198,7 @@ public class GoalStateClientImpl implements GoalStateClient {
         }
         // Mark the end of requests
         logger.log(Level.INFO, "Sending GS to Host " + hostIp + " is completed");
-        requestObserver.onCompleted();
-
+//        requestObserver.onCompleted();
 //        shutdown(channel);
     }
 

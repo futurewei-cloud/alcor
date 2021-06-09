@@ -349,12 +349,6 @@ public class pseudo_controller {
         System.exit(0);
     }
 
-//    public static void get_ovs_port_name_(String container_name){
-//        String cmd = "ovs_vsctl --data=bare --no-heading --columns=name find interface" +
-//                "external_ids:container_id=" + container_name + "\n" +
-//                "external_ids:container_iface=" + default_container_port_interface_name;
-//    }
-
     private static void create_containers_on_both_hosts() {
         System.out.println("Creating containers on both hosts");
         int i = 1;
