@@ -101,8 +101,8 @@ def main():
         epilog=textwrap.dedent('''\
 Example of use: python script_name -b
 -t 1 : L2 Basic
--t 2 : L3 After Router (S4)
--t 3 : L3 Before Router (S5)
+-t 2 : L3_AttachRouter_then_CreatePorts (S4)
+-t 3 : L3_CreatePorts_then_AttachRouter (S5)
 '''))
     parser.add_argument("-b", "--build", type=str, nargs='?', help=' to build alcor services provide :{} as an option'.format('-b build'))
     parser.add_argument("-t", "--testcase", type=int, nargs='?', help='Test case number or {} for all tests cases. Default -t 1'.format('all'), default="1")
@@ -159,9 +159,9 @@ Example of use: python script_name -b
       if (args.testcase == 1):
         ip_mac_db = prepare_test_L2_basic(aca_nodes_ip_mac, service_port_map)
       elif(args.testcase == 2):
-        ip_mac_db = prepare_test_L3_after_router(aca_nodes_ip_mac, service_port_map)
+        ip_mac_db = prepare_test_L3_AttachRouter_then_CreatePorts(aca_nodes_ip_mac, service_port_map)
       elif (args.testcase == 3):
-        ip_mac_db = prepare_test_L3_before_router(aca_nodes_ip_mac, service_port_map)
+        ip_mac_db = prepare_test_L3_CreatePorts_then_AttachRouter(aca_nodes_ip_mac, service_port_map)
       else:
         print("Invoke {}".format('-t <testcase number>'))
         print("ERROR: Quitting test\n")

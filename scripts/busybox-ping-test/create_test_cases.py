@@ -99,10 +99,19 @@ def prepare_test_L2_basic(ip_mac, ser_port):
     print("SUCCESS: preparing test case {}...".format(test_name))
     return ip_mac_db
 
-#test case 2 : L3 After Router (S4)
+# Test case 2: L3_AttachRouter_then_CreatePorts (S4)
 # Two nodes in different subnets, in same same sg
-def prepare_test_L3_after_router(ip_mac, ser_port):
-    test_name = "L3_after_router"
+# Order of network element creation is:
+# 1) Create default segement table
+# 2) Create nodes
+# 3) Create VPC
+# 4) Create security group
+# 5) Create create subnets
+# 6) Create router
+# 7) Attach subnets to router
+# 8) Create ports
+def prepare_test_L3_AttachRouter_then_CreatePorts(ip_mac, ser_port):
+    test_name = "L3_AttachRouter_then_CreatePorts"
     print("Preparing test case {}...".format(test_name))
     serv = read_config_file_section("services")
     create_default_segment_table(ser_port["vpm"])
@@ -110,11 +119,16 @@ def prepare_test_L3_after_router(ip_mac, ser_port):
     change = {'change':'cidr','cidr':"10.0.0.0/16"}
     create_vpc(ser_port["vpm"], change)
     create_security_group(ser_port["sgm"])
+
+    # create router
     router_id =create_router_interface(ser_port["rm"])
     get_vpcs(ser_port["vpm"])
 
-    # Relevant subnet info from L3_after_router (S4)
+    # create subnets
+    # Relevant subnet info from L3_AttachRouter_then_CreatePorts (S4)
     id_list, device_ids, ip_addrs = create_subnets(ser_port["snm"], test_name, "S4")
+
+    # attach subnets to router
     attach_subnets_to_router(ser_port["rm"], ser_port["snm"], router_id, id_list)
     get_subnets(ser_port["snm"])
     change_ports = {"change":["subnet_id","device_id","ip_addrs"],"subnet_id":id_list,"device_ids":device_ids,"ip_addrs":ip_addrs}
@@ -126,16 +140,19 @@ def prepare_test_L3_after_router(ip_mac, ser_port):
     return ip_mac_db
 
 
-# test case 3: L3 Before Router (S5)
+# test case 3: L3_CreatePorts_then_AttachRouter (S5)
 # Two nodes in different subnets and same security group but
-# order of network element creation is to:
-# 1) create create subnets,
-# 2) create port,
-# 3) create router
-# 4) attach subnets to router
-# 5) rest same as S4.
-def prepare_test_L3_before_router(ip_mac, ser_port):
-    test_name = "L3_before_router"
+# Order of network element creation is:
+# 1) Create default segement table
+# 2) Create nodes
+# 3) Create VPC
+# 4) Create security group
+# 5) Create create subnets
+# 6) Create ports
+# 7) Create router
+# 8) Attach subnets to router
+def prepare_test_L3_CreatePorts_then_AttachRouter(ip_mac, ser_port):
+    test_name = "L3_CreatePorts_then_AttachRouter"
     print("Preparing test case {}...".format(test_name))
     serv = read_config_file_section("services")
     create_default_segment_table(ser_port["vpm"])
@@ -146,10 +163,11 @@ def prepare_test_L3_before_router(ip_mac, ser_port):
     create_security_group(ser_port["sgm"])
 
     # create subnets
-    id_list, device_ids, ip_addrs = create_subnets(ser_port["snm"], "L3_after_router", "S5")
+    # Relevant subnet info from L3_AttachRouter_then_CreatePorts (S4)
+    id_list, device_ids, ip_addrs = create_subnets(ser_port["snm"], "L3_AttachRouter_then_CreatePorts", "S5")
     get_subnets(ser_port["snm"])
 
-    # create port
+    # create ports
     change_ports = {"change":["subnet_id","device_id","ip_addrs"],"subnet_id":id_list,"device_ids":device_ids,"ip_addrs":ip_addrs}
     create_port_goal_states(ser_port["pm"], change_ports)
 
