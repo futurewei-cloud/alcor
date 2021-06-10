@@ -87,7 +87,7 @@ def create_subnet(port):
   subnet["subnet"] = subnetinfo
   print("Posting subnet", subnet)
   post_httprequest(url, subnet)
-  print("Creating Subnet\n")
+  print("SUCCESS: Creating Subnet\n")
 
 
 def create_security_group(port):
@@ -171,4 +171,3 @@ def create_test_setup(ip_mac, config_file_object):
   ip_mac_db = get_mac_from_db()
   print("Goal State IP/MACs: ", ip_mac_db)
   return ip_mac_db
-

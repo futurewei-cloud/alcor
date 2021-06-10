@@ -19,6 +19,7 @@
 
 import time, os
 import argparse
+import textwrap
 import json
 from helper_functions import *
 from create_test_setup import *
@@ -94,9 +95,17 @@ def main():
     config_file_object = read_config_file(config_file)
     services_dict = dict(config_file_object.items("services"))
     service_port_map = get_service_port_map(services_dict)
-    parser = argparse.ArgumentParser(description='Busybox ping test', epilog='Example of use: python script_name -b')
+    parser = argparse.ArgumentParser(prog='ping_test',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description='Busybox ping test',
+        epilog=textwrap.dedent('''\
+Example of use: python script_name -b
+-t 1 : L2 Basic
+-t 2 : L3_AttachRouter_then_CreatePorts (S4)
+-t 3 : L3_CreatePorts_then_AttachRouter (S5)
+'''))
     parser.add_argument("-b", "--build", type=str, nargs='?', help=' to build alcor services provide :{} as an option'.format('-b build'))
-    parser.add_argument("-t", "--testcase", type=int, nargs='?', help='Test case number or {} for all tests cases '.format('all'))
+    parser.add_argument("-t", "--testcase", type=int, nargs='?', help='Test case number or {} for all tests cases. Default -t 1'.format('all'), default="1")
     parser.add_argument("-s", "--all", type=str, nargs='?', help = 'all tests cases')
     args = parser.parse_args()
 
@@ -148,9 +157,11 @@ def main():
 
     if args.testcase:
       if (args.testcase == 1):
-        ip_mac_db = prepare_test_case_1(aca_nodes_ip_mac, service_port_map)
+        ip_mac_db = prepare_test_L2_basic(aca_nodes_ip_mac, service_port_map)
       elif(args.testcase == 2):
-        ip_mac_db = prepare_test_case_2(aca_nodes_ip_mac, service_port_map)
+        ip_mac_db = prepare_test_L3_AttachRouter_then_CreatePorts(aca_nodes_ip_mac, service_port_map)
+      elif (args.testcase == 3):
+        ip_mac_db = prepare_test_L3_CreatePorts_then_AttachRouter(aca_nodes_ip_mac, service_port_map)
       else:
         print("Invoke {}".format('-t <testcase number>'))
         print("ERROR: Quitting test\n")
