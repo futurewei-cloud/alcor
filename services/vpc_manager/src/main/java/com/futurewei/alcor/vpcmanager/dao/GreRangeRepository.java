@@ -25,7 +25,6 @@ import com.futurewei.alcor.vpcmanager.config.ConstantsConfig;
 import com.futurewei.alcor.vpcmanager.entity.KeyAlloc;
 import com.futurewei.alcor.vpcmanager.entity.NetworkGRERange;
 import com.futurewei.alcor.vpcmanager.entity.NetworkRangeRequest;
-import com.futurewei.alcor.vpcmanager.entity.NetworkVxlanRange;
 import com.futurewei.alcor.vpcmanager.exception.InternalDbOperationException;
 import com.futurewei.alcor.vpcmanager.exception.NetworkRangeExistException;
 import com.futurewei.alcor.vpcmanager.exception.NetworkRangeNotFoundException;
