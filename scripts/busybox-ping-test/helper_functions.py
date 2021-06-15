@@ -114,7 +114,7 @@ def get_username():
 # Returns output on success, otherwise prints error code
 def run_command_on_host(HOST, COMMAND):
     try:
-      print("DDD: run_cmd: U = {}, H = {}, C = {}".format(get_username(), HOST, COMMAND))
+      print("run_command_on_host: U = {}, H = {}, C = {}".format(get_username(), HOST, COMMAND))
       ssh1 = sp.Popen(['ssh',
                        '-o StrictHostKeyChecking=no',
                        '-o UserKnownHostsFile=/dev/null',
@@ -248,3 +248,14 @@ def check_alcor_agents_running(aca):
       else:
          print("AlcorControlAgent is not running on {}".format(ip_addr))
 
+def get_gateway_for_ip(ip_addr):
+    gateways = read_config_file_section("gateways")
+    # print(gateways)
+    gateway_info = json.loads(gateways["gateway_info"])
+    # print(gateway_info)
+    for gw in gateway_info:
+        for ip in gw["ips"]:
+            if ip == ip_addr:
+                # print("FOUND GW: IP = {}, GW = {}".format(ip_addr, gw["gw"]))
+                return gw["gw"]
+    return None
