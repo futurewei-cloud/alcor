@@ -4,12 +4,19 @@ metadata:
   name: route-configmap
 data:
   application.properties: |
-    ignite.host=ignite-alcor-service.default.svc.cluster.local
+    microservices.vpc.service.url=http://vpcmanager-service.default.svc.cluster.local:9001
+    microservices.subnet.service.url=http://subnetmanager-service.default.svc.cluster.local:9002
+    microservices.dpm.service.url=http://dataplanemanager-service.default.svc.cluster.local:9010
+    microservices.port.service.url=http://portmanager-service.default.svc.cluster.local:9006
+    ignite.thin.client.enable=true
+    ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
     ignite.port=10800
-    logging.level.root=info
+    logging.level.root=DEBUG
     logging.level.org.springframework.web=info
     logging.file.path=.
     logging.type=file
+    management.health.redis.enabled=false
+    
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -21,7 +28,7 @@ spec:
   selector:
     matchLabels:
       app: routemanager
-  replicas: 3
+  replicas: 5
   template:
     metadata:
       labels:
@@ -35,7 +42,7 @@ spec:
               - key: application.properties
                 path: application.properties
       containers:
-        - image: zhonghaolyu/repo:routeKube1
+        - image: route_manager:v1.0
         #- image: fwnetworking/controller:route_manager-v0.3.0
           name: routemanager-web
           imagePullPolicy: IfNotPresent

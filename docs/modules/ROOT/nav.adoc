@@ -22,8 +22,10 @@
 //*** xref:private_ip_manager.adoc[Private IP Manager]
 //*** Private IP Manager
 ** xref:db_services/data_store.adoc[Database and Cache Services]
+** xref:db_services/distributed_cache.adoc[Distributed Cache]
 ** Infrastructure Services
 *** xref:infra_services/data_plane_manager.adoc[Data-Plane Manager]
+*** xref:infra_services/network_config_manager.adoc[Network Configuration Manager]
 *** xref:infra_services/network_health_monitor.adoc[Network Health Monitor]
 ** xref:mq_services/message_queue_system.adoc[Message Queue Services]
 //*** Gateway Manager

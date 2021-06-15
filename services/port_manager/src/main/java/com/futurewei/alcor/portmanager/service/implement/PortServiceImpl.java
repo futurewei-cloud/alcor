@@ -1,17 +1,17 @@
 /*
-Copyright 2019 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package com.futurewei.alcor.portmanager.service.implement;
 
@@ -21,25 +21,31 @@ import com.futurewei.alcor.portmanager.entity.PortBindingHost;
 import com.futurewei.alcor.portmanager.exception.*;
 import com.futurewei.alcor.portmanager.proxy.*;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
+import com.futurewei.alcor.portmanager.request.IRestRequest;
 import com.futurewei.alcor.portmanager.rollback.*;
 import com.futurewei.alcor.portmanager.service.PortService;
 import com.futurewei.alcor.portmanager.util.NetworkConfigurationUtil;
-import com.futurewei.alcor.web.entity.NodeInfo;
+import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.dataplane.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.*;
+import com.futurewei.alcor.web.entity.route.RouterUpdateInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-@Service
-@ComponentScan(value = "com.futurewei.alcor.common.utils")
-@ComponentScan(value = "com.futurewei.alcor.web.restclient")
+/*
+NOTE: This is PM v1.0 implementation and has been deprecated
+      Please check com.futurewei.alcor.portmanager.service.PortServiceImpl for PM v2.0 implementation
+ */
+
+//@Service
+//@ComponentScan(value = "com.futurewei.alcor.common.utils")
+//@ComponentScan(value = "com.futurewei.alcor.web.restclient")
+@Deprecated
 public class PortServiceImpl implements PortService {
     private static final Logger LOG = LoggerFactory.getLogger(PortServiceImpl.class);
 
@@ -109,7 +115,7 @@ public class PortServiceImpl implements PortService {
         //Verify Binding Host ID
         if (portEntity.getBindingHostId() != null) {
             NodeManagerProxy nodeManagerProxy = new NodeManagerProxy(rollbacks);
-            executor.runAsync(nodeManagerProxy::getNodeInfo, portEntity);
+            executor.runAsync(nodeManagerProxy::getNodeInfoByNodeName, portEntity);
         }
 
         //Get PortNeighbors
@@ -125,6 +131,7 @@ public class PortServiceImpl implements PortService {
          they may not be completed until the rollback operation is completed.
          as a result, they cannot be rolled back.
          */
+        LOG.error("", e);
         executor.waitAll();
         rollBackAllOperations(rollbacks);
         throw e;
@@ -336,8 +343,8 @@ public class PortServiceImpl implements PortService {
         }
 
         //Update admin_state
-        boolean newAdminState = newPortEntity.isAdminStateUp();
-        boolean oldAdminState = oldPortEntity.isAdminStateUp();
+        Boolean newAdminState = newPortEntity.getAdminStateUp();
+        Boolean oldAdminState = oldPortEntity.getAdminStateUp();
         if (newAdminState != oldAdminState) {
             oldPortEntity.setAdminStateUp(newAdminState);
             needNotifyDpm = true;
@@ -352,8 +359,8 @@ public class PortServiceImpl implements PortService {
         }
 
         //Update binding:profile
-        String newBindingProfile = newPortEntity.getBindingProfile();
-        String oldBindingProfile = oldPortEntity.getBindingProfile();
+        BindingProfile newBindingProfile = newPortEntity.getBindingProfile();
+        BindingProfile oldBindingProfile = oldPortEntity.getBindingProfile();
         if (newBindingProfile != null && !newBindingProfile.equals(oldBindingProfile)) {
             oldPortEntity.setBindingProfile(newBindingProfile);
             needNotifyDpm = true;
@@ -424,6 +431,13 @@ public class PortServiceImpl implements PortService {
             if (delFixedIps.size() > 0) {
                 needNotifyDpm = true;
                 executor.runAsync(ipManagerProxy::releaseIpAddressBulk, delFixedIps);
+
+                //disassociate with elastic ip if exist
+                ElasticIpManagerProxy elasticIpManagerProxy = new ElasticIpManagerProxy(newPortEntity.getProjectId());
+                for (PortEntity.FixedIp delIp : delFixedIps) {
+                    executor.runAsync(elasticIpManagerProxy::portIpDeleteEventProcess,
+                            newPortEntity.getId(), delIp.getIpAddress());
+                }
             }
 
             if (addFixedIps.size() > 0) {
@@ -453,8 +467,8 @@ public class PortServiceImpl implements PortService {
         }
 
         //Update port_security_enabled
-        boolean newPortSecurityEnabled = newPortEntity.isPortSecurityEnabled();
-        boolean oldPortSecurityEnabled = oldPortEntity.isPortSecurityEnabled();
+        Boolean newPortSecurityEnabled = newPortEntity.getPortSecurityEnabled();
+        Boolean oldPortSecurityEnabled = oldPortEntity.getPortSecurityEnabled();
         if (newPortSecurityEnabled != oldPortSecurityEnabled) {
             oldPortEntity.setPortSecurityEnabled(newPortSecurityEnabled);
             needNotifyDpm = true;
@@ -481,8 +495,8 @@ public class PortServiceImpl implements PortService {
         }
 
         //Update mac_learning_enabled
-        boolean newMacLearningEnabled = newPortEntity.isMacLearningEnabled();
-        boolean oldMacLearningEnabled = oldPortEntity.isMacLearningEnabled();
+        Boolean newMacLearningEnabled = newPortEntity.getMacLearningEnabled();
+        Boolean oldMacLearningEnabled = oldPortEntity.getMacLearningEnabled();
         if (newMacLearningEnabled != oldMacLearningEnabled) {
             oldPortEntity.setMacLearningEnabled(newMacLearningEnabled);
             needNotifyDpm = true;
@@ -517,7 +531,7 @@ public class PortServiceImpl implements PortService {
         //Get NodeInfo
         NodeManagerProxy nodeManagerProxy = new NodeManagerProxy(null);
         if (portEntity.getBindingHostId() != null) {
-            executor.runAsync(nodeManagerProxy::getNodeInfo, portEntity);
+            executor.runAsync(nodeManagerProxy::getNodeInfoByNodeName, portEntity);
         }
 
         //Get portNeighbors
@@ -689,6 +703,10 @@ public class PortServiceImpl implements PortService {
                 executor.runAsync(securityGroupManagerProxy::unbindSecurityGroup, portEntity);
             }
 
+            //Disassociate with elastic ip if exists
+            ElasticIpManagerProxy elasticIpManagerProxy = new ElasticIpManagerProxy(portEntity.getProjectId());
+            executor.runAsync(elasticIpManagerProxy::portIpDeleteEventProcess, portEntity.getId(), null);
+
             //Get port dependent resources
             this.getPortDependentResources(portEntity, executor, true);
 
@@ -763,11 +781,26 @@ public class PortServiceImpl implements PortService {
             return result;
         }
 
-        for (Map.Entry<String, PortEntity> entry: portEntityMap.entrySet()) {
+        for (Map.Entry<String, PortEntity> entry : portEntityMap.entrySet()) {
             PortWebJson portWebJson = new PortWebJson(entry.getValue());
             result.add(portWebJson);
         }
 
         return result;
+    }
+
+    @Override
+    public RouterUpdateInfo updateL3Neighbors(String projectId, RouterUpdateInfo routerUpdateInfo) throws Exception {
+        throw new UnsupportedException();
+    }
+
+    @Override
+    public int getSubnetPortCount(String projectId, String subnetId) throws Exception {
+        return 0;
+    }
+
+    @Override
+    public void updatePortStatus(IRestRequest request, com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration configuration, String status) throws Exception {
+
     }
 }

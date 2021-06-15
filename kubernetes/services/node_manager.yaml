@@ -6,16 +6,21 @@ data:
   application.properties: |
     spring.redis.host=localhost
     spring.redis.port=6380
-    ignite.host=ignite-alcor-service.default.svc.cluster.local
+    ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
     ignite.port=10800
-    ignite.key-store-path=keystore.jks
-    ignite.key-store-password=123456
-    ignite.trust-store-path=truststore.jks
-    ignite.trust-store-password=123456
+    ignite.thin.client.enable=true
+    #ignite.key-store-path=keystore.jks
+    #ignite.key-store-password=123456
+    #ignite.trust-store-path=truststore.jks
+    #ignite.trust-store-password=123456
+    logging.level.root=DEBUG
     spring.servlet.multipart.enabled=true
     spring.servlet.multipart.file-size-threshold=2KB
     spring.servlet.multipart.max-file-size=200MB
     spring.servlet.multipart.max-request-size=215MB
+    microservices.dataplane.service.url=http://dataplanemanager-service.default.svc.cluster.local:30010/network-configuration
+    microservices.dataplane.nodeservice.url=http://dataplanemanager-service.default.svc.cluster.local:30010/nodes
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -27,7 +32,7 @@ spec:
   selector:
     matchLabels:
       app: nodemanager
-  replicas: 3
+  replicas: 5
   template:
     metadata:
       labels:
@@ -41,7 +46,7 @@ spec:
               - key: application.properties
                 path: application.properties
       containers:
-        - image: zhonghaolyu/repo:nodeKube1
+        - image: node_manager:v1.0
         #- image: fwnetworking/controller:node_manager-v0.3.0
           name: nodemanager-web
           imagePullPolicy: IfNotPresent
@@ -66,7 +71,7 @@ spec:
   ports:
     - port: 9007
       targetPort: 8080
-      nodePort: 30009
+      nodePort: 30007
   selector:
     app: nodemanager
 

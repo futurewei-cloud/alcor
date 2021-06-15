@@ -1,17 +1,40 @@
+/*
+MIT License
+Copyright(c) 2020 Futurewei Cloud
+
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
 package com.futurewei.alcor.vpcmanager.controller;
 
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
 import com.futurewei.alcor.common.exception.*;
+import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.vpcmanager.exception.NetworkKeyNotEnoughException;
 import com.futurewei.alcor.vpcmanager.service.SegmentDatabaseService;
 import com.futurewei.alcor.vpcmanager.service.SegmentService;
+import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
 import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.vpcmanager.utils.SegmentManagementUtil;
-import com.futurewei.alcor.web.entity.*;
+import com.futurewei.alcor.web.entity.vpc.SegmentEntity;
+import com.futurewei.alcor.web.entity.vpc.SegmentWebRequestJson;
+import com.futurewei.alcor.web.entity.vpc.SegmentWebRequest;
+import com.futurewei.alcor.web.entity.vpc.SegmentWebResponseJson;
+import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,9 +45,13 @@ import java.util.stream.Collectors;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
+@ComponentScan(value = "com.futurewei.alcor.common.stats")
 public class SegmentController {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    private VpcDatabaseService vpcDatabaseService;
 
     @Autowired
     private SegmentDatabaseService segmentDatabaseService;
@@ -42,6 +69,7 @@ public class SegmentController {
     @RequestMapping(
             method = GET,
             value = {"/project/{projectid}/segments/{segmentid}"})
+    @DurationStatistics
     public SegmentWebResponseJson getSegmentBySegmentId(@PathVariable String projectid, @PathVariable String segmentid) throws Exception {
 
         SegmentEntity segmentEntity = null;
@@ -75,6 +103,7 @@ public class SegmentController {
             method = POST,
             value = {"/project/{projectid}/segments"})
     @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
     public SegmentWebResponseJson createSegment(@PathVariable String projectid, @RequestBody SegmentWebRequestJson resource) throws Exception {
 
         SegmentEntity segmentEntity = new SegmentEntity();
@@ -87,20 +116,24 @@ public class SegmentController {
             }
 
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
-            SegmentWebRequestObject segmentWebRequestObject = resource.getSegment();
-            BeanUtils.copyProperties(segmentWebRequestObject, segmentEntity);
+            SegmentWebRequest segmentWebRequest = resource.getSegment();
+            BeanUtils.copyProperties(segmentWebRequest, segmentEntity);
             RestPreconditionsUtil.verifyResourceNotNull(segmentEntity);
             RestPreconditionsUtil.populateResourceProjectId(segmentEntity, projectid);
 
+            String vpcId = segmentWebRequest.getVpcId();
+            VpcEntity vpcState = this.vpcDatabaseService.getByVpcId(vpcId);
+
             // verify network type
-            String networkType = segmentWebRequestObject.getNetworkType();
+            String networkType = segmentWebRequest.getNetworkType();
             Long key = null;
+            Integer mtu = vpcState.getMtu();
             if (NetworkTypeEnum.VXLAN.getNetworkType().equals(networkType)) {
-                key = segmentService.addVxlanEntity(networkTypeId, networkType, segmentWebRequestObject.getVpcId());
+                key = segmentService.addVxlanEntity(networkTypeId, networkType, vpcId, mtu);
             } else if (NetworkTypeEnum.VLAN.getNetworkType().equals(networkType)) {
-                key = segmentService.addVlanEntity(networkTypeId, networkType, segmentWebRequestObject.getVpcId());
+                key = segmentService.addVlanEntity(networkTypeId, networkType, vpcId, mtu);
             }else if (NetworkTypeEnum.GRE.getNetworkType().equals(networkType)) {
-                key = segmentService.addGreEntity(networkTypeId, networkType, segmentWebRequestObject.getVpcId());
+                key = segmentService.addGreEntity(networkTypeId, networkType, vpcId, mtu);
             }
 
             if (key != null) {
@@ -120,6 +153,8 @@ public class SegmentController {
             throw new Exception(e);
         } catch (ResourceNullException e) {
             throw new Exception(e);
+        } catch (NetworkKeyNotEnoughException e) {
+            throw new Exception(e);
         }
 
         return new SegmentWebResponseJson(segmentEntity);
@@ -137,6 +172,7 @@ public class SegmentController {
     @RequestMapping(
             method = PUT,
             value = {"/project/{projectid}/segments/{segmentid}"})
+    @DurationStatistics
     public SegmentWebResponseJson updateSegmentBySegmentId(@PathVariable String projectid, @PathVariable String segmentid, @RequestBody SegmentWebRequestJson resource) throws Exception {
 
         SegmentEntity segmentEntity = new SegmentEntity();
@@ -149,8 +185,8 @@ public class SegmentController {
 
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(segmentid);
-            SegmentWebRequestObject segmentWebRequestObject = resource.getSegment();
-            BeanUtils.copyProperties(segmentWebRequestObject, segmentEntity);
+            SegmentWebRequest segmentWebRequest = resource.getSegment();
+            BeanUtils.copyProperties(segmentWebRequest, segmentEntity);
             RestPreconditionsUtil.verifyResourceNotNull(segmentEntity);
             RestPreconditionsUtil.populateResourceProjectId(segmentEntity, projectid);
             RestPreconditionsUtil.populateResourceSegmentId(segmentEntity, segmentid);
@@ -160,7 +196,7 @@ public class SegmentController {
                 throw new ResourceNotFoundException("Segment not found : " + segmentid);
             }
 
-            BeanUtils.copyProperties(segmentWebRequestObject, segmentEntity);
+            BeanUtils.copyProperties(segmentWebRequest, segmentEntity);
             Integer revisionNumber = segmentEntity.getRevisionNumber();
             if (revisionNumber == null) {
                 segmentEntity.setRevisionNumber(1);
@@ -190,6 +226,7 @@ public class SegmentController {
     @RequestMapping(
             method = DELETE,
             value = {"/project/{projectid}/segments/{segmentid}"})
+    @DurationStatistics
     public ResponseId deleteSegmentBySegmentId(@PathVariable String projectid, @PathVariable String segmentid) throws Exception {
 
         SegmentEntity segmentEntity = null;
@@ -235,6 +272,7 @@ public class SegmentController {
     @RequestMapping(
             method = GET,
             value = "/project/{projectid}/segments")
+    @DurationStatistics
     public Map getSegmentsByProjectId(@PathVariable String projectid) throws Exception {
 
         Map<String, SegmentEntity> segments = null;
@@ -255,6 +293,23 @@ public class SegmentController {
         }
 
         return segments;
+
+    }
+
+    @RequestMapping(
+            method = POST,
+            value = "/segments/createDefaultTable")
+    @DurationStatistics
+    public void createDefaultTable() throws Exception {
+
+        try {
+
+            this.segmentService.createDefaultNetworkTypeTable();
+
+        } catch (Exception e) {
+            throw e;
+        }
+
 
     }
 

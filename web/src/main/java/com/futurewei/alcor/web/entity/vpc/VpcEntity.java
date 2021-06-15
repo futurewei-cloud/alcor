@@ -1,10 +1,25 @@
+/*
+MIT License
+Copyright(c) 2020 Futurewei Cloud
+
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
 package com.futurewei.alcor.web.entity.vpc;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
-import com.futurewei.alcor.web.entity.SegmentInfoInVpc;
-import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
+import com.futurewei.alcor.web.entity.route.Router;
+
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -19,6 +34,9 @@ public class VpcEntity extends CustomerResource {
 
     @JsonProperty("routes")
     private List<RouteEntity> routeEntities;
+
+    @JsonProperty("router")
+    private Router router;
 
     @JsonProperty("admin_state_up")
     private boolean adminStateUp;
@@ -63,7 +81,7 @@ public class VpcEntity extends CustomerResource {
     private List<String> availabilityZones;
 
     @JsonProperty("qos_policy_id")
-    private List qosPolicyId;
+    private String qosPolicyId;
 
     @JsonProperty("revision_number")
     private Integer revisionNumber;
@@ -92,7 +110,7 @@ public class VpcEntity extends CustomerResource {
     private String l2Adjacency;
 
     @JsonProperty("subnets")
-    private List<SubnetEntity> subnets;
+    private List<String> subnets;
 
     public VpcEntity() {}
 
@@ -101,7 +119,7 @@ public class VpcEntity extends CustomerResource {
         this.routeEntities = routeEntities;
     }
 
-    public VpcEntity(String projectId, String id, String name, String description, List<RouteEntity> routeEntities, boolean adminStateUp, String dnsDomain, Integer mtu, boolean portSecurityEnabled, String networkType, String physicalNetwork, Integer segmentationId, boolean routerExternal, List<SegmentInfoInVpc> segments, boolean shared, boolean vlanTransparent, boolean isDefault, List availabilityZoneHints, List availabilityZones, List qosPolicyId, Integer revisionNumber, String status, List<String> tags, String created_at, String updated_at, String ipv4AddressScope, String ipv6AddressScope, String l2Adjacency, List<SubnetEntity> subnets, String cidr) {
+    public VpcEntity(String projectId, String id, String name, String description, List<RouteEntity> routeEntities, boolean adminStateUp, String dnsDomain, Integer mtu, boolean portSecurityEnabled, String networkType, String physicalNetwork, Integer segmentationId, boolean routerExternal, List<SegmentInfoInVpc> segments, boolean shared, boolean vlanTransparent, boolean isDefault, List availabilityZoneHints, List availabilityZones, String qosPolicyId, Integer revisionNumber, String status, List<String> tags, String created_at, String updated_at, String ipv4AddressScope, String ipv6AddressScope, String l2Adjacency, List<String> subnets, String cidr) {
         super(projectId, id, name, description);
         this.routeEntities = routeEntities;
         this.adminStateUp = adminStateUp;
@@ -129,5 +147,213 @@ public class VpcEntity extends CustomerResource {
         this.l2Adjacency = l2Adjacency;
         this.subnets = subnets;
         this.cidr = cidr;
+    }
+
+    public String getCidr() {
+        return cidr;
+    }
+
+    public void setCidr(String cidr) {
+        this.cidr = cidr;
+    }
+
+    public List<RouteEntity> getRouteEntities() {
+        return routeEntities;
+    }
+
+    public void setRouteEntities(List<RouteEntity> routeEntities) {
+        this.routeEntities = routeEntities;
+    }
+
+    public boolean isAdminStateUp() {
+        return adminStateUp;
+    }
+
+    public void setAdminStateUp(boolean adminStateUp) {
+        this.adminStateUp = adminStateUp;
+    }
+
+    public String getDnsDomain() {
+        return dnsDomain;
+    }
+
+    public void setDnsDomain(String dnsDomain) {
+        this.dnsDomain = dnsDomain;
+    }
+
+    public Integer getMtu() {
+        return mtu;
+    }
+
+    public void setMtu(Integer mtu) {
+        this.mtu = mtu;
+    }
+
+    public boolean isPortSecurityEnabled() {
+        return portSecurityEnabled;
+    }
+
+    public void setPortSecurityEnabled(boolean portSecurityEnabled) {
+        this.portSecurityEnabled = portSecurityEnabled;
+    }
+
+    public String getNetworkType() {
+        return networkType;
+    }
+
+    public void setNetworkType(String networkType) {
+        this.networkType = networkType;
+    }
+
+    public String getPhysicalNetwork() {
+        return physicalNetwork;
+    }
+
+    public void setPhysicalNetwork(String physicalNetwork) {
+        this.physicalNetwork = physicalNetwork;
+    }
+
+    public Integer getSegmentationId() {
+        return segmentationId;
+    }
+
+    public void setSegmentationId(Integer segmentationId) {
+        this.segmentationId = segmentationId;
+    }
+
+    public boolean isRouterExternal() {
+        return routerExternal;
+    }
+
+    public void setRouterExternal(boolean routerExternal) {
+        this.routerExternal = routerExternal;
+    }
+
+    public List<SegmentInfoInVpc> getSegments() {
+        return segments;
+    }
+
+    public void setSegments(List<SegmentInfoInVpc> segments) {
+        this.segments = segments;
+    }
+
+    public boolean isShared() {
+        return shared;
+    }
+
+    public void setShared(boolean shared) {
+        this.shared = shared;
+    }
+
+    public boolean isVlanTransparent() {
+        return vlanTransparent;
+    }
+
+    public void setVlanTransparent(boolean vlanTransparent) {
+        this.vlanTransparent = vlanTransparent;
+    }
+
+    public boolean isDefault() {
+        return isDefault;
+    }
+
+    public void setDefault(boolean aDefault) {
+        isDefault = aDefault;
+    }
+
+    public List<String> getAvailabilityZoneHints() {
+        return availabilityZoneHints;
+    }
+
+    public void setAvailabilityZoneHints(List<String> availabilityZoneHints) {
+        this.availabilityZoneHints = availabilityZoneHints;
+    }
+
+    public List<String> getAvailabilityZones() {
+        return availabilityZones;
+    }
+
+    public void setAvailabilityZones(List<String> availabilityZones) {
+        this.availabilityZones = availabilityZones;
+    }
+
+    public String getQosPolicyId() {
+        return qosPolicyId;
+    }
+
+    public void setQosPolicyId(String qosPolicyId) {
+        this.qosPolicyId = qosPolicyId;
+    }
+
+    public Integer getRevisionNumber() {
+        return revisionNumber;
+    }
+
+    public void setRevisionNumber(Integer revisionNumber) {
+        this.revisionNumber = revisionNumber;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
+
+    public String getCreated_at() {
+        return created_at;
+    }
+
+    public void setCreated_at(String created_at) {
+        this.created_at = created_at;
+    }
+
+    public String getUpdated_at() {
+        return updated_at;
+    }
+
+    public void setUpdated_at(String updated_at) {
+        this.updated_at = updated_at;
+    }
+
+    public String getIpv4AddressScope() {
+        return ipv4AddressScope;
+    }
+
+    public void setIpv4AddressScope(String ipv4AddressScope) {
+        this.ipv4AddressScope = ipv4AddressScope;
+    }
+
+    public String getIpv6AddressScope() {
+        return ipv6AddressScope;
+    }
+
+    public void setIpv6AddressScope(String ipv6AddressScope) {
+        this.ipv6AddressScope = ipv6AddressScope;
+    }
+
+    public String getL2Adjacency() {
+        return l2Adjacency;
+    }
+
+    public void setL2Adjacency(String l2Adjacency) {
+        this.l2Adjacency = l2Adjacency;
+    }
+
+    public List<String> getSubnets() {
+        return subnets;
+    }
+
+    public void setSubnets(List<String> subnets) {
+        this.subnets = subnets;
     }
 }

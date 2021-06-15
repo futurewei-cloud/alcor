@@ -1,4 +1,5 @@
 = Integration with OpenStack Keystone
+Jianwei Zuo <740684863@qq.com>, Liguang Xie <lxie@futurewei.com>
 v0.1, 2020-05-28
 :toc: right
 :imagesdir: ../../images
@@ -10,56 +11,56 @@ NOTE: This document is under development
 Alcor API currently requires a project id in the API Url.Neutron 2.0 APIs, however, don't need to provide a project id as
 it generates the project id based on the Authentication token in the X-Auth-Token request header, when Keystone is enabled.
 
-Reference: https://docs.openstack.org/api-ref/network/v2/
-"The Networking API v2.0 uses the OpenStack Identity service as the default authentication service.
+According to <<openstack>>, Neutron's "Networking API v2.0 uses the OpenStack Identity service as the default authentication service.
 When Keystone is enabled, users that submit requests to the OpenStack Networking service must provide an authentication
-token in X-Auth-Token request header. You obtain the token by authenticating to the Keystone endpoint.
+token in X-Auth-Token request header. You obtain the token by authenticating to the Keystone endpoint."
 
 When Keystone is enabled, the project_id attribute is not required in create requests
 because the project ID is derived from the authentication token."
 
 [#system-requirements]
-== Integration Requirements
+=== Integration Requirements
 
 . Identify Neutron's algorithm that generates project id based on X-Auth-Token.
 . Make changes to API Gateway to support Authentication & Authorization with KeyStone, and support same way how project id is generated based on X-Auth-Token in API Gateway.
 . Integration testing with KeyStone.
 
-== Review of OpenStack Workflow
-https://docs.openstack.org/api-ref/identity/v3/index.html#check-token[Openstack keystone apis]
+=== Review of OpenStack Workflow
 
-In openstack neutron project, it use keystonemiddle to verify request token. .
-Verify request token have few steps.
+In OpenStack neutron project, it uses keystonemiddle to verify request token. <<keystone>>
 
-. get available keystone endpoints from keystone server
-. request local token from keystone server with keystone client conf in neutron.conf
-. verify request token from keystone server
+Verification of request token includes the following steps:
+. Get available keystone endpoints from keystone server;
+. Request local token from keystone server with keystone client conf in neutron.conf;
+. Verify request token from keystone server.
 
-== Required Changes
+== Proposed Changes
 
 . Add a KeystoneAuthWebFilter class to fetch all api-gateway request token and verify token from keystone server and get project_id from verify api response.
 . Add keystone conf in application.properties file (https://docs.openstack.org/keystone/latest/user/supported_clients.html[keystone config example])
 
-== KeystoneAuthWebFilter Start Workflow
-image::keystone_filter_start_workflow.jpg["KeystoneAuthWebFilter Start Workflow", width=1024, link="keystone_filter_start_workflow.jpg"]
+=== KeystoneAuthWebFilter Start Workflow
+image::keystone_filter_start_workflow.jpg["KeystoneAuthWebFilter Start Workflow", width=900, link="keystone_filter_start_workflow.jpg"]
 
-== KeystoneAuthWebFilter Workflow
-image::keystone_filter_workflow.jpg["KeystoneAuthWebFilter Workflow", width=1024]
+=== KeystoneAuthWebFilter Workflow
+image::keystone_filter_workflow.jpg["KeystoneAuthWebFilter Workflow", width=900]
 
-== Token Cache Design
-Consider multi customer requests have a same token, it's not need to send a request to keystone to verfiy the same token for every request.
-A cache component can cache all verified token. Alcor will check cache first that the customer request token is verifed,
-it will return token info if cache have the customer token. If the customer token not in cache , it will send a request to keystone
-and check response and cache the token result.
+=== Token Cache Design
 
+Consider multi requests of one customer might use the same token, it's not needed to send a request to keystone to verify the same token for every request.
+A cache component can cache all verified token.
+Alcor will check cache first to see if the customer request token has been verified.
+If cache has the customer token, it will return token info.
+Otherwise, it will send a request to keystone and check response and cache the token result.
 
-A cache data have a expired time to clear no use cache tokens.And Double the token expiration as the cache expiration time.
+A cache data have an expired time to clear no use cache tokens.
+Double the token expiration as the cache expiration time.
 This can prevent customer request from still carrying expired tokens for verification.
 
 == Data Schema
-How token store in cache： +
-A cache token key is token self. +
-A token entity schema: +
+
+The token information is saved in a K-V store.
+The key is token itself, and the details of the token entity is as follows:
 
 [width="100%",cols="22%,12%,50%"]
 |===
@@ -127,11 +128,7 @@ examples:
 }
 ....
 
-== Integration Proposal
 
-. Microservice APIs should support multi params query eg: show/list actions
-. Rename resource name in url path or add same resource name in url path
-. Support "field" params in api and response body should have the "field" params content
 
 == Test Plan
 
@@ -139,3 +136,9 @@ examples:
 . Test whether there is a problem with the simulated Keystone environment test.
 . Test whether the function integrated into the running OpenStack environment is normal.
 . Deploy multiple API gateway instance and test that scenarios.
+
+[bibliography]
+== References
+
+- [[[openstack,1]]] https://docs.openstack.org/api-ref/network/v2/
+- [[[keystone,2]]] https://docs.openstack.org/api-ref/identity/v3/index.html#check-token

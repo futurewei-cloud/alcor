@@ -1,0 +1,161 @@
+= Transactions in Alcor
+Prasad Kommoju <pkommoju@futurewei.com>
+v.01, 2021-05-05
+:toc: right
+
+== Overview
+
+This document explains the role of transactions in Alcor and provides a set of guidelines for new services and caches to follow so that they conform to the behavior required.
+
+
+== Brief introduction to transactions
+
+A transaction is a term from database world. Where it refers to some work by the code which changes some persistent data. For the state of the program to be consistent, either all of it is done, or no part of it is done. This property of all or nothing of transactions is called atomicity.
+
+Another property of transactions is called isolation, which means, even when multiple processes and threads operate on a data item simultaneously, the end result should be as if they were done in a specific order and not in some arbitrarily interleaved order. Furthermore, at any point of time the execution of these changes the data remains in a consistent state. The concepts are the same in Alcor.
+
+In Alcor there are many data stores to store the state of the system. Currently the data store is Apache Ignite but the general concepts and techniques laid down by these guidelines apply to any data store. In this document, cache and store are used interchangeably where this is no ambiguity.
+
+Ignite supports three modes of transactions:
+
+    1) ATMOIC: In DBMS world, this is called AUTO COMMIT. If an individual data store operation succeeds, its effects are made permanent immediately. There is no way to ask the system to undo the changes. If it fails, the attempted changes are thrown away. Code itself will have to handle undoing the changes if some other condition warrants it.
+
+    2) TRANSACTIONAL: In DBMS world, this is called MANUAL COMMIT. The code will have to start a transaction, and if everything is good, it will have to issue a COMMIT to make the changes permanent. If for any reason, the changes already made need to be undone, then the code issues a ROLLBACK. If the code does not start a transaction, or explicitly ask for a COMMIT, all changes will be thrown away.
+
+    3) TRANSACTAIONAL_SNAPSHOT: Not applicable for K-V stores, which are what Alcor uses. It is Applicable to SQL objects only.
+
+== Transactions in Alcor
+
+The three main requirements of transactions in Alcor cane be summarized as follows:
+
+1) Single operations
+2) Multicache operations
+3) Multi microservice operations
+4) Reading a snapshot view of cache(s).
+
+=== Single cache operations
+When a cache is modified in some way and some other condition fails because of errors or exceptions, the cache operation will have to reverted to bring the cache to its original state.
+
+=== Multicache operations
+Some operations may require modifying more than one cache at the same time and in atomic manner. If a later cache operation fails, all of the previously successful cache operations will have to be reverted. Ignite requires that all caches under a transaction have the same transactional mode, either all are ATOMIC, or all are TRANSACTIONAL. Trying to mix operations on multiple caches having multiple atomicity modes will result in an exception.
+
+=== Multi microservice operations
+Each micro service has its own data store and works independently of others but in a coordinated manner. When an operation involves atomic modification of caches owned by more than microservice, one failed operation will have to revert previously successful cache operations.
+
+=== Reading a snapshot view of cache(s)
+Even when an operation requires only reading of a cache, in order to avoid certain anomalous conditions a transaction will be required, specifically, a particular form of isolation property of transactions.
+
+Transactions and their atomicity and isolation properties ensure that the caches are always consistent, but they come at a cost - reduced concurrency and thus performance.
+
+
+This document focuses on (1) and (2). (3) is now handled by handcrafted rollback mechanism, which is not correct or robust, and possibly expensive too. We will address this later by using the mechanisms supported by the underlying data store.
+
+Also, this document focuses on Ignite because that is what the current data store is. More or less the same approaches will be needed if another data store were to be used.
+
+== Enabling TRANSACTONAL Atomicity of Caches
+
+There are two ways add transactional semantics to Alcor code:
+
+1) Ignite configuration
+
+2) Basing the cache on a specific kind of base class
+
+
+=== Ignite configuration
+In the Ignite configuration file (Kubernetes/services/ignite_config.xml) used in K8S, or local ignite config file (config/ignite-config.xml) in the Alcor source root.
+
+    a) Add a Bean under the property "cacheConfiguration"
+
+             <bean class="org.apache.ignite.configuration.CacheConfiguration">
+                <!-- Set the cache name. -->
+                <property name="name" value="CACHE_NAME"/>
+                <!-- Set the cache mode. -->
+                <property name="atomicityMode" value="TRANSACTIONAL"/>
+                <!-- Other cache parameters. -->
+                <property name="cacheMode" value="PARTITIONED"/>
+             </bean>
+
+CACHE_NAME should match the name passed to getCache() method of the cache factory. Usually, this is simply getCache(CacheClass.class) but it could be a hard coded one like getCache("dpm_node_info") when the same class is the type of the Value of entry in the cache.
+
+If CacheClass.class is passed as the name, then value property should be set to the canonical name of that class. For instance, creating a cache with getCache(PortEntity.class) will requires the value to be set to "com.futurewei.alcor.web.entity.port.PortEntity".
+
+If more than one cache is instantiated as in ICache<KType, VType> and getCache called with VType.class, all of them will be known to Ignite by the same name and represent the same physical cache store. If this is not the desired behavior, then different caches of VType instantiations should use a different name in getCache().
+
+=== Basing the cache on a specific kind of base class
+This is not supported at the time at a finer granularity. The reason is that Ignite does not allow changing the atomicity of a cache after it has been created.
+
+Regardless of which of the two methods is followed, if the given cache is housed in a class by it self, or along with one or more other caches, the following guidelines apply. In the first case, it is optional but in the second case it is strongly recommended.
+
+The class definition for the cache will have to
+
+* Declare a data member of type CacheFactory
+* Assign to CacheFactory data member the parameter of type CacheFactoty passed into the constructor,
+* Define a public method getTransaction() which returns cacheFactory.getTransaction().
+
+This purpose of this guidelines is to minimize code changes outside the class housing the cache object if and when the manner of obtaining a transaction from the underlying data store changes.
+
+==== Illustration:
+----
+public class MyCache {
+   private ICache<Ktype, Vtype> myCache;
+   private CacheFactory     cacheFactory;
+
+   @Autowired
+   public MyCache(CacheFactory cacheFactory) {
+      this.cacheFactory = cacheFactory;
+      this.myCache = cacheFactory.getCache(Vtype.class);
+}
+
+...
+
+public Transaction getTransaction() {
+   return cacheFactory.getTransaction();
+}
+
+...
+
+}
+----
+
+== Working under TRANSACATIONAL atomicity
+
+Alcor code which interfaces to Ignite caches is structured in such a way that all caches opened or created by a specific "connection" to Ignite all share a common "Ignite client". All these caches have a getTransaction() method which ultimately resolves to the same transaction object.
+
+
+Single cache operations should adhere to the following pattern:
+
+----
+    ...
+    try {
+        Transaction txn = myCache.getTransaction().start();
+        myCache.put(...);
+        myCache.remove(...);
+        ...
+        txn.commit();
+    }
+    catch (...) {
+        // log a message and anything else required.
+        // No need to "Undo" the effects of put(), and remove()
+    }
+    ...
+----
+
+Multi cache operations should adhere to the following pattern:
+
+----
+    ...
+    try {
+        Transaction txn = firstCache.getTransaction().start();
+        firstCache.put(...);
+        secondCache.remove(...);
+        ...
+        txn.commit();
+    }
+    catch (...) {
+        // log a message and anything else required.
+        // No need to "Undo" the effects of put(), and remove()
+    }
+    ...
+----
+
+    That is, start a transaction on any one of the caches whose changes should be applied in all or nothing manner, do the operations on all of them and commit when conditions are appropriate. If a throw happens, there is no need to "undo" the cache changes. If some other error is detetected, inside the try block, it might be easier to log it and throw an exception so that the data store automatically rollback changes applied by earlier code.

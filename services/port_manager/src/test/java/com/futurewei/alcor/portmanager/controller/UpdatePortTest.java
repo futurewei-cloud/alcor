@@ -1,22 +1,24 @@
 /*
-Copyright 2019 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package com.futurewei.alcor.portmanager.controller;
 
 import com.futurewei.alcor.portmanager.config.UnitTestConfig;
+import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,6 +28,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import static com.futurewei.alcor.portmanager.util.ResourceBuilder.buildIpv4AddrRequest;
+import static org.mockito.ArgumentMatchers.refEq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -42,7 +46,20 @@ public class UpdatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void updateFixedIpsTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
+        IpAddrRequest ipAddrRequest = new IpAddrRequest();
+        ipAddrRequest.setRangeId(UnitTestConfig.rangeId);
+        ipAddrRequest.setSubnetId(UnitTestConfig.subnetId);
+        ipAddrRequest.setIpVersion(UnitTestConfig.ipv4Version);
+        ipAddrRequest.setVpcId(UnitTestConfig.vpcId);
+        ipAddrRequest.setState(null);
+        ipAddrRequest.setIp(UnitTestConfig.ip1);
+
+        Mockito.when(ipManagerRestClient.allocateIpAddress(refEq(ipAddrRequest)))
+                .thenReturn(buildIpv4AddrRequest(UnitTestConfig.ip1));
+
+        ipAddrRequest.setIp(UnitTestConfig.ip2);
+        Mockito.when(ipManagerRestClient.allocateIpAddress(refEq(ipAddrRequest)))
+                .thenReturn(buildIpv4AddrRequest(UnitTestConfig.ip2));
 
         this.mockMvc.perform(put(updatePortUrl)
                 .content(UnitTestConfig.updateFixedIps)
@@ -55,8 +72,6 @@ public class UpdatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void updateMacAddressTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(put(updatePortUrl)
                 .content(UnitTestConfig.updateMacAddress)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
@@ -68,8 +83,6 @@ public class UpdatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void updateSecurityGroupsTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(put(updatePortUrl)
                 .content(UnitTestConfig.updateSecurityGroups)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
@@ -81,8 +94,6 @@ public class UpdatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void updateNameTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(put(updatePortUrl)
                 .content(UnitTestConfig.updateName)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
@@ -94,8 +105,6 @@ public class UpdatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void updateAdminStateTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(put(updatePortUrl)
                 .content(UnitTestConfig.updateAdminState)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
@@ -107,8 +116,6 @@ public class UpdatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void updateBindingHostIdTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(put(updatePortUrl)
                 .content(UnitTestConfig.updateBindingHost)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
@@ -118,7 +125,7 @@ public class UpdatePortTest extends MockRestClientAndRepository {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.port.binding:host_id").value(UnitTestConfig.nodeId2));
     }
 
-    @Test
+    //@Test
     public void updateBindingProfileTest() throws Exception {
         mockRestClientsAndRepositoryOperations();
 
@@ -133,8 +140,6 @@ public class UpdatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void updateBindingVnicTypeTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(put(updatePortUrl)
                 .content(UnitTestConfig.updateBindingVnicType)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
@@ -146,8 +151,6 @@ public class UpdatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void updateDescriptionTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(put(updatePortUrl)
                 .content(UnitTestConfig.updateDescription)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
@@ -159,8 +162,6 @@ public class UpdatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void updateDeviceIdTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(put(updatePortUrl)
                 .content(UnitTestConfig.updateDeviceId)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
@@ -172,8 +173,6 @@ public class UpdatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void updateDeviceOwnerTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(put(updatePortUrl)
                 .content(UnitTestConfig.updateDeviceOwner)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
@@ -185,8 +184,6 @@ public class UpdatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void updateDnsDomainTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(put(updatePortUrl)
                 .content(UnitTestConfig.updateDnsDomain)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
@@ -198,8 +195,6 @@ public class UpdatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void updateDnsNameTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(put(updatePortUrl)
                 .content(UnitTestConfig.updateDnsName)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
@@ -211,8 +206,6 @@ public class UpdatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void updateQosPolicyIdTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(put(updatePortUrl)
                 .content(UnitTestConfig.updateQosPolicyId)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
@@ -224,8 +217,6 @@ public class UpdatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void updatePortSecurityEnabledTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(put(updatePortUrl)
                 .content(UnitTestConfig.updatePortSecurityEnabled)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
@@ -237,8 +228,6 @@ public class UpdatePortTest extends MockRestClientAndRepository {
 
     @Test
     public void updateMacLearningEnabledTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(put(updatePortUrl)
                 .content(UnitTestConfig.updateMacLearningEnabled)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
@@ -248,10 +237,8 @@ public class UpdatePortTest extends MockRestClientAndRepository {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.port.mac_learning_enabled").value(UnitTestConfig.macLearningEnabled2));
     }
 
-    @Test
+    //@Test
     public void updateMacAddressAndFixedIpsBulkTest() throws Exception {
-        mockRestClientsAndRepositoryOperations();
-
         this.mockMvc.perform(put(updatePortBulkUrl)
                 .content(UnitTestConfig.updatePortBulk)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))

@@ -1,22 +1,23 @@
 /*
-Copyright 2019 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package com.futurewei.alcor.route.service.Impl;
 
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.route.dao.RouteRepository;
 import com.futurewei.alcor.route.dao.RouteWithVpcMapperRepository;
 import com.futurewei.alcor.route.service.RouteWithVpcMapperService;
@@ -43,6 +44,7 @@ public class RouteWithVpcMapperServiceImpl implements RouteWithVpcMapperService 
     RouteRepository routeRepository;
 
     @Override
+    @DurationStatistics
     public VpcToRouteMapper getByVpcId(String vpcId) {
         try {
             return this.routeWithVpcMapperRepository.findItem(vpcId);
@@ -52,6 +54,7 @@ public class RouteWithVpcMapperServiceImpl implements RouteWithVpcMapperService 
     }
 
     @Override
+    @DurationStatistics
     public List<RouteEntity> getRuleByVpcId(String vpcId) {
 
         List<RouteEntity> routes = new ArrayList<>();
@@ -78,11 +81,13 @@ public class RouteWithVpcMapperServiceImpl implements RouteWithVpcMapperService 
     }
 
     @Override
+    @DurationStatistics
     public Map getAllMappers() throws CacheException {
         return this.routeWithVpcMapperRepository.findAllItems();
     }
 
     @Override
+    @DurationStatistics
     public void addMapper(VpcToRouteMapper vpcToRouteMapper) throws DatabasePersistenceException {
         try {
             this.routeWithVpcMapperRepository.addItem(vpcToRouteMapper);
@@ -92,6 +97,7 @@ public class RouteWithVpcMapperServiceImpl implements RouteWithVpcMapperService 
     }
 
     @Override
+    @DurationStatistics
     public void addMapperByRouteEntity(String vpcId, RouteEntity routeEntity) throws DatabasePersistenceException {
         try {
             if (routeEntity == null) {
@@ -117,11 +123,13 @@ public class RouteWithVpcMapperServiceImpl implements RouteWithVpcMapperService 
     }
 
     @Override
+    @DurationStatistics
     public void deleteMapper(String id) throws Exception {
         this.routeWithVpcMapperRepository.deleteItem(id);
     }
 
     @Override
+    @DurationStatistics
     public void deleteMapperByRouteId(String vpcId, String routeId) throws Exception {
         if (vpcId == null || routeId == null) {
             return;

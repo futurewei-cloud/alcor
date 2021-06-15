@@ -1,30 +1,27 @@
 /*
-Copyright 2019 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package com.futurewei.alcor.securitygroup.service.implement;
 
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.securitygroup.exception.RemoteSecurityGroupNotFound;
 import com.futurewei.alcor.securitygroup.exception.SecurityGroupNotFound;
-import com.futurewei.alcor.securitygroup.exception.SecurityGroupRequired;
 import com.futurewei.alcor.securitygroup.exception.SecurityGroupRuleNotFound;
 import com.futurewei.alcor.securitygroup.repo.SecurityGroupRepository;
 import com.futurewei.alcor.securitygroup.service.SecurityGroupRuleService;
-import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
-import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
-import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRuleBulkJson;
-import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRuleJson;
+import com.futurewei.alcor.web.entity.securitygroup.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +40,7 @@ public class SecurityGroupRuleServiceImpl implements SecurityGroupRuleService {
     SecurityGroupRepository securityGroupRepository;
 
     @Override
+    @DurationStatistics
     public SecurityGroupRuleJson createSecurityGroupRule(SecurityGroupRuleJson securityGroupRuleJson) throws Exception {
         SecurityGroupRule securityGroupRule = securityGroupRuleJson.getSecurityGroupRule();
         String remoteGroupId = securityGroupRule.getRemoteGroupId();
@@ -71,6 +69,7 @@ public class SecurityGroupRuleServiceImpl implements SecurityGroupRuleService {
     }
 
     @Override
+    @DurationStatistics
     public SecurityGroupRuleBulkJson createSecurityGroupRuleBulk(SecurityGroupRuleBulkJson securityGroupRuleBulkJson) throws Exception {
         List<SecurityGroupRule> securityGroupRules = securityGroupRuleBulkJson.getSecurityGroupRules();
         for (SecurityGroupRule securityGroupRule: securityGroupRules) {
@@ -95,11 +94,13 @@ public class SecurityGroupRuleServiceImpl implements SecurityGroupRuleService {
     }
 
     @Override
+    @DurationStatistics
     public SecurityGroupRuleJson updateSecurityGroupRule(String securityGroupRuleId, SecurityGroupRuleJson securityGroupRuleJson) throws Exception {
         return null;
     }
 
     @Override
+    @DurationStatistics
     public void deleteSecurityGroupRule(String securityGroupRuleId) throws Exception {
         SecurityGroupRule securityGroupRule = securityGroupRepository.getSecurityGroupRule(securityGroupRuleId);
         if (securityGroupRule == null) {
@@ -112,6 +113,7 @@ public class SecurityGroupRuleServiceImpl implements SecurityGroupRuleService {
     }
 
     @Override
+    @DurationStatistics
     public SecurityGroupRuleJson getSecurityGroupRule(String securityGroupRuleId) throws Exception {
         SecurityGroupRule securityGroupRule = securityGroupRepository.getSecurityGroupRule(securityGroupRuleId);
         if (securityGroupRule == null) {
@@ -124,21 +126,40 @@ public class SecurityGroupRuleServiceImpl implements SecurityGroupRuleService {
     }
 
     @Override
-    public List<SecurityGroupRuleJson> listSecurityGroupRule() throws Exception {
-        List<SecurityGroupRuleJson> securityGroupRules = new ArrayList<>();
+    @DurationStatistics
+    public SecurityGroupRulesJson listSecurityGroupRule() throws Exception {
+        List<SecurityGroupRule> securityGroupRules = new ArrayList<>();
 
         Map<String, SecurityGroupRule> securityGroupRuleMap = securityGroupRepository.getAllSecurityGroupRules();
         if (securityGroupRuleMap == null) {
-            return securityGroupRules;
+            return new SecurityGroupRulesJson(securityGroupRules);
         }
 
         for (Map.Entry<String, SecurityGroupRule> entry: securityGroupRuleMap.entrySet()) {
-            SecurityGroupRuleJson securityGroupRule = new SecurityGroupRuleJson(entry.getValue());
-            securityGroupRules.add(securityGroupRule);
+            securityGroupRules.add(entry.getValue());
         }
 
         LOG.info("List security group rule success");
 
-        return securityGroupRules;
+        return new SecurityGroupRulesJson(securityGroupRules);
+    }
+
+    @Override
+    @DurationStatistics
+    public SecurityGroupRulesJson listSecurityGroupRule(Map<String, Object[]> queryParams) throws Exception {
+        List<SecurityGroupRule> securityGroupRules = new ArrayList<>();
+
+        Map<String, SecurityGroupRule> securityGroupRuleMap = securityGroupRepository.getAllSecurityGroupRules(queryParams);
+        if (securityGroupRuleMap == null) {
+            return new SecurityGroupRulesJson(securityGroupRules);
+        }
+
+        for (Map.Entry<String, SecurityGroupRule> entry: securityGroupRuleMap.entrySet()) {
+            securityGroupRules.add(entry.getValue());
+        }
+
+        LOG.info("List security group rule success");
+
+        return new SecurityGroupRulesJson(securityGroupRules);
     }
 }

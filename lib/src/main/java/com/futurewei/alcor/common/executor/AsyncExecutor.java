@@ -1,17 +1,17 @@
 /*
-Copyright 2019 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package com.futurewei.alcor.common.executor;
 
@@ -28,20 +28,17 @@ import java.util.function.Supplier;
 public class AsyncExecutor {
     private static final Logger LOG = LoggerFactory.getLogger(AsyncExecutor.class);
     public static final ThreadPoolExecutor executor = new ThreadPoolExecutor(
-            ThreadPoolExecutorConfig.corePoolSize,
-            ThreadPoolExecutorConfig.maximumPoolSize,
-            ThreadPoolExecutorConfig.KeepAliveTime,
-            TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(ThreadPoolExecutorConfig.capacity),
-            new ThreadFactoryBuilder().setNameFormat("selectThreadPoolExecutor-%d").build());
-    private List<CompletableFuture> futures;
+                ThreadPoolExecutorConfig.corePoolSize,
+                ThreadPoolExecutorConfig.maximumPoolSize,
+                ThreadPoolExecutorConfig.KeepAliveTime,
+                TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(ThreadPoolExecutorConfig.capacity),
+                new ThreadFactoryBuilder().setNameFormat("selectThreadPoolExecutor-%d").build());
 
-    public AsyncExecutor() {
-        futures = new ArrayList<>();
-    }
+    private List<CompletableFuture> futures = new ArrayList<>();
 
     public <T>CompletableFuture runAsync(Supplier<T> supplier) {
-        return CompletableFuture.supplyAsync(supplier);
+        return CompletableFuture.supplyAsync(supplier,executor);
     }
 
     /**
@@ -81,6 +78,20 @@ public class AsyncExecutor {
         CompletableFuture<R> future = CompletableFuture.supplyAsync(() -> {
             try {
                 return fun.apply(arg1, arg2);
+            } catch (Exception e) {
+                throw new CompletionException(e);
+            }
+        }, executor);
+
+        futures.add(future);
+
+        return future;
+    }
+
+    public <R>CompletableFuture runAsync(AsyncFunctionWithThreeArgs<Object,Object,Object, R> fun, Object arg1, Object arg2, Object arg3) throws CompletionException {
+        CompletableFuture<R> future = CompletableFuture.supplyAsync(() -> {
+            try {
+                return fun.apply(arg1, arg2, arg3);
             } catch (Exception e) {
                 throw new CompletionException(e);
             }
@@ -297,5 +308,21 @@ public class AsyncExecutor {
                 LOG.error("{} join exception: {}", future, e);
             }
         }
+    }
+
+    public List<Object> joinAllAsync() {
+        Iterator<CompletableFuture> iterator = futures.iterator();
+        List<Object> results = new ArrayList<>();
+        while (iterator.hasNext()) {
+            CompletableFuture future = iterator.next();
+            iterator.remove();
+
+            try {
+                results.add(future.join());
+            } catch (Exception e) {
+                LOG.error("{} join exception: {}", future, e);
+            }
+        }
+        return results;
     }
 }

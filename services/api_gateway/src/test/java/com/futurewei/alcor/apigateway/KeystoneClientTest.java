@@ -1,17 +1,17 @@
 /*
-Copyright 2019 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 package com.futurewei.alcor.apigateway;
@@ -41,6 +41,9 @@ import org.springframework.web.client.RestTemplate;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
@@ -73,8 +76,7 @@ public class KeystoneClientTest {
     private static final String TEST_NULL_TOKEN = "caaaaaBex0xWssdfsadfDSSDFSDF";
     private static final String TEST_INVALID_TOKEN = "eaaaaaBex0xWssdfsadfDSSDFSDF";
 
-
-    private static final String TEST_PROJECT_ID = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+    private static final String TEST_PROJECT_ID = "aaaaaaaabbbbccccddddeeeeeeeeeeee";
 
     private static final String TOKEN_URL = "/auth/tokens";
     private static final String BASE_URL = "http://localhost/identity";
@@ -104,7 +106,8 @@ public class KeystoneClientTest {
 
         // build normal token
         TokenEntity tokenEntity = new TokenEntity(TEST_TOKEN, false);
-        tokenEntity.setExpireAt(dateFormat.parse("2020-08-05T09:00:00.000+0000"));
+        Date normalDate = getNoExpireDate();
+        tokenEntity.setExpireAt(normalDate);
         tokenEntity.setProjectId(TEST_PROJECT_ID);
         when(cache.get(TEST_TOKEN)).thenReturn(tokenEntity);
 
@@ -113,7 +116,8 @@ public class KeystoneClientTest {
 
         // build expired token
         TokenEntity tokenExpiredEntity = new TokenEntity(TEST_EXPIRED_TOKEN, false);
-        tokenExpiredEntity.setExpireAt(dateFormat.parse("2020-04-05T09:00:00.000+0000"));
+        Date expiredDate = getExpireDate();
+        tokenExpiredEntity.setExpireAt(expiredDate);
         tokenExpiredEntity.setProjectId(TEST_PROJECT_ID);
         when(cache.get(TEST_EXPIRED_TOKEN)).thenReturn(tokenExpiredEntity);
 
@@ -397,21 +401,34 @@ public class KeystoneClientTest {
 
     @Test
     public void verifyTokenTest(){
-        String projectId = keystoneClient.verifyToken(TEST_TOKEN);
-        assertEquals(TEST_PROJECT_ID, projectId);
+        Optional<TokenEntity> tokenEntityOptional = keystoneClient.verifyToken(TEST_TOKEN);
+        assertTrue(tokenEntityOptional.isPresent());
+        assertEquals(TEST_PROJECT_ID, tokenEntityOptional.get().getProjectId());
 
-        String emptyProjectId = keystoneClient.verifyToken(TEST_EXPIRED_TOKEN);
-        assertEquals("", emptyProjectId);
+        Optional<TokenEntity> emptyTokenEntityOptional = keystoneClient.verifyToken(TEST_EXPIRED_TOKEN);
+        assertTrue(emptyTokenEntityOptional.isEmpty());
 
-        String empty2ProjectId = keystoneClient.verifyToken(TEST_INVALID_TOKEN);
-        assertEquals("", empty2ProjectId);
+        Optional<TokenEntity> empty2TokenEntityOptional = keystoneClient.verifyToken(TEST_INVALID_TOKEN);
+        assertTrue(empty2TokenEntityOptional.isEmpty());
 
-        String noCacheProjectId = keystoneClient.verifyToken(TEST_NOCACHE_TOKEN);
-        assertEquals(TEST_PROJECT_ID, noCacheProjectId);
+        Optional<TokenEntity> noCacheTokenEntityOptional = keystoneClient.verifyToken(TEST_NOCACHE_TOKEN);
+        assertTrue(noCacheTokenEntityOptional.isPresent());
+        assertEquals(TEST_PROJECT_ID, noCacheTokenEntityOptional.get().getProjectId());
 
         ReflectionTestUtils.setField(keystoneClient, "localToken", TEST_INVALID_LOCAL_TOKEN);
-        String empty3ProjectId = keystoneClient.verifyToken(TEST_NOCACHE_TOKEN);
-        assertEquals("", empty3ProjectId);
+        Optional<TokenEntity> empty3TokenEntityOptional = keystoneClient.verifyToken(TEST_NOCACHE_TOKEN);
+        assertTrue(empty3TokenEntityOptional.isEmpty());
     }
 
+    private Date getExpireDate(){
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DAY_OF_MONTH, -1);
+        return c.getTime();
+    }
+
+    private Date getNoExpireDate(){
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DAY_OF_MONTH, 1);
+        return c.getTime();
+    }
 }

@@ -1,31 +1,30 @@
 /*
-Copyright 2019 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 package com.futurewei.alcor.route.controller;
 
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.route.entity.*;
 import com.futurewei.alcor.route.service.RouteDatabaseService;
 import com.futurewei.alcor.route.service.RouteWithSubnetMapperService;
 import com.futurewei.alcor.route.service.RouteWithVpcMapperService;
 import com.futurewei.alcor.route.utils.RestPreconditionsUtil;
-import com.futurewei.alcor.web.entity.route.RouteEntity;
-import com.futurewei.alcor.web.entity.route.RouteWebJson;
-import com.futurewei.alcor.web.entity.route.RoutesWebJson;
+import com.futurewei.alcor.web.entity.route.*;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
@@ -33,15 +32,19 @@ import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
+@Deprecated
+@ComponentScan(value = "com.futurewei.alcor.common.stats")
 public class RouteController {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -58,6 +61,7 @@ public class RouteController {
     @RequestMapping(
             method = GET,
             value = {"routes/vpcs/{vpcId}/get"})
+    @DurationStatistics
     public RoutesWebJson getRulesByVpcId(@PathVariable String vpcId) throws Exception {
 
         List<RouteEntity> routes = null;
@@ -82,6 +86,7 @@ public class RouteController {
     @RequestMapping(
             method = GET,
             value = {"routes/subnets/{subnetId}/get"})
+    @DurationStatistics
     public RoutesWebJson getRulesBySubnetId(@PathVariable String subnetId) throws Exception {
 
         List<RouteEntity> routes = null;
@@ -97,7 +102,7 @@ public class RouteController {
 
         if (routes == null) {
             //TODO: REST error code
-            return new RoutesWebJson();
+            return new RoutesWebJson(new ArrayList<>());
         }
 
         return new RoutesWebJson(routes);
@@ -107,6 +112,7 @@ public class RouteController {
     @RequestMapping(
             method = GET,
             value = {"/routes/{routeId}"})
+    @DurationStatistics
     public RouteWebJson getRuleByRouteId(@PathVariable String routeId) throws Exception {
 
         RouteEntity routeEntity = null;
@@ -133,6 +139,7 @@ public class RouteController {
             method = POST,
             value = {"/vpcs/{vpcId}/routes"})
     @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
     public RouteWebJson createVpcDefaultRoute(@PathVariable String vpcId, @RequestBody VpcWebJson resource) throws Exception {
         RouteEntity routeEntity = null;
 
@@ -163,6 +170,7 @@ public class RouteController {
             method = POST,
             value = {"/subnets/{subnetId}/routes"})
     @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
     public RouteWebJson createSubnetRoute(@PathVariable String subnetId, @RequestBody SubnetWebJson resource) throws Exception {
         RouteEntity routeEntity = null;
 
@@ -193,6 +201,7 @@ public class RouteController {
     @RequestMapping(
             method = DELETE,
             value = {"/vpcs/{vpcId}/routes/{routeId}"})
+    @DurationStatistics
     public ResponseId deleteRule(@PathVariable String vpcId, @PathVariable String routeId) throws Exception {
         RouteEntity routeEntity = null;
 
@@ -219,6 +228,7 @@ public class RouteController {
     @RequestMapping(
             method = DELETE,
             value = {"/subnets/{subnetId}/routes/{routeId}"})
+    @DurationStatistics
     public ResponseId deleteRuleWithSubnetId(@PathVariable String subnetId, @PathVariable String routeId) throws Exception {
         RouteEntity routeEntity = null;
 
@@ -242,4 +252,5 @@ public class RouteController {
         return new ResponseId(routeId);
         
     }
+
 }

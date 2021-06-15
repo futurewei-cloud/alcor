@@ -1,0 +1,93 @@
+'MIT License
+'Copyright(c) 2020 Futurewei Cloud
+'
+'    Permission is hereby granted,
+'    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+'    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+'    to whom the Software is furnished to do so, subject to the following conditions:
+'
+'    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+'
+'    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+'    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+'    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+@startuml
+
+skinparam monochrome true
+
+collections "Port Manager"
+collections "Data Plane Manager"
+
+box "Compute Host 1" #LightBlue
+participant "ACA on \nHost 1"
+end box
+
+box "Compute Host 2" #LightGreen
+participant "ACA on \nHost 2"
+end box
+
+==All Scenarios: Alcor DVR created with both GREEN and RED network gateway connected==
+
+==Scenario 0: Alcor DVR creation flow ==
+autonumber 0
+"Port Manager" -> "Data Plane Manager": Create DVR on Host 1
+"Data Plane Manager" -> "ACA on \nHost 1": Router=CREATE\n(contains unique host 1 DVR mac)\n(contains both GREEN and RED subnet IDs\n+Subnet=INFO(GREEN)\n+Subnet=INFO(RED)
+"Data Plane Manager" -> "ACA on \nHost 1": Neighbor(HOST_DVR_MAC)=CREATE\n(contains host 2 DVR MAC)\n(contains both GREEN and RED subnet IDs\n+Subnet=INFO(GREEN)\n+Subnet=INFO(RED)
+
+"Port Manager" -> "Data Plane Manager": Create DVR on Host 2
+"Data Plane Manager" -> "ACA on \nHost 2": Router=CREATE\n(contains unique host 2 DVR mac)\n(contains both GREEN and RED subnet IDs\n+Subnet=INFO(GREEN)\n+Subnet=INFO(RED)
+"Data Plane Manager" -> "ACA on \nHost 2": Neighbor(HOST_DVR_MAC)=CREATE\n(contains host 1 DVR MAC)\n(contains both GREEN and RED subnet IDs\n+Subnet=INFO(GREEN)\n+Subnet=INFO(RED)
+
+
+==Scenarios A: GREEN network VM1 on Host 1, RED network VM2 on Host 2==
+
+==Scenario A1: Setup GREEN network VM1 on Host 1 ==
+autonumber 10
+"Port Manager" -> "Data Plane Manager": Configure GREEN network VM1 on Host 1
+"Data Plane Manager" -> "ACA on \nHost 1": Neighbor(L3)=CREATE on VM2\n+Subnet=INFO(RED)
+
+==Scenario A2: Setup RED network VM2 on Host 2 ==
+autonumber 20
+"Port Manager" -> "Data Plane Manager": Configure RED network VM2 on Host 2
+"Data Plane Manager" -> "ACA on \nHost 2": Neighbor(L3)=CREATE on VM1\n+Subnet=INFO(GREEN)
+
+
+==Scenarios B: GREEN network VM1 and VM3 on Host 1, RED network VM2 and VM4 on Host 2==
+
+==Scenario B1: Setup GREEN network VM1 and VM3 on Host 1 ==
+autonumber 30
+"Port Manager" -> "Data Plane Manager": Configure GREEN network VM1 and VM3 on Host 1
+"Data Plane Manager" -> "ACA on \nHost 1": Neighbor(L3)=CREATE on VM2 and VM4\n+Subnet=INFO(RED)
+
+==Scenario B2: Setup RED network VM2 and VM4 on Host 2 ==
+autonumber 40
+"Port Manager" -> "Data Plane Manager": Configure RED network VM2 and VM4 on Host 2
+"Data Plane Manager" -> "ACA on \nHost 2": Neighbor(L3)=CREATE on VM1 and VM3\n+Subnet=INFO(GREEN)
+
+
+==Scenarios C: GREEN network VM1 on Host 1, RED network VM2 on Host 1 also==
+
+autonumber 50
+"Port Manager" -> "Data Plane Manager": Configure GREEN network VM1 and RED network VM2 on Host 1
+"Data Plane Manager" -> "ACA on \nHost 1": Neighbor(L3)=CREATE on VM1\n+Subnet=INFO(GREEN)\nNeighbor(L3)=CREATE on VM2\n+Subnet=INFO(RED)\n
+
+
+==Scenarios D: GREEN network VM1 on Host 1, VM3 on Host 2, RED network VM2 on Host 1, VM4 on Host 2==
+
+==Scenario D1: Setup GREEN network VM1 and RED network VM2 on Host 1 ==
+autonumber 60
+"Port Manager" -> "Data Plane Manager": Configure GREEN network VM1 and RED network VM2 on Host 1
+"Data Plane Manager" -> "ACA on \nHost 1": Neighbor(L3)=CREATE on VM1\n+Subnet=INFO(GREEN)\nNeighbor(L3)=CREATE on VM2\n+Subnet=INFO(RED)\n
+"Data Plane Manager" -> "ACA on \nHost 1": Neighbor(L3)=CREATE on VM3\n+Subnet=INFO(GREEN)\nNeighbor(L3)=CREATE on VM4\n+Subnet=INFO(RED)\n
+
+==Scenario D2: Setup GREEN network VM3 and RED network VM4 on Host 2 ==
+autonumber 70
+"Port Manager" -> "Data Plane Manager": Configure GREEN network VM3 and RED network VM4 on Host 2
+"Data Plane Manager" -> "ACA on \nHost 2": Neighbor(L3)=CREATE on VM3\n+Subnet=INFO(GREEN)\nNeighbor(L3)=CREATE on VM4\n+Subnet=INFO(RED)\n
+"Data Plane Manager" -> "ACA on \nHost 2": Neighbor(L3)=CREATE on VM1\n+Subnet=INFO(GREEN)\nNeighbor(L3)=CREATE on VM2\n+Subnet=INFO(RED)\n
+
+
+
+@enduml
+

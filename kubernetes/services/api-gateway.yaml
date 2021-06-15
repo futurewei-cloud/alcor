@@ -5,15 +5,43 @@ metadata:
 data:
   application.properties: |
     spring.application.name=alcor-api-gateway
-
     logging.level.org.springframework.web=DEBUG
     logging.level.org.springframework.cloud=DEBUG
     logging.level.com.github.tomakehurst.wiremock=TRACE
-    management.endpoints.web.exposure.include=health,prometheus
-    spring.sleuth.sampler.probability=1.0
-    spring.sleuth.web.skipPattern=(^health.*)
+    ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
+    ignite.port=10800
+    ignite.thin.client.enable=true
+    #ignite.key-store-path=keystore.jks
+    #ignite.key-store-password=123456
+    
+    #ignite.trust-store-path=truststore.jks
+    #ignite.trust-store-password=123456
+
     microservices.vpc.service.url=http://vpcmanager-service.default.svc.cluster.local:9001/
     microservices.subnet.service.url=http://subnetmanager-service.default.svc.cluster.local:9002/
+    microservices.port.service.url=http://portmanager-service.default.svc.cluster.local:9006/
+    microservices.sg.service.url=http://sgmanager-service.default.svc.cluster.local:9008/
+    microservices.route.service.url=http://routemanager-service.default.svc.cluster.local:9003/
+    microservices.quota.service.url = http://quotamanager-service.default.svc.cluster.local:9012/
+    microservices.elasticip.service.url=http://eipmanager-service.default.svc.cluster.local:9011/
+
+    keystone.enable=true
+    keystone.project_domain_name=Default
+    keystone.project_name=service
+    keystone.user_domain_name=Default
+    #keystone.username=admin
+    #keystone.password=6c61d2f0ab8042699421253f175748e54d
+    keystone.username=alcor
+    keystone.password=alcor_pass
+    keystone.auth_type=password
+    keystone.auth_url=http://192.168.10.10:5000/v3
+    neutron.url_prefix=/v2.0
+    logging.level.root=TRACE
+    
+    Spring.mvc.async.request-timeout=30000
+    server.max-http-header-size=65536
+    server.max-initial-line-length=65536
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -25,7 +53,7 @@ spec:
   selector:
     matchLabels:
       app: apimanager
-  replicas: 3
+  replicas: 5
   #replicas: 3
   template:
     metadata:
@@ -41,7 +69,7 @@ spec:
                 path: application.properties
       containers:
         #- image: fwnetworking/controller:api_gateway-v0.3.0
-        - image: zhonghaolyu/repo:apiKube1
+        - image: api_gateway:v1.0
           name: apimanager-web
           imagePullPolicy: IfNotPresent
           command: ["java", "-jar", "/app/AlcorApiGateway-0.1.0.jar", "--spring.config.location=/etc/api/application.properties"]
@@ -65,6 +93,6 @@ spec:
   ports:
     - port: 9009
       targetPort: 8080
-      nodePort: 30004
+      nodePort: 30009
   selector:
     app: apimanager

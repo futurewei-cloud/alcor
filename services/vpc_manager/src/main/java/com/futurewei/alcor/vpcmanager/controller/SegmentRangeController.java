@@ -1,15 +1,35 @@
+/*
+MIT License
+Copyright(c) 2020 Futurewei Cloud
+
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
 package com.futurewei.alcor.vpcmanager.controller;
 
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.*;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.vpcmanager.service.SegmentRangeDatabaseService;
 import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.vpcmanager.utils.SegmentRangeManagementUtil;
-import com.futurewei.alcor.web.entity.*;
+import com.futurewei.alcor.web.entity.vpc.NetworkSegmentRangeEntity;
+import com.futurewei.alcor.web.entity.vpc.NetworkSegmentRangeWebRequestJson;
+import com.futurewei.alcor.web.entity.vpc.NetworkSegmentRangeWebRequest;
+import com.futurewei.alcor.web.entity.vpc.NetworkSegmentRangeWebResponseJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +39,7 @@ import java.util.stream.Collectors;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
+@ComponentScan(value = "com.futurewei.alcor.common.stats")
 public class SegmentRangeController {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -36,6 +57,7 @@ public class SegmentRangeController {
     @RequestMapping(
             method = GET,
             value = {"/project/{projectid}/network_segment_ranges/{network_segment_range_id}"})
+    @DurationStatistics
     public NetworkSegmentRangeWebResponseJson getSegmentRangeBySegmentRangeId(@PathVariable String projectid, @PathVariable String network_segment_range_id) throws Exception {
 
         NetworkSegmentRangeEntity segmentRangeWebResponseObject = null;
@@ -69,6 +91,7 @@ public class SegmentRangeController {
             method = POST,
             value = {"/project/{projectid}/network_segment_ranges"})
     @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
     public NetworkSegmentRangeWebResponseJson createSegmentRange(@PathVariable String projectid, @RequestBody NetworkSegmentRangeWebRequestJson resource) throws Exception {
 
         NetworkSegmentRangeEntity segmentRangeWebResponseObject = new NetworkSegmentRangeEntity();
@@ -80,7 +103,7 @@ public class SegmentRangeController {
             }
 
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
-            NetworkSegmentRangeWebRequestObject segmentRangeWebRequestObject = resource.getNetwork_segment_range();
+            NetworkSegmentRangeWebRequest segmentRangeWebRequestObject = resource.getNetwork_segment_range();
             BeanUtils.copyProperties(segmentRangeWebRequestObject, segmentRangeWebResponseObject);
             RestPreconditionsUtil.verifyResourceNotNull(segmentRangeWebResponseObject);
             RestPreconditionsUtil.populateResourceProjectId(segmentRangeWebResponseObject, projectid);
@@ -114,6 +137,7 @@ public class SegmentRangeController {
     @RequestMapping(
             method = PUT,
             value = {"/project/{projectid}/network_segment_ranges/{network_segment_range_id}"})
+    @DurationStatistics
     public NetworkSegmentRangeWebResponseJson updateSegmentRangeBySegmentRangeId(@PathVariable String projectid, @PathVariable String network_segment_range_id, @RequestBody NetworkSegmentRangeWebRequestJson resource) throws Exception {
 
         NetworkSegmentRangeEntity segmentRangeWebResponseObject = new NetworkSegmentRangeEntity();
@@ -121,7 +145,7 @@ public class SegmentRangeController {
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(network_segment_range_id);
-            NetworkSegmentRangeWebRequestObject segmentRangeWebRequestObject = resource.getNetwork_segment_range();
+            NetworkSegmentRangeWebRequest segmentRangeWebRequestObject = resource.getNetwork_segment_range();
             BeanUtils.copyProperties(segmentRangeWebRequestObject, segmentRangeWebResponseObject);
             RestPreconditionsUtil.verifyResourceNotNull(segmentRangeWebResponseObject);
             RestPreconditionsUtil.populateResourceProjectId(segmentRangeWebResponseObject, projectid);
@@ -154,6 +178,7 @@ public class SegmentRangeController {
     @RequestMapping(
             method = DELETE,
             value = {"/project/{projectid}/network_segment_ranges/{network_segment_range_id}"})
+    @DurationStatistics
     public ResponseId deleteSegmentRangeBySegmentId(@PathVariable String projectid, @PathVariable String network_segment_range_id) throws Exception {
 
         NetworkSegmentRangeEntity segmentRangeWebResponseObject = null;
@@ -186,6 +211,7 @@ public class SegmentRangeController {
     @RequestMapping(
             method = GET,
             value = "/project/{projectid}/network_segment_ranges")
+    @DurationStatistics
     public Map getSegmentRangesByProjectId(@PathVariable String projectid) throws Exception {
 
         Map<String, NetworkSegmentRangeEntity> segmentRanges = null;

@@ -1,0 +1,16 @@
+#!/bin/bash
+#ping node_manager (port 9007) local IP and MAC are changed to that of ACA's IP and MAC.
+# If running on container then log on to ACA container and check its IP and MAC and use them here.
+# Node ID: 1112a4d4-ffff-4ece-b3f0-8d36e3d85002
+curl -X POST --header "Content-Type: application/json" --header "Accept: */*" -d '{
+  "host_info": {
+    "local_ip": "172.31.31.42",
+    "mac_address": "02:af:53:e2:70:1d",
+    "node_id": "1112a4d4-ffff-4ece-b3f0-8d36e3d85002",
+    "node_name": "node2",
+    "server_port": 8080,
+    "veth": "eth0"
+  }
+}' "http://localhost:9007/nodes"
+
+

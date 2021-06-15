@@ -1,0 +1,10 @@
+#!/bin/bash
+
+curl -X PUT --header "Content-Type: application/json" --header "Accept: */*" -d '{
+"subnet_id": "8182a4d4-ffff-4ece-b3f0-8d36e3d88001"
+}' "http://10.213.43.161:9003/project/3dda2801-d675-4688-a63f-dcda8d327f50/routers/11112801-d675-4688-a63f-dcda8d327f50/add_router_interface"
+
+curl -X PUT --header "Content-Type: application/json" --header "Accept: */*" -d '{
+"subnet_id": "8182a4d4-ffff-4ece-b3f0-8d36e3d88002"
+}' "http://10.213.43.161:9003/project/3dda2801-d675-4688-a63f-dcda8d327f50/routers/11112801-d675-4688-a63f-dcda8d327f50/add_router_interface"
+

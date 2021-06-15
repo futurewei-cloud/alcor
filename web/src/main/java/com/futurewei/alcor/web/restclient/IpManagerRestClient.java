@@ -1,25 +1,22 @@
 /*
-Copyright 2019 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package com.futurewei.alcor.web.restclient;
 
 import com.futurewei.alcor.common.stats.DurationStatistics;
-import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
-import com.futurewei.alcor.web.entity.ip.IpAddrRequestBulk;
-import com.futurewei.alcor.web.entity.ip.IpAddrState;
-import com.futurewei.alcor.web.entity.ip.IpVersion;
+import com.futurewei.alcor.web.entity.ip.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
@@ -77,6 +74,16 @@ public class IpManagerRestClient extends AbstractRestClient {
     }
 
     @DurationStatistics
+    public IpAddrRequest allocateIpAddress(IpAddrRequest ipAddrRequest) throws Exception {
+        HttpEntity<IpAddrRequest> request = new HttpEntity<>(ipAddrRequest);
+        IpAddrRequest result = restTemplate.postForObject(ipManagerUrl, request, IpAddrRequest.class);
+
+        verifyAllocatedIpAddr(result);
+
+        return result;
+    }
+
+    @DurationStatistics
     public IpAddrRequestBulk allocateIpAddressBulk(List<IpAddrRequest> ipAddrRequests) throws Exception {
         IpAddrRequestBulk ipAddrRequestBulk = new IpAddrRequestBulk();
         ipAddrRequestBulk.setIpRequests(ipAddrRequests);
@@ -93,7 +100,7 @@ public class IpManagerRestClient extends AbstractRestClient {
     }
 
     @DurationStatistics
-    public void releaseIpAddress(String rangeId,String ip) throws Exception {
+    public void releaseIpAddress(String rangeId, String ip) throws Exception {
         String url = ipManagerUrl + "/" + rangeId + "/" + ip;
 
         restTemplate.delete(url);
@@ -107,5 +114,17 @@ public class IpManagerRestClient extends AbstractRestClient {
         String url = ipManagerUrl + "/bulk";
         HttpEntity<IpAddrRequestBulk> request = new HttpEntity<>(ipAddrRequestBulk);
         restTemplate.exchange(url, HttpMethod.DELETE, request, IpAddrRequestBulk.class);
+    }
+
+    @DurationStatistics
+    public IpAddrUpdateRequest updateIpAddress(IpAddrUpdateRequest ipAddrUpdateRequest) throws Exception {
+        HttpEntity<IpAddrUpdateRequest> request = new HttpEntity<>(ipAddrUpdateRequest);
+        IpAddrUpdateRequest result = restTemplate.postForObject(ipManagerUrl + "/update", request, IpAddrUpdateRequest.class);
+        if(result != null && result.getNewIpAddrRequests().size() > 0){
+            for (IpAddrRequest ipAddrRequest : result.getNewIpAddrRequests()) {
+                verifyAllocatedIpAddr(ipAddrRequest);
+            }
+        }
+        return result;
     }
 }

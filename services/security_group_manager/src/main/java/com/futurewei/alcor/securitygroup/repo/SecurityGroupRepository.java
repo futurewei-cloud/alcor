@@ -1,17 +1,17 @@
 /*
-Copyright 2019 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package com.futurewei.alcor.securitygroup.repo;
 
@@ -19,8 +19,8 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.securitygroup.exception.SecurityGroupNotFound;
-import com.futurewei.alcor.securitygroup.exception.SecurityGroupRequired;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
 import org.slf4j.Logger;
@@ -33,11 +33,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.logging.Handler;
 import java.util.stream.Collectors;
 
 @Repository
-@ComponentScan(value="com.futurewei.alcor.common.db")
 public class SecurityGroupRepository {
     private static final Logger LOG = LoggerFactory.getLogger(SecurityGroupRepository.class);
 
@@ -55,6 +53,7 @@ public class SecurityGroupRepository {
         LOG.info("SecurityGroupRepository init done");
     }
 
+    @DurationStatistics
     public synchronized void addSecurityGroup(SecurityGroup securityGroup) throws Exception {
         try (Transaction tx = securityGroupCache.getTransaction().start()) {
 
@@ -71,6 +70,7 @@ public class SecurityGroupRepository {
         }
     }
 
+    @DurationStatistics
     public synchronized void addSecurityGroupBulk(List<SecurityGroup> securityGroups) throws Exception {
         try (Transaction tx = securityGroupCache.getTransaction().start()) {
             //Add all security group rules
@@ -92,6 +92,7 @@ public class SecurityGroupRepository {
         }
     }
 
+    @DurationStatistics
     public synchronized void deleteSecurityGroup(String id) throws Exception {
         try (Transaction tx = securityGroupCache.getTransaction().start()) {
 
@@ -110,12 +111,19 @@ public class SecurityGroupRepository {
         }
     }
 
+    @DurationStatistics
     public SecurityGroup getSecurityGroup(String id) throws CacheException {
         return securityGroupCache.get(id);
     }
 
+    @DurationStatistics
     public Map<String, SecurityGroup> getAllSecurityGroups() throws CacheException {
         return securityGroupCache.getAll();
+    }
+
+    @DurationStatistics
+    public Map<String, SecurityGroup> getAllSecurityGroups(Map<String, Object[]> queryParams) throws CacheException {
+        return securityGroupCache.getAll(queryParams);
     }
 
     /**
@@ -125,6 +133,7 @@ public class SecurityGroupRepository {
      * @param defaultSecurityGroup
      * @throws Exception
      */
+    @DurationStatistics
     public synchronized void createDefaultSecurityGroup(SecurityGroup defaultSecurityGroup) throws Exception {
         try (Transaction tx = securityGroupCache.getTransaction().start()) {
 
@@ -141,6 +150,7 @@ public class SecurityGroupRepository {
         }
     }
 
+    @DurationStatistics
     public synchronized void deleteDefaultSecurityGroup(String id) throws Exception {
         try (Transaction tx = securityGroupCache.getTransaction().start()) {
 
@@ -160,6 +170,7 @@ public class SecurityGroupRepository {
         }
     }
 
+    @DurationStatistics
     public synchronized void addSecurityGroupRule(SecurityGroup securityGroup, SecurityGroupRule securityGroupRule) throws Exception {
         try (Transaction tx = securityGroupCache.getTransaction().start()) {
 
@@ -174,6 +185,7 @@ public class SecurityGroupRepository {
         }
     }
 
+    @DurationStatistics
     public synchronized void addSecurityGroupRuleBulk(List<SecurityGroupRule> securityGroupRules) throws Exception {
         try (Transaction tx = securityGroupCache.getTransaction().start()) {
             //Add security group rule to security group
@@ -198,6 +210,7 @@ public class SecurityGroupRepository {
         }
     }
 
+    @DurationStatistics
     public synchronized void deleteSecurityGroupRule(SecurityGroupRule securityGroupRule) throws Exception {
         try (Transaction tx = securityGroupCache.getTransaction().start()) {
 
@@ -216,11 +229,18 @@ public class SecurityGroupRepository {
 
     }
 
+    @DurationStatistics
     public SecurityGroupRule getSecurityGroupRule(String id) throws CacheException {
         return securityGroupRuleCache.get(id);
     }
 
+    @DurationStatistics
     public Map<String, SecurityGroupRule> getAllSecurityGroupRules() throws CacheException {
         return securityGroupRuleCache.getAll();
+    }
+
+    @DurationStatistics
+    public Map<String, SecurityGroupRule> getAllSecurityGroupRules(Map<String, Object[]> queryParams) throws CacheException {
+        return securityGroupRuleCache.getAll(queryParams);
     }
 }

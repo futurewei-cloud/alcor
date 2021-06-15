@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ncm-configmap
+data:
+  application.properties: |
+    dataplane.grpc.port = 50001
+    dataplane.isovs=true
+    spring.redis.host=localhost
+    spring.redis.port=6380
+    grpc.min-threads = 100
+    grpc.max-threads = 200
+    grpc.threads-pool-name = grpc-thread-pool
+    protobuf.goal-state-message.version = 102
+    ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
+    ignite.port=10800
+    ignite.thin.client.enable=true
+    #ignite.key-store-path=keystore.jks
+    #ignite.key-store-password=123456
+    #ignite.trust-store-path=truststore.jks
+    #ignite.trust-store-password=123456
+    logging.level.root=DEBUG
+    spring.servlet.multipart.enabled=true
+    spring.servlet.multipart.file-size-threshold=2KB
+    spring.servlet.multipart.max-file-size=200MB
+    spring.servlet.multipart.max-request-size=215MB
+    microservices.netwconfigmanager.service.url=http://netwconfigmanager-service.default.svc.cluster.local:30016/network-configuration
+    microservices.dataplane.nodeservice.url=http://dataplanemanager-service.default.svc.cluster.local:30010/nodes
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: netwconfigmanager
+  name: netwconfigmanager
+spec:
+  selector:
+    matchLabels:
+      app: netwconfigmanager
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: netwconfigmanager
+    spec:
+      volumes:
+        - name: ncm-volume
+          configMap:
+            name: ncm-configmap
+            items:
+              - key: application.properties
+                path: application.properties
+      containers:
+        - image: network_config_manager:v1.0
+          name: networkconfigmanager-web
+          imagePullPolicy: IfNotPresent
+          command: ["java", "-jar", "/app/AlcorNetworkConfigManager-0.1.0.jar", "--spring.config.location=/etc/ncm/application.properties"]
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: ncm-volume
+              mountPath: /etc/ncm
+          envFrom:
+            - configMapRef:
+                name: ncm-configmap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: netwconfigmanager-service
+  labels:
+    name: netwconfigmanager-service
+spec:
+  type: NodePort
+  ports:
+    - port: 9014
+      targetPort: 8080
+      nodePort: 30014
+  selector:
+    app: netwconfigmanager

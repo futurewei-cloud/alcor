@@ -1,17 +1,17 @@
 /*
-Copyright 2019 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 package com.futurewei.alcor.apigateway.client;
@@ -25,6 +25,8 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.entity.TokenEntity;
+import static com.futurewei.alcor.common.utils.DateUtil.getKeystoneDateFormat;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,7 +37,6 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -43,8 +44,6 @@ import java.util.concurrent.TimeUnit;
 public class KeystoneClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(KeystoneClient.class);
-
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
     private static final String TOKEN_URL = "/auth/tokens";
     private static final String AUTH_URL_V3 = "v3";
@@ -128,7 +127,6 @@ public class KeystoneClient {
         }
 
         String response = restTemplate.getForObject(authUrl, String.class);
-
         JsonNode versions = json2Map(response);
 
         //in v3 apis resp have versions key
@@ -144,6 +142,8 @@ public class KeystoneClient {
             if("".equals(baseUrl)){
                 findEndPoint(endpointsIt);
             }
+        } else {
+            LOG.error("the version of keystone is not support by Alcor, response info:[{}]", response);
         }
     }
 
@@ -172,9 +172,10 @@ public class KeystoneClient {
             if (!"null".equals(expireDateStr)) {
                 expireDateStr = expireDateStr.replace("000Z", "+0000");
                 try {
-                    localTokenExpireDate = dateFormat.parse(expireDateStr);
+                    localTokenExpireDate = getKeystoneDateFormat().parse(expireDateStr);
+                    LOG.info("generate an alcor token success: {}", localToken);
                 } catch (ParseException e) {
-                    LOG.error("Get Alcor Token failed, {}", e.getMessage());
+                    LOG.error("generate an alcor Token failed, {}", e.getMessage());
                     localToken = "";
                 }
             }
@@ -190,12 +191,13 @@ public class KeystoneClient {
      *
      * @see <a href="https://docs.openstack.org/api-ref/identity/v3/index.html?expanded=password-authentication-with-scoped-authorization-detail#identity-api-operations">Keystone api operations</a>
      */
-    public String verifyToken(String token){
+    public Optional<TokenEntity> verifyToken(String token){
         try {
 
             TokenEntity tokenEntity = cache.get(token);
             if(tokenEntity != null){
-                return tokenEntity.isExpired() ? "" : tokenEntity.getProjectId();
+                LOG.debug("fetch the token from cache {}", tokenEntity);
+                return tokenEntity.isExpired() ? Optional.empty() : Optional.of(tokenEntity);
             }
 
             checkEndPoints();
@@ -214,7 +216,6 @@ public class KeystoneClient {
             // check headers
             if(response.getStatusCode().equals(HttpStatus.OK)){
 
-
                 String resultStr = response.getBody();
                 JsonNode result = json2Map(resultStr);
                 JsonNode tokenNode = result.path(JSON_TOKEN_KEY);
@@ -226,7 +227,9 @@ public class KeystoneClient {
 
                 String expireDateStr = tokenNode.path(JSON_EXPIRES_AT_KEY).asText();
                 expireDateStr = expireDateStr.replace("000Z", "+0000");
-                Date expireDate = dateFormat.parse(expireDateStr);
+
+                Date expireDate = getKeystoneDateFormat().parse(expireDateStr);
+
                 te.setExpireAt(expireDate);
 
                 if(tokenNode.has(JSON_ROLES_KEY)){
@@ -247,19 +250,21 @@ public class KeystoneClient {
                         te.setDomainName(domain.path(JSON_NAME_KEY).asText(""));
                     }
 
-                    projectId = transformProjectIdToUuid(projectId);
+                    //projectId = transformProjectIdToUuid(projectId);
                     te.setProjectId(projectId);
                     te.setProjectName(project.path(JSON_NAME_KEY).asText(""));
                     cache.put(token, te);
-                    return projectId;
+                    LOG.debug("verify token {} success, token info: [{}]", token, te);
+                    return Optional.of(te);
                 }
             }else{
+                LOG.warn("verify token failed {}, keystone return http status {}", token, response.getStatusCode());
                 cache.put(token, new TokenEntity(token,true));
             }
         } catch (IOException | CacheException | ParseException | HttpClientErrorException e) {
             LOG.error("verify token failed, {}", e.getMessage());
         }
-        return "";
+        return Optional.empty();
     }
 
     private String transformProjectIdToUuid(String projectId){
@@ -375,6 +380,7 @@ public class KeystoneClient {
                 JsonNode href = link.path(JSON_HREF_KEY);
 
                 baseUrl = href.asText();
+                LOG.info("get a identity endpoint {} success", baseUrl);
                 return;
             }
         }

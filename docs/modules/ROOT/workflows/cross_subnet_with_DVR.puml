@@ -1,0 +1,77 @@
+'MIT License
+'Copyright(c) 2020 Futurewei Cloud
+'
+'    Permission is hereby granted,
+'    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+'    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+'    to whom the Software is furnished to do so, subject to the following conditions:
+'
+'    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+'
+'    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+'    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+'    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+@startuml
+
+skinparam monochrome true
+
+box "Compute Host 1" #LightBlue
+participant "Instance_1\n tap_interface"
+participant "br_int on\n Compute_Host_1"
+participant "openflow table\n classifier"
+participant "openflow table\n ARP responder"
+participant "openflow table\n forwarding"
+participant "Alcor Control Agent"
+participant "br_int on\n Compute_Host_1"
+participant "br_tun on\n Compute_Host_1"
+end box
+box "Compute Host 2" #LightGreen
+participant "br_tun on\n Compute_Host_2"
+participant "br_int on\n Compute_Host_2"
+participant "Instance_2\n tap_interface"
+end box
+
+==(First Packet) East-west for instances on different compute hosts on different networks==
+autonumber
+"Instance_1\n tap_interface" -> "br_int on\n Compute_Host_1": Packet sends to gateway
+"br_int on\n Compute_Host_1" -> "br_int on\n Compute_Host_1": +VLAN tag for network 1
+"br_int on\n Compute_Host_1" -> "openflow table\n classifier": Is it ARP or ICMP?
+"openflow table\n classifier" -> "openflow table\n forwarding": Using the default rule
+"openflow table\n forwarding" -> "Alcor Control Agent": No on-demand rule matched
+"Alcor Control Agent" -> "Alcor Control Agent": Matches the gateway port MAC\nFound the corresponding router
+"Alcor Control Agent" -> "openflow table\n forwarding": Adds on-demand routing rule
+"Alcor Control Agent" -> "br_int on\n Compute_Host_1": sends back to br-int
+"br_int on\n Compute_Host_1" -> "br_int on\n Compute_Host_1": Routes to network 2\nVLAN tag -> network 2
+"br_int on\n Compute_Host_1" -> "br_tun on\n Compute_Host_1": Sends to br-tun
+"br_tun on\n Compute_Host_1" -> "br_tun on\n Compute_Host_2": Encap the packet\nSends to VxLAN tunnel
+"br_tun on\n Compute_Host_2" -> "br_tun on\n Compute_Host_2": Decap the packet\n+VLAN tag for network 2
+"br_tun on\n Compute_Host_2" -> "br_int on\n Compute_Host_2": 
+"br_int on\n Compute_Host_2" -> "Instance_2\n tap_interface"
+
+==(Second+ Packet) East-west for instances on different compute hosts on different networks==
+autonumber 20
+"Instance_1\n tap_interface" -> "br_int on\n Compute_Host_1": Packet sends to gateway
+"br_int on\n Compute_Host_1" -> "br_int on\n Compute_Host_1": +VLAN tag for network 1
+"br_int on\n Compute_Host_1" -> "openflow table\n classifier": Is it ARP or ICMP?
+"openflow table\n classifier" -> "openflow table\n forwarding": Using the default rule
+"openflow table\n forwarding" -> "br_int on\n Compute_Host_1": On-demand rule matched
+"br_int on\n Compute_Host_1" -> "br_int on\n Compute_Host_1": Routes to network 2\nVLAN tag -> network 2
+"br_int on\n Compute_Host_1" -> "br_tun on\n Compute_Host_1": Sends to br-tun
+"br_tun on\n Compute_Host_1" -> "br_tun on\n Compute_Host_2": Encap the packet\nSends to VxLAN tunnel
+"br_tun on\n Compute_Host_2" -> "br_tun on\n Compute_Host_2": Decap the packet\n+VLAN tag for network 2
+"br_tun on\n Compute_Host_2" -> "br_int on\n Compute_Host_2": 
+"br_int on\n Compute_Host_2" -> "Instance_2\n tap_interface"
+
+==Instances 1 sends ARP to its gateway or other destination IP==
+autonumber 40
+"Instance_1\n tap_interface" -> "br_int on\n Compute_Host_1": ARP broadcast Packet
+"br_int on\n Compute_Host_1" -> "br_int on\n Compute_Host_1": +VLAN tag for network 1
+"br_int on\n Compute_Host_1" -> "openflow table\n classifier": Is it ARP or ICMP?
+"openflow table\n classifier" -> "openflow table\n ARP responder": Yes, it is ARP
+"openflow table\n ARP responder" -> "br_int on\n Compute_Host_1": If ARP target IP matches\nSend ARP respond
+"br_int on\n Compute_Host_1" -> "Instance_1\n tap_interface":
+"openflow table\n ARP responder" -> "br_int on\n Compute_Host_1": If ARP target IP doesn't match\nStrip VLAN tag\nSend to Normal switching
+
+@enduml
+

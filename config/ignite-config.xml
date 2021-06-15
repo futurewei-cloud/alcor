@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- MIT License
+Copyright(c) 2020 Futurewei Cloud
+
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+    The above copyright notice and this permission notice shall be included in all copies
+    or
+    substantial portions of the Software.
+    THE SOFTWARE IS PROVIDED "AS IS",
+    WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+    DAMAGES OR OTHER
+    LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE. -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:util="http://www.springframework.org/schema/util"
@@ -18,6 +35,100 @@
          </bean>
       </property>
     </bean>
+  </property>
+
+  <property name="cacheConfiguration">
+     <list>
+         <bean class="org.apache.ignite.configuration.CacheConfiguration">
+            <!-- Set the cache name. -->
+            <property name="name" value="dpm_nodeinfo_cache"/>
+            <!-- Set the cache mode. -->
+            <property name="atomicityMode" value="TRANSACTIONAL"/>
+            <!-- Other cache parameters. -->
+            <property name="cacheMode" value="PARTITIONED"/>
+         </bean>
+
+         <bean class="org.apache.ignite.configuration.CacheConfiguration">
+            <!-- Set the cache name. -->
+             <property name="name" value="com.futurewei.alcor.dataplane.entity.InternalPorts"/>
+            <!-- Set the cache mode. -->
+            <property name="atomicityMode" value="TRANSACTIONAL"/>
+            <!-- Other cache parameters. -->
+            <property name="cacheMode" value="PARTITIONED"/>
+         </bean>
+
+         <bean class="org.apache.ignite.configuration.CacheConfiguration">
+            <!-- Set the cache name. -->
+             <property name="name" value="com.futurewei.alcor.dataplane.entity.InternalSubnets"/>
+            <!-- Set the cache mode. -->
+            <property name="atomicityMode" value="TRANSACTIONAL"/>
+            <!-- Other cache parameters. -->
+            <property name="cacheMode" value="PARTITIONED"/>
+         </bean>
+
+         <bean class="org.apache.ignite.configuration.CacheConfiguration">
+            <!-- Set the cache name. -->
+             <property name="name" value="com.futurewei.alcor.dataplane.entity.InternalSubnetPorts"/>
+            <!-- Set the cache mode. -->
+            <property name="atomicityMode" value="TRANSACTIONAL"/>
+            <!-- Other cache parameters. -->
+            <property name="cacheMode" value="PARTITIONED"/>
+         </bean>
+
+         <bean class="org.apache.ignite.configuration.CacheConfiguration">
+            <!-- Set the cache name. -->
+             <property name="name" value="com.futurewei.alcor.dataplane.entity.GatewayInfo"/>
+            <!-- Set the cache mode. -->
+            <property name="atomicityMode" value="TRANSACTIONAL"/>
+            <!-- Other cache parameters. -->
+            <property name="cacheMode" value="PARTITIONED"/>
+         </bean>
+
+         <bean class="org.apache.ignite.configuration.CacheConfiguration">
+            <!-- Set the cache name. -->
+            <property name="name" value="ncm_nodeinfo_cache"/>
+            <!-- Set the cache mode. -->
+            <property name="atomicityMode" value="TRANSACTIONAL"/>
+            <!-- Other cache parameters. -->
+            <property name="cacheMode" value="PARTITIONED"/>
+         </bean>
+
+         <bean class="org.apache.ignite.configuration.CacheConfiguration">
+            <!-- Set the cache name. -->
+             <property name="name" value="com.futurewei.alcor.netwconfigmanager.entity.ResourceMeta"/>
+            <!-- Set the cache mode. -->
+            <property name="atomicityMode" value="TRANSACTIONAL"/>
+            <!-- Other cache parameters. -->
+            <property name="cacheMode" value="PARTITIONED"/>
+         </bean>
+
+         <bean class="org.apache.ignite.configuration.CacheConfiguration">
+            <!-- Set the cache name. -->
+             <property name="name" value="com.futurewei.alcor.netwconfigmanager.entity.VpcResourceMeta"/>
+            <!-- Set the cache mode. -->
+            <property name="atomicityMode" value="TRANSACTIONAL"/>
+            <!-- Other cache parameters. -->
+            <property name="cacheMode" value="PARTITIONED"/>
+         </bean>
+
+         <bean class="org.apache.ignite.configuration.CacheConfiguration">
+            <!-- Set the cache name. -->
+             <property name="name" value="java.lang.Object"/>
+            <!-- Set the cache mode. -->
+            <property name="atomicityMode" value="TRANSACTIONAL"/>
+            <!-- Other cache parameters. -->
+            <property name="cacheMode" value="PARTITIONED"/>
+         </bean>
+
+         <bean class="org.apache.ignite.configuration.CacheConfiguration">
+            <!-- Set the cache name. -->
+            <property name="name" value="com.futurewei.alcor.dataplane.entity.VpcResourceMeta"/>
+            <!-- Set the cache mode. -->
+            <property name="atomicityMode" value="TRANSACTIONAL"/>
+            <!-- Other cache parameters. -->
+            <property name="cacheMode" value="PARTITIONED"/>
+         </bean>
+     </list>
   </property>
 </bean>
 </beans>

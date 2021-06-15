@@ -1,0 +1,142 @@
+= Message Queue Subsystem Design - Under Development
+Liguang Xie <lxie@futurewei.com>
+v0.1, 2019-10-27
+:toc: right
+
+NOTE: This document is under development
+
+== Overview
+
+//[.lead]
+
+//Choosing the right data store system is always the key of developing any data-intensive application including Alcor control plane.
+//The choice is not that obvious though.
+//There are so many database and cache systems on the market with various characteristics as they are designed to
+//meet different requirements of different applications.
+//
+//In this design spec, we go through our system requirements including scalability, availability,
+//durability, and performance.
+//Secondly, we review existing distributed database and cache solutions,
+//discuss their data model, license, and community support, and summarize the pros and cons of each solution.
+//We then zoom in on selective databases and compare their features, characteristics and applicable applications.
+//Based on the above information, we match our system requirements with the available solutions, and propose architectural design.
+
+[#system-requirements]
+== System Requirements
+
+=== Must-have features
+
+=== Nice-to-have features
+
+=== Throughput and Latency Requirements
+
+== Review of Popular MQ Systems
+
+[#FeatureComp]
+=== Feature Comparision among Selective MQ
+
+[width="100%",cols="<.^,^.<,^.<,^.<,^.<",options="header"]
+|====================
+|Name| Apache Kafka | Apache Pulsar | RocketMQ | NATS
+
+|====================
+
+Note: * means that the feature is available only in the enterprise edition.
+
+//=== Review of Cache Store
+//
+//[width="100%",options="header"]
+//|====================
+//|Cache|Type|Pros|Cons|License
+//|Option 1: Memcached
+//|Cache service
+//|
+//|
+//|
+//
+//|Option 2: Redis
+//| Cache service
+//a|
+//- Support HA cluster
+//- Data persistence
+//- Support a variety of data structures ranging from bitmaps, steams, and spatial indexes
+//|
+//| BSD
+//
+//|Option 3: LevelDB | In-memory cache | | |
+//
+//|Option 4: Riak
+//| Distributed key-value database
+//a|
+//- Distributed design
+//- Advanced local and multi-cluster replication
+//|
+//|
+//|====================
+//
+//Note: Cache is optional at this point.
+//Our plan is to first conduct a performance analysis for various database storage solutions in terms of throughput, latency and other factors.
+//If TPS couldn't satisfy our target performance requirement, we will incorporate cache in our design.
+//
+//=== Cache Access Pattern
+//
+//Cache Aside Pattern: For write operation, we could use cache aside pattern which recommends to delete cache entry,
+//instead of resetting cache entry.
+//
+//Pending item:
+//
+//* Modify database then remove cache entry (to reduce the possibility of read old data immediate after write and legacy cache)
+//* Remove cache entry then modify database (ensure atomic operation)
+
+
+[#architecture]
+== Architectural Design
+
+Based on <<system-requirements>> and <<FeatureComp>>,
+//Apache Ignite provides a very rich feature set that matches most of our system requirements. Specifically, it offers the following features:
+//
+//* Standalone distributed database and built-in cache services
+//* Strong consistency, distributed ACID transactions and SQL queries
+//* Data sharding and cross-shard transacation
+//* Proven horizontal scalability to meet our throughput and storage requirement
+//* Cross-DC and cross-AZ geo replication for AZ-resilient HA
+//* In-memory processing capabilities applicable for read heavy workload application while offering low latency for writes
+//* Rolling upgrade without downtime
+//* Collocated joins and non-collocated joins
+//* In-memory indexing
+//
+//Regarding performance and storage size,
+//the benchmark results with Yardstick <<ignite_benchmark>> shows that Ignite could reach up to 1/3 million Ops and less than 1 millisecond latency with four average server machines (2x Xeon E5-2609 v4 1.7GHz, 96 GB RAM).
+//The catch is that the benchmark is conducted by only one client node with 128 client threads, which does not consider network round trip time in the scenarios where 2-phase commit is applied.
+//
+//The comparison results with Cassandra <<ignite_cassandra>> used a more distributed benchmark YCSB with three server nodes (same server configuration as used in Yardstick).
+//In a 256 client threads setup, Ignite could reach up to 300K READ Ops and 150K READ+UPDATE Ops.
+//
+//In short, Ignite fits into read-intensive and mixed workloads.
+//With data shading support, the throughput and latency data is expected to meet our system requirements.
+//Its maximum reliable dataset size could reach up to hundreds of TBs, which provides sufficient margin to support fast-growing pace of public cloud.
+//
+//TIP: To get more details about how to scale Ignite cluster to meet the storage requirements,
+//refer to <<capacity>>.
+
+We have two architectural design options.
+
+[#MQ-only-option]
+=== Design Option: Message Queue Only
+
+MQ only
+
+[#MQ-NFS-option]
+=== Design Option: Message Queue & NFS
+
+MQ + NFS
+
+[#MQ-self-learning]
+=== Design Option: Selective Messaging & Host Self Learning
+
+Selective messaging through MQ + host self learning
+
+[bibliography]
+== References
+
+- [[[ignite_home,1]]] Apache Ignite: https://ignite.apache.org/

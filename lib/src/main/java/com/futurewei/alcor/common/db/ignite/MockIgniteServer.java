@@ -1,17 +1,17 @@
 /*
-Copyright 2019 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package com.futurewei.alcor.common.db.ignite;
 
@@ -19,6 +19,8 @@ import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.IgniteException;
 import org.apache.ignite.Ignition;
+import org.apache.ignite.configuration.CacheConfiguration;
+import org.apache.ignite.configuration.ClientConnectorConfiguration;
 import org.apache.ignite.internal.IgniteKernal;
 import org.apache.ignite.internal.processors.cache.IgniteCacheProxyImpl;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
@@ -27,6 +29,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -35,6 +38,7 @@ public class MockIgniteServer {
 
     private static final String LOCAL_ADDRESS = "127.0.0.1";
     private static final int LISTEN_PORT = 11801;
+    private static final int CLIENT_CONNECT_PORT = 10800;
     private static final int LISTEN_PORT_RANGE = 10;
 
     private static Ignite igniteServer = null;
@@ -55,6 +59,11 @@ public class MockIgniteServer {
                 tcpDiscoverySpi.setLocalPortRange(LISTEN_PORT_RANGE);
                 cfg.setDiscoverySpi(tcpDiscoverySpi);
 //                cfg.setPeerClassLoadingEnabled(true);
+
+                ClientConnectorConfiguration clientConfig = new ClientConnectorConfiguration();
+                clientConfig.setPort(CLIENT_CONNECT_PORT);
+                cfg.setClientConnectorConfiguration(clientConfig);
+
                 igniteServer = Ignition.start(cfg);
 
                 //Properties properties = System.getProperties();
@@ -75,11 +84,8 @@ public class MockIgniteServer {
     }
 
     public static Ignite getIgnite(){
-        if(igniteServer == null){
-            // if no need create a real ignite server, we return a mock Ignite client
-            return new IgniteNodeClientMock();
-        }
-        return igniteServer;
+        // if no need create a real ignite server, we return a mock Ignite client
+        return Objects.requireNonNullElseGet(igniteServer, IgniteNodeClientMock::new);
     }
 
     /**
@@ -92,6 +98,11 @@ public class MockIgniteServer {
 
         @Override
         public <K, V> IgniteCache<K, V> getOrCreateCache(String cacheName) {
+            return new IgniteCacheProxyImpl();
+        }
+
+        @Override
+        public <K, V> IgniteCache<K, V> getOrCreateCache(CacheConfiguration<K, V> cacheCfg) {
             return new IgniteCacheProxyImpl();
         }
     }

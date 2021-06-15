@@ -1,19 +1,18 @@
 /*
-Copyright 2019 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-
 package com.futurewei.alcor.macmanager.utils;
 
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
@@ -25,6 +24,8 @@ import com.futurewei.alcor.web.entity.mac.MacRange;
 import com.futurewei.alcor.web.entity.mac.MacState;
 import org.thymeleaf.util.StringUtils;
 
+import javax.crypto.Mac;
+
 public class MacManagerRestPreconditionsUtil {
     public static void verifyParameterNotNullorEmpty(String resourceId) throws ParameterNullOrEmptyException {
         if (StringUtils.isEmpty(resourceId)) {
@@ -34,7 +35,7 @@ public class MacManagerRestPreconditionsUtil {
 
     public static void verifyParameterNotNullorEmpty(MacState resource) throws ParameterNullOrEmptyException {
         if (resource == null) {
-            throw new ParameterNullOrEmptyException("null parameter");
+            throw new ParameterNullOrEmptyException("mac params is null");
         }
     }
 
@@ -58,21 +59,20 @@ public class MacManagerRestPreconditionsUtil {
         String state = macState.getState();
 
         if (projectId == null || vpcId == null || portId == null)
-            throw new MacStateInvalidException(MacManagerConstant.MAC_EXCEPTION_MACSTATE_NULL);
+            throw new MacStateInvalidException(MacManagerConstant.MAC_EXCEPTION_REQUIRE_PARAMS_NULL);
 
         projectId = projectId.trim();
         vpcId = vpcId.trim();
         portId = portId.trim();
 
         if (projectId.length() == 0 || vpcId.length() == 0 || portId.length() == 0)
-            throw new MacStateInvalidException(MacManagerConstant.MAC_EXCEPTION_MACSTATE_INVALID_EMPTY);
+            throw new MacStateInvalidException(MacManagerConstant.MAC_EXCEPTION_REQUIRE_PARAMS_EMPTY);
 
         if (!StringUtils.isEmpty(state)) {
             state = state.trim();
             if (!state.equals(MacManagerConstant.MAC_STATE_ACTIVE) && !state.equals(MacManagerConstant.MAC_STATE_INACTIVE))
-                throw new MacStateInvalidException(MacManagerConstant.MAC_EXCEPTION_MACSTATE_INVALID_DATA);
+                throw new MacStateInvalidException(MacManagerConstant.MAC_EXCEPTION_STATE_INVALID);
         }
-
     }
 
     public static void verifyMacRangeData(MacRange macRange) throws MacRangeInvalidException {

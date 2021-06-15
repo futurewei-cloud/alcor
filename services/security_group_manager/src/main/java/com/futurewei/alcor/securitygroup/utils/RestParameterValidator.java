@@ -1,24 +1,24 @@
 /*
-Copyright 2019 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package com.futurewei.alcor.securitygroup.utils;
 
 import com.futurewei.alcor.common.utils.Ipv4AddrUtil;
 import com.futurewei.alcor.common.utils.Ipv6AddrUtil;
 import com.futurewei.alcor.securitygroup.exception.*;
-import com.futurewei.alcor.web.entity.port.PortSecurityGroupsJson;
+import com.futurewei.alcor.web.entity.securitygroup.PortBindingSecurityGroupsJson;
 import com.futurewei.alcor.web.entity.securitygroup.*;
 import org.thymeleaf.util.StringUtils;
 
@@ -32,10 +32,12 @@ public class RestParameterValidator {
         }
     }
 
-    public static void checkTenantId(String tenantId) throws TenantIdRequired {
+    public static String checkOrAssignTenantId(String tenantId, String projectId) throws ProjectIdRequired{
+        checkProjectId(projectId);
         if (StringUtils.isEmpty(tenantId)) {
-            throw new TenantIdRequired();
+            return projectId;
         }
+        return tenantId;
     }
 
     public static void checkSecurityGroup(SecurityGroupJson securityGroupJson) throws SecurityGroupRequired {
@@ -53,12 +55,6 @@ public class RestParameterValidator {
     public static void checkPortId(String portId) throws PortIdRequired {
         if (StringUtils.isEmpty(portId)) {
             throw new PortIdRequired();
-        }
-    }
-
-    public static void checkPortSecurityGroups(PortSecurityGroupsJson portSecurityGroupsJson) throws PortSecurityGroupsRequired {
-        if (portSecurityGroupsJson == null || portSecurityGroupsJson.getSecurityGroups() == null) {
-            throw new PortSecurityGroupsRequired();
         }
     }
 
@@ -173,7 +169,7 @@ public class RestParameterValidator {
     }
 
     public static void checkSecurityGroupRule(SecurityGroupRule securityGroupRule) throws Exception {
-        checkTenantId(securityGroupRule.getTenantId());
+        //checkTenantId(securityGroupRule.getTenantId());
         checkSecurityGroupId(securityGroupRule.getSecurityGroupId());
         checkDirection(securityGroupRule.getDirection());
 
@@ -194,6 +190,15 @@ public class RestParameterValidator {
 
         if (securityGroupRule.getRemoteGroupId() != null && securityGroupRule.getRemoteIpPrefix() != null) {
             throw new RemoteIpPrefixRemoteGroupIdConflict();
+        }
+    }
+
+    public static void checkPortSecurityGroups(PortBindingSecurityGroupsJson portBindingSecurityGroupsJson) throws Exception {
+        List<PortBindingSecurityGroup> portBindingSecurityGroups = portBindingSecurityGroupsJson.getPortBindingSecurityGroups();
+        for (PortBindingSecurityGroup portBindingSecurityGroup: portBindingSecurityGroups) {
+
+            checkPortId(portBindingSecurityGroup.getPortId());
+            checkSecurityGroupId(portBindingSecurityGroup.getSecurityGroupId());
         }
     }
 }

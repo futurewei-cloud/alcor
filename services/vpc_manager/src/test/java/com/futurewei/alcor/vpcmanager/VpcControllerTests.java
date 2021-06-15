@@ -1,3 +1,18 @@
+/*
+MIT License
+Copyright(c) 2020 Futurewei Cloud
+
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
 package com.futurewei.alcor.vpcmanager;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -6,6 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.junit.Assert.*;
 
+import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.vpcmanager.config.UnitTestConfig;
 import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
 import com.futurewei.alcor.vpcmanager.service.VpcService;
@@ -87,6 +103,11 @@ public class VpcControllerTests {
                         UnitTestConfig.cidr, null));
         Mockito.when(vpcService.getRoute(eq(UnitTestConfig.vpcId), any(VpcEntity.class)))
                 .thenReturn(routeWebJson);
+        Mockito.when(vpcService.allocateSegmentForNetwork(any(VpcEntity.class)))
+                .thenReturn(new VpcEntity(UnitTestConfig.projectId,
+                        UnitTestConfig.vpcId, UnitTestConfig.name,
+                        UnitTestConfig.cidr, null));
+        Mockito.when(vpcService.registerVpc(any(VpcEntity.class))).thenReturn(new ResponseId(UnitTestConfig.vpcId));
         this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.vpcResource))
                 .andDo(print())
                 .andExpect(status().is(201))
@@ -107,14 +128,12 @@ public class VpcControllerTests {
         Mockito.when(vpcService.getRoute(eq(UnitTestConfig.vpcId), any(VpcEntity.class)))
                 .thenReturn(null);
 
-        try {
-            this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.vpcResource))
-                    .andDo(print())
-                    .andExpect(status().is(201))
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.network.routes[0].destination").value(UnitTestConfig.cidr));
-        } catch (Exception e) {
+        Mockito.when(vpcService.registerVpc(any(VpcEntity.class))).thenReturn(new ResponseId(UnitTestConfig.vpcId));
 
-        }
+        String response = this.mockMvc.perform(post(createUri).contentType(MediaType.APPLICATION_JSON).content(UnitTestConfig.vpcResource))
+                .andDo(print())
+                .andExpect(status().is(201)).andReturn().getResponse().getContentAsString();
+        assertEquals("{\"network\":null}", response);
     }
 
     @Test
@@ -150,6 +169,7 @@ public class VpcControllerTests {
                 .thenReturn(new VpcEntity(UnitTestConfig.projectId,
                         UnitTestConfig.vpcId, UnitTestConfig.name,
                         UnitTestConfig.cidr, null));
+        Mockito.when(vpcService.unRegisterVpc(any(VpcEntity.class))).thenReturn(new ResponseId(UnitTestConfig.vpcId));
         this.mockMvc.perform(delete(deleteUri))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -160,6 +180,7 @@ public class VpcControllerTests {
     public void deleteVpcStateByVpcId_deleteWhenIdNotExist_pass () throws Exception {
         Mockito.when(vpcDatabaseService.getByVpcId(UnitTestConfig.vpcId))
                 .thenReturn(null);
+        Mockito.when(vpcService.unRegisterVpc(any(VpcEntity.class))).thenReturn(new ResponseId(UnitTestConfig.vpcId));
         String response = this.mockMvc.perform(delete(deleteUri))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -183,7 +204,7 @@ public class VpcControllerTests {
     @Test
     public void getVpcStatesByProjectId_getEmptyMap_pass () throws Exception {
         Map<String, VpcEntity> vpcStates = new HashMap<>();
-        Mockito.when(vpcDatabaseService.getAllVpcs()).thenReturn(vpcStates);
+        Mockito.when(vpcDatabaseService.getAllVpcs(any())).thenReturn(vpcStates);
         this.mockMvc.perform(get(getByProjectIdUri)).andDo(print())
                 .andExpect(status().isOk());
     }

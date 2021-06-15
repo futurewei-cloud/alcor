@@ -1,17 +1,17 @@
 /*
-Copyright 2020 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 package com.futurewei.alcor.web.entity.elasticip;
@@ -36,10 +36,6 @@ public class ElasticIp extends CustomerResource {
     @JsonProperty("port_id")
     private String portId;
 
-    @JsonProperty("private_ip_version")
-    @JsonInclude(value = JsonInclude.Include.NON_NULL)
-    private Integer privateIpVersion;
-
     @JsonProperty("private_ip")
     @JsonInclude(value = JsonInclude.Include.NON_NULL)
     private String privateIp;
@@ -59,7 +55,6 @@ public class ElasticIp extends CustomerResource {
         this.elasticIpVersion = eip.getElasticIpVersion();
         this.elasticIp = eip.getElasticIp();
         this.portId = eip.getPortId();
-        this.privateIpVersion = eip.getPrivateIpVersion();
         this.privateIp = eip.getPrivateIp();
         this.dnsName = eip.getDnsName();
         this.dnsDomain = eip.getDnsDomain();
@@ -67,13 +62,12 @@ public class ElasticIp extends CustomerResource {
 
     public ElasticIp(String projectId, String id, String name, String description,
                      String rangeId, Integer elasticIpVersion, String elasticIp, String portId,
-                     Integer privateIpVersion, String privateIp, String dnsName, String dnsDomain) {
+                     String privateIp, String dnsName, String dnsDomain) {
         super(projectId, id, name, description);
         this.rangeId = rangeId;
         this.elasticIpVersion = elasticIpVersion;
         this.elasticIp = elasticIp;
         this.portId = portId;
-        this.privateIpVersion = privateIpVersion;
         this.privateIp = privateIp;
         this.dnsName = dnsName;
         this.dnsDomain = dnsDomain;
@@ -111,14 +105,6 @@ public class ElasticIp extends CustomerResource {
         this.portId = portId;
     }
 
-    public Integer getPrivateIpVersion() {
-        return privateIpVersion;
-    }
-
-    public void setPrivateIpVersion(Integer privateIpVersion) {
-        this.privateIpVersion = privateIpVersion;
-    }
-
     public String getPrivateIp() {
         return privateIp;
     }
@@ -150,7 +136,6 @@ public class ElasticIp extends CustomerResource {
                 ", elasticIpVersion=" + elasticIpVersion +
                 ", elasticIp='" + elasticIp + '\'' +
                 ", portId='" + portId + '\'' +
-                ", privateIpVersion=" + privateIpVersion +
                 ", privateIp='" + privateIp + '\'' +
                 ", dnsName='" + dnsName + '\'' +
                 ", dnsDomain='" + dnsDomain + '\'' +

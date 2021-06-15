@@ -1,7 +1,23 @@
+/*
+MIT License
+Copyright(c) 2020 Futurewei Cloud
+
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
 package com.futurewei.alcor.route.service.Impl;
 
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.route.dao.RouteRepository;
 import com.futurewei.alcor.route.service.RouteDatabaseService;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
@@ -21,6 +37,7 @@ public class RouteDatabaseServiceImpl implements RouteDatabaseService {
     RouteRepository routeRepository;
 
     @Override
+    @DurationStatistics
     public RouteEntity getByRouteId(String routeId) {
         try {
             return this.routeRepository.findItem(routeId);
@@ -30,11 +47,13 @@ public class RouteDatabaseServiceImpl implements RouteDatabaseService {
     }
 
     @Override
+    @DurationStatistics
     public Map getAllRoutes() throws CacheException {
         return this.routeRepository.findAllItems();
     }
 
     @Override
+    @DurationStatistics
     public void addRoute(RouteEntity routeEntity) throws DatabasePersistenceException {
         try {
             this.routeRepository.addItem(routeEntity);
@@ -44,6 +63,7 @@ public class RouteDatabaseServiceImpl implements RouteDatabaseService {
     }
 
     @Override
+    @DurationStatistics
     public void deleteRoute(String id) throws Exception {
         this.routeRepository.deleteItem(id);
     }

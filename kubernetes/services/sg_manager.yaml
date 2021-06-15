@@ -4,8 +4,11 @@ metadata:
   name: sg-configmap
 data:
   application.properties: |
-    ignite.host=ignite-alcor-service.default.svc.cluster.local
+    ignite.thin.client.enable=true
+    ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
     ignite.port=10800
+    logging.level.root=DEBUG
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -17,7 +20,7 @@ spec:
   selector:
     matchLabels:
       app: sgmanager
-  replicas: 3
+  replicas: 5
   template:
     metadata:
       labels:
@@ -31,11 +34,11 @@ spec:
               - key: application.properties
                 path: application.properties
       containers:
-        - image: zhonghaolyu/repo:sgKube1
+        - image: security_group_manager:v1.0
         #- image: fwnetworking/controller:node_manager-v0.3.0
           name: sgmanager-web
           imagePullPolicy: IfNotPresent
-          command: ["java", "-jar", "/app/AlcorSecurityGroupManager-0.0.1-SNAPSHOT.jar", "--spring.config.location=/etc/sg/application.properties"]
+          command: ["java", "-jar", "/app/AlcorSecurityGroupManager-0.1.0.jar", "--spring.config.location=/etc/sg/application.properties"]
           ports:
             - containerPort: 8080
           volumeMounts:
@@ -56,7 +59,7 @@ spec:
   ports:
     - port: 9008
       targetPort: 8080
-      nodePort: 30010
+      nodePort: 30008
   selector:
     app: sgmanager
 

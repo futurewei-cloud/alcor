@@ -1,21 +1,18 @@
 /*
- *
- * Copyright 2019 The Alcor Authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- *         you may not use this file except in compliance with the License.
- *         You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *         See the License for the specific language governing permissions and
- *         limitations under the License.
- * /
- */
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
 package com.futurewei.alcor.macmanager.pool.impl;
 
 import com.futurewei.alcor.common.db.CacheException;
@@ -45,16 +42,16 @@ public class RandomMacPoolImpl implements MacPoolApi {
     private static final float MIDDLE_LOAD_FACTOR = 0.5f;
     private static final float HIGH_LOAD_FACTOR = 0.75f;
 
-    @Value("${low-request-numbers: 10}")
+    @Value("${macmanager.pool.low-request-numbers: 10}")
     private int lowRequestNumbers;
 
-    @Value("${middle-request-numbers: 20}")
+    @Value("${macmanager.pool.middle-request-numbers: 20}")
     private int middleRequestNumbers;
 
-    @Value("${high-request-numbers: 60}")
+    @Value("${macmanager.pool.high-request-numbers: 60}")
     private int highRequestNumbers;
 
-    @Value("${top-request-numbers: 400}")
+    @Value("${macmanager.pool.top-request-numbers: 400}")
     private int topRequestNumbers;
 
     @Value("${macmanager.retrylimit}")
@@ -67,7 +64,7 @@ public class RandomMacPoolImpl implements MacPoolApi {
     public String allocate(String oui, MacRange macRange) throws MacAddressFullException, MacAddressRetryLimitExceedException, CacheException {
 
         String rangeId = macRange.getRangeId();
-        long used = macRangeMappingRepository.size(rangeId);
+        long used = macRangeMappingRepository.getUsedCapacity(rangeId);
         String fromHexSuffix = getMacSuffix(oui, macRange.getFrom());
         String toHexSuffix = getMacSuffix(oui, macRange.getTo());
         long start = macToLong(fromHexSuffix);
@@ -77,7 +74,7 @@ public class RandomMacPoolImpl implements MacPoolApi {
             throw new MacAddressFullException(MacManagerConstant.MAC_EXCEPTION_MACADDRESS_FULL);
         }
 
-        float loadRate = (float) used/macRange.getCapacity();
+        float usedRatio = (float) used/macRange.getCapacity();
 
         int retryTime = 0;
         do {
@@ -85,12 +82,12 @@ public class RandomMacPoolImpl implements MacPoolApi {
                 throw new MacAddressRetryLimitExceedException(MacManagerConstant.MAC_EXCEPTION_RETRY_LIMIT_EXCEED);
             }
             long next = RandomUtils.nextLong(start, end);
-            if (loadRate < BOTTOM_LOAD_FACTOR) {
-                if(check(rangeId, next)){
+            if (usedRatio < BOTTOM_LOAD_FACTOR) {
+                if(tryAllocateMacAddress(rangeId, next)){
                     return longToMac(oui, next);
                 }
             }else {
-                int requestNumbers = getRequestNumbers(loadRate);
+                int requestNumbers = getRequestNumbers(usedRatio);
                 requestNumbers = requestNumbers > macRange.getCapacity() ? (int) macRange.getCapacity() : requestNumbers;
                 long left = next - requestNumbers / 2;
                 long right = next + requestNumbers / 2 + requestNumbers % 2;
@@ -110,17 +107,17 @@ public class RandomMacPoolImpl implements MacPoolApi {
                     for (long i = left; i < right; i++) {
                         macs.add(i);
                     }
-                    Set<Long> newMacs = checkMulti(rangeId, macs);
+                    Set<Long> newMacs = retrieveMultiMacAddress(rangeId, macs);
                     if(newMacs != null){
                         for(Long macLong: newMacs){
-                            if(check(rangeId, macLong)){
+                            if(tryAllocateMacAddress(rangeId, macLong)){
                                 return longToMac(oui, macLong);
                             }
                         }
                     }
                 } else {
                     for (long i = left; i < right; i++) {
-                        if(check(rangeId, i)){
+                        if(tryAllocateMacAddress(rangeId, i)){
                             return longToMac(oui, i);
                         };
                     }
@@ -135,7 +132,7 @@ public class RandomMacPoolImpl implements MacPoolApi {
     public Set<String> allocateBulk(String oui, MacRange macRange, int size) throws MacAddressFullException, MacAddressRetryLimitExceedException, CacheException{
         Set<String> newAllocateMacs = new HashSet<>(size);
         String rangeId = macRange.getRangeId();
-        long used = macRangeMappingRepository.size(rangeId);
+        long used = macRangeMappingRepository.getUsedCapacity(rangeId);
         String fromHexSuffix = getMacSuffix(oui, macRange.getFrom());
         String toHexSuffix = getMacSuffix(oui, macRange.getTo());
         long start = macToLong(fromHexSuffix);
@@ -169,12 +166,12 @@ public class RandomMacPoolImpl implements MacPoolApi {
 
             Set<Long> macs = new HashSet<>();
             for (long i = left; i < right; i++) {
-                macs.add(next);
+                macs.add(i);
             }
-            Set<Long> newMacs = checkMulti(rangeId, macs);
+            Set<Long> newMacs = retrieveMultiMacAddress(rangeId, macs);
             if(newMacs != null){
                 for(Long macLong: newMacs){
-                    if(check(rangeId, macLong)){
+                    if(tryAllocateMacAddress(rangeId, macLong)){
                         newAllocateMacs.add(longToMac(oui, macLong));
                     }
                 }
@@ -188,7 +185,7 @@ public class RandomMacPoolImpl implements MacPoolApi {
     }
 
     @Override
-    public Boolean reclaim(String rangeId, String oui, String mac) {
+    public Boolean release(String rangeId, String oui, String mac) {
         try {
             Long macLong = macToLong(getMacSuffix(oui, mac));
             return macRangeMappingRepository.releaseMac(rangeId, macLong);
@@ -198,13 +195,13 @@ public class RandomMacPoolImpl implements MacPoolApi {
     }
 
     @Override
-    public long rangeSize(String rangeId) throws CacheException {
-        return macRangeMappingRepository.size(rangeId);
+    public long getRangeSize(String rangeId) throws CacheException {
+        return macRangeMappingRepository.getUsedCapacity(rangeId);
     }
 
     @Override
-    public long rangeAvailableSize(MacRange macRange) throws CacheException {
-        long size = macRangeMappingRepository.size(macRange.getRangeId());
+    public long getRangeAvailableSize(MacRange macRange) throws CacheException {
+        long size = macRangeMappingRepository.getUsedCapacity(macRange.getRangeId());
         return macRange.getCapacity() - size;
     }
 
@@ -225,7 +222,7 @@ public class RandomMacPoolImpl implements MacPoolApi {
         return topRequestNumbers;
     }
 
-    private boolean check(String rangeId, Long macLong){
+    private boolean tryAllocateMacAddress(String rangeId, Long macLong){
         try {
             return macRangeMappingRepository.putIfAbsent(rangeId, macLong);
         } catch (CacheException e) {
@@ -233,7 +230,7 @@ public class RandomMacPoolImpl implements MacPoolApi {
         }
     }
 
-    private Set<Long> checkMulti(String rangeId, Set<Long> macs){
+    private Set<Long> retrieveMultiMacAddress(String rangeId, Set<Long> macs){
         // get too many result change to bulk handle
         try {
             return macRangeMappingRepository.getAll(rangeId, macs);

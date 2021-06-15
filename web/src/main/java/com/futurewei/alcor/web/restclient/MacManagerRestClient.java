@@ -1,26 +1,29 @@
 /*
-Copyright 2019 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package com.futurewei.alcor.web.restclient;
 
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.mac.MacState;
+import com.futurewei.alcor.web.entity.mac.MacStateBulkJson;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
+
+import java.util.List;
 
 @Configuration
 public class MacManagerRestClient extends AbstractRestClient {
@@ -35,7 +38,7 @@ public class MacManagerRestClient extends AbstractRestClient {
         }
     }
 
-    private MacStateJson newMacStateJson(String projectId, String vpcId, String portId, String macAddress) {
+    private MacStateJson buildMacStateJson(String projectId, String vpcId, String portId, String macAddress) {
         MacState macState = new MacState(macAddress, projectId, vpcId, portId, null);
         return new MacStateJson(macState);
     }
@@ -49,7 +52,19 @@ public class MacManagerRestClient extends AbstractRestClient {
 
     @DurationStatistics
     public MacStateJson allocateMacAddress(String projectId, String vpcId, String portId, String macAddress) throws Exception {
-        MacStateJson macStateJson = newMacStateJson(projectId, vpcId, portId, macAddress);
+        MacStateJson macStateJson = buildMacStateJson(projectId, vpcId, portId, macAddress);
+        HttpEntity<MacStateJson> request = new HttpEntity<>(macStateJson);
+
+        MacStateJson result = restTemplate.postForObject(macManagerUrl, request, MacStateJson.class);
+
+        verifyAllocatedMacAddress(result);
+
+        return result;
+    }
+
+    @DurationStatistics
+    public MacStateJson allocateMacAddress(MacState macStates) throws Exception {
+        MacStateJson macStateJson = new MacStateJson(macStates);
         HttpEntity<MacStateJson> request = new HttpEntity<>(macStateJson);
 
         MacStateJson result = restTemplate.postForObject(macManagerUrl, request, MacStateJson.class);
@@ -61,11 +76,35 @@ public class MacManagerRestClient extends AbstractRestClient {
 
     @DurationStatistics
     public MacStateJson updateMacAddress(String projectId, String vpcId, String portId, String macAddress) throws Exception {
-        MacStateJson macStateJson = newMacStateJson(projectId, vpcId, portId, macAddress);
+        MacStateJson macStateJson = buildMacStateJson(projectId, vpcId, portId, macAddress);
         HttpEntity<MacStateJson> request = new HttpEntity<>(macStateJson);
 
         restTemplate.put(macManagerUrl, request);
 
         return macStateJson;
+    }
+
+    @DurationStatistics
+    public MacStateJson updateMacAddress(String macAddress, MacState macStates) throws Exception {
+        MacStateJson macStateJson = new MacStateJson(macStates);
+        HttpEntity<MacStateJson> request = new HttpEntity<>(macStateJson);
+        String url = macManagerUrl + "/" + macAddress;
+        restTemplate.put(url, request);
+
+        return macStateJson;
+    }
+
+    @DurationStatistics
+    public MacStateBulkJson allocateMacAddressBulk(List<MacState> macStates) throws Exception {
+        MacStateBulkJson macStateBulkJson = new MacStateBulkJson(macStates);
+        HttpEntity<MacStateBulkJson> request = new HttpEntity<>(macStateBulkJson);
+
+        MacStateBulkJson result = restTemplate.postForObject(
+                macManagerUrl + "/bulk", request, MacStateBulkJson.class);
+        if (result == null || result.getMacStates() == null) {
+            throw new Exception("Allocate mac addresses failed");
+        }
+
+        return result;
     }
 }

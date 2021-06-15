@@ -1,17 +1,17 @@
 /*
-Copyright 2019 The Alcor Authors.
+MIT License
+Copyright(c) 2020 Futurewei Cloud
 
-Licensed under the Apache License, Version 2.0 (the "License");
-        you may not use this file except in compliance with the License.
-        You may obtain a copy of the License at
+    Permission is hereby granted,
+    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+    to whom the Software is furnished to do so, subject to the following conditions:
 
-        http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package com.futurewei.alcor.portmanager.util;
 
@@ -22,11 +22,10 @@ import com.futurewei.alcor.web.entity.port.IpAllocation;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.VifType;
 import com.futurewei.alcor.web.entity.port.VnicType;
+import com.futurewei.alcor.web.entity.route.RouterUpdateInfo;
+import org.springframework.util.StringUtils;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class RestParameterValidator {
     public static void checkMacAddress(PortEntity portEntity) throws Exception {
@@ -43,7 +42,16 @@ public class RestParameterValidator {
         List<PortEntity.FixedIp> fixedIps = portEntity.getFixedIps();
         if (fixedIps != null) {
             for (PortEntity.FixedIp fixedIp: fixedIps) {
-                if (!Ipv4AddrUtil.formatCheck(fixedIp.getIpAddress())
+                if (fixedIp.getSubnetId() == null && fixedIp.getIpAddress() == null) {
+                    throw new FixedIpsInvalid();
+                }
+
+                if (fixedIp.getSubnetId() != null && "".equals(fixedIp.getSubnetId())) {
+                    throw new FixedIpsInvalid();
+                }
+
+                if (fixedIp.getIpAddress() != null &&
+                        !Ipv4AddrUtil.formatCheck(fixedIp.getIpAddress())
                         && !Ipv6AddrUtil.formatCheck(fixedIp.getIpAddress()) ) {
                     throw new FixedIpsInvalid();
                 }
@@ -119,5 +127,25 @@ public class RestParameterValidator {
 
         //Check ip allocation
         checkIpAllocation(portEntity);
+    }
+
+    public static void checkRouterSubnetUpdateInfo(RouterUpdateInfo routerUpdateInfo) throws Exception {
+        if (StringUtils.isEmpty(routerUpdateInfo.getVpcId())) {
+            throw new VpcIdInvalid();
+        }
+
+        if (StringUtils.isEmpty(routerUpdateInfo.getSubnetId())) {
+            throw new SubnetIdInvalid();
+        }
+
+        String operationType = routerUpdateInfo.getOperationType();
+        if (StringUtils.isEmpty(operationType) ||(!RouterUpdateInfo.OperationType.ADD.getType().equals(operationType.toLowerCase()) &&
+                !RouterUpdateInfo.OperationType.DELETE.getType().equals(operationType.toLowerCase()))) {
+            throw new OperationTypeInvalid();
+        }
+
+        if (routerUpdateInfo.getGatewayPortIds() == null) {
+            routerUpdateInfo.setGatewayPortIds(new ArrayList<>());
+        }
     }
 }

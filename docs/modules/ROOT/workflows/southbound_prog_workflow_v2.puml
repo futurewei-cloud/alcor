@@ -1,0 +1,195 @@
+'MIT License
+'Copyright(c) 2020 Futurewei Cloud
+'
+'    Permission is hereby granted,
+'    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+'    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+'    to whom the Software is furnished to do so, subject to the following conditions:
+'
+'    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+'
+'    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+'    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+'    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+@startuml
+
+title Southbound Workflow of Port Provisioning - v2
+
+skinparam monochrome true
+collections "Port Manager" as pm
+collections "Data Plane Manager" as dpm
+collections "Message Queue" as mq
+participant "ACA@Host 1" as host1
+participant "ACA@Host 2" as host2
+participant "ACA@Host 3" as host3
+
+==Scenario A: Create the first Port P1 at Host 1==
+autonumber "<b>[0]"
+pm -> dpm: POST /port async with RequestBody NetworkConfiguration={\n\t[P1 w/ neighbor_info=NULL],[Subnet],[VPC],[SG]}
+activate dpm
+
+autonumber 2 "<b>[0.a]"
+dpm -> host1: Send a GoalState message {[(P1,CREATE)],[(Subnet,INFO)]} via gPRC
+activate host1
+host1 <-> mq: Subscribe a new topic where id = p1.vpcID
+host1 -> dpm: Reply a GoalStateOperationReply message on P1 programming status
+deactivate host1
+
+autonumber 2 "<b>[0.b]"
+dpm -> mq: Publish a GoalState message {[(P1,CREATE)],[(Subnet,INFO)]}\n to the topic where id = p1.vpcID
+host1 <--> mq: If ACA receives a duplicated message from MQ, drop the message\n(Check if MQ supports message tagging to avoid this message ??)
+
+autonumber 5 "<b>[0]"
+dpm -> pm: Reply an InternalProgrammingStatus message on P1 programming status
+deactivate dpm
+
+==Create the second Port P2 at Host 1==
+autonumber 6 "<b>[0]"
+pm -> dpm: POST /port async with RequestBody NetworkConfiguration={\n\t[P2 w/ neighbor_info=NULL],[Subnet],[VPC],[SG]}
+activate dpm
+
+autonumber 7 "<b>[0.a]"
+dpm -> host1: Send a GoalState message \n{[(P2,CREATE)],[(Subnet,INFO)]} via gPRC
+activate host1
+host1 -> dpm: Reply a GoalStateOperationReply message on P2 programming status
+deactivate host1
+
+autonumber 7 "<b>[0.b]"
+dpm -> mq: Publish a GoalState message {[(P2,CREATE)],[(Subnet,INFO)]}\n to the topic where id = p2.vpcID
+host1 <--> mq: If ACA receives a duplicated message from MQ, drop the message\n(Check if MQ supports message tagging to avoid this message ??)
+
+autonumber 9 "<b>[0]"
+dpm -> pm: Once receiving response from Host1, reply an InternalProgrammingStatus\nmessage on P2 programming status
+deactivate dpm
+==================================================
+
+==Scenario B: Create Ports (P1, P2) at Host 1==
+autonumber "<b>[0]"
+pm -> dpm: POST /port async with RequestBody NetworkConfiguration={\n\t[P1,P2 w/ neighbor_info=NULL],[Subnet],[VPC],[SG]}
+activate dpm
+
+autonumber 2 "<b>[0.a]"
+dpm -> host1: Send a GoalState message {[(P1,CREATE),(P2,CREATE)],[(Subnet,INFO)]} via gPRC
+activate host1
+host1 <-> mq: Subscribe a new topic where id = p1.vpcID
+host1 -> dpm: Reply a GoalStateOperationReply message on P1 and P2 programming status
+deactivate host1
+
+autonumber 2 "<b>[0.b]"
+dpm -> mq: Publish a GoalState message {[(P1,CREATE),(P2,CREATE)],[(Subnet,INFO)]}\n to the topic where id = p1.vpcID
+host1 <--> mq: If ACA receives a duplicated message from MQ, drop the message\n(Check if MQ supports message tagging to avoid this message ??)
+
+autonumber 5 "<b>[0]"
+dpm -> pm: After receiving response from Host1 and Host2, reply an InternalProgrammingStatus\nmessage on P2 programming status
+deactivate dpm
+
+
+==Scenario C: Create the first Port P1 at Host 1==
+'autonumber "<b>[0]"
+'pm -> dpm: POST /port async with RequestBody NetworkConfiguration={\n\t[P1 w/ neighbor_info=NULL],[Subnet],[VPC],[SG]}
+'activate dpm
+'dpm -> host1: Send a GoalState message {[(P1,CREATE)],[(Subnet,INFO)]} via gPRC
+'activate host1
+'host1 -> dpm: Reply a GoalStateOperationReply message on P1 programming status
+'deactivate host1
+'dpm -> pm: Reply an InternalProgrammingStatus message on P1 programming status
+'deactivate dpm
+
+==Create the second Port P2 at Host 2==
+'autonumber 5 "<b>[0]"
+'pm -> dpm: POST /port async with RequestBody NetworkConfiguration={\n\t[P2 w/ neighbor_info=[P1]],[Subnet],[VPC],[SG]}
+'activate dpm
+'
+'autonumber 6 "<b>[0a]"
+'dpm -> host2: Send a GoalState message \n{[(P2,CREATE),(P1,NEIGHBOR_CREATE_UPDATE)],[(Subnet,INFO)]} via gPRC
+'activate host2
+'host2 -> dpm: Reply a GoalStateOperationReply message on P2 programming status
+'deactivate host2
+
+'autonumber 6 "<b>[0b]"
+'dpm -> host1: Send a GoalState message \n{[(P2,NEIGHBOR_CREATE_UPDATE)],[(Subnet,INFO)]} via gPRC
+'activate host1
+'host1 -> dpm: Reply a GoalStateOperationReply message on P2 programming status
+'deactivate host1
+'
+'autonumber 8 "<b>[0]"
+'dpm -> pm: After receiving response from Host1 and Host2, reply an InternalProgrammingStatus\nmessage on P2 programming status
+'deactivate dpm
+==================================================
+
+==Scenario D: Create Ports (P1, P2) at Host 1, (P3, P4) at Host 2==
+'autonumber "<b>[0]"
+'pm -> dpm: POST /port async with RequestBody NetworkConfiguration=\n\t{[P1,P2,P3,P4 w/ neighbor_info=NULL],[Subnet],[VPC],[SG]}
+'activate dpm
+'
+'autonumber 2 "<b>[0a]"
+'dpm -> host1: Send a GoalState message \n{[(P1,CREATE),(P2,CREATE),(P3,NEIGHBOR_CREATE_UPDATE),\n(P4,NEIGHBOR_CREATE_UPDATE)],[(Subnet,INFO)]} via gPRC
+'activate host1
+'host1 -> dpm: Reply a GoalStateOperationReply message on P1 and P2 programming status
+'deactivate host1
+'
+'autonumber 2 "<b>[0b]"
+'dpm -> host2: Send a GoalState message \n{[(P3,CREATE),(P4,CREATE),(P1,NEIGHBOR_CREATE_UPDATE),\n(P2,NEIGHBOR_CREATE_UPDATE)],[(Subnet,INFO)]} via gPRC
+'activate host2
+'host2 -> dpm: Reply a GoalStateOperationReply message on P3 and P4 programming status
+'deactivate host2
+'
+'autonumber 4 "<b>[0]"
+'dpm -> pm: After receiving response from Host1 and Host2, reply an InternalProgrammingStatus\nmessage on P1..4 programming status
+'deactivate dpm
+
+==================================================
+
+==Scenario E: Create Ports (P1, P2) at Host 1, (P3, P4) at Host 2\nP0 is already on Host 1==
+'autonumber "<b>[0]"
+'pm -> dpm: POST /port async with RequestBody NetworkConfiguration={\n\t[P1,P2,P3,P4 each w/ neighbor_info=[P0]],[Subnet],[VPC],[SG]}
+'activate dpm
+'
+'autonumber 2 "<b>[0a]"
+'dpm -> host1: Send a GoalState message \n{[(P1,CREATE),(P2,CREATE),(P3,NEIGHBOR_CREATE_UPDATE),\n(P4,NEIGHBOR_CREATE_UPDATE)],[(Subnet,INFO)]} via gPRC
+'activate host1
+'host1 -> dpm: Reply a GoalStateOperationReply message on P1 and P2 programming status
+'deactivate host1
+'
+'autonumber 2 "<b>[0b]"
+'dpm -> host2: Send a GoalState message \n{[(P3,CREATE),(P4,CREATE),(P0,NEIGHBOR_CREATE_UPDATE),(P1,NEIGHBOR_CREATE_UPDATE),\n(P2,NEIGHBOR_CREATE_UPDATE)],[(Subnet,INFO)]} via gPRC
+'activate host2
+'host2 -> dpm: Reply a GoalStateOperationReply message on P3 and P4 programming status
+'deactivate host2
+'
+'autonumber 4 "<b>[0]"
+'dpm -> pm: After receiving response from Host1 and Host2, reply an InternalProgrammingStatus\nmessage on P1..4 programming status
+'deactivate dpm
+
+==================================================
+
+==Scenario F: Create Ports (P2, P3) at Host 1, (P4, P5) at Host 2\nP0 is already on Host 1, P1 is in Host 3 ==
+'autonumber "<b>[0]"
+'pm -> dpm: POST /port async with RequestBody NetworkConfiguration={\n\t[P2,P3 each w/ neighbor_info=[P1],\n\tP4,P5 each w/ neighbor_info=[P0,P1]],\n\t[Subnet],[VPC],[SG]}
+'activate dpm
+'
+'autonumber 2 "<b>[0a]"
+'dpm -> host1: Send a GoalState message \n{[(P2,CREATE),(P3,CREATE),(P4,NEIGHBOR_CREATE_UPDATE),\n(P5,NEIGHBOR_CREATE_UPDATE),(P1,NEIGHBOR_CREATE_UPDATE)],[(Subnet,INFO)]} via gPRC
+'activate host1
+'host1 -> dpm: Reply a GoalStateOperationReply message on P2 and P3 programming status
+'deactivate host1
+'
+'autonumber 2 "<b>[0b]"
+'dpm -> host2: Send a GoalState message \n{[(P4,CREATE),(P5,CREATE),(P2,NEIGHBOR_CREATE_UPDATE),(P3,NEIGHBOR_CREATE_UPDATE),\n(P0,NEIGHBOR_CREATE_UPDATE),(P1,NEIGHBOR_CREATE_UPDATE)],[(Subnet,INFO)]} via gPRC
+'activate host2
+'host2 -> dpm: Reply a GoalStateOperationReply message on P4 and P5 programming status
+'deactivate host2
+'
+'autonumber 2 "<b>[0c]"
+'dpm -> host3: Send a GoalState message \n{[(P2,NEIGHBOR_CREATE_UPDATE),(P3,NEIGHBOR_CREATE_UPDATE),\n(P4,NEIGHBOR_CREATE_UPDATE),(P5,NEIGHBOR_CREATE_UPDATE)],[(Subnet,INFO)]} via gPRC
+'activate host3
+'host3 -> dpm: Reply a GoalStateOperationReply message on neighbor programming status
+'deactivate host3
+'
+'autonumber 4 "<b>[0]"
+'dpm -> pm: After receiving response from Host1, Host2 and Host3, reply an\nInternalProgrammingStatus message on P2..5 programming status
+'deactivate dpm
+
+
+@enduml
