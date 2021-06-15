@@ -36,6 +36,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -188,35 +189,28 @@ public class GreRangeRepository implements ICacheRepository<NetworkGRERange> {
 
     /**
      * Create a range entity from range repo
-     * @param request
+     * @param requestList
      * @throws Exception Network Range Already Exist Exception
      * @throws Exception Internal Db Operation Exception
      */
     @DurationStatistics
-    public synchronized String createRange(NetworkRangeRequest request) throws Exception {
+    public synchronized void createRange(List<NetworkRangeRequest> requestList) throws Exception {
         try (Transaction tx = cache.getTransaction().start()) {
-            if (cache.get(request.getId()) != null) {
+            Map<String, NetworkGRERange> ranges = new HashMap<>();
+            HashSet<String> set = new HashSet<>();
+            for (NetworkRangeRequest request : requestList)
+            {
+                set.add(request.getId());
+                ranges.put(request.getId(), new NetworkGRERange(request.getId(),
+                        request.getNetworkType(), request.getPartition(), request.getFirstKey(), request.getLastKey()));
+            }
+            if (cache.getAll(set).keySet().size() != 0) {
                 logger.warn("Create network range failed: Network Range already exists");
                 throw new NetworkRangeExistException();
             }
-
-            NetworkGRERange range = new NetworkGRERange(request.getId(),
-                    request.getNetworkType(), request.getPartition(), request.getFirstKey(), request.getLastKey());
-
-            cache.put(request.getId(), range);
-
-            range = cache.get(request.getId());
-            if (range == null) {
-                logger.warn("Create network range failed: Internal db operation error");
-                throw new InternalDbOperationException();
-            }
-
-            request.setUsedKeys(range.getUsedKeys());
-            request.setTotalKeys(range.getTotalKeys());
-
+            cache.putAll(ranges);
             tx.commit();
         }
-        return String.valueOf(request.getPartition());
     }
 
     /**
