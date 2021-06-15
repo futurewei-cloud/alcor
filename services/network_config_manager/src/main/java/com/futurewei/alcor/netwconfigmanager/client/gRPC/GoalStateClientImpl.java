@@ -47,7 +47,7 @@ public class GoalStateClientImpl implements GoalStateClient {
 
     private final ExecutorService executor;
 
-    private SortedMap<String, GrpcChannelStub> hostIpGrpcChannelStubMap;
+    private ConcurrentHashMap<String, GrpcChannelStub> hostIpGrpcChannelStubMap;
 
 
     public static GoalStateClientImpl getInstance(){
@@ -75,7 +75,7 @@ public class GoalStateClientImpl implements GoalStateClient {
                 new DefaultThreadFactory("grpc-thread-pool"));
 
         //TODO: Setup a connection pool. one ACA, one client.
-        this.hostIpGrpcChannelStubMap = new TreeMap<>();
+        this.hostIpGrpcChannelStubMap = new ConcurrentHashMap();
     }
 
     @Override
