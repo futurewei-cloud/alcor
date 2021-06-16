@@ -147,7 +147,7 @@ def create_test_setup(ip_mac, config_file_object):
   services = dict(config_file_object.items("services"))
   service_port_map = get_service_port_map(services)
 
-  create_default_segment_table(service_port_map["vpm"])
+  create_default_segment_table(service_port_map["sgs"])
 
   #network_info = dict(config_file_object.items("vpc_info"))
   create_vpc(service_port_map["vpm"])
