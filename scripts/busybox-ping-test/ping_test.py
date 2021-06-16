@@ -42,6 +42,8 @@ def build_containers(services_dict):
     print("building container images")
     services_list = get_file_list(ALCOR_SERVICES)
     for service_name in services_dict.keys():
+      if service_name == "segment_service":
+         continue
       service_path = ALCOR_SERVICES + service_name
       service_info = json.loads(services_dict[service_name])
       build_image = "sudo docker build" + " -t {} ".format(service_info["name"])
@@ -59,6 +61,8 @@ def build_containers(services_dict):
 def start_containers(serv):
     start_containers = []
     for service_name in serv.keys():
+        if service_name == "segment_service":
+            continue
         service_info = json.loads(serv[service_name])
         run_container = "sudo docker run --name={} ".format(service_info["name"])
         mnt_and_image = "-v /tmp:/tmp -tid {} ".format(service_info["name"])
@@ -81,12 +85,16 @@ def start_containers(serv):
 def stop_containers(service_list):
     command = "sudo docker container stop "
     for service in service_list:
+      if service == "segment_service":
+         continue
       execute_command(command + service)
 
 
 def remove_containers(service_list):
     command = "sudo docker container rm "
     for service in service_list:
+      if service == "segment_service":
+         continue
       execute_command(command + service)
 
 
