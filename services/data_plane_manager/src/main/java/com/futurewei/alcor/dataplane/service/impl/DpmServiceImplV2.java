@@ -110,13 +110,13 @@ public class DpmServiceImplV2 implements DpmService {
                                                    MulticastGoalStateV2 multicastGoalState) throws Exception {
         UnicastGoalStateV2 unicastGoalState = new UnicastGoalStateV2();
 
+
         //TODO:
         unicastGoalState.setHostIp(hostIp);
-
         unicastGoalState.getGoalStateBuilder().setFormatVersion(this.goalStateMessageVersion);
 
         if (portEntities != null && portEntities.size() > 0) {
-            portService.buildPortStateV2(networkConfig, portEntities, unicastGoalState);
+            portService.buildPortState(networkConfig, portEntities, unicastGoalState);
         }
 
         vpcService.buildVpcStates(networkConfig, unicastGoalState);

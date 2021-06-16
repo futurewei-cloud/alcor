@@ -16,7 +16,9 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.dataplane.service.impl;
 
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
+import com.futurewei.alcor.dataplane.entity.MulticastGoalStateV2;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
+import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
 import com.futurewei.alcor.dataplane.exception.SubnetEntityNotFound;
 import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.schema.Port;
@@ -27,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class SubnetService extends ResourceService {
@@ -47,6 +50,61 @@ public class SubnetService extends ResourceService {
 
     public void buildSubnetStates(NetworkConfiguration networkConfig, UnicastGoalState unicastGoalState, MulticastGoalState multicastGoalState) throws Exception {
         List<Port.PortState> portStates = unicastGoalState.getGoalStateBuilder().getPortStatesList();
+        if (portStates == null || portStates.size() == 0) {
+            return;
+        }
+
+        List<InternalSubnetEntity> subnetEntities = new ArrayList<>();
+        for (Port.PortState portState: portStates) {
+            for (Port.PortConfiguration.FixedIp fixedIp: portState.getConfiguration().getFixedIpsList()) {
+                InternalSubnetEntity internalSubnetEntity = getInternalSubnetEntity(
+                        networkConfig, fixedIp.getSubnetId());
+                subnetEntities.add(internalSubnetEntity);
+            }
+        }
+
+        for (InternalSubnetEntity subnetEntity: subnetEntities) {
+            // check if subnet state already exists in the unicastGoalState
+            if (unicastGoalState.getGoalStateBuilder().getSubnetStatesList().stream()
+                    .filter(e -> e.getConfiguration().getId().equals(subnetEntity.getId()))
+                    .findFirst().orElse(null) != null) {
+                continue;
+            }
+            Subnet.SubnetConfiguration.Builder subnetConfigBuilder = Subnet.SubnetConfiguration.newBuilder();
+            subnetConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
+            subnetConfigBuilder.setId(subnetEntity.getId());
+            subnetConfigBuilder.setNetworkType(Common.NetworkType.VXLAN);
+            subnetConfigBuilder.setVpcId(subnetEntity.getVpcId());
+            subnetConfigBuilder.setName(subnetEntity.getName());
+            subnetConfigBuilder.setCidr(subnetEntity.getCidr());
+            subnetConfigBuilder.setTunnelId(subnetEntity.getTunnelId());
+
+            Subnet.SubnetConfiguration.Gateway.Builder gatewayBuilder = Subnet.SubnetConfiguration.Gateway.newBuilder();
+            gatewayBuilder.setIpAddress(subnetEntity.getGatewayIp());
+            gatewayBuilder.setMacAddress(subnetEntity.getGatewayPortDetail().getGatewayMacAddress());
+            subnetConfigBuilder.setGateway(gatewayBuilder.build());
+
+            if (subnetEntity.getDhcpEnable() != null) {
+                subnetConfigBuilder.setDhcpEnable(subnetEntity.getDhcpEnable());
+            }
+
+            // TODO: need to set DNS based on latest contract
+
+            if (subnetEntity.getAvailabilityZone() != null) {
+                subnetConfigBuilder.setAvailabilityZone(subnetEntity.getAvailabilityZone());
+            }
+
+            Subnet.SubnetState.Builder subnetStateBuilder = Subnet.SubnetState.newBuilder();
+            subnetStateBuilder.setOperationType(Common.OperationType.INFO);
+            subnetStateBuilder.setConfiguration(subnetConfigBuilder.build());
+            unicastGoalState.getGoalStateBuilder().addSubnetStates(subnetStateBuilder.build());
+            multicastGoalState.getGoalStateBuilder().addSubnetStates(subnetStateBuilder.build());
+        }
+    }
+
+    public void buildSubnetStates(NetworkConfiguration networkConfig, UnicastGoalStateV2 unicastGoalState, MulticastGoalStateV2 multicastGoalState) throws Exception {
+        Map<String, Port.PortState> portStateMap = unicastGoalState.getGoalStateBuilder().getPortStatesMap();
+        List<Port.PortState> portStates = new ArrayList<Port.PortState>(portStateMap.values());
         if (portStates == null || portStates.size() == 0) {
             return;
         }

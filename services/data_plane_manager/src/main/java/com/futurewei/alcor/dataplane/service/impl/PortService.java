@@ -18,6 +18,7 @@ package com.futurewei.alcor.dataplane.service.impl;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
 import com.futurewei.alcor.schema.Common;
+import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Port;
 import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
@@ -105,7 +106,7 @@ public class PortService extends ResourceService {
         return operationTypeFromClient;
     }
 
-    public void buildPortStateV2(NetworkConfiguration networkConfig, List<InternalPortEntity> portEntities,
+    public void buildPortState(NetworkConfiguration networkConfig, List<InternalPortEntity> portEntities,
                                UnicastGoalStateV2 unicastGoalState) {
         for (InternalPortEntity portEntity : portEntities) {
             Port.PortState.Builder portStateBuilder = Port.PortState.newBuilder();
@@ -128,11 +129,14 @@ public class PortService extends ResourceService {
             boolean adminState = portEntity.getAdminStateUp() == null ? false : portEntity.getAdminStateUp();
             portConfigBuilder.setAdminStateUp(adminState);
 
+            // TODO: Do we need still HostInfo here which is not exists in pseudo_controller
+            /*
             Port.PortConfiguration.HostInfo.Builder hostInfoBuilder = Port.PortConfiguration.HostInfo.newBuilder();
             hostInfoBuilder.setIpAddress(portEntity.getBindingHostIP());
-            //TODO: Do we need mac address?
             //hostInfoBuilder.setMacAddress()
             portConfigBuilder.setHostInfo(hostInfoBuilder.build());
+            */
+
             if (portEntity.getFixedIps() != null) {
                 portEntity.getFixedIps().forEach(fixedIp -> {
                     Port.PortConfiguration.FixedIp.Builder fixedIpBuilder = Port.PortConfiguration.FixedIp.newBuilder();
@@ -159,12 +163,14 @@ public class PortService extends ResourceService {
                 });
             }
 
-//            //PortState
-//            Port.PortState.Builder portStateBuilder = Port.PortState.newBuilder();
-//            Common.OperationType portOpTypeToACA = determinePortOperationType(portEntity, networkConfig.getOpType());
-//            portStateBuilder.setOperationType(portOpTypeToACA);
-//            portStateBuilder.setConfiguration(portConfigBuilder.build());
-//            unicastGoalState.getGoalStateBuilder().addPortStates(portStateBuilder.build());
+            portStateBuilder.setConfiguration(portConfigBuilder.build());
+            Port.PortState portState = portStateBuilder.build();
+            unicastGoalState.getGoalStateBuilder().putPortStates(portState.getConfiguration().getId(), portState);
+
+            Goalstate.ResourceIdType portResourceId = Goalstate.ResourceIdType.newBuilder().setType(Common.ResourceType.PORT).setId(portState.getConfiguration().getId()).build();
+            Goalstate.HostResources.Builder hostResourceBuilder = Goalstate.HostResources.newBuilder();
+            hostResourceBuilder.addResources(portResourceId);
+            unicastGoalState.getGoalStateBuilder().putHostResources(unicastGoalState.getHostIp(), hostResourceBuilder.build());
         }
     }
 }
