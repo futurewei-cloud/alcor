@@ -1,8 +1,8 @@
 = Alcor Performance Test Plan
 Chun-Jen Chung <cchung@futurewei.com>, Liguang Xie <lxie@futurewei.com>
-v0.1, 2019-10-27
+v0.1, 2020-07-22; v0.2, 2021-06-15
 :toc: right
-:imagesdir: ../../images
+:imagesdir: images
 
 == Overview
 
@@ -41,7 +41,7 @@ Our performance test environment contains 3 types of nodes:
 |====================
 |Category|Server Count| Server Type
 |controller| 3 | 1
-|compute | 19 | 1, 2, 3
+|compute | 44 | 1, 2, 3
 |rally | 1 | 1
 |====================
 
@@ -147,10 +147,10 @@ This section describes the version of installed OS and software.
 [width="75%",options="header"]
 |====================
 |OS/Software|Version|Comments
-|OS |Ubuntu 18.04 |
+|OS |Ubuntu 18.04 | LTS (Bionic Beaver)
 |OpenStack | Train | Released in Oct. 2019
-|Alcor | Release v0.6 | To be released in July 2020
-|Rally | 0.5.0 |
+|Alcor | Release v0.14 | To be released in April 2021
+|Rally | 3.2.0 | Released in Oct. 2020
 |Hypervisor	| KVM |
 |L2 segmentation | VxLAN |
 //|Neutron plugin	 	e.g. ML2 + OVS
@@ -204,17 +204,17 @@ The following Rally test cases need to be executed:
 - create-and-update-networks
 - create-and-update-subnets
 - create-and-update-ports
+- create-and-list-routers (_new!_)
+- create-and-list-security-groups (_new!_)
+- create-and-delete-routers (_new!_)
+- create-and-delete-security-groups (_new!_)
+- create-and-update-routers (_new!_)
+- create-and-update-security-groups (_new!_)
 
 Test Cases to be supported in the future:
 
-- create-and-list-routers
-- create-and-list-security-groups
 - create-and-list-floating-ips
-- create-and-delete-routers
-- create-and-delete-security-groups
 - create-and-delete-floating-ips
-- create-and-update-routers
-- create-and-update-security-groups
 
 === Test Suite 2: Stressful Test Suite
 
@@ -229,12 +229,15 @@ The following Rally test cases will be executed:
 - create-and-list-ports
 - boot-and-list-server
 - boot-runcommand-delete
+- create-and-list-routers (_new!_)
 
 Test cases to be supported in the future:
 
-- create-and-list-routers
 - create-and-list-security-groups
 - boot-and-delete-server-with-secgroups
+
+NOTE:
+After we upgrade Rally to the latest version 3.2, we could enable simple data plane test to verify control plane effectiveness and measure the end-to-end VM latency (from customers booting a VM to the moment when data plane starts working).
 
 === Test Suite 3: Scalability Test with Many Networks
 
@@ -259,9 +262,45 @@ One test case in our test would include:
 - a few median-sized networks (each with 100 ports)
 - a larger number of small networks (each with 10 ports).
 
+== System Tracing
+
+In order to enable fine-grain tracing for Alcor, we arrange a separate work item to support OpenStack cross-service, request-level tracing and profiling, which is tracked by Issue <<tracing_tracking_issue>>.
+We plan to leverage OSProfiler, Jaeger and Rally to provide a full set of tracing support.
+The end goal is to generate 1 trace per request, that goes through all involved services including Nova, KeyStone and Alcor.
+With OSProfiler, this trace can be extracted and used to build a tree of calls which can be used to isolate cross-service performance issues and locate the performance bottleneck rapidly.
+
+- OSProfiler is used for tracing in OpenStack services outside of Alcor.
+- Jaeger is used for tracing Alcor, a microservices-based distributed systems.
+- Rally is used to write complex tests scenarios for public cloud customers.
+
+When completed, our tracing system will generate 1 trace per request, that goes through all involved services including Nova, KeyStone and Alcor, and shows a tree of calls, which includes the order of calls, names of involved services and/or sub-services as well as latency for each call, in a single HTTP page.
+
+=== A Example of Alcor Trace
+
+The following image showcase a sample of across-microservices tracing for a specific VPC creation workflow in a Kubernetes cluster deployed in lab machines under OpenTracing framework.
+It demonstrates a trace with multiple spans starting from API gateway to specific services including VPC Manager, Route Manager, and Gateway Manager.
+
+image::Jaeger-vpc-creation.PNG["Jaeger VPC creation workflow", width=1024, link="Jaeger-vpc-creation.JPG"]
+
+
+=== Target User Scenario
+Support major user scenarios for public-cloud customers including but not limited to booting a VM, attaching a VNIC/port to a VM, associating a secondary private IP to a VNIC, creating a VPC/network and Subnet etc.
+We plan to stress test each scenario to reach its performance bottleneck with the support of our tracing framework.
+
+
 == System Monitoring
 
-TBD (NetData is an attractive option).
+We plan to leverage NetData for collecting metrics and monitoring control plane resource utilization.
+This will enable the following Alcor monitoring capabilities:
+
+- Monitor at various levels, from container pod, to microservice and to a host
+- Zoom into every microservice pod and infra pod
+- Include comprehensive metrics like cpu, ram, io, and network etc.
+
+The following image gives an example of cluster resource utilization with NetData enabled.
+
+image::NetData-monitor.png["Alcor monitoring with NetData", width=1024, link="NetData-monitor.png"]
+
 
 == Reports
 
@@ -278,3 +317,4 @@ TBD (NetData is an attractive option).
 [bibliography]
 == References
 - [[[openstack_perf,1]]] OpenStack Performance Test Plan: https://docs.openstack.org/developer/performance-docs/test_plans/openstack_api_metrics/plan.html
+- [[[tracing_tracking_issue,2]]] Tracing Tracking Issue: https://github.com/futurewei-cloud/alcor/issues/631
