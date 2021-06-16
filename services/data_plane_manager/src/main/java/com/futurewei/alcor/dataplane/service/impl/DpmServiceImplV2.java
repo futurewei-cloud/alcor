@@ -125,7 +125,7 @@ public class DpmServiceImplV2 implements DpmService {
         securityGroupService.buildSecurityGroupStates(networkConfig, unicastGoalState);
         dhcpService.buildDhcpStates(networkConfig, unicastGoalState);
         routerService.buildRouterStates(networkConfig, unicastGoalState, multicastGoalState);
-        patchGoalstateForNeighbor(unicastGoalState);
+//        patchGoalstateForNeighbor(unicastGoalState);
 
         unicastGoalState.setGoalState(unicastGoalState.getGoalStateBuilder().build());
         unicastGoalState.setGoalStateBuilder(null);

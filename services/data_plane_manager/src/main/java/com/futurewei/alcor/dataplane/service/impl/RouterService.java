@@ -20,6 +20,7 @@ import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalStateV2;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
+import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Port;
 import com.futurewei.alcor.schema.Router;
@@ -180,14 +181,24 @@ public class RouterService extends ResourceService {
         List<Router.RouterConfiguration.SubnetRoutingTable> subnetRoutingTablesList = new ArrayList<>();
         subnetRoutingTablesList.add(subnetRoutingTableBuilder.build());
 
+//        Goalstate.GoalState.Builder goalStateBuilder = unicastGoalState.getGoalStateBuilder();
+//        List<Router.RouterState.Builder> routerStatesBuilders = goalStateBuilder.getRouterStatesBuilderList();
+//        if (routerStatesBuilders != null && routerStatesBuilders.size() > 0) {
+//            subnetRoutingTablesList.addAll(goalStateBuilder.
+//                    getRouterStatesBuilder(0).
+//                    getConfiguration().
+//                    getSubnetRoutingTablesList());
+//            goalStateBuilder.removeRouterStates(0);
+//        }
+
         Goalstate.GoalStateV2.Builder goalStateBuilder = unicastGoalState.getGoalStateBuilder();
-        List<Router.RouterState.Builder> routerStatesBuilders = goalStateBuilder.getRouterStatesBuilderList();
+        List<Router.RouterState> routerStatesBuilders = new ArrayList<Router.RouterState>(goalStateBuilder.getRouterStatesMap().values());
         if (routerStatesBuilders != null && routerStatesBuilders.size() > 0) {
-            subnetRoutingTablesList.addAll(goalStateBuilder.
-                    getRouterStatesBuilder(0).
+            Router.RouterState routerState = routerStatesBuilders.get(0);
+            subnetRoutingTablesList.addAll(routerState.
                     getConfiguration().
                     getSubnetRoutingTablesList());
-            goalStateBuilder.removeRouterStates(0);
+            goalStateBuilder.removeSubnetStates(new ArrayList<String>(goalStateBuilder.getRouterStatesMap().keySet()).get(0));
         }
 
         Router.RouterConfiguration.Builder routerConfigBuilder = Router.RouterConfiguration.newBuilder();
@@ -199,9 +210,20 @@ public class RouterService extends ResourceService {
         routerConfigBuilder.addAllSubnetRoutingTables(subnetRoutingTablesList);
         Router.RouterState.Builder routerStateBuilder = Router.RouterState.newBuilder();
         routerStateBuilder.setConfiguration(routerConfigBuilder.build());
-        goalStateBuilder.addRouterStates(routerStateBuilder.build());
-        Goalstate.GoalStateV2.Builder m_goalStateBuilder = multicastGoalState.getGoalStateBuilder();
-        m_goalStateBuilder.addRouterStates(routerStateBuilder.build());
+        Router.RouterState routerState = routerStateBuilder.build();
+
+        unicastGoalState.getGoalStateBuilder().putRouterStates(routerState.getConfiguration().getId(), routerState);
+        multicastGoalState.getGoalStateBuilder().putRouterStates(routerState.getConfiguration().getId(), routerState);
+
+        Goalstate.ResourceIdType routerResourceIdType = Goalstate.ResourceIdType.newBuilder()
+                .setType(Common.ResourceType.ROUTER)
+                .setId(routerState.getConfiguration().getId())
+                .build();
+        Goalstate.HostResources.Builder hostResourceBuilder = Goalstate.HostResources.newBuilder();
+        hostResourceBuilder.addResources(routerResourceIdType);
+        unicastGoalState.getGoalStateBuilder().putHostResources(unicastGoalState.getHostIp(), hostResourceBuilder.build());
+        // TODO: how to configure multicast GoalState id
+        multicastGoalState.getGoalStateBuilder().putHostResources(unicastGoalState.getHostIp(), hostResourceBuilder.build());
     }
 
     public void buildRouterStates(NetworkConfiguration networkConfig, UnicastGoalStateV2 unicastGoalState, MulticastGoalStateV2 multicastGoalState) throws Exception {
