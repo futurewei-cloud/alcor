@@ -150,7 +150,10 @@ This section describes the version of installed OS and software.
 |OS |Ubuntu 18.04 | LTS (Bionic Beaver)
 |OpenStack | Train | Released in Oct. 2019
 |Alcor | v0.14 | Released in April 2021
-|Rally | 3.2.0 | Released in Oct. 2020
+|Rally<<Rally>> | 3.2.0 | Released in Oct. 2020
+|Rally-OpenStack<<Rally-OpenStack>> | 2.1.0 | Released in Nov. 2020
+|OSProfiler<<OSProfiler>> |  |
+|Jaeger<<Jaeger>> | |
 |Hypervisor	| KVM |
 |L2 segmentation | VxLAN |
 //|Neutron plugin	 	e.g. ML2 + OVS
@@ -318,3 +321,7 @@ image::NetData-monitor.png["Alcor monitoring with NetData", width=1024, link="Ne
 == References
 - [[[openstack_perf,1]]] OpenStack Performance Test Plan: https://docs.openstack.org/developer/performance-docs/test_plans/openstack_api_metrics/plan.html
 - [[[tracing_tracking_issue,2]]] Tracing Tracking Issue: https://github.com/futurewei-cloud/alcor/issues/631
+- [[[Rally,3]]] Rally: https://github.com/openstack/rally/tree/3.2.0
+- [[[Rally-OpenStack,4]]] Rally-OpenStack: https://github.com/openstack/rally-openstack/tree/2.1.0
+- [[[OSProfiler,5]]] OpenStack/OSProfiler: https://github.com/openstack/osprofiler/tree/stable/train
+- [[[Jaeger,6]]] Jaeger: https://github.com/jaegertracing/jaeger
