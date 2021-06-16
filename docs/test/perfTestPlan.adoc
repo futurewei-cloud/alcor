@@ -33,7 +33,7 @@ network parameters, operation system and perf test tools.
 
 Our performance test environment contains 3 types of nodes:
 
-- Controller nodes: hosting both OpenStack control plane and Alcor control plane
+- Controller nodes: hosting both OpenStack control plane, Alcor control plane and ElasticSearch analytics cluster
 - Compute nodes: Hosting VMs and customer workload
 - Rally nodes: Hosting Perf test tool
 
@@ -149,7 +149,7 @@ This section describes the version of installed OS and software.
 |OS/Software|Version|Comments
 |OS |Ubuntu 18.04 | LTS (Bionic Beaver)
 |OpenStack | Train | Released in Oct. 2019
-|Alcor | Release v0.14 | To be released in April 2021
+|Alcor | v0.14 | Released in April 2021
 |Rally | 3.2.0 | Released in Oct. 2020
 |Hypervisor	| KVM |
 |L2 segmentation | VxLAN |
