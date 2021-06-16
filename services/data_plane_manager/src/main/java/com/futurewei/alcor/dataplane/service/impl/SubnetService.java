@@ -21,6 +21,7 @@ import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
 import com.futurewei.alcor.dataplane.exception.SubnetEntityNotFound;
 import com.futurewei.alcor.schema.Common;
+import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Port;
 import com.futurewei.alcor.schema.Subnet;
 import com.futurewei.alcor.web.entity.dataplane.InternalSubnetEntity;
@@ -120,19 +121,17 @@ public class SubnetService extends ResourceService {
 
         for (InternalSubnetEntity subnetEntity: subnetEntities) {
             // check if subnet state already exists in the unicastGoalState
-            if (unicastGoalState.getGoalStateBuilder().getSubnetStatesList().stream()
-                    .filter(e -> e.getConfiguration().getId().equals(subnetEntity.getId()))
-                    .findFirst().orElse(null) != null) {
+            if (unicastGoalState.getGoalStateBuilder().getSubnetStatesMap().containsKey(subnetEntity.getId())) {
                 continue;
             }
             Subnet.SubnetConfiguration.Builder subnetConfigBuilder = Subnet.SubnetConfiguration.newBuilder();
-            subnetConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
-            subnetConfigBuilder.setId(subnetEntity.getId());
-            subnetConfigBuilder.setNetworkType(Common.NetworkType.VXLAN);
-            subnetConfigBuilder.setVpcId(subnetEntity.getVpcId());
-            subnetConfigBuilder.setName(subnetEntity.getName());
-            subnetConfigBuilder.setCidr(subnetEntity.getCidr());
-            subnetConfigBuilder.setTunnelId(subnetEntity.getTunnelId());
+            subnetConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER)
+                    .setId(subnetEntity.getId())
+                    .setNetworkType(Common.NetworkType.VXLAN)
+                    .setVpcId(subnetEntity.getVpcId())
+                    .setName(subnetEntity.getName())
+                    .setCidr(subnetEntity.getCidr())
+                    .setTunnelId(subnetEntity.getTunnelId());
 
             Subnet.SubnetConfiguration.Gateway.Builder gatewayBuilder = Subnet.SubnetConfiguration.Gateway.newBuilder();
             gatewayBuilder.setIpAddress(subnetEntity.getGatewayIp());
@@ -151,9 +150,21 @@ public class SubnetService extends ResourceService {
 
             Subnet.SubnetState.Builder subnetStateBuilder = Subnet.SubnetState.newBuilder();
             subnetStateBuilder.setOperationType(Common.OperationType.INFO);
+
             subnetStateBuilder.setConfiguration(subnetConfigBuilder.build());
-            unicastGoalState.getGoalStateBuilder().addSubnetStates(subnetStateBuilder.build());
-            multicastGoalState.getGoalStateBuilder().addSubnetStates(subnetStateBuilder.build());
+            Subnet.SubnetState subnetState = subnetStateBuilder.build();
+            unicastGoalState.getGoalStateBuilder().putSubnetStates(subnetState.getConfiguration().getId(), subnetState);
+            multicastGoalState.getGoalStateBuilder().putSubnetStates(subnetState.getConfiguration().getId(), subnetState);
+
+            Goalstate.ResourceIdType subnetResourceIdType = Goalstate.ResourceIdType.newBuilder()
+                    .setType(Common.ResourceType.SUBNET)
+                    .setId(subnetState.getConfiguration().getId())
+                    .build();
+            Goalstate.HostResources.Builder hostResourceBuilder = Goalstate.HostResources.newBuilder();
+            hostResourceBuilder.addResources(subnetResourceIdType);
+            unicastGoalState.getGoalStateBuilder().putHostResources(unicastGoalState.getHostIp(), hostResourceBuilder.build());
+            // TODO: how to configure multicast GoalState id
+            multicastGoalState.getGoalStateBuilder().putHostResources(unicastGoalState.getHostIp(), hostResourceBuilder.build());
         }
     }
 }

@@ -167,9 +167,12 @@ public class PortService extends ResourceService {
             Port.PortState portState = portStateBuilder.build();
             unicastGoalState.getGoalStateBuilder().putPortStates(portState.getConfiguration().getId(), portState);
 
-            Goalstate.ResourceIdType portResourceId = Goalstate.ResourceIdType.newBuilder().setType(Common.ResourceType.PORT).setId(portState.getConfiguration().getId()).build();
+            Goalstate.ResourceIdType portResourceIdType = Goalstate.ResourceIdType.newBuilder()
+                    .setType(Common.ResourceType.PORT)
+                    .setId(portState.getConfiguration().getId())
+                    .build();
             Goalstate.HostResources.Builder hostResourceBuilder = Goalstate.HostResources.newBuilder();
-            hostResourceBuilder.addResources(portResourceId);
+            hostResourceBuilder.addResources(portResourceIdType);
             unicastGoalState.getGoalStateBuilder().putHostResources(unicastGoalState.getHostIp(), hostResourceBuilder.build());
         }
     }

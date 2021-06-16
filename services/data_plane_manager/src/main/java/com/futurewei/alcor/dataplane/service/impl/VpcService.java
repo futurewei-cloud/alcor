@@ -108,7 +108,10 @@ public class VpcService extends ResourceService {
             Vpc.VpcState vpcState = vpcStateBuilder.build();
             unicastGoalState.getGoalStateBuilder().putVpcStates(vpcState.getConfiguration().getId(), vpcState);
 
-            Goalstate.ResourceIdType vpcResourceIdType = Goalstate.ResourceIdType.newBuilder().setType(Common.ResourceType.VPC).setId(vpcState.getConfiguration().getId()).build();
+            Goalstate.ResourceIdType vpcResourceIdType = Goalstate.ResourceIdType.newBuilder()
+                    .setType(Common.ResourceType.VPC)
+                    .setId(vpcState.getConfiguration().getId())
+                    .build();
             Goalstate.HostResources.Builder hostResourceBuilder = Goalstate.HostResources.newBuilder();
             hostResourceBuilder.addResources(vpcResourceIdType);
             unicastGoalState.getGoalStateBuilder().putHostResources(unicastGoalState.getHostIp(), hostResourceBuilder.build());
