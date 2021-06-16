@@ -16,9 +16,12 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.dataplane.service.impl;
 
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
+import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
 import com.futurewei.alcor.dataplane.exception.*;
+import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.schema.Common.EtherType;
 import com.futurewei.alcor.schema.Common.Protocol;
+import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Port;
 import com.futurewei.alcor.schema.SecurityGroup.SecurityGroupConfiguration.Direction;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
@@ -27,6 +30,7 @@ import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -162,6 +166,82 @@ public class SecurityGroupService extends ResourceService {
             securityGroupStateBuilder.setOperationType(networkConfig.getOpType());
             securityGroupStateBuilder.setConfiguration(securityGroupConfigBuilder.build());
             unicastGoalState.getGoalStateBuilder().addSecurityGroupStates(securityGroupStateBuilder.build());
+        }
+    }
+
+    public void buildSecurityGroupStates(NetworkConfiguration networkConfig, UnicastGoalStateV2 unicastGoalState) throws Exception {
+        List<Port.PortState> portStates = new ArrayList<Port.PortState>(unicastGoalState.getGoalStateBuilder().getPortStatesMap().values());
+        if (portStates == null || portStates.size() == 0) {
+            return;
+        }
+
+        Set<String> securityGroupIds = new HashSet<>();
+        for (Port.PortState portState: portStates) {
+            List<Port.PortConfiguration.SecurityGroupId> securityGroupIdList= portState.getConfiguration().getSecurityGroupIdsList();
+            if (securityGroupIdList != null && securityGroupIdList.size() >0) {
+                securityGroupIds.addAll(securityGroupIdList.stream()
+                        .map(Port.PortConfiguration.SecurityGroupId::getId)
+                        .collect(Collectors.toList()));
+            }
+        }
+
+        for (String securityGroupId: securityGroupIds) {
+            SecurityGroup securityGroup = getSecurityGroup(networkConfig, securityGroupId);
+            com.futurewei.alcor.schema.SecurityGroup.SecurityGroupConfiguration.Builder securityGroupConfigBuilder = com.futurewei.alcor.schema.SecurityGroup.SecurityGroupConfiguration.newBuilder();
+            securityGroupConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
+            securityGroupConfigBuilder.setId(securityGroup.getId());
+            //securityGroupConfigBuilder.setVpcId();
+            securityGroupConfigBuilder.setName(securityGroup.getName());
+
+            if (securityGroup.getSecurityGroupRules() == null) {
+                throw new SecurityGroupRuleNotFound();
+            }
+
+            for (SecurityGroupRule securityGroupRule: securityGroup.getSecurityGroupRules()) {
+                com.futurewei.alcor.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule.Builder securityGroupRuleBuilder =
+                        com.futurewei.alcor.schema.SecurityGroup.SecurityGroupConfiguration.SecurityGroupRule.newBuilder();
+                securityGroupRuleBuilder.setSecurityGroupId(securityGroup.getId());
+                securityGroupRuleBuilder.setId(securityGroupRule.getId());
+                securityGroupRuleBuilder.setDirection(transformDirection(securityGroupRule.getDirection()));
+                securityGroupRuleBuilder.setEthertype(transformEtherType(securityGroupRule.getEtherType()));
+
+                if (securityGroupRule.getProtocol() != null) {
+                    securityGroupRuleBuilder.setProtocol(transformProtocol(securityGroupRule.getProtocol()));
+                }
+
+                if (securityGroupRule.getPortRangeMin() != null) {
+                    securityGroupRuleBuilder.setPortRangeMin(securityGroupRule.getPortRangeMin());
+                }
+
+                if (securityGroupRule.getPortRangeMax() != null) {
+                    securityGroupRuleBuilder.setPortRangeMax(securityGroupRule.getPortRangeMax());
+                }
+
+                if (securityGroupRule.getRemoteIpPrefix() != null) {
+                    securityGroupRuleBuilder.setRemoteIpPrefix(securityGroupRule.getRemoteIpPrefix());
+                }
+
+                if (securityGroupRule.getRemoteGroupId() != null) {
+                    securityGroupRuleBuilder.setRemoteGroupId(securityGroupRule.getRemoteGroupId());
+                }
+
+                securityGroupConfigBuilder.addSecurityGroupRules(securityGroupRuleBuilder.build());
+            }
+
+            com.futurewei.alcor.schema.SecurityGroup.SecurityGroupState.Builder securityGroupStateBuilder = com.futurewei.alcor.schema.SecurityGroup.SecurityGroupState.newBuilder();
+            securityGroupStateBuilder.setOperationType(networkConfig.getOpType());
+            securityGroupStateBuilder.setConfiguration(securityGroupConfigBuilder.build());
+
+            com.futurewei.alcor.schema.SecurityGroup.SecurityGroupState securityGroupState = securityGroupStateBuilder.build();
+            unicastGoalState.getGoalStateBuilder().putSecurityGroupStates(securityGroupState.getConfiguration().getId(), securityGroupState);
+
+            Goalstate.ResourceIdType securityGroupResourceIdType = Goalstate.ResourceIdType.newBuilder()
+                    .setType(Common.ResourceType.SECURITYGROUP)
+                    .setId(securityGroupState.getConfiguration().getId())
+                    .build();
+            Goalstate.HostResources.Builder hostResourceBuilder = Goalstate.HostResources.newBuilder();
+            hostResourceBuilder.addResources(securityGroupResourceIdType);
+            unicastGoalState.getGoalStateBuilder().putHostResources(unicastGoalState.getHostIp(), hostResourceBuilder.build());
         }
     }
 }

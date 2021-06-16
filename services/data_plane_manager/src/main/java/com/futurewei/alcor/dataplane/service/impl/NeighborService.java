@@ -220,8 +220,17 @@ public class NeighborService extends ResourceService {
                         continue;
                     }
 
-                    unicastGoalState.getGoalStateBuilder().addNeighborStates(buildNeighborState(
-                            neighborEntry.getNeighborType(), neighborInfo, networkConfig.getOpType()));
+                    Neighbor.NeighborState neighborState = buildNeighborState(neighborEntry.getNeighborType(), neighborInfo, networkConfig.getOpType());
+                    unicastGoalState.getGoalStateBuilder().putNeighborStates(neighborState.getConfiguration().getId(), neighborState);
+
+                    Goalstate.ResourceIdType neighborResourceIdType = Goalstate.ResourceIdType.newBuilder()
+                            .setType(Common.ResourceType.NEIGHBOR)
+                            .setId(neighborState.getConfiguration().getId())
+                            .build();
+                    Goalstate.HostResources.Builder hostResourceBuilder = Goalstate.HostResources.newBuilder();
+                    hostResourceBuilder.addResources(neighborResourceIdType);
+                    unicastGoalState.getGoalStateBuilder().putHostResources(unicastGoalState.getHostIp(), hostResourceBuilder.build());
+
                     multicastNeighborEntries.add(neighborEntry);
                 }
             }
@@ -242,8 +251,18 @@ public class NeighborService extends ResourceService {
             }
 
             if (!neighborInfoSet.contains(neighborInfo1)) {
-                multicastGoalState.getGoalStateBuilder().addNeighborStates(buildNeighborState(
-                        neighborEntry.getNeighborType(), neighborInfo1, networkConfig.getOpType()));
+                Neighbor.NeighborState neighborState = buildNeighborState(neighborEntry.getNeighborType(), neighborInfo1, networkConfig.getOpType());
+                multicastGoalState.getGoalStateBuilder().putNeighborStates(neighborState.getConfiguration().getId(), neighborState);
+
+                Goalstate.ResourceIdType neighborResourceIdType = Goalstate.ResourceIdType.newBuilder()
+                        .setType(Common.ResourceType.NEIGHBOR)
+                        .setId(neighborState.getConfiguration().getId())
+                        .build();
+                Goalstate.HostResources.Builder hostResourceBuilder = Goalstate.HostResources.newBuilder();
+                hostResourceBuilder.addResources(neighborResourceIdType);
+                // TODO: Change resource id
+                multicastGoalState.getGoalStateBuilder().putHostResources(unicastGoalState.getHostIp(), hostResourceBuilder.build());
+
                 neighborInfoSet.add(neighborInfo1);
             }
         }
