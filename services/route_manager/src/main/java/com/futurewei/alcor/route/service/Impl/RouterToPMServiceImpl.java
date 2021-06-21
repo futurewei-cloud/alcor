@@ -45,13 +45,13 @@ public class RouterToPMServiceImpl implements RouterToPMService {
         }
 
         List<String> subnetIds = new ArrayList<>();
-        String portManagerServiceUrl = portUrl + "/project/" + projectid + "/ports?id=";
+        String portManagerServiceUrl = portUrl + "/project/" + projectid + "/ports?";
         for (int i = 0 ; i < gatewayPorts.size(); i ++) {
             String gatewayPortId = gatewayPorts.get(i);
             if (i != gatewayPorts.size() - 1) {
-                portManagerServiceUrl = portManagerServiceUrl + gatewayPortId + ",";
+                portManagerServiceUrl = portManagerServiceUrl + "id=" + gatewayPortId + "&";
             } else {
-                portManagerServiceUrl = portManagerServiceUrl + gatewayPortId;
+                portManagerServiceUrl = portManagerServiceUrl + "id=" + gatewayPortId;
             }
         }
         PortWebBulkJson portResponse = restTemplate.getForObject(portManagerServiceUrl, PortWebBulkJson.class);

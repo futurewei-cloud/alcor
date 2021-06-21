@@ -18,6 +18,7 @@ package com.futurewei.alcor.route.service.Impl;
 import com.futurewei.alcor.route.config.ConstantsConfig;
 import com.futurewei.alcor.route.exception.DPMFailedHandleRequest;
 import com.futurewei.alcor.route.service.RouterToDPMService;
+import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.web.entity.dataplane.InternalDPMResultList;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
@@ -43,6 +44,8 @@ public class RouterToDPMServiceImpl implements RouterToDPMService {
         List<InternalRouterInfo> internalRouterInfos = new ArrayList<>();
         internalRouterInfos.add(internalRouterInfo);
         networkConfiguration.setInternalRouterInfos(internalRouterInfos);
+        networkConfiguration.setRsType(Common.ResourceType.ROUTER);
+        networkConfiguration.setOpType(Common.OperationType.INFO);
 
         String dpmServiceUrl = dpmUrl + "/network-configuration";
         HttpEntity<NetworkConfiguration> dpmRequest = new HttpEntity<>(networkConfiguration);
