@@ -1,0 +1,157 @@
+= Profiling Ignite through AlcorController
+
+Prasad Kommoju <pkommoju@futurewei.com>, Zhaoxi Zhu <zzhu@futurewei.com>
+2021-06-15
+
+:imagesdir: ../../images
+
+== Machine Configuration
+[source]
+|===
+| Machine| Process| CPUs | Total Memory
+|10.213.43.161| NCM|40| 192GB
+|10.213.43.161| TC|40| 192GB
+|10.213.43.90| ACA node 1| 24| 128GB
+|10.213.43.94| ACA node 2| 24| 128GB
+|10.213.43.163| Ignite node 1| 40|192GB
+|10.213.43.164| Ignite node 2| 40| 192GB
+|===
+
+All machines have only one disk on line and it appears to be a spinning disk. Having one disk to write both Ignite WAL, and DB puts 
+
+== NCM and Ignite JVM options
+[source]
+ -Djava.net.preferIPv4Stack=true \
+            -Xms40G \
+            -XX:MaxMetaspaceSize=1G \
+            -Xmx40G \
+            -XX:NewSize=512m \
+            -XX:SurvivorRatio=6 \
+            -XX:+AlwaysPreTouch \
+            -XX:+UseG1GC \
+            -XX:MaxGCPauseMillis=2000 \
+            -XX:GCTimeRatio=4 \
+            -XX:InitiatingHeapOccupancyPercent=30 \
+            -XX:G1HeapRegionSize=33554432 \
+            -XX:ParallelGCThreads=8 \
+            -XX:ConcGCThreads=8 \
+            -XX:G1HeapWastePercent=10 \
+            -XX:+UseTLAB \
+            -XX:+ScavengeBeforeFullGC \
+            -XX:+DisableExplicitGC \
+            -XX:+PrintGCDetails \
+            -XX:+FlightRecorder \
+            -XX:+UnlockDiagnosticVMOptions \
+            -XX:+DebugNonSafepoints \
+            -Xloggc:/tmp/<service-specific-tag>-gc-log.txt
+
+== Ignite configuration
+[source]
+      <property name="dataStorageConfiguration">
+         <bean class="org.apache.ignite.configuration.DataStorageConfiguration">
+            <!-- set the size of wal segments to 256MB -->
+            <property name="walSegmentSize" value="#{256 * 1024 * 1024}"/>
+            <property name="systemRegionInitialSize" value="#{2L * 1024 * 1024 * 1024}"/>
+            <property name="systemRegionMaxSize" value="#{2L * 1024 * 1024 * 1024}"/>
+            <property name="defaultDataRegionConfiguration">
+               <bean class="org.apache.ignite.configuration.DataRegionConfiguration">
+                <property name="persistenceEnabled" value="true"/>
+                <property name="metricsEnabled" value="true"/>
+                <property name="initialSize" value="#{32L * 1024 * 1024 * 1024}"/>
+                <property name="maxSize" value="#{32L * 1024 * 1024 * 1024}"/>
+               </bean>
+            </property>
+         </bean>
+      </property>
+      
+      <property name="cacheConfiguration">
+        <list>
+             <bean class="org.apache.ignite.configuration.CacheConfiguration">
+                <!-- Set the cache name. -->
+                <property name="name" value="com.futurewei.alcor.netwconfigmanager.entity.ResourceMeta"/>
+                <!-- Set the cache mode. -->
+                <property name="atomicityMode" value="TRANSACTIONAL"/>
+                <!-- Other cache parameters. -->
+                <property name="cacheMode" value="PARTITIONED"/>
+             </bean>
+
+             <bean class="org.apache.ignite.configuration.CacheConfiguration">
+                <!-- Set the cache name. -->
+                 <property name="name" value="com.futurewei.alcor.netwconfigmanager.entity.VpcResourceMeta"/>
+                <!-- Set the cache mode. -->
+                <property name="atomicityMode" value="TRANSACTIONAL"/>
+                <!-- Other cache parameters. -->
+                <property name="cacheMode" value="PARTITIONED"/>
+             </bean>
+
+             <bean class="org.apache.ignite.configuration.CacheConfiguration">
+                <!-- Set the cache name. -->
+                 <property name="name" value="java.lang.Object"/>
+                <!-- Set the cache mode. -->
+                <property name="atomicityMode" value="TRANSACTIONAL"/>
+                <!-- Other cache parameters. -->
+                <property name="cacheMode" value="PARTITIONED"/>
+             </bean>
+        </list>
+    </property>
+
+
+
+== Observations
+
+== NCM latency for 300 ports [2021-06-15]
+* NCM doesn't seem to have recevied anything. The following appears in TC logfile. It is not clear if this is a problem or not.
+
+* pings seems to have succeeded but NCM doesn't have any data in any cache.
+
+* Ignite logs show less than 1% CPU load and no GC activity.
+
+* VisualVM fails to connect to NCM with the error "Not supported for this VM"
+
+[source]
+java.lang.UnsatisfiedLinkError: no io_grpc_netty_shaded_netty_transport_native_epoll_x86_64 in java.library.path: [/usr/java/packages/lib, /usr/lib/x86_64-linux-gnu/jni, /lib/x86_64-linux-gnu, /usr/lib/x86_64-linux-gnu, /usr/lib/jni, /lib, /usr/lib]
+        at java.base/java.lang.ClassLoader.loadLibrary(ClassLoader.java:2670)
+        at java.base/java.lang.Runtime.loadLibrary0(Runtime.java:830)
+        at java.base/java.lang.System.loadLibrary(System.java:1873)
+        at io.grpc.netty.shaded.io.netty.util.internal.NativeLibraryUtil.loadLibrary(NativeLibraryUtil.java:38)
+        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+        at io.grpc.netty.shaded.io.netty.util.internal.NativeLibraryLoader$1.run(NativeLibraryLoader.java:369)
+        at java.base/java.security.AccessController.doPrivileged(Native Method)
+        at io.grpc.netty.shaded.io.netty.util.internal.NativeLibraryLoader.loadLibraryByHelper(NativeLibraryLoader.java:361)
+        at io.grpc.netty.shaded.io.netty.util.internal.NativeLibraryLoader.loadLibrary(NativeLibraryLoader.java:339)
+        at io.grpc.netty.shaded.io.netty.util.internal.NativeLibraryLoader.load(NativeLibraryLoader.java:136)
+        at io.grpc.netty.shaded.io.netty.channel.epoll.Native.loadNativeLibrary(Native.java:186)
+        at io.grpc.netty.shaded.io.netty.channel.epoll.Native.<clinit>(Native.java:57)
+        at io.grpc.netty.shaded.io.netty.channel.epoll.Epoll.<clinit>(Epoll.java:39)
+        at java.base/java.lang.Class.forName0(Native Method)
+        at java.base/java.lang.Class.forName(Class.java:315)
+        at io.grpc.netty.shaded.io.grpc.netty.Utils.isEpollAvailable(Utils.java:220)
+        at io.grpc.netty.shaded.io.grpc.netty.Utils.<clinit>(Utils.java:92)
+        at io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder.<clinit>(NettyChannelBuilder.java:72)
+        at io.grpc.netty.shaded.io.grpc.netty.NettyChannelProvider.builderForAddress(NettyChannelProvider.java:37)
+        at io.grpc.netty.shaded.io.grpc.netty.NettyChannelProvider.builderForAddress(NettyChannelProvider.java:23)
+        at io.grpc.ManagedChannelBuilder.forAddress(ManagedChannelBuilder.java:39)
+        at com.futurewei.alcor.pseudo_controller.pseudo_controller.main(pseudo_controller.java:241)
+        at org.codehaus.mojo.exec.ExecJavaMojo$1.run(ExecJavaMojo.java:254)
+        at java.base/java.lang.Thread.run(Thread.java:829)
+
+== 2021-06-21 runs, 200 ports.
+
+* The three Ignite caches are empty.
+* NCM logs show no messages to show that ACA have sent something.
+* TC logs show goal states being created and sent.
+* TC logs also show that pings have been successful.
+
+=== Logs from the runs
+* xref:ncm-21-06-21-03.log[NCM log file]
+* xref:ncm-21-06-21-03.html[NCM profile data (using async-profiler)]
+* xref:run-200p-run-01.nps[Ignite VisualVM profile snapshot]
+* xref:syslog-aca-1.log[ACA log from mode 1]
+* xref:syslog-aca-2.log[ACA log from mode 2]
+* xref:ignite-caches.txt[Ignite caches]
+* xref:tc-21-06-21-01.log[Test Controller log]
+
+

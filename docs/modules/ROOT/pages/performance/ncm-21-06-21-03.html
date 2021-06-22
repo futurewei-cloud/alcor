@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Tree view</title>
+<meta charset="utf-8"/>
+<style>
+body {
+    font-family: Arial;
+}
+ul.tree li {
+    list-style-type: none;
+    position: relative;
+}
+ul.tree ul {
+    margin-left: 20px; padding-left: 0;
+}
+ul.tree li ul {
+    display: none;
+}
+ul.tree li.open > ul {
+    display: block;
+}
+ul.tree li div:before {
+    height: 1em;
+    padding:0 .1em;
+    font-size: .8em;
+    display: block;
+    position: absolute;
+    left: -1.3em;
+    top: .2em;
+}
+ul.tree li > div:not(:nth-last-child(2)):before {
+    content: '+';
+}
+ul.tree li.open > div:not(:nth-last-child(2)):before {
+    content: '-';
+}
+.sc {
+    text-decoration: underline;
+    text-decoration-color: black;
+    font-weight: bold;
+    background-color: #D9D9D9;
+}
+.green {
+    color: #32c832;
+}
+.aqua {
+    color: #32a5a5;
+}
+.brown {
+    color: #be5a00;
+}
+.yellow {
+    color: #afaf32;
+}
+.red {
+    color: #c83232;
+}
+ul.tree li > div {
+    display: inline;
+    cursor: pointer;
+    color: black;
+    text-decoration: none;
+}
+</style>
+<script>
+function treeView(opt) {
+    var tree = document.querySelectorAll('ul.tree div:not(:last-child)');
+    for(var i = 0; i < tree.length; i++){
+        var parent = tree[i].parentElement;
+        var classList = parent.classList;
+        if(opt == 0) {
+            classList.add('open');
+        } else {
+            classList.remove('open');
+        }
+    }
+}
+function openParent(p,t) {
+    if(p.parentElement.classList.contains("tree")) {
+        return;
+    }
+    p.parentElement.classList.add('open');
+    openParent(p.parentElement,t);
+}
+function search() {
+    var tree = document.querySelectorAll('ul.tree span');
+    var check = document.getElementById('check');
+    for(var i = 0; i < tree.length; i++){
+        tree[i].classList.remove('sc');
+        if(tree[i].innerHTML.includes(document.getElementById("search").value)) {
+            tree[i].classList.add('sc');
+            openParent(tree[i].parentElement,tree);
+        }
+    }
+}
+function openUL(n) {
+    var children = n.children;
+    if(children.length == 1) {
+        openNode(children[0]);
+    }
+}
+function openNode(n) {
+    var children = n.children;
+    for(var i = 0; i < children.length; i++){
+        if(children[i].nodeName == 'UL') {
+            n.classList.add('open');
+            openUL(children[i]);
+        }
+    }
+}
+function addClickActions() {
+var tree = document.querySelectorAll('ul.tree div:not(:last-child)');
+for(var i = 0; i < tree.length; i++){
+    tree[i].addEventListener('click', function(e) {
+        var parent = e.target.parentElement;
+        var classList = parent.classList;
+        if(classList.contains("open")) {
+            classList.remove('open');
+            var opensubs = parent.querySelectorAll(':scope .open');
+            for(var i = 0; i < opensubs.length; i++){
+                opensubs[i].classList.remove('open');
+            }
+        } else {
+            if(e.altKey) {
+                classList.add('open');
+                var opensubs = parent.querySelectorAll('li');
+                for(var i = 0; i < opensubs.length; i++){
+                    opensubs[i].classList.add('open');
+                }
+            } else {
+                openNode(parent);
+            }
+        }
+    });
+}
+}
+</script>
+</head>
+<body>
+<div style="padding-left: 25px;">Call tree view, total samples: 146,304 </div>
+<div style="padding-left: 25px;"><button type='button' onclick='treeView(0)'>++</button><button type='button' onclick='treeView(1)'>--</button>
+<input type='text' id='search' value='' size='35' onkeypress="if(event.keyCode == 13) document.getElementById('searchBtn').click()">
+<button type='button' id='searchBtn' onclick='search()'>search</button></div>
+<ul class="tree">
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [GC Thread#5 tid=19703]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [GC Thread#6 tid=19704]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [GC Thread#7 tid=19705]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [GC Thread#2 tid=19700]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [GC Thread#8 tid=19706]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [GC Thread#9 tid=19707]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [Reference Handler tid=19684]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 0.00% 0</div><span class="green"> java/lang/ref/Reference$ReferenceHandler.run</span>
+<ul>
+<li><div>[2] 1.79% 2,613 self: 0.00% 0</div><span class="green"> java/lang/ref/Reference.processPendingReferences</span>
+<ul>
+<li><div>[3] 1.79% 2,613 self: 0.00% 0</div><span class="green"> java/lang/ref/Reference.waitForReferencePendingList</span>
+<ul>
+<li><div>[4] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> pthread_cond_wait@@GLIBC_2.3.2</span>
+</ul>
+</ul>
+</ul>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [Service Thread tid=19687]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> pthread_cond_wait@@GLIBC_2.3.2</span>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [GC Thread#15 tid=19713]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [GC Thread#14 tid=19712]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [GC Thread#13 tid=19711]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [GC Thread#12 tid=19710]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [GC Thread#11 tid=19709]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [GC Thread#10 tid=19708]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [GC Thread#1 tid=19699]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [GC Thread#0 tid=19678]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [C1 CompilerThre tid=19689]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> __pthread_cond_timedwait</span>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [C2 CompilerThre tid=19688]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> __pthread_cond_timedwait</span>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [main tid=19677]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 0.00% 0</div><span class="green"> org/springframework/boot/loader/JarLauncher.main</span>
+<ul>
+<li><div>[2] 1.79% 2,613 self: 0.00% 0</div><span class="green"> org/springframework/boot/loader/Launcher.launch</span>
+<ul>
+<li><div>[3] 1.79% 2,613 self: 0.00% 0</div><span class="green"> org/springframework/boot/loader/Launcher.launch</span>
+<ul>
+<li><div>[4] 1.79% 2,613 self: 0.00% 0</div><span class="green"> org/springframework/boot/loader/MainMethodRunner.run</span>
+<ul>
+<li><div>[5] 1.79% 2,613 self: 0.00% 0</div><span class="green"> java/lang/reflect/Method.invoke</span>
+<ul>
+<li><div>[6] 1.79% 2,613 self: 0.00% 0</div><span class="green"> jdk/internal/reflect/DelegatingMethodAccessorImpl.invoke</span>
+<ul>
+<li><div>[7] 1.79% 2,613 self: 0.00% 0</div><span class="green"> jdk/internal/reflect/NativeMethodAccessorImpl.invoke</span>
+<ul>
+<li><div>[8] 1.79% 2,613 self: 0.00% 0</div><span class="green"> jdk/internal/reflect/NativeMethodAccessorImpl.invoke0</span>
+<ul>
+<li><div>[9] 1.79% 2,613 self: 0.00% 0</div><span class="green"> com/futurewei/alcor/netwconfigmanager/NetworkConfigManagerApplication.main</span>
+<ul>
+<li><div>[10] 1.79% 2,613 self: 0.00% 0</div><span class="green"> org/springframework/boot/SpringApplication.run</span>
+<ul>
+<li><div>[11] 1.79% 2,613 self: 0.00% 0</div><span class="green"> org/springframework/boot/SpringApplication.run</span>
+<ul>
+<li><div>[12] 1.79% 2,613 self: 0.00% 0</div><span class="green"> org/springframework/boot/SpringApplication.run</span>
+<ul>
+<li><div>[13] 1.79% 2,613 self: 0.00% 0</div><span class="green"> org/springframework/boot/SpringApplication.refreshContext</span>
+<ul>
+<li><div>[14] 1.79% 2,613 self: 0.00% 0</div><span class="green"> org/springframework/boot/SpringApplication.refresh</span>
+<ul>
+<li><div>[15] 1.79% 2,613 self: 0.00% 0</div><span class="green"> org/springframework/boot/web/servlet/context/ServletWebServerApplicationContext.refresh</span>
+<ul>
+<li><div>[16] 1.79% 2,613 self: 0.00% 0</div><span class="green"> org/springframework/context/support/AbstractApplicationContext.refresh</span>
+<ul>
+<li><div>[17] 1.79% 2,613 self: 0.00% 0</div><span class="green"> org/springframework/context/support/AbstractApplicationContext.finishBeanFactoryInitialization</span>
+<ul>
+<li><div>[18] 1.79% 2,613 self: 0.00% 0</div><span class="green"> org/springframework/beans/factory/support/DefaultListableBeanFactory.preInstantiateSingletons</span>
+<ul>
+<li><div>[19] 1.79% 2,613 self: 0.00% 0</div><span class="green"> org/springframework/beans/factory/support/AbstractBeanFactory.getBean</span>
+<ul>
+<li><div>[20] 1.79% 2,613 self: 0.00% 0</div><span class="green"> org/springframework/beans/factory/support/AbstractBeanFactory.doGetBean</span>
+<ul>
+<li><div>[21] 1.79% 2,613 self: 0.00% 0</div><span class="green"> org/springframework/beans/factory/support/DefaultSingletonBeanRegistry.getSingleton</span>
+<ul>
+<li><div>[22] 1.79% 2,613 self: 0.00% 0</div><span class="green"> org/springframework/beans/factory/support/AbstractBeanFactory$$Lambda$199/1487470647.getObject</span>
+<ul>
+<li><div>[23] 1.79% 2,613 self: 0.00% 0</div><span class="green"> org/springframework/beans/factory/support/AbstractBeanFactory.lambda$doGetBean$0</span>
+<ul>
+<li><div>[24] 1.79% 2,613 self: 0.00% 0</div><span class="green"> org/springframework/beans/factory/support/AbstractAutowireCapableBeanFactory.createBean</span>
+<ul>
+<li><div>[25] 1.79% 2,613 self: 0.00% 0</div><span class="green"> org/springframework/beans/factory/support/AbstractAutowireCapableBeanFactory.doCreateBean</span>
+<ul>
+<li><div>[26] 1.79% 2,613 self: 0.00% 0</div><span class="green"> org/springframework/beans/factory/support/AbstractAutowireCapableBeanFactory.initializeBean</span>
+<ul>
+<li><div>[27] 1.79% 2,613 self: 0.00% 0</div><span class="green"> org/springframework/beans/factory/support/AbstractAutowireCapableBeanFactory.applyBeanPostProcessorsBeforeInitialization</span>
+<ul>
+<li><div>[28] 1.79% 2,613 self: 0.00% 0</div><span class="green"> org/springframework/beans/factory/annotation/InitDestroyAnnotationBeanPostProcessor.postProcessBeforeInitialization</span>
+<ul>
+<li><div>[29] 1.79% 2,613 self: 0.00% 0</div><span class="green"> org/springframework/beans/factory/annotation/InitDestroyAnnotationBeanPostProcessor$LifecycleMetadata.invokeInitMethods</span>
+<ul>
+<li><div>[30] 1.79% 2,613 self: 0.00% 0</div><span class="green"> org/springframework/beans/factory/annotation/InitDestroyAnnotationBeanPostProcessor$LifecycleElement.invoke</span>
+<ul>
+<li><div>[31] 1.79% 2,613 self: 0.00% 0</div><span class="green"> java/lang/reflect/Method.invoke</span>
+<ul>
+<li><div>[32] 1.79% 2,613 self: 0.00% 0</div><span class="green"> jdk/internal/reflect/DelegatingMethodAccessorImpl.invoke</span>
+<ul>
+<li><div>[33] 1.79% 2,613 self: 0.00% 0</div><span class="green"> jdk/internal/reflect/NativeMethodAccessorImpl.invoke</span>
+<ul>
+<li><div>[34] 1.79% 2,613 self: 0.00% 0</div><span class="green"> jdk/internal/reflect/NativeMethodAccessorImpl.invoke0</span>
+<ul>
+<li><div>[35] 1.79% 2,613 self: 0.00% 0</div><span class="green"> com/futurewei/alcor/netwconfigmanager/NetworkConfigManagerApplication.instantiateGrpcServer</span>
+<ul>
+<li><div>[36] 1.79% 2,613 self: 0.00% 0</div><span class="green"> com/futurewei/alcor/netwconfigmanager/server/grpc/GoalStateProvisionerServer.blockUntilShutdown</span>
+<ul>
+<li><div>[37] 1.79% 2,613 self: 0.00% 0</div><span class="green"> io/grpc/internal/ServerImpl.awaitTermination</span>
+<ul>
+<li><div>[38] 1.79% 2,613 self: 0.00% 0</div><span class="green"> java/lang/Object.wait</span>
+<ul>
+<li><div>[39] 1.79% 2,613 self: 0.00% 0</div><span class="green"> java/lang/Object.wait</span>
+<ul>
+<li><div>[40] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> pthread_cond_wait@@GLIBC_2.3.2</span>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [java tid=19676]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 0.00% 0</div><span class="red"> /usr/lib/jvm/java-11-openjdk-amd64/lib/jli/libjli.so</span>
+<ul>
+<li><div>[2] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> __GI___pthread_timedjoin_ex</span>
+</ul>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [Common-Cleaner tid=19693]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 0.00% 0</div><span class="green"> jdk/internal/misc/InnocuousThread.run</span>
+<ul>
+<li><div>[2] 1.79% 2,613 self: 0.00% 0</div><span class="green"> java/lang/Thread.run</span>
+<ul>
+<li><div>[3] 1.79% 2,613 self: 0.00% 0</div><span class="green"> jdk/internal/ref/CleanerImpl.run</span>
+<ul>
+<li><div>[4] 1.79% 2,613 self: 0.00% 0</div><span class="green"> java/lang/ref/ReferenceQueue.remove</span>
+<ul>
+<li><div>[5] 1.79% 2,613 self: 0.00% 0</div><span class="green"> java/lang/Object.wait</span>
+<ul>
+<li><div>[6] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> __pthread_cond_timedwait</span>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [Finalizer tid=19685]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 0.00% 0</div><span class="green"> java/lang/ref/Finalizer$FinalizerThread.run</span>
+<ul>
+<li><div>[2] 1.79% 2,613 self: 0.00% 0</div><span class="green"> java/lang/ref/ReferenceQueue.remove</span>
+<ul>
+<li><div>[3] 1.79% 2,613 self: 0.00% 0</div><span class="green"> java/lang/ref/ReferenceQueue.remove</span>
+<ul>
+<li><div>[4] 1.79% 2,613 self: 0.00% 0</div><span class="green"> java/lang/Object.wait</span>
+<ul>
+<li><div>[5] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> pthread_cond_wait@@GLIBC_2.3.2</span>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [G1 Conc#0 tid=19680]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [GC Thread#3 tid=19701]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [GC Thread#4 tid=19702]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [VM Thread tid=19683]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> __pthread_cond_timedwait</span>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [VM Periodic Tas tid=19692]</span>
+<ul>
+<li><div>[1] 1.79% 2,612 self: 1.79% 2,612</div><span class="red"> __pthread_cond_timedwait</span>
+<li><div>[1] 0.00% 1 self: 0.00% 0</div><span class="red"> start_thread</span>
+<ul>
+<li>...
+</ul>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [Sweeper thread tid=19690]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> __pthread_cond_timedwait</span>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [Signal Dispatcher tid=19686]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [G1 Main Marker tid=19679]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> pthread_cond_wait@@GLIBC_2.3.2</span>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [G1 Refine#0 tid=19681]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> pthread_cond_wait@@GLIBC_2.3.2</span>
+</ul>
+<li><div>[0] 1.79% 2,613 self: 0.00% 0</div><span class="red"> [G1 Young RemSet tid=19682]</span>
+<ul>
+<li><div>[1] 1.79% 2,613 self: 1.79% 2,613</div><span class="red"> __pthread_cond_timedwait</span>
+</ul>
+<li><div>[0] 1.79% 2,612 self: 0.00% 0</div><span class="red"> [GC Thread#27 tid=19726]</span>
+<ul>
+<li><div>[1] 1.79% 2,612 self: 1.79% 2,612</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,612 self: 0.00% 0</div><span class="red"> [container-0 tid=19866]</span>
+<ul>
+<li><div>[1] 1.79% 2,612 self: 0.00% 0</div><span class="green"> org/springframework/boot/web/embedded/tomcat/TomcatWebServer$1.run</span>
+<ul>
+<li><div>[2] 1.79% 2,612 self: 0.00% 0</div><span class="green"> org/apache/catalina/core/StandardServer.await</span>
+<ul>
+<li><div>[3] 1.79% 2,612 self: 0.00% 0</div><span class="green"> java/lang/Thread.sleep</span>
+<ul>
+<li><div>[4] 1.79% 2,612 self: 1.79% 2,612</div><span class="red"> __pthread_cond_timedwait</span>
+</ul>
+</ul>
+</ul>
+</ul>
+<li><div>[0] 1.79% 2,612 self: 0.00% 0</div><span class="red"> [grpc-default-boss-ELG-1-1 tid=19868]</span>
+<ul>
+<li><div>[1] 1.79% 2,612 self: 0.00% 0</div><span class="green"> java/lang/Thread.run</span>
+<ul>
+<li><div>[2] 1.79% 2,612 self: 0.00% 0</div><span class="green"> io/grpc/netty/shaded/io/netty/util/concurrent/FastThreadLocalRunnable.run</span>
+<ul>
+<li><div>[3] 1.79% 2,612 self: 0.00% 0</div><span class="green"> io/grpc/netty/shaded/io/netty/util/internal/ThreadExecutorMap$2.run</span>
+<ul>
+<li><div>[4] 1.79% 2,612 self: 0.00% 0</div><span class="green"> io/grpc/netty/shaded/io/netty/util/concurrent/SingleThreadEventExecutor$5.run</span>
+<ul>
+<li><div>[5] 1.79% 2,612 self: 0.00% 0</div><span class="green"> io/grpc/netty/shaded/io/netty/channel/epoll/EpollEventLoop.run</span>
+<ul>
+<li><div>[6] 1.79% 2,612 self: 0.00% 0</div><span class="green"> io/grpc/netty/shaded/io/netty/channel/epoll/EpollEventLoop.epollWait</span>
+<ul>
+<li><div>[7] 1.79% 2,612 self: 0.00% 0</div><span class="green"> io/grpc/netty/shaded/io/netty/channel/epoll/Native.epollWait</span>
+<ul>
+<li><div>[8] 1.79% 2,612 self: 0.00% 0</div><span class="green"> io/grpc/netty/shaded/io/netty/channel/epoll/Native.epollWait0</span>
+<ul>
+<li><div>[9] 1.79% 2,612 self: 1.79% 2,612</div><span class="red"> epoll_wait</span>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+<li><div>[0] 1.79% 2,612 self: 0.00% 0</div><span class="red"> [thin-client-channel#t2:10800 tid=19867]</span>
+<ul>
+<li><div>[1] 1.79% 2,612 self: 0.00% 0</div><span class="green"> java/lang/Thread.run</span>
+<ul>
+<li><div>[2] 1.79% 2,612 self: 0.00% 0</div><span class="green"> org/apache/ignite/internal/client/thin/TcpClientChannel$$Lambda$600/1576277927.run</span>
+<ul>
+<li><div>[3] 1.79% 2,612 self: 0.00% 0</div><span class="green"> org/apache/ignite/internal/client/thin/TcpClientChannel.lambda$initReceiverThread$0</span>
+<ul>
+<li><div>[4] 1.79% 2,612 self: 0.00% 0</div><span class="green"> org/apache/ignite/internal/client/thin/TcpClientChannel.processNextMessage</span>
+<ul>
+<li><div>[5] 1.79% 2,612 self: 0.00% 0</div><span class="green"> org/apache/ignite/internal/client/thin/TcpClientChannel$ByteCountingDataInput.readInt</span>
+<ul>
+<li><div>[6] 1.79% 2,612 self: 0.00% 0</div><span class="green"> org/apache/ignite/internal/client/thin/TcpClientChannel$ByteCountingDataInput.read</span>
+<ul>
+<li><div>[7] 1.79% 2,612 self: 0.00% 0</div><span class="green"> java/net/SocketInputStream.read</span>
+<ul>
+<li><div>[8] 1.79% 2,612 self: 0.00% 0</div><span class="green"> java/net/SocketInputStream.read</span>
+<ul>
+<li><div>[9] 1.79% 2,612 self: 0.00% 0</div><span class="green"> java/net/SocketInputStream.socketRead</span>
+<ul>
+<li><div>[10] 1.79% 2,612 self: 0.00% 0</div><span class="green"> java/net/SocketInputStream.socketRead0</span>
+<ul>
+<li><div>[11] 1.79% 2,612 self: 1.79% 2,612</div><span class="red"> __libc_recv</span>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+<li><div>[0] 1.79% 2,612 self: 0.00% 0</div><span class="red"> [Attach Listener tid=34124]</span>
+<ul>
+<li><div>[1] 1.79% 2,612 self: 0.00% 0</div><span class="red"> [unknown]</span>
+<ul>
+<li><div>[2] 1.79% 2,612 self: 1.79% 2,612</div><span class="red"> accept</span>
+</ul>
+</ul>
+<li><div>[0] 1.79% 2,612 self: 0.00% 0</div><span class="red"> [Catalina-utility-1 tid=19864]</span>
+<ul>
+<li><div>[1] 1.79% 2,612 self: 0.00% 0</div><span class="green"> java/lang/Thread.run</span>
+<ul>
+<li><div>[2] 1.79% 2,612 self: 0.00% 0</div><span class="green"> org/apache/tomcat/util/threads/TaskThread$WrappingRunnable.run</span>
+<ul>
+<li><div>[3] 1.79% 2,612 self: 0.00% 0</div><span class="green"> java/util/concurrent/ThreadPoolExecutor$Worker.run</span>
+<ul>
+<li><div>[4] 1.79% 2,612 self: 0.00% 0</div><span class="green"> java/util/concurrent/ThreadPoolExecutor.runWorker</span>
+<ul>
+<li><div>[5] 1.79% 2,612 self: 0.00% 0</div><span class="green"> java/util/concurrent/ThreadPoolExecutor.getTask</span>
+<ul>
+<li><div>[6] 1.79% 2,612 self: 0.00% 0</div><span class="green"> java/util/concurrent/ScheduledThreadPoolExecutor$DelayedWorkQueue.take</span>
+<ul>
+<li><div>[7] 1.79% 2,612 self: 0.00% 0</div><span class="green"> java/util/concurrent/ScheduledThreadPoolExecutor$DelayedWorkQueue.take</span>
+<ul>
+<li><div>[8] 1.10% 1,603 self: 0.00% 0</div><span class="green"> java/util/concurrent/locks/AbstractQueuedSynchronizer$ConditionObject.await</span>
+<ul>
+<li><div>[9] 1.10% 1,603 self: 0.00% 0</div><span class="green"> java/util/concurrent/locks/LockSupport.park</span>
+<ul>
+<li><div>[10] 1.10% 1,603 self: 0.00% 0</div><span class="green"> jdk/internal/misc/Unsafe.park</span>
+<ul>
+<li><div>[11] 1.10% 1,603 self: 1.10% 1,603</div><span class="red"> pthread_cond_wait@@GLIBC_2.3.2</span>
+</ul>
+</ul>
+</ul>
+<li><div>[8] 0.69% 1,009 self: 0.00% 0</div><span class="green"> java/util/concurrent/locks/AbstractQueuedSynchronizer$ConditionObject.awaitNanos</span>
+<ul>
+<li><div>[9] 0.69% 1,009 self: 0.00% 0</div><span class="green"> java/util/concurrent/locks/LockSupport.parkNanos</span>
+<ul>
+<li><div>[10] 0.69% 1,009 self: 0.00% 0</div><span class="green"> jdk/internal/misc/Unsafe.park</span>
+<ul>
+<li><div>[11] 0.69% 1,009 self: 0.69% 1,009</div><span class="red"> __pthread_cond_timedwait</span>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+<li><div>[0] 1.79% 2,612 self: 0.00% 0</div><span class="red"> [Catalina-utility-2 tid=19865]</span>
+<ul>
+<li><div>[1] 1.79% 2,612 self: 0.00% 0</div><span class="green"> java/lang/Thread.run</span>
+<ul>
+<li><div>[2] 1.79% 2,612 self: 0.00% 0</div><span class="green"> org/apache/tomcat/util/threads/TaskThread$WrappingRunnable.run</span>
+<ul>
+<li><div>[3] 1.79% 2,612 self: 0.00% 0</div><span class="green"> java/util/concurrent/ThreadPoolExecutor$Worker.run</span>
+<ul>
+<li><div>[4] 1.79% 2,612 self: 0.00% 0</div><span class="green"> java/util/concurrent/ThreadPoolExecutor.runWorker</span>
+<ul>
+<li><div>[5] 1.79% 2,612 self: 0.00% 0</div><span class="green"> java/util/concurrent/ThreadPoolExecutor.getTask</span>
+<ul>
+<li><div>[6] 1.79% 2,612 self: 0.00% 0</div><span class="green"> java/util/concurrent/ScheduledThreadPoolExecutor$DelayedWorkQueue.take</span>
+<ul>
+<li><div>[7] 1.79% 2,612 self: 0.00% 0</div><span class="green"> java/util/concurrent/ScheduledThreadPoolExecutor$DelayedWorkQueue.take</span>
+<ul>
+<li><div>[8] 1.10% 1,603 self: 0.00% 0</div><span class="green"> java/util/concurrent/locks/AbstractQueuedSynchronizer$ConditionObject.awaitNanos</span>
+<ul>
+<li><div>[9] 1.10% 1,603 self: 0.00% 0</div><span class="green"> java/util/concurrent/locks/LockSupport.parkNanos</span>
+<ul>
+<li><div>[10] 1.10% 1,603 self: 0.00% 0</div><span class="green"> jdk/internal/misc/Unsafe.park</span>
+<ul>
+<li><div>[11] 1.10% 1,603 self: 1.10% 1,603</div><span class="red"> __pthread_cond_timedwait</span>
+</ul>
+</ul>
+</ul>
+<li><div>[8] 0.69% 1,009 self: 0.00% 0</div><span class="green"> java/util/concurrent/locks/AbstractQueuedSynchronizer$ConditionObject.await</span>
+<ul>
+<li><div>[9] 0.69% 1,009 self: 0.00% 0</div><span class="green"> java/util/concurrent/locks/LockSupport.park</span>
+<ul>
+<li><div>[10] 0.69% 1,009 self: 0.00% 0</div><span class="green"> jdk/internal/misc/Unsafe.park</span>
+<ul>
+<li><div>[11] 0.69% 1,009 self: 0.69% 1,009</div><span class="red"> pthread_cond_wait@@GLIBC_2.3.2</span>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+<li><div>[0] 1.79% 2,612 self: 0.00% 0</div><span class="red"> [G1 Conc#1 tid=19730]</span>
+<ul>
+<li><div>[1] 1.79% 2,612 self: 1.79% 2,612</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,612 self: 0.00% 0</div><span class="red"> [G1 Conc#2 tid=19731]</span>
+<ul>
+<li><div>[1] 1.79% 2,612 self: 1.79% 2,612</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,612 self: 0.00% 0</div><span class="red"> [G1 Conc#3 tid=19732]</span>
+<ul>
+<li><div>[1] 1.79% 2,612 self: 1.79% 2,612</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,612 self: 0.00% 0</div><span class="red"> [G1 Conc#4 tid=19733]</span>
+<ul>
+<li><div>[1] 1.79% 2,612 self: 1.79% 2,612</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,612 self: 0.00% 0</div><span class="red"> [G1 Conc#5 tid=19734]</span>
+<ul>
+<li><div>[1] 1.79% 2,612 self: 1.79% 2,612</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,612 self: 0.00% 0</div><span class="red"> [G1 Conc#6 tid=19735]</span>
+<ul>
+<li><div>[1] 1.79% 2,612 self: 1.79% 2,612</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,612 self: 0.00% 0</div><span class="red"> [GC Thread#16 tid=19714]</span>
+<ul>
+<li><div>[1] 1.79% 2,612 self: 1.79% 2,612</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,612 self: 0.00% 0</div><span class="red"> [GC Thread#17 tid=19715]</span>
+<ul>
+<li><div>[1] 1.79% 2,612 self: 1.79% 2,612</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,612 self: 0.00% 0</div><span class="red"> [GC Thread#18 tid=19716]</span>
+<ul>
+<li><div>[1] 1.79% 2,612 self: 1.79% 2,612</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,612 self: 0.00% 0</div><span class="red"> [GC Thread#19 tid=19717]</span>
+<ul>
+<li><div>[1] 1.79% 2,612 self: 1.79% 2,612</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,612 self: 0.00% 0</div><span class="red"> [GC Thread#20 tid=19718]</span>
+<ul>
+<li><div>[1] 1.79% 2,612 self: 1.79% 2,612</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,612 self: 0.00% 0</div><span class="red"> [GC Thread#21 tid=19719]</span>
+<ul>
+<li><div>[1] 1.79% 2,612 self: 1.79% 2,612</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,612 self: 0.00% 0</div><span class="red"> [GC Thread#22 tid=19720]</span>
+<ul>
+<li><div>[1] 1.79% 2,612 self: 1.79% 2,612</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,612 self: 0.00% 0</div><span class="red"> [GC Thread#23 tid=19721]</span>
+<ul>
+<li><div>[1] 1.79% 2,612 self: 1.79% 2,612</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,612 self: 0.00% 0</div><span class="red"> [GC Thread#24 tid=19722]</span>
+<ul>
+<li><div>[1] 1.79% 2,612 self: 1.79% 2,612</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,612 self: 0.00% 0</div><span class="red"> [GC Thread#25 tid=19723]</span>
+<ul>
+<li><div>[1] 1.79% 2,612 self: 1.79% 2,612</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<li><div>[0] 1.79% 2,612 self: 0.00% 0</div><span class="red"> [GC Thread#26 tid=19725]</span>
+<ul>
+<li><div>[1] 1.79% 2,612 self: 1.79% 2,612</div><span class="red"> do_futex_wait.constprop.1</span>
+</ul>
+<script>
+addClickActions();
+</script>
+</ul>
+</body>
+</html>
