@@ -203,7 +203,7 @@ public class GoalStateClientImpl implements GoalStateClient {
         // Mark the end of requests
         logger.log(Level.INFO, "Sending GS to Host " + hostIp + " is completed");
         requestObserver.onCompleted();
-        shutdown(channel);
+//        shutdown(channel);
     }
 
     private void shutdown(ManagedChannel channel) {
