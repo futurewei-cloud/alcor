@@ -160,7 +160,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     try {
                         Map<String, HostGoalState> filteredGoalStates = NetworkConfigManagerUtil.filterNeighbors(hostGoalStates);
 
-                        GoalStateClient grpcGoalStateClient =  GoalStateClientImpl.getInstance();
+                        GoalStateClient grpcGoalStateClient =  new GoalStateClientImpl(); //GoalStateClientImpl.getInstance();
                         grpcGoalStateClient.sendGoalStates(filteredGoalStates);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -260,7 +260,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     }
                 }
 
-                GoalStateClient grpcGoalStateClient = GoalStateClientImpl.getInstance();
+                GoalStateClient grpcGoalStateClient = new GoalStateClientImpl();//GoalStateClientImpl.getInstance();
                 long end = System.currentTimeMillis();
                 logger.log(Level.INFO, "requestGoalStates : Pushing GS with UUID: " + state_request_uuid + " at: " + end);
                 grpcGoalStateClient.sendGoalStates(hostGoalStates);
