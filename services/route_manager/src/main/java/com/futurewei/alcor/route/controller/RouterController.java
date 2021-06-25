@@ -552,7 +552,7 @@ public class RouterController {
             this.routerService.updateSubnetRouteTable(projectid, subnetid, updateRoutingRuleResponse);
 
             // send InternalRouterInfo contract to DPM
-            //this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
+            this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
 
             // update routes in subnet manager
             if (hostRouteToSubnet == null) {
@@ -607,7 +607,7 @@ public class RouterController {
             List<HostRoute> hostRouteToSubnet = updateRoutingRuleResponse.getHostRouteToSubnet();
 
             // send InternalRouterInfo contract to DPM
-            //this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
+            this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
 
             // update routes in subnet manager
             if (hostRouteToSubnet == null) {
