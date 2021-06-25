@@ -43,4 +43,11 @@ public class RouteTable extends CustomerResource {
         this.routeTableType = routeTableType;
         this.owner = owner;
     }
+
+    public RouteTable(RouteTable routeTable) {
+        super(routeTable.getProjectId(), routeTable.getId(), routeTable.getName(), routeTable.getDescription());
+        this.routeEntities = routeTable.getRouteEntities();
+        this.routeTableType = routeTable.getRouteTableType();
+        this.owner = routeTable.getOwner();
+    }
 }

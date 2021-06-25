@@ -63,17 +63,26 @@ public class RouterService extends ResourceService {
         for (InternalRoutingRule routingRule: routingRules) {
             Router.RouterConfiguration.RoutingRule.Builder routingRuleBuilder = Router.RouterConfiguration.RoutingRule.newBuilder();
             routingRuleBuilder.setOperationType(getOperationType(routingRule.getOperationType()));
+
             routingRuleBuilder.setId(routingRule.getId());
-            routingRuleBuilder.setName(routingRule.getName());
+            if (routingRule.getName() != null)
+            {
+                routingRuleBuilder.setName(routingRule.getName());
+            }
             routingRuleBuilder.setDestination(routingRule.getDestination());
             routingRuleBuilder.setNextHopIp(routingRule.getNextHopIp());
             routingRuleBuilder.setPriority(routingRule.getPriority());
+
 
             if (routingRule.getRoutingRuleExtraInfo() != null) {
                 Router.RouterConfiguration.RoutingRuleExtraInfo.Builder extraInfoBuilder = Router.RouterConfiguration.RoutingRuleExtraInfo.newBuilder();
                 extraInfoBuilder.setDestinationType(getDestinationType(
                         routingRule.getRoutingRuleExtraInfo().getDestinationType()));
-                extraInfoBuilder.setNextHopMac(routingRule.getRoutingRuleExtraInfo().getNextHopMac());
+                if (routingRule.getRoutingRuleExtraInfo().getNextHopMac() != null)
+                {
+                    extraInfoBuilder.setNextHopMac(routingRule.getRoutingRuleExtraInfo().getNextHopMac());
+                }
+
                 routingRuleBuilder.setRoutingRuleExtraInfo(extraInfoBuilder.build());
             }
 
@@ -98,7 +107,10 @@ public class RouterService extends ResourceService {
 
         //TODO: where does the hostDvrMacAddress come from ?
         routerConfigBuilder.setHostDvrMacAddress(routerInfo.getRouterConfiguration().getHostDvrMac());
-        routerConfigBuilder.setId(routerInfo.getRouterConfiguration().getId());
+        if (routerInfo.getRouterConfiguration().getId() != null)
+        {
+            routerConfigBuilder.setId(routerInfo.getRouterConfiguration().getId());
+        }
         routerConfigBuilder.addAllSubnetRoutingTables(subnetRoutingTablesList);
         Router.RouterState.Builder routerStateBuilder = Router.RouterState.newBuilder();
         routerStateBuilder.setConfiguration(routerConfigBuilder.build());

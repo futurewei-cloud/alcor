@@ -374,9 +374,6 @@ public class RouterController {
                 routes.add(newRoute);
             }
             String d_uuid = UUID.randomUUID().toString();
-            RouteEntry defaultRoute = new RouteEntry(projectid, d_uuid, "default-route-" + d_uuid, "Default Routing Rule",
-                    "0.0.0.0/0", null, 100, null, "192.168.0.1");
-            routes.add(defaultRoute);
 
             routeTable = this.routerService.createNeutronSubnetRouteTable(projectid, subnetid, resource, routes);
 
@@ -440,7 +437,7 @@ public class RouterController {
             this.routerService.updateSubnetRouteTable(projectid, subnetid, updateRoutingRuleResponse);
 
             // send InternalRouterInfo contract to DPM
-            //this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
+            this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
 
             // update routes in subnet manager
             if (hostRouteToSubnet == null) {
@@ -491,7 +488,7 @@ public class RouterController {
             List<HostRoute> hostRouteToSubnet = updateRoutingRuleResponse.getHostRouteToSubnet();
 
             // send InternalRouterInfo contract to DPM
-//            this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
+            this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
 
             // update routes in subnet manager
             if (hostRouteToSubnet == null) {
