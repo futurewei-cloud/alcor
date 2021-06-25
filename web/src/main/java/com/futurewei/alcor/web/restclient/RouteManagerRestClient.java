@@ -15,17 +15,25 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.web.restclient;
 
+import com.futurewei.alcor.common.http.RestTemplateConfig;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.route.RoutesWebJson;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 import java.util.List;
 
 @Configuration
+@Import(RestTemplateConfig.class)
 public class RouteManagerRestClient extends AbstractRestClient {
     @Value("${microservices.route.service.url:#{\"\"}}")
     private String routeManagerUrl;
+
+    public RouteManagerRestClient(RestTemplateBuilder restTemplateBuilder) {
+        super(restTemplateBuilder);
+    }
 
     @DurationStatistics
     public RoutesWebJson getSubnetRoute(String subnetId) throws Exception {

@@ -16,9 +16,11 @@ Copyright(c) 2020 Futurewei Cloud
 
 package com.futurewei.alcor.dataplane;
 
+import com.futurewei.alcor.common.tracer.TracerConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 import java.util.concurrent.Executor;
@@ -26,6 +28,7 @@ import java.util.concurrent.Executors;
 
 @SpringBootApplication
 @EnableAsync
+@Import(TracerConfiguration.class)
 public class DataPlaneManager {
 
   public static void main(String[] args) {

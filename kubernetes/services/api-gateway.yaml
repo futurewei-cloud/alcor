@@ -42,6 +42,15 @@ data:
     server.max-http-header-size=65536
     server.max-initial-line-length=65536
 
+    opentracing.jaeger.udp-sender.host=localhost
+    opentracing.jaeger.udp-sender.port=6831
+    opentracing.jaeger.const-sampler.decision=true
+    opentracing.jaeger.enabled=true
+    opentracing.jaeger.log-spans=true
+    opentracing.jaeger.enable-w3c-propagation=true
+    opentracing.jaeger.enable-b3-propagation=true
+    opentracing.jaeger.service-name=alcor-apigw
+
 ---
 apiVersion: apps/v1
 kind: Deployment

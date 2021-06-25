@@ -20,14 +20,13 @@ import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.vpcmanager.config.ConstantsConfig;
+import com.futurewei.alcor.vpcmanager.dao.*;
 import com.futurewei.alcor.vpcmanager.entity.*;
 import com.futurewei.alcor.vpcmanager.exception.NetworkKeyNotEnoughException;
 import com.futurewei.alcor.vpcmanager.exception.NetworkTypeInvalidException;
 import com.futurewei.alcor.vpcmanager.exception.VlanRangeNotFoundException;
-import com.futurewei.alcor.vpcmanager.dao.*;
 import com.futurewei.alcor.vpcmanager.service.SegmentService;
 import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
-import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -469,8 +468,7 @@ public class SegmentServiceImpl implements SegmentService {
 
     @Override
     public void createDefaultNetworkTypeTable() throws Exception {
-
-        for (int i = 0; i < NetworkType.VXLAN_PARTITION; i ++) {
+        for (int i = 0; i < NetworkType.VXLAN_PARTITION; i++) {
             int firstKey = i * NetworkType.VXLAN_ONE_PARTITION_SIZE;
             int lastKey = (i + 1) * NetworkType.VXLAN_ONE_PARTITION_SIZE;
             String partitionStringFormat = String.valueOf(i);
@@ -478,13 +476,12 @@ public class SegmentServiceImpl implements SegmentService {
             partitionStringFormat = this.vxlanRangeRepository.createRange(request);
         }
 
-        for (int i = 0; i < NetworkType.GRE_PARTITION; i ++) {
+        for (int i = 0; i < NetworkType.GRE_PARTITION; i++) {
             int firstKey = i * NetworkType.GRE_ONE_PARTITION_SIZE;
             int lastKey = (i + 1) * NetworkType.GRE_ONE_PARTITION_SIZE;
             String partitionStringFormat = String.valueOf(i);
             NetworkRangeRequest request = new NetworkRangeRequest(partitionStringFormat, NetworkTypeEnum.GRE.getNetworkType(), i, firstKey, lastKey);
             partitionStringFormat = this.greRangeRepository.createRange(request);
         }
-
     }
 }
