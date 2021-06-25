@@ -320,7 +320,6 @@ public class NeutronRouterController {
 
             UpdateRoutingRuleResponse updateRoutingRuleResponse = this.neutronRouterService.updateRoutingRule(subnetId, routerRoutingRules, true, true);
             InternalSubnetRoutingTable internalSubnetRoutingTable = updateRoutingRuleResponse.getInternalSubnetRoutingTable();
-
             List<InternalSubnetRoutingTable> internalSubnetRoutingTableList = this.neutronRouterService.constructInternalSubnetRoutingTables(router);
             internalSubnetRoutingTableList.add(internalSubnetRoutingTable);
             InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(routerid, internalSubnetRoutingTableList);

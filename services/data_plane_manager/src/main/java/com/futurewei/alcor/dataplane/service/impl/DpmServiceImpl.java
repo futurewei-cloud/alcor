@@ -489,6 +489,7 @@ public class DpmServiceImpl implements DpmService {
             if (subnetRoutingTables != null) {
                 for (InternalSubnetRoutingTable subnetRoutingTable : subnetRoutingTables) {
                     String subnetId = subnetRoutingTable.getSubnetId();
+
                     InternalSubnetPorts subnetPorts = localCache.getSubnetPorts(subnetId);
                     if (subnetPorts == null) {
                         //throw new SubnetPortsNotFound();
@@ -506,6 +507,8 @@ public class DpmServiceImpl implements DpmService {
                         }
 
                         routerService.buildRouterState(routerInfo, subnetRoutingTable, unicastGoalState, multicastGoalState);
+                        routerService.buildSubnetState(unicastGoalState, subnetId);
+
                     }
                 }
             }
@@ -533,7 +536,7 @@ public class DpmServiceImpl implements DpmService {
         result.setOverrallTime(endTime - startTime);
 
         String resultMessage;
-        if (failedHosts == null || failedHosts.size() == 0) {
+        if (failedHosts == null || failedHosts.size() == 0 || failedHosts.get(0) == null) {
             resultMessage = "Successfully Handle request !!";
         } else {
             resultMessage = "Failed Handle request !!";
