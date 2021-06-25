@@ -74,7 +74,8 @@ public class NeutronRouterTests {
     @MockBean
     private RouterToDPMService routerToDPMService;
 
-
+    @MockBean
+    private RouterService routerService;
 
     private String getNeutronRouterByRouterIdUri = "/project/" + UnitTestConfig.projectId + "/routers/" + UnitTestConfig.routerId;
     private String createNeutronRoutersUri = "/project/" + UnitTestConfig.projectId + "/routers";
@@ -218,11 +219,13 @@ public class NeutronRouterTests {
     @Test
     public void addInterfaceToNeutronRouter_onlyPassInPortId_pass () throws Exception {
         Mockito.when(routerDatabaseService.getByRouterId(UnitTestConfig.routerId))
-                .thenReturn(new Router(){{setId(UnitTestConfig.routerId);}});
+                .thenReturn(new Router(){{setId(UnitTestConfig.routerId);setProjectId(UnitTestConfig.projectId);}});
         Mockito.when(routerToSubnetService.getSubnetsByPortId(anyString(), anyString()))
                 .thenReturn(new SubnetsWebJson(){{setSubnets(new ArrayList<SubnetEntity>(){{add(new SubnetEntity(){{setId(UnitTestConfig.subnetId);setGatewayPortDetail(new GatewayPortDetail(){{setGatewayPortId(UnitTestConfig.portId);}});}});}});}});
         Mockito.when(routerToSubnetService.getSubnet(anyString(), anyString()))
                 .thenReturn(new SubnetWebJson(){{setSubnet(new SubnetEntity());}});
+        Mockito.when(routerService.getSubnetRouteTable(anyString(), anyString()))
+                .thenReturn(new RouteTable());
 
         try {
             this.mockMvc.perform(put(addInterfaceToNeutronRouterUri).contentType(MediaType.APPLICATION_JSON)
@@ -239,11 +242,13 @@ public class NeutronRouterTests {
     @Test
     public void addInterfaceToNeutronRouter_onlyPassInSubnetId_pass () throws Exception {
         Mockito.when(routerDatabaseService.getByRouterId(UnitTestConfig.routerId))
-                .thenReturn(new Router(){{setId(UnitTestConfig.routerId);}});
+                .thenReturn(new Router(){{setId(UnitTestConfig.routerId);setProjectId(UnitTestConfig.projectId);}});
         Mockito.when(routerToSubnetService.getSubnetsByPortId(anyString(), anyString()))
                 .thenReturn(new SubnetsWebJson(){{setSubnets(new ArrayList<SubnetEntity>(){{add(new SubnetEntity(){{setId(UnitTestConfig.subnetId);setGatewayPortDetail(new GatewayPortDetail(){{setGatewayPortId(UnitTestConfig.portId);}});}});}});}});
         Mockito.when(routerToSubnetService.getSubnet(anyString(), anyString()))
                 .thenReturn(new SubnetWebJson(){{setSubnet(new SubnetEntity(){{setId(UnitTestConfig.subnetId);setGatewayPortDetail(new GatewayPortDetail(){{setGatewayPortId(UnitTestConfig.portId);}});}});}});
+        Mockito.when(routerService.getSubnetRouteTable(anyString(), anyString()))
+                .thenReturn(new RouteTable());
 
         try {
             this.mockMvc.perform(put(addInterfaceToNeutronRouterUri).contentType(MediaType.APPLICATION_JSON)
