@@ -156,8 +156,7 @@ public class GoalStateClientImpl implements GoalStateClient {
         };
 
         StreamObserver<Goalstate.GoalStateV2> requestObserver = asyncStub.pushGoalStatesStream(responseObserver);
-
-        return new GrpcChannelStub(channel, asyncStub, requestObserver, responseObserver);
+        return new GrpcChannelStub(channel, asyncStub, requestObserver, responseObserver, result);
     }
 
     private void doSendGoalState(HostGoalState hostGoalState) throws InterruptedException {
@@ -212,12 +211,12 @@ public class GoalStateClientImpl implements GoalStateClient {
         public StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver;
         public StreamObserver<Goalstate.GoalStateV2> requestObserver;
         Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>> result;
-        public GrpcChannelStub(ManagedChannel channel, GoalStateProvisionerGrpc.GoalStateProvisionerStub stub,StreamObserver<Goalstate.GoalStateV2> requestObserver, StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver){
+        public GrpcChannelStub(ManagedChannel channel, GoalStateProvisionerGrpc.GoalStateProvisionerStub stub,StreamObserver<Goalstate.GoalStateV2> requestObserver, StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver, Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>> result){
             this.channel = channel;
             this.stub = stub;
             this.requestObserver = requestObserver;
             this.responseObserver = responseObserver;
-            this.result = new HashMap<>();
+            this.result = result;
         }
     }
 
