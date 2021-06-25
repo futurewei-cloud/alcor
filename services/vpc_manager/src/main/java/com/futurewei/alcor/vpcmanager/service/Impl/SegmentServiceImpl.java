@@ -20,18 +20,21 @@ import com.futurewei.alcor.common.enumClass.NetworkTypeEnum;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.vpcmanager.config.ConstantsConfig;
-import com.futurewei.alcor.vpcmanager.dao.*;
 import com.futurewei.alcor.vpcmanager.entity.*;
 import com.futurewei.alcor.vpcmanager.exception.NetworkKeyNotEnoughException;
 import com.futurewei.alcor.vpcmanager.exception.NetworkTypeInvalidException;
 import com.futurewei.alcor.vpcmanager.exception.VlanRangeNotFoundException;
+import com.futurewei.alcor.vpcmanager.dao.*;
 import com.futurewei.alcor.vpcmanager.service.SegmentService;
 import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
+import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -144,9 +147,9 @@ public class SegmentServiceImpl implements SegmentService {
                     int firstKey = partition * NetworkType.VXLAN_ONE_PARTITION_SIZE;
                     int lastKey = (partition + 1) * NetworkType.VXLAN_ONE_PARTITION_SIZE;
                     NetworkRangeRequest request = new NetworkRangeRequest(partitionStringFormat, networkType, partition, firstKey, lastKey);
-                    partitionStringFormat = this.vxlanRangeRepository.createRange(request);
+                    this.vxlanRangeRepository.createRange(new ArrayList<>(){{add(request);}});
                 } else {
-                    partitionStringFormat = networkVxlanRange.getId();
+                    networkVxlanRange.getId();
                 }
 
                 key = this.vxlanRangeRepository.allocateVxlanKey(partitionStringFormat);
@@ -208,7 +211,7 @@ public class SegmentServiceImpl implements SegmentService {
                     int firstKey = partition * NetworkType.GRE_ONE_PARTITION_SIZE;
                     int lastKey = (partition + 1) * NetworkType.GRE_ONE_PARTITION_SIZE;
                     NetworkRangeRequest request = new NetworkRangeRequest(partitionStringFormat, networkType, partition, firstKey, lastKey);
-                    partitionStringFormat = this.greRangeRepository.createRange(request);
+                    this.greRangeRepository.createRange(new ArrayList<>(){{add(request);}});
                 } else {
                     partitionStringFormat = networkGRERange.getId();
                 }
@@ -468,20 +471,23 @@ public class SegmentServiceImpl implements SegmentService {
 
     @Override
     public void createDefaultNetworkTypeTable() throws Exception {
-        for (int i = 0; i < NetworkType.VXLAN_PARTITION; i++) {
+        List<NetworkRangeRequest> requestList = new ArrayList<>();
+        for (int i = 0; i < NetworkType.VXLAN_PARTITION; i ++) {
             int firstKey = i * NetworkType.VXLAN_ONE_PARTITION_SIZE;
             int lastKey = (i + 1) * NetworkType.VXLAN_ONE_PARTITION_SIZE;
             String partitionStringFormat = String.valueOf(i);
             NetworkRangeRequest request = new NetworkRangeRequest(partitionStringFormat, NetworkTypeEnum.VXLAN.getNetworkType(), i, firstKey, lastKey);
-            partitionStringFormat = this.vxlanRangeRepository.createRange(request);
+            requestList.add(request);
         }
-
-        for (int i = 0; i < NetworkType.GRE_PARTITION; i++) {
+        this.vxlanRangeRepository.createRange(requestList);
+        requestList = new ArrayList<>();
+        for (int i = 0; i < NetworkType.GRE_PARTITION; i ++) {
             int firstKey = i * NetworkType.GRE_ONE_PARTITION_SIZE;
             int lastKey = (i + 1) * NetworkType.GRE_ONE_PARTITION_SIZE;
             String partitionStringFormat = String.valueOf(i);
             NetworkRangeRequest request = new NetworkRangeRequest(partitionStringFormat, NetworkTypeEnum.GRE.getNetworkType(), i, firstKey, lastKey);
-            partitionStringFormat = this.greRangeRepository.createRange(request);
+            requestList.add(request);
         }
+        this.greRangeRepository.createRange(requestList);
     }
 }
