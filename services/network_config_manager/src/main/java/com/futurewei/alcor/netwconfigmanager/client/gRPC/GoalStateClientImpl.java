@@ -67,8 +67,8 @@ public class GoalStateClientImpl implements GoalStateClient {
 //                new LinkedBlockingDeque<>(),
 //                new DefaultThreadFactory(globalConfig.grpThreadsName));
         this.hostAgentPort = 50001;
-        this.executor = new ThreadPoolExecutor(200,
-                500,
+        this.executor = new ThreadPoolExecutor(100,
+                200,
                 50,
                 TimeUnit.SECONDS,
                 new LinkedBlockingDeque<>(),
