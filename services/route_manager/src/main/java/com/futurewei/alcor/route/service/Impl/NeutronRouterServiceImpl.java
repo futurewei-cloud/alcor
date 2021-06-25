@@ -387,7 +387,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
                 throw new DestinationInvalid();
             }
         }
-
+        routeEntities.addAll(requestRouteEntries);
         this.routerDatabaseService.addRouter(router);
 
         // Construct response
