@@ -678,7 +678,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         if (router == null) {
             return new ArrayList<>();
         }
-        
+
         //        List<RouteTable> neutronSubnetRouteTables = router.getNeutronSubnetRouteTables();
         //        if (neutronSubnetRouteTables == null) {
         //            return new ArrayList<>();
