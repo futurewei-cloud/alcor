@@ -188,6 +188,7 @@ public class GoalStateClientImpl implements GoalStateClient {
                 channelStub.requestObserver.onNext(goalState);
         } catch (RuntimeException e) {
             // Cancel RPC
+            logger.log(Level.WARNING, "[doSendGoalState] Sending GS, but error happened | " + e.getMessage());
             channelStub.requestObserver.onError(e);
             throw e;
         }
