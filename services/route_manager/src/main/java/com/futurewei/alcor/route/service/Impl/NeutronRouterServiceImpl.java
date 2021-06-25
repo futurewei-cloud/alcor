@@ -221,6 +221,13 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         }
         ports.add(portId);
         router.setGatewayPorts(ports);
+        //update subnet_ids
+        List<String> subnet_Ids = router.getSubnetIds();
+        if (subnet_Ids == null) {
+            subnet_Ids = new ArrayList<>();
+        }
+        subnet_Ids.add(subnetid);
+        router.setSubnetIds(subnet_Ids);
 
         this.routerDatabaseService.addRouter(router);
 
@@ -622,8 +629,14 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         if (router == null) {
             return new ArrayList<>();
         }
+        
+        //        List<RouteTable> neutronSubnetRouteTables = router.getNeutronSubnetRouteTables();
+        //        if (neutronSubnetRouteTables == null) {
+        //            return new ArrayList<>();
+        //        }
 
-        List<RouteTable> neutronSubnetRouteTables = router.getNeutronSubnetRouteTables();
+        List<String> subnetIds = router.getSubnetIds();
+        List<RouteTable> neutronSubnetRouteTables = getRouteTablesBySubnetIds(subnetIds, router.getProjectId());
         if (neutronSubnetRouteTables == null) {
             return new ArrayList<>();
         }
@@ -656,6 +669,22 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             internalSubnetRoutingTables.add(internalSubnetRoutingTable);
         }
         return internalSubnetRoutingTables;
+    }
+
+    @Override
+    public List<RouteTable> getRouteTablesBySubnetIds(List<String> subnetIds, String projectid) throws DatabasePersistenceException, CanNotFindSubnet, OwnMultipleSubnetRouteTablesException, CacheException, ResourcePersistenceException, ResourceNotFoundException, OwnMultipleVpcRouterException, CanNotFindVpc {
+        if (subnetIds == null) {
+            return null;
+        }
+
+        List<RouteTable> routeTables = new ArrayList<>();
+
+        for (String subnetId : subnetIds) {
+            RouteTable routeTable = new RouteTable(this.routerService.getSubnetRouteTable(projectid, subnetId));
+            routeTables.add(routeTable);
+        }
+
+        return routeTables;
     }
 
     private InternalRoutingRule constructNewInternalRoutingRule(OperationType operationType, RoutingRuleType routingRuleType, RouteEntry route, NewRoutesRequest newRouteRequest) {
