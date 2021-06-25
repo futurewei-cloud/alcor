@@ -185,7 +185,9 @@ public class GoalStateClientImpl implements GoalStateClient {
         try {
                 Goalstate.GoalStateV2 goalState = hostGoalState.getGoalState();
                 logger.log(Level.INFO, "Sending GS to Host " + hostIp + " as follows | " + goalState.toString());
-                channelStub.requestObserver.onNext(goalState);
+                synchronized (channelStub){
+                    channelStub.requestObserver.onNext(goalState);
+                }
         } catch (RuntimeException e) {
             // Cancel RPC
             logger.log(Level.WARNING, "[doSendGoalState] Sending GS, but error happened | " + e.getMessage());
