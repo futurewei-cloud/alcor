@@ -395,7 +395,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
                 throw new DestinationSame();
             }
         }
-
+        routeEntities.addAll(requestRouteEntries);
         this.routerDatabaseService.addRouter(router);
 
         // Construct response
