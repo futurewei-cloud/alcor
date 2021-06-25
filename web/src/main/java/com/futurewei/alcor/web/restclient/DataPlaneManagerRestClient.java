@@ -71,6 +71,7 @@ public class DataPlaneManagerRestClient extends AbstractRestClient {
     @DurationStatistics
     public InternalDPMResultList updateNetworkConfig(NetworkConfiguration message) throws Exception {
         HttpEntity<NetworkConfiguration> request = new HttpEntity<>(message);
+        System.out.println("dataPlaneManagerUrl:" + dataPlaneManagerUrl);
         return restTemplate.exchange(dataPlaneManagerUrl, HttpMethod.PUT, request, InternalDPMResultList.class).getBody();
     }
 
