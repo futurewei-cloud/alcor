@@ -68,7 +68,7 @@ public class RouterServiceImpl implements RouterService {
         Map<String, Router> routerMap = null;
         Map<String, Object[]> queryParams = new HashMap<>();
         Object[] values = new Object[1];
-        values[0] = "VPC:" + vpcId;
+        values[0] = vpcId;
         queryParams.put("owner", values);
 
         routerMap = this.routerDatabaseService.getAllRouters(queryParams);
@@ -118,7 +118,7 @@ public class RouterServiceImpl implements RouterService {
         this.routeTableDatabaseService.addRouteTable(routeTable);
 
         Router router = new Router(projectId, routerId, "default_vpc_router", "",
-                null, vpcRouteTables, "VPC:" + owner, ports, projectId, true, null, null, routeTableId);
+                null, vpcRouteTables, owner, ports, projectId, true, null, null, routeTableId);
         this.routerDatabaseService.addRouter(router);
 
         return router;
@@ -154,11 +154,18 @@ public class RouterServiceImpl implements RouterService {
     }
 
     @Override
-    public RouteTable getVpcRouteTable(String projectId, String vpcId) throws DatabasePersistenceException, CanNotFindVpc, CacheException, OwnMultipleVpcRouterException {
+    public RouteTable getVpcRouteTable(String projectId, String vpcId) throws DatabasePersistenceException, CanNotFindVpc, CacheException, OwnMultipleVpcRouterException, CanNotFindRouter {
         RouteTable routeTable = null;
-
-        // Get or create a router for a Vpc
-        Router router = getVpcRouter(projectId, vpcId);
+        VpcWebJson vpcResponse = this.vpcRouterToVpcService.getVpcWebJson(projectId, vpcId);
+        VpcEntity vpcEntity = vpcResponse.getNetwork();
+        if (vpcEntity == null)
+        {
+            throw new CanNotFindVpc();
+        }
+        Router router = vpcEntity.getRouter();
+        if (router == null) {
+            throw new CanNotFindRouter();
+        }
 
         // If VPC has a VPC routing table, return the routing table’s state
         List<RouteTable> vpcRouteTables = router.getVpcRouteTables();
@@ -173,11 +180,11 @@ public class RouterServiceImpl implements RouterService {
     }
 
     @Override
-    public RouteTable createVpcRouteTable(String projectId, String vpcId) throws DatabasePersistenceException, CanNotFindVpc, CacheException, OwnMultipleVpcRouterException {
+    public RouteTable createVpcRouteTable(String projectId, String vpcId) throws DatabasePersistenceException, CanNotFindVpc, CacheException, OwnMultipleVpcRouterException, CanNotFindRouter {
         Router router = getVpcRouter(projectId, vpcId);
         if (router == null)
         {
-            return null;
+            throw new CanNotFindRouter();
         }
         return createDefaultVpcRouteTable(projectId, router);
     }
@@ -205,15 +212,15 @@ public class RouterServiceImpl implements RouterService {
     }
 
     @Override
-    public RouteTable updateVpcRouteTable(String projectId, String vpcId, RouteTableWebJson resource) throws DatabasePersistenceException, CanNotFindVpc, CacheException, OwnMultipleVpcRouterException, ResourceNotFoundException, ResourcePersistenceException {
+    public RouteTable updateVpcRouteTable(String projectId, String vpcId, RouteTableWebJson resource) throws DatabasePersistenceException, CanNotFindVpc, CacheException, OwnMultipleVpcRouterException, ResourceNotFoundException, ResourcePersistenceException, CanNotFindRouter {
         RouteTable routeTable = null;
         RouteTable inRoutetable = resource.getRoutetable();
 
-        // Get or create a router for a Vpc
+        // Get router
         Router router = getVpcRouter(projectId, vpcId);
         if (router == null)
         {
-            return null;
+            throw new CanNotFindRouter();
         }
 
         // check if there is a vpc default routetable
@@ -258,7 +265,7 @@ public class RouterServiceImpl implements RouterService {
     }
 
     @Override
-    public RouteTable getSubnetRouteTable(String projectId, String subnetId) throws CacheException, OwnMultipleSubnetRouteTablesException, DatabasePersistenceException, ResourceNotFoundException, ResourcePersistenceException, CanNotFindSubnet, OwnMultipleVpcRouterException, CanNotFindVpc {
+    public RouteTable getSubnetRouteTable(String projectId, String subnetId) throws CacheException, CanNotFindRouteTableByOwner, OwnMultipleSubnetRouteTablesException {
         RouteTable routeTable = null;
 
         Map<String, RouteTable> routeTableMap = null;
@@ -268,36 +275,21 @@ public class RouterServiceImpl implements RouterService {
         queryParams.put("owner", values);
 
         routeTableMap = this.routeTableDatabaseService.getAllRouteTables(queryParams);
-        if (routeTableMap == null) {
-            routeTableMap = new HashMap<>();
+
+        if (routeTableMap == null || routeTableMap.size() == 0) {
+            throw new CanNotFindRouteTableByOwner();
         }
 
-        if (routeTableMap.size() == 0) {
-            // create a subnet route table
-            SubnetWebJson subnetWebJson = this.vpcRouterToSubnetService.getSubnet(projectId, subnetId);
-            String vpcId = subnetWebJson.getSubnet().getVpcId();
-            Router router = getVpcRouter(projectId, vpcId);
-            if (router == null)
-            {
-                return null;
-            }
-
-            String vpcDefaultRouteTableId = router.getVpcDefaultRouteTableId();
-            routeTable = this.routeTableDatabaseService.getByRouteTableId(vpcDefaultRouteTableId);
-            return routeTable;
-        } else if (routeTableMap.size() > 1) {
+        if (routeTableMap.size() > 1)
+        {
             throw new OwnMultipleSubnetRouteTablesException();
-        } else {
-            for (Map.Entry<String, RouteTable> entry : routeTableMap.entrySet()) {
-                routeTable = (RouteTable)entry.getValue();
-            }
         }
 
-        return routeTable;
+        return routeTableMap.values().stream().findFirst().get();
     }
 
     @Override
-    public RouteTable updateSubnetRouteTable(String projectId, String subnetId, UpdateRoutingRuleResponse resource) throws CacheException, DatabasePersistenceException, OwnMultipleSubnetRouteTablesException, CanNotFindVpc, CanNotFindSubnet, ResourceNotFoundException, ResourcePersistenceException, OwnMultipleVpcRouterException {
+    public RouteTable updateSubnetRouteTable(String projectId, String subnetId, UpdateRoutingRuleResponse resource) throws CacheException, DatabasePersistenceException, OwnMultipleSubnetRouteTablesException, CanNotFindRouteTableByOwner {
         InternalSubnetRoutingTable inRoutetable = resource.getInternalSubnetRoutingTable();
         List<HostRoute> inHostRoutes = resource.getHostRouteToSubnet();
         // Get or create a router for a Subnet

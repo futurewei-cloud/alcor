@@ -188,14 +188,15 @@ public class VpcRouterTests {
 
     @Test
     public void getVpcRouteTable_pass () throws Exception {
-        VpcWebJson vpcWebJson = new VpcWebJson();
-        VpcEntity vpcEntity = new VpcEntity();
-        vpcEntity.setId(UnitTestConfig.vpcId);
-        vpcWebJson.setNetwork(vpcEntity);
-
         Router router = new Router();
         router.setId(UnitTestConfig.routerId);
         router.setVpcRouteTables(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.VPC.getRouteTableType());setId(UnitTestConfig.routeTableId);}});}});
+
+        VpcWebJson vpcWebJson = new VpcWebJson();
+        VpcEntity vpcEntity = new VpcEntity();
+        vpcEntity.setId(UnitTestConfig.vpcId);
+        vpcEntity.setRouter(router);
+        vpcWebJson.setNetwork(vpcEntity);
 
         Mockito.when(routerDatabaseService.getAllRouters(anyMap()))
                 .thenReturn(new HashMap<String, Router>(){{put(UnitTestConfig.routerId, router);}});
@@ -210,17 +211,24 @@ public class VpcRouterTests {
 
     @Test
     public void getVpcRouteTable_notpass () throws Exception {
+
         Router router = new Router();
         router.setId(UnitTestConfig.routerId);
         router.setVpcRouteTables(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.VPC.getRouteTableType());setId(UnitTestConfig.routeTableId);}});}});
 
+        VpcWebJson vpcWebJson = new VpcWebJson();
+        VpcEntity vpcEntity = new VpcEntity();
+        vpcEntity.setId(UnitTestConfig.vpcId);
+        vpcWebJson.setNetwork(vpcEntity);
+
         Mockito.when(routerDatabaseService.getAllRouters(anyMap()))
                 .thenReturn(new HashMap<String, Router>(){{put(UnitTestConfig.routerId, router);}});
+        Mockito.when(vpcRouterToVpcService.getVpcWebJson(UnitTestConfig.projectId, UnitTestConfig.vpcId))
+                .thenReturn(vpcWebJson);
 
         this.mockMvc.perform(get(vpcRouteTableUri))
                 .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.routetable.id").value(UnitTestConfig.routeTableId));
+                .andExpect(status().isNotFound());
     }
 
     @Test

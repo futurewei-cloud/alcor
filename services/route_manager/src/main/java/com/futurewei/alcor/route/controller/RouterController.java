@@ -333,7 +333,7 @@ public class RouterController {
     @DurationStatistics
     public RouteTablesWebJson getVpcRouteTables(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
 
-        List<RouteTable> routetables = new ArrayList<>();
+        List<RouteTable> routetables = null;
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
@@ -404,8 +404,6 @@ public class RouterController {
             throw e;
         } catch (OwnMultipleSubnetRouteTablesException e) {
             logger.log(Level.WARNING, e.getMessage() + " , subnetId: " + subnetid);
-            throw e;
-        } catch (DatabasePersistenceException e) {
             throw e;
         }
 
