@@ -83,7 +83,7 @@ public class VpcRouterTests {
     private String subnetRouteTableUri = "/project/" + UnitTestConfig.projectId + "/subnets/" + UnitTestConfig.subnetId + "/routetable";
 
     @Test
-    public void getOrCreateVpcRouter_alreadyHaveVpcRouter_pass () throws Exception {
+    public void getVpcRouter_alreadyHaveVpcRouter_pass () throws Exception {
         Router router = new Router();
         router.setId(UnitTestConfig.routerId);
 
@@ -96,7 +96,7 @@ public class VpcRouterTests {
     }
 
     @Test
-    public void getOrCreateVpcRouter_notHaveVpcRouter_pass () throws Exception {
+    public void getVpcRouter_notHaveVpcRouter_pass () throws Exception {
         VpcWebJson vpcWebJson = new VpcWebJson();
         VpcEntity vpcEntity = new VpcEntity();
         vpcEntity.setId(UnitTestConfig.vpcId);
@@ -108,12 +108,11 @@ public class VpcRouterTests {
                 .thenReturn(vpcWebJson);
         this.mockMvc.perform(get(vpcRouterUri))
                 .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.router.name").value(UnitTestConfig.vpcRouterName));
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    public void getOrCreateVpcRouter_ExistMultipleVpcRouter_notPass () throws Exception {
+    public void getVpcRouter_ExistMultipleVpcRouter_notPass () throws Exception {
         Router router1 = new Router();
         router1.setId(UnitTestConfig.routerId);
         Router router2 = new Router();
@@ -188,7 +187,7 @@ public class VpcRouterTests {
     }
 
     @Test
-    public void getOrCreateVpcRouteTable_pass () throws Exception {
+    public void getVpcRouteTable_pass () throws Exception {
         VpcWebJson vpcWebJson = new VpcWebJson();
         VpcEntity vpcEntity = new VpcEntity();
         vpcEntity.setId(UnitTestConfig.vpcId);
@@ -202,6 +201,21 @@ public class VpcRouterTests {
                 .thenReturn(new HashMap<String, Router>(){{put(UnitTestConfig.routerId, router);}});
         Mockito.when(vpcRouterToVpcService.getVpcWebJson(UnitTestConfig.projectId, UnitTestConfig.vpcId))
                 .thenReturn(vpcWebJson);
+
+        this.mockMvc.perform(get(vpcRouteTableUri))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.routetable.id").value(UnitTestConfig.routeTableId));
+    }
+
+    @Test
+    public void getVpcRouteTable_notpass () throws Exception {
+        Router router = new Router();
+        router.setId(UnitTestConfig.routerId);
+        router.setVpcRouteTables(new ArrayList<>(){{add(new RouteTable(){{setRouteTableType(RouteTableType.VPC.getRouteTableType());setId(UnitTestConfig.routeTableId);}});}});
+
+        Mockito.when(routerDatabaseService.getAllRouters(anyMap()))
+                .thenReturn(new HashMap<String, Router>(){{put(UnitTestConfig.routerId, router);}});
 
         this.mockMvc.perform(get(vpcRouteTableUri))
                 .andDo(print())
@@ -290,7 +304,7 @@ public class VpcRouterTests {
     }
 
     @Test
-    public void getOrCreateSubnetRouteTable_pass () throws Exception {
+    public void getSubnetRouteTable_pass () throws Exception {
         RouteTable routetable = new RouteTable();
         routetable.setId(UnitTestConfig.routeTableId);
 
@@ -303,7 +317,7 @@ public class VpcRouterTests {
     }
 
     @Test
-    public void getOrCreateSubnetRouteTable_ExistMultipleSubnetRouteTable_notPass () throws Exception {
+    public void getSubnetRouteTable_ExistMultipleSubnetRouteTable_notPass () throws Exception {
         RouteTable routetable1 = new RouteTable();
         routetable1.setId(UnitTestConfig.routeTableId);
         RouteTable routetable2 = new RouteTable();

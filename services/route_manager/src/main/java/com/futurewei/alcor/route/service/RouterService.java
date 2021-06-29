@@ -27,10 +27,12 @@ import java.util.List;
 
 public interface RouterService {
 
-    public Router getOrCreateVpcRouter (String projectId, String vpcId) throws CanNotFindVpc, DatabasePersistenceException, CacheException, OwnMultipleVpcRouterException;
+    public Router getVpcRouter (String projectId, String vpcId) throws CanNotFindVpc, DatabasePersistenceException, CacheException, OwnMultipleVpcRouterException;
+    public Router createVpcRouter (String projectId, String vpcId) throws CanNotFindVpc, DatabasePersistenceException, CacheException, OwnMultipleVpcRouterException;
     public Router createDefaultVpcRouter (String projectId, VpcEntity vpcEntity) throws DatabasePersistenceException;
     public String deleteVpcRouter (String projectId, String vpcId) throws Exception;
-    public RouteTable getOrCreateVpcRouteTable (String projectId, String vpcId) throws DatabasePersistenceException, CanNotFindVpc, CacheException, OwnMultipleVpcRouterException;
+    public RouteTable getVpcRouteTable (String projectId, String vpcId) throws DatabasePersistenceException, CanNotFindVpc, CacheException, OwnMultipleVpcRouterException;
+    public RouteTable createVpcRouteTable(String projectId, String vpcId) throws DatabasePersistenceException, CanNotFindVpc, CacheException, OwnMultipleVpcRouterException;
     public RouteTable createDefaultVpcRouteTable (String projectId, Router router) throws DatabasePersistenceException;
     public RouteTable updateVpcRouteTable (String projectId, String vpcId, RouteTableWebJson resource) throws DatabasePersistenceException, CanNotFindVpc, CacheException, OwnMultipleVpcRouterException, ResourceNotFoundException, ResourcePersistenceException;
     public List<RouteTable> getVpcRouteTables (String projectId, String vpcId) throws CanNotFindVpc;

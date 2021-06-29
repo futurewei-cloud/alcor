@@ -61,14 +61,14 @@ public class RouterServiceImpl implements RouterService {
 
 
     @Override
-    public Router getOrCreateVpcRouter(String projectId, String vpcId) throws CanNotFindVpc, DatabasePersistenceException, CacheException, OwnMultipleVpcRouterException {
+    public Router getVpcRouter(String projectId, String vpcId) throws CanNotFindVpc, DatabasePersistenceException, CacheException, OwnMultipleVpcRouterException {
         Router router = null;
 
         // If VPC already has a router, return the router state
         Map<String, Router> routerMap = null;
         Map<String, Object[]> queryParams = new HashMap<>();
         Object[] values = new Object[1];
-        values[0] = vpcId;
+        values[0] = "VPC:" + vpcId;
         queryParams.put("owner", values);
 
         routerMap = this.routerDatabaseService.getAllRouters(queryParams);
@@ -84,17 +84,17 @@ public class RouterServiceImpl implements RouterService {
                 router = (Router)entry.getValue();
                 return router;
             }
-        } else {
-            // get vpc entity to create default route table and route route rule
-            VpcWebJson vpcResponse = this.vpcRouterToVpcService.getVpcWebJson(projectId, vpcId);
-            VpcEntity vpcEntity = vpcResponse.getNetwork();
-
-
-            // If VPC doesn’t have a router, create a new router, create a VPC routing table and pump-in the VPC default routing rules
-            router = createDefaultVpcRouter(projectId, vpcEntity);
         }
 
         return router;
+    }
+
+    @Override
+    public Router createVpcRouter(String projectId, String vpcId) throws CanNotFindVpc, DatabasePersistenceException, CacheException, OwnMultipleVpcRouterException {
+        VpcWebJson vpcResponse = this.vpcRouterToVpcService.getVpcWebJson(projectId, vpcId);
+        VpcEntity vpcEntity = vpcResponse.getNetwork();
+        // If VPC doesn’t have a router, create a new router, create a VPC routing table and pump-in the VPC default routing rules
+        return createDefaultVpcRouter(projectId, vpcEntity);
     }
 
     @Override
@@ -126,7 +126,7 @@ public class RouterServiceImpl implements RouterService {
 
     @Override
     public String deleteVpcRouter(String projectId, String vpcId) throws Exception {
-        Router router = getOrCreateVpcRouter(projectId, vpcId);
+        Router router = getVpcRouter(projectId, vpcId);
         if (router == null) {
             return null;
         }
@@ -154,11 +154,11 @@ public class RouterServiceImpl implements RouterService {
     }
 
     @Override
-    public RouteTable getOrCreateVpcRouteTable(String projectId, String vpcId) throws DatabasePersistenceException, CanNotFindVpc, CacheException, OwnMultipleVpcRouterException {
+    public RouteTable getVpcRouteTable(String projectId, String vpcId) throws DatabasePersistenceException, CanNotFindVpc, CacheException, OwnMultipleVpcRouterException {
         RouteTable routeTable = null;
 
         // Get or create a router for a Vpc
-        Router router = getOrCreateVpcRouter(projectId, vpcId);
+        Router router = getVpcRouter(projectId, vpcId);
 
         // If VPC has a VPC routing table, return the routing table’s state
         List<RouteTable> vpcRouteTables = router.getVpcRouteTables();
@@ -169,10 +169,17 @@ public class RouterServiceImpl implements RouterService {
             }
         }
 
-        // If VPC doesn’t have a VPC routing table, this operation will create a VPC routing table and pump-in the VPC default routing rules.
-        routeTable = createDefaultVpcRouteTable(projectId, router);
-
         return routeTable;
+    }
+
+    @Override
+    public RouteTable createVpcRouteTable(String projectId, String vpcId) throws DatabasePersistenceException, CanNotFindVpc, CacheException, OwnMultipleVpcRouterException {
+        Router router = getVpcRouter(projectId, vpcId);
+        if (router == null)
+        {
+            return null;
+        }
+        return createDefaultVpcRouteTable(projectId, router);
     }
 
     @Override
@@ -203,7 +210,11 @@ public class RouterServiceImpl implements RouterService {
         RouteTable inRoutetable = resource.getRoutetable();
 
         // Get or create a router for a Vpc
-        Router router = getOrCreateVpcRouter(projectId, vpcId);
+        Router router = getVpcRouter(projectId, vpcId);
+        if (router == null)
+        {
+            return null;
+        }
 
         // check if there is a vpc default routetable
         List<RouteTable> vpcRouteTables = router.getVpcRouteTables();
@@ -265,7 +276,11 @@ public class RouterServiceImpl implements RouterService {
             // create a subnet route table
             SubnetWebJson subnetWebJson = this.vpcRouterToSubnetService.getSubnet(projectId, subnetId);
             String vpcId = subnetWebJson.getSubnet().getVpcId();
-            Router router = getOrCreateVpcRouter(projectId, vpcId);
+            Router router = getVpcRouter(projectId, vpcId);
+            if (router == null)
+            {
+                return null;
+            }
 
             String vpcDefaultRouteTableId = router.getVpcDefaultRouteTableId();
             routeTable = this.routeTableDatabaseService.getByRouteTableId(vpcDefaultRouteTableId);
