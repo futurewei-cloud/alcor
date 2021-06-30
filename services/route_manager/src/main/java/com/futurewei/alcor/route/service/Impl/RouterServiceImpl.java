@@ -261,18 +261,9 @@ public class RouterServiceImpl implements RouterService {
             routeTableMap = new HashMap<>();
         }
 
-        if (routeTableMap.size() == 0) {
-            // create a subnet route table
-            SubnetWebJson subnetWebJson = this.vpcRouterToSubnetService.getSubnet(projectId, subnetId);
-            String vpcId = subnetWebJson.getSubnet().getVpcId();
-            Router router = getOrCreateVpcRouter(projectId, vpcId);
-
-            String vpcDefaultRouteTableId = router.getVpcDefaultRouteTableId();
-            routeTable = this.routeTableDatabaseService.getByRouteTableId(vpcDefaultRouteTableId);
-            return routeTable;
-        } else if (routeTableMap.size() > 1) {
+        if (routeTableMap.size() > 1) {
             throw new OwnMultipleSubnetRouteTablesException();
-        } else {
+        } else if (routeTableMap.size() == 1){
             for (Map.Entry<String, RouteTable> entry : routeTableMap.entrySet()) {
                 routeTable = (RouteTable)entry.getValue();
             }
@@ -339,7 +330,7 @@ public class RouterServiceImpl implements RouterService {
     }
 
     @Override
-    public RouteTable createNeutronSubnetRouteTable(String projectId, String subnetId, RouteTableWebJson resource, List<RouteEntry> routes) throws DatabasePersistenceException {
+    public RouteTable createSubnetRouteTable(String projectId, String subnetId, RouteTableWebJson resource, List<RouteEntry> routes) throws DatabasePersistenceException {
 
         // configure a new route table
         RouteTable routeTable = new RouteTable();
@@ -348,7 +339,7 @@ public class RouterServiceImpl implements RouterService {
         routeTable.setDescription("");
         routeTable.setName("subnet-" + id + "-routetable");
         routeTable.setProjectId(projectId);
-        routeTable.setRouteTableType(RouteTableType.NEUTRON_SUBNET.getRouteTableType());
+        routeTable.setRouteTableType(resource.getRoutetable().getRouteTableType());
         routeTable.setOwner(subnetId);
 
         routeTable.setRouteEntities(routes);

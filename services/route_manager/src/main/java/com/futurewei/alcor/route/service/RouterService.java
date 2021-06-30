@@ -37,6 +37,6 @@ public interface RouterService {
     public RouteTable getSubnetRouteTable(String projectId, String subnetId) throws CanNotFindSubnet, CacheException, OwnMultipleSubnetRouteTablesException, DatabasePersistenceException, ResourceNotFoundException, ResourcePersistenceException, OwnMultipleVpcRouterException, CanNotFindVpc;
     public RouteTable updateSubnetRouteTable (String projectId, String subnetId, UpdateRoutingRuleResponse resource) throws CacheException, DatabasePersistenceException, OwnMultipleSubnetRouteTablesException, CanNotFindVpc, CanNotFindSubnet, ResourceNotFoundException, ResourcePersistenceException, OwnMultipleVpcRouterException;
     public String deleteSubnetRouteTable (String projectId, String subnetId) throws Exception;
-    public RouteTable createNeutronSubnetRouteTable(String projectId, String subnetId, RouteTableWebJson resource, List<RouteEntry> routes) throws DatabasePersistenceException;
+    public RouteTable createSubnetRouteTable(String projectId, String subnetId, RouteTableWebJson resource, List<RouteEntry> routes) throws DatabasePersistenceException;
 
 }
