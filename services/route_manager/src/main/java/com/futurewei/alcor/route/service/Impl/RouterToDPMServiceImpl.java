@@ -36,7 +36,7 @@ public class RouterToDPMServiceImpl implements RouterToDPMService {
 
     @Value("${microservices.dpm.service.url}")
     private String dpmUrl;
-
+    
     private final RestTemplate restTemplate;
 
     public RouterToDPMServiceImpl(RestTemplateBuilder restTemplateBuilder) {
