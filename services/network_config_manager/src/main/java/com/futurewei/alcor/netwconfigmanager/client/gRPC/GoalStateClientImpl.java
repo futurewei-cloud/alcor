@@ -144,11 +144,51 @@ public class GoalStateClientImpl implements GoalStateClient {
         long start = System.currentTimeMillis();
         ArrayList<GrpcChannelStub> arr = new ArrayList<>();
         for (int i = 0; i < numberOfGrpcChannelPerHost; i++) {
-            arr.add(createGrpcChannelStub(hostIp));
+            GrpcChannelStub channelStub = createGrpcChannelStub(hostIp);
+            warmUpChannelStub(channelStub, hostIp);
+            arr.add(channelStub);
         }
         long end = System.currentTimeMillis();
         logger.log(Level.INFO, "[createGrpcChannelStubArrayList] Created " + numberOfGrpcChannelPerHost + " gRPC channel stubs for host " + hostIp + ", elapsed Time in milli seconds: " + (end - start));
         return arr;
+    }
+
+    // try to warmup a gRPC channel and its stub, by sending an empty GoalState`.
+    void warmUpChannelStub(GrpcChannelStub channelStub, String hostIp ){
+        GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub = channelStub.stub;
+        long stub_established = System.currentTimeMillis();
+
+        StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver = new StreamObserver<>() {
+            @Override
+            public void onNext(Goalstateprovisioner.GoalStateOperationReply reply) {
+                logger.log(Level.INFO, "Receive warmup response from ACA@" + hostIp + " | " + reply.toString());
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                logger.log(Level.WARNING, "Receive warmup error from ACA@" + hostIp + " |  " + t.getMessage());
+            }
+
+            @Override
+            public void onCompleted() {
+                logger.log(Level.INFO, "Complete receiving warmup message from ACA@" + hostIp);
+            }
+        };
+
+        StreamObserver<Goalstate.GoalStateV2> requestObserver = asyncStub.pushGoalStatesStream(responseObserver);
+        try {
+            Goalstate.GoalStateV2 goalState = Goalstate.GoalStateV2.getDefaultInstance();
+            logger.log(Level.INFO, "Sending GS to Host " + hostIp + " as follows | " + goalState.toString());
+            requestObserver.onNext(goalState);
+        } catch (RuntimeException e) {
+            // Cancel RPC
+            logger.log(Level.WARNING, "[doSendGoalState] Sending GS, but error happened | " + e.getMessage());
+            requestObserver.onError(e);
+            throw e;
+        }
+        // Mark the end of requests
+        logger.log(Level.INFO, "Sending warmup GS to Host " + hostIp + " is completed");
+        return;
     }
 
     private GrpcChannelStub createGrpcChannelStub(String hostIp) {
