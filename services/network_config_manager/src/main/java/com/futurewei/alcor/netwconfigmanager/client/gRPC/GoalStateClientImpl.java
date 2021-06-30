@@ -55,6 +55,8 @@ public class GoalStateClientImpl implements GoalStateClient {
     // each host_ip should have this amount of gRPC channels.
     private final int numberOfGrpcChannelPerHost = 10;
 
+    private final int numberOfWarmupsPerChannel = 10;
+
     private SortedMap<String, ArrayList<GrpcChannelStub>> hostIpGrpcChannelStubMap;
 
 
@@ -179,7 +181,9 @@ public class GoalStateClientImpl implements GoalStateClient {
         try {
             Goalstate.GoalStateV2 goalState = Goalstate.GoalStateV2.getDefaultInstance();
             logger.log(Level.INFO, "Sending GS to Host " + hostIp + " as follows | " + goalState.toString());
-            requestObserver.onNext(goalState);
+            for ( int i = 0 ; i < numberOfWarmupsPerChannel ; i ++){
+                requestObserver.onNext(goalState);
+            }
         } catch (RuntimeException e) {
             // Cancel RPC
             logger.log(Level.WARNING, "[doSendGoalState] Sending GS, but error happened | " + e.getMessage());
