@@ -306,7 +306,7 @@ public class RouterController {
             InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(router.getId(), internalSubnetRoutingTableList);
 
             // send InternalRouterInfo contract to DPM
-//            this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
+            this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
 
         } catch (ParameterNullOrEmptyException e) {
             throw e;
@@ -333,7 +333,7 @@ public class RouterController {
     @DurationStatistics
     public RouteTablesWebJson getVpcRouteTables(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
 
-        List<RouteTable> routetables = null;
+        List<RouteTable> routetables = new ArrayList<>();
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);

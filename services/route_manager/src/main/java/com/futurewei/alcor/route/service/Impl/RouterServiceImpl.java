@@ -254,12 +254,12 @@ public class RouterServiceImpl implements RouterService {
     }
 
     @Override
-    public List<RouteTable> getVpcRouteTables(String projectId, String vpcId) throws CanNotFindVpc {
+    public List<RouteTable> getVpcRouteTables(String projectId, String vpcId) throws CanNotFindVpc, CanNotFindRouter {
         VpcWebJson vpcResponse = this.vpcRouterToVpcService.getVpcWebJson(projectId, vpcId);
         VpcEntity vpcEntity = vpcResponse.getNetwork();
         Router router = vpcEntity.getRouter();
         if (router == null) {
-            return null;
+            throw new CanNotFindRouter();
         }
         return router.getVpcRouteTables();
     }
