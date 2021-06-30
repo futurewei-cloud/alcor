@@ -36,12 +36,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@ComponentScan(value = "com.futurewei.alcor.common.utils")
-@ComponentScan(value = "com.futurewei.alcor.web.restclient")
 public class RouterToDPMServiceImpl implements RouterToDPMService {
 
-    @Autowired
-    private DataPlaneManagerRestClient dataPlaneManagerRestClient;
+    @Value("${microservices.dpm.service.url}")
+    private String dpmUrl;
+
+    private RestTemplate restTemplate = new RestTemplate();
 
     @Override
     public void sendInternalRouterInfoToDPM(InternalRouterInfo internalRouterInfo) throws Exception{
@@ -51,16 +51,10 @@ public class RouterToDPMServiceImpl implements RouterToDPMService {
         networkConfiguration.setInternalRouterInfos(internalRouterInfos);
         networkConfiguration.setRsType(Common.ResourceType.ROUTER);
         networkConfiguration.setOpType(Common.OperationType.valueOf(internalRouterInfo.getOperationType().name()));
-        InternalDPMResultList dpmResponse = null;
-        
-        switch (internalRouterInfo.getOperationType())
-        {
-            case UPDATE:
-                dpmResponse = dataPlaneManagerRestClient.updateNetworkConfig(networkConfiguration);
-            case DELETE:
-                dataPlaneManagerRestClient.deleteNetworkConfig(networkConfiguration);
-            default:
-        }
+
+        String dpmServiceUrl = dpmUrl + "/network-configuration";
+        HttpEntity<NetworkConfiguration> dpmRequest = new HttpEntity<>(networkConfiguration);
+        InternalDPMResultList dpmResponse = restTemplate.postForObject(dpmServiceUrl, dpmRequest, InternalDPMResultList.class);
 
         if (dpmResponse == null) {
             throw new DPMFailedHandleRequest();
