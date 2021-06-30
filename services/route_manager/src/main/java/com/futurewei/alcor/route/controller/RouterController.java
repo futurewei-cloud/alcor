@@ -334,7 +334,7 @@ public class RouterController {
     @DurationStatistics
     public RouteTablesWebJson getVpcRouteTables(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
 
-        List<RouteTable> routetables = null;
+        List<RouteTable> routetables = new ArrayList<>();
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
