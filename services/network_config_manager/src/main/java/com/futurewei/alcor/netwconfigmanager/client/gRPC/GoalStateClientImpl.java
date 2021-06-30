@@ -55,7 +55,7 @@ public class GoalStateClientImpl implements GoalStateClient {
     // each host_ip should have this amount of gRPC channels.
     private final int numberOfGrpcChannelPerHost = 10;
 
-    private final int numberOfWarmupsPerChannel = 10;
+    private final int numberOfWarmupsPerChannel = 1;
 
     private SortedMap<String, ArrayList<GrpcChannelStub>> hostIpGrpcChannelStubMap;
 
