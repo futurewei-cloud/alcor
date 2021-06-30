@@ -75,15 +75,7 @@ public class RouterRepository implements ICacheRepository<Router> {
     @Override
     @DurationStatistics
     public void addItem(Router router) throws CacheException {
-        try (Transaction tx = cache.getTransaction().start()) {
-
-            logger.log(Level.INFO, "Add router, router Id:" + router.getId());
-            cache.put(router.getId(), router);
-
-            tx.commit();
-        } catch (Exception e) {
-            throw new CacheException();
-        }
+        cache.put(router.getId(), router);
     }
 
     @Override
