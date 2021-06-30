@@ -52,7 +52,7 @@ public class RouterToDPMServiceImpl implements RouterToDPMService {
         networkConfiguration.setRsType(Common.ResourceType.ROUTER);
         networkConfiguration.setOpType(Common.OperationType.valueOf(internalRouterInfo.getOperationType().name()));
         InternalDPMResultList dpmResponse = null;
-
+        
         switch (internalRouterInfo.getOperationType())
         {
             case UPDATE:
