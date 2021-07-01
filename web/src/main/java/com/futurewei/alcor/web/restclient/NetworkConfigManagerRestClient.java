@@ -15,30 +15,34 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.web.restclient;
 
+import com.futurewei.alcor.common.http.RestTemplateConfig;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.node.BulkNodeInfoJson;
-import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.node.NodeInfoJson;
-import com.futurewei.alcor.web.entity.node.NodesWebJson;
-import org.apache.kafka.common.protocol.types.Field;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.logging.Level;
 
 /**
  * API for DPM and NMM to push NCM info into NCM.
  */
 @Configuration
+@Import(RestTemplateConfig.class)
 public class NetworkConfigManagerRestClient extends AbstractRestClient {
     Logger LOG = LoggerFactory.getLogger();
+
+    public NetworkConfigManagerRestClient(RestTemplateBuilder restTemplateBuilder) {
+        super(restTemplateBuilder);
+    }
 
     @DurationStatistics
     public void createNodeInfo(NodeInfoJson message) throws Exception {

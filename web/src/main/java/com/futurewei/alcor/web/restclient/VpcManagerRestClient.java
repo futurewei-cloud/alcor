@@ -15,18 +15,26 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.web.restclient;
 
+import com.futurewei.alcor.common.http.RestTemplateConfig;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
 import com.futurewei.alcor.web.entity.vpc.VpcsWebJson;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 import java.util.List;
 
 @Configuration
+@Import(RestTemplateConfig.class)
 public class VpcManagerRestClient extends AbstractRestClient {
     @Value("${microservices.vpc.service.url:#{\"\"}}")
     private String vpcManagerUrl;
+
+    public VpcManagerRestClient(RestTemplateBuilder restTemplateBuilder) {
+        super(restTemplateBuilder);
+    }
 
     @DurationStatistics
     public VpcWebJson getVpc(String projectId, String vpcId) throws Exception {

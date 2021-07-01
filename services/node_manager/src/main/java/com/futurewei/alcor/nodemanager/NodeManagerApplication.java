@@ -16,12 +16,13 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.nodemanager;
 
 import com.futurewei.alcor.common.db.DbBaseConfiguration;
+import com.futurewei.alcor.common.tracer.TracerConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
-@Import(DbBaseConfiguration.class)
+@Import({DbBaseConfiguration.class, TracerConfiguration.class})
 public class NodeManagerApplication {
 
     public static void main(String[] args) {

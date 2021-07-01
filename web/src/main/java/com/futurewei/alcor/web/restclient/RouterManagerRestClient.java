@@ -15,15 +15,22 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.web.restclient;
 
-import com.futurewei.alcor.web.entity.port.PortEntity;
+import com.futurewei.alcor.common.http.RestTemplateConfig;
 import com.futurewei.alcor.web.entity.route.ConnectedSubnetsWebResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 @Configuration
+@Import(RestTemplateConfig.class)
 public class RouterManagerRestClient extends AbstractRestClient {
     @Value("${microservices.router.service.url:#{\"\"}}")
     private String routerManagerUrl;
+
+    public RouterManagerRestClient(RestTemplateBuilder restTemplateBuilder) {
+        super(restTemplateBuilder);
+    }
 
     public ConnectedSubnetsWebResponse getRouterSubnets(String projectId, String vpcId, String subnetId) throws Exception {
         String url = String.format("/project/%s/vpcs/%s/subnets/%s/connected-subnets", projectId, vpcId, subnetId);

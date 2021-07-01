@@ -16,6 +16,7 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.dataplane.service.impl;
 
 import com.futurewei.alcor.common.db.CacheException;
+import com.futurewei.alcor.common.tracer.Tracer;
 import com.futurewei.alcor.dataplane.cache.LocalCache;
 import com.futurewei.alcor.dataplane.cache.SubnetPortsCache;
 import com.futurewei.alcor.dataplane.cache.VpcGatewayInfoCache;
@@ -108,6 +109,7 @@ public class DpmServiceImpl implements DpmService {
         this.goalStateMessageVersion = globalConfig.goalStateMessageVersion;
     }
 
+    @Tracer
     private UnicastGoalState buildUnicastGoalState(NetworkConfiguration networkConfig, String hostIp,
                                                    List<InternalPortEntity> portEntities,
                                                    MulticastGoalState multicastGoalState) throws Exception {
@@ -136,6 +138,7 @@ public class DpmServiceImpl implements DpmService {
         return unicastGoalState;
     }
 
+    @Tracer
     private void patchGoalstateForNeighbor(NetworkConfiguration networkConfig, UnicastGoalState unicastGoalState) throws CacheException {
         List<Neighbor.NeighborState.Builder> neighborStates = unicastGoalState.getGoalStateBuilder().getNeighborStatesBuilderList();
         for (Neighbor.NeighborState.Builder neighborState : neighborStates) {
@@ -214,6 +217,7 @@ public class DpmServiceImpl implements DpmService {
         }
     }
 
+    @Tracer
     private List<String> doCreatePortConfiguration(NetworkConfiguration networkConfig,
                                                    Map<String, List<InternalPortEntity>> hostPortEntities,
                                                    DataPlaneClient dataPlaneClient) throws Exception {
@@ -258,6 +262,7 @@ public class DpmServiceImpl implements DpmService {
      * @return Hosts that failed to send GoalState
      * @throws Exception Process exceptions and send exceptions
      */
+    @Tracer
     private List<String> processPortConfiguration(NetworkConfiguration networkConfig) throws Exception {
         Map<String, List<InternalPortEntity>> grpcHostPortEntities = new HashMap<>();
         Map<String, List<InternalPortEntity>> pulsarHostPortEntities = new HashMap<>();
@@ -310,6 +315,7 @@ public class DpmServiceImpl implements DpmService {
      * @return Hosts that failed to send GoalState
      * @throws Exception Process exceptions and send exceptions
      */
+    @Tracer
     private List<String> processNeighborConfiguration(NetworkConfiguration networkConfig) throws Exception {
         Map<String, NeighborInfo> neighborInfos = networkConfig.getNeighborInfos();
         Map<String, List<NeighborEntry>> neighborTable = networkConfig.getNeighborTable();
@@ -416,6 +422,7 @@ public class DpmServiceImpl implements DpmService {
         return grpcDataPlaneClient.sendGoalStates(unicastGoalStates, multicastGoalState);
     }
 
+    @Tracer
     private void rebuildRouterState(Goalstate.GoalState.Builder goalStateBuilder, Goalstate.GoalState.Builder newGoalState) {
         List<Router.RouterConfiguration.SubnetRoutingTable> subnetRoutingTables = new ArrayList<>();
 
@@ -462,6 +469,7 @@ public class DpmServiceImpl implements DpmService {
      * @return Hosts that failed to send GoalState
      * @throws Exception Process exceptions and send exceptions
      */
+    @Tracer
     private List<String> processRouterConfiguration(NetworkConfiguration networkConfig) throws Exception {
         List<InternalRouterInfo> internalRouterInfos = networkConfig.getInternalRouterInfos();
         MulticastGoalState multicastGoalState = new MulticastGoalState();
@@ -544,6 +552,7 @@ public class DpmServiceImpl implements DpmService {
         return result;
     }
 
+    @Tracer
     private InternalDPMResultList processNetworkConfiguration(NetworkConfiguration networkConfig) throws Exception {
         long startTime = System.currentTimeMillis();
         List<String> failedHosts = new ArrayList<>();

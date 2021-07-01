@@ -8,25 +8,23 @@ Copyright(c) 2020 Futurewei Cloud
     to whom the Software is furnished to do so, subject to the following conditions:
 
     The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-    
+
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-package com.futurewei.alcor.macmanager;
+package com.futurewei.alcor.common.tracer;
 
-import com.futurewei.alcor.common.db.DbBaseConfiguration;
-import com.futurewei.alcor.common.tracer.TracerConfiguration;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@SpringBootApplication
-@Import({DbBaseConfiguration.class, TracerConfiguration.class})
-public class MacManagerApplication {
+@ConditionalOnProperty(value = "opentracing.jaeger.enabled", havingValue = "false", matchIfMissing = false)
+@Configuration
+public class TracerConfiguration {
 
-    public static void main(String[] args) {
-        SpringApplication.run(MacManagerApplication.class, args);
+    @Bean
+    public io.opentracing.Tracer jaegerTracer() {
+        return io.opentracing.noop.NoopTracerFactory.create();
     }
-
 }
