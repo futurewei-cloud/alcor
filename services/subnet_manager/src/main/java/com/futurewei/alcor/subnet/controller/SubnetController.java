@@ -58,6 +58,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import static com.futurewei.alcor.common.constants.CommonConstants.QUERY_ATTR_HEADER;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
+import org.springframework.web.client.HttpClientErrorException;
+
 @RestController
 @ComponentScan(value = "com.futurewei.alcor.common.stats")
 public class SubnetController {
