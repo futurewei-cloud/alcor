@@ -182,12 +182,15 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
             Port.PortState portState = portStatesMap.get(resourceId);
             String vpcId = portState.getConfiguration().getVpcId();
             String vni = String.valueOf(vpcIdToVniMap.get(vpcId));
-            VpcResourceMeta vpcResourceMeta = vpcResourceCache.getResourceMeta(vni);
-            if (vpcResourceMeta == null) {
-                // This is a new VPC
-                vpcResourceMeta = new VpcResourceMeta(vni, new HashMap<String, ResourceMeta>());
+            // don't get the same vni again.
+            if ( ! vniToVpcReourceMetaDataMap.containsKey(vni)){
+                VpcResourceMeta vpcResourceMeta = vpcResourceCache.getResourceMeta(vni);
+                if (vpcResourceMeta == null) {
+                    // This is a new VPC
+                    vpcResourceMeta = new VpcResourceMeta(vni, new HashMap<String, ResourceMeta>());
+                }
+                vniToVpcReourceMetaDataMap.put(vni, vpcResourceMeta);
             }
-            vniToVpcReourceMetaDataMap.put(vni, vpcResourceMeta);
         }
 
 
