@@ -64,6 +64,8 @@ public class RouterServiceImpl implements RouterService {
     public Router getVpcRouter(String projectId, String vpcId) throws CanNotFindVpc, DatabasePersistenceException, CacheException, OwnMultipleVpcRouterException {
         Router router = null;
 
+        VpcWebJson vpcResponse = this.vpcRouterToVpcService.getVpcWebJson(projectId, vpcId);
+
         // If VPC already has a router, return the router state
         Map<String, Router> routerMap = null;
         Map<String, Object[]> queryParams = new HashMap<>();
@@ -155,7 +157,6 @@ public class RouterServiceImpl implements RouterService {
 
     @Override
     public RouteTable getVpcRouteTable(String projectId, String vpcId) throws DatabasePersistenceException, CanNotFindVpc, CacheException, OwnMultipleVpcRouterException, CanNotFindRouter {
-        RouteTable routeTable = null;
         VpcWebJson vpcResponse = this.vpcRouterToVpcService.getVpcWebJson(projectId, vpcId);
         VpcEntity vpcEntity = vpcResponse.getNetwork();
         if (vpcEntity == null)
@@ -169,23 +170,29 @@ public class RouterServiceImpl implements RouterService {
 
         // If VPC has a VPC routing table, return the routing table’s state
         List<RouteTable> vpcRouteTables = router.getVpcRouteTables();
-        for (RouteTable vpcRouteTable : vpcRouteTables) {
-            String routeTableType = vpcRouteTable.getRouteTableType();
-            if (RouteTableType.VPC.getRouteTableType().equals(routeTableType)) {
-                return vpcRouteTable;
-            }
+        if (vpcRouteTables != null)
+        {
+            return vpcRouteTables.stream().filter(vpcRouteTable -> RouteTableType.VPC.getRouteTableType().equals(vpcRouteTable.getRouteTableType())).findFirst().get();
         }
 
-        return routeTable;
+        return null;
     }
 
     @Override
-    public RouteTable createVpcRouteTable(String projectId, String vpcId) throws DatabasePersistenceException, CanNotFindVpc, CacheException, OwnMultipleVpcRouterException, CanNotFindRouter {
+    public RouteTable createVpcRouteTable(String projectId, String vpcId) throws Exception {
+
         Router router = getVpcRouter(projectId, vpcId);
         if (router == null)
         {
             throw new CanNotFindRouter();
         }
+
+        String defaultRouteTableId = router.getVpcDefaultRouteTableId();
+        if (defaultRouteTableId.isEmpty() || this.routeTableDatabaseService.getByRouteTableId(defaultRouteTableId) != null)
+        {
+            throw new RouteTableNotUnique();
+        }
+
         return createDefaultVpcRouteTable(projectId, router);
     }
 

@@ -33,7 +33,7 @@ public interface RouterService {
     public Router createDefaultVpcRouter (String projectId, VpcEntity vpcEntity) throws DatabasePersistenceException;
     public String deleteVpcRouter (String projectId, String vpcId) throws Exception;
     public RouteTable getVpcRouteTable (String projectId, String vpcId) throws DatabasePersistenceException, CanNotFindVpc, CacheException, OwnMultipleVpcRouterException, CanNotFindRouter;
-    public RouteTable createVpcRouteTable(String projectId, String vpcId) throws DatabasePersistenceException, CanNotFindVpc, CacheException, OwnMultipleVpcRouterException, CanNotFindRouter;
+    public RouteTable createVpcRouteTable(String projectId, String vpcId) throws Exception;
     public RouteTable createDefaultVpcRouteTable (String projectId, Router router) throws DatabasePersistenceException;
     public RouteTable updateVpcRouteTable (String projectId, String vpcId, RouteTableWebJson resource) throws DatabasePersistenceException, CanNotFindVpc, CacheException, OwnMultipleVpcRouterException, ResourceNotFoundException, ResourcePersistenceException, CanNotFindRouter;
     public List<RouteTable> getVpcRouteTables (String projectId, String vpcId) throws CanNotFindVpc, CanNotFindRouter;
