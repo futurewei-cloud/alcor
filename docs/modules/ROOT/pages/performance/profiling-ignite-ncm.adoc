@@ -99,52 +99,6 @@ All machines have only one disk on line and it appears to be a spinning disk. Ha
 
 == Observations
 
-== NCM latency for 300 ports [2021-06-15]
-* NCM doesn't seem to have recevied anything. The following appears in TC logfile. It is not clear if this is a problem or not.
-
-* pings seems to have succeeded but NCM doesn't have any data in any cache.
-
-* Ignite logs show less than 1% CPU load and no GC activity.
-
-* VisualVM fails to connect to NCM with the error "Not supported for this VM"
-
-[source]
-java.lang.UnsatisfiedLinkError: no io_grpc_netty_shaded_netty_transport_native_epoll_x86_64 in java.library.path: [/usr/java/packages/lib, /usr/lib/x86_64-linux-gnu/jni, /lib/x86_64-linux-gnu, /usr/lib/x86_64-linux-gnu, /usr/lib/jni, /lib, /usr/lib]
-        at java.base/java.lang.ClassLoader.loadLibrary(ClassLoader.java:2670)
-        at java.base/java.lang.Runtime.loadLibrary0(Runtime.java:830)
-        at java.base/java.lang.System.loadLibrary(System.java:1873)
-        at io.grpc.netty.shaded.io.netty.util.internal.NativeLibraryUtil.loadLibrary(NativeLibraryUtil.java:38)
-        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
-        at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-        at java.base/java.lang.reflect.Method.invoke(Method.java:566)
-        at io.grpc.netty.shaded.io.netty.util.internal.NativeLibraryLoader$1.run(NativeLibraryLoader.java:369)
-        at java.base/java.security.AccessController.doPrivileged(Native Method)
-        at io.grpc.netty.shaded.io.netty.util.internal.NativeLibraryLoader.loadLibraryByHelper(NativeLibraryLoader.java:361)
-        at io.grpc.netty.shaded.io.netty.util.internal.NativeLibraryLoader.loadLibrary(NativeLibraryLoader.java:339)
-        at io.grpc.netty.shaded.io.netty.util.internal.NativeLibraryLoader.load(NativeLibraryLoader.java:136)
-        at io.grpc.netty.shaded.io.netty.channel.epoll.Native.loadNativeLibrary(Native.java:186)
-        at io.grpc.netty.shaded.io.netty.channel.epoll.Native.<clinit>(Native.java:57)
-        at io.grpc.netty.shaded.io.netty.channel.epoll.Epoll.<clinit>(Epoll.java:39)
-        at java.base/java.lang.Class.forName0(Native Method)
-        at java.base/java.lang.Class.forName(Class.java:315)
-        at io.grpc.netty.shaded.io.grpc.netty.Utils.isEpollAvailable(Utils.java:220)
-        at io.grpc.netty.shaded.io.grpc.netty.Utils.<clinit>(Utils.java:92)
-        at io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder.<clinit>(NettyChannelBuilder.java:72)
-        at io.grpc.netty.shaded.io.grpc.netty.NettyChannelProvider.builderForAddress(NettyChannelProvider.java:37)
-        at io.grpc.netty.shaded.io.grpc.netty.NettyChannelProvider.builderForAddress(NettyChannelProvider.java:23)
-        at io.grpc.ManagedChannelBuilder.forAddress(ManagedChannelBuilder.java:39)
-        at com.futurewei.alcor.pseudo_controller.pseudo_controller.main(pseudo_controller.java:241)
-        at org.codehaus.mojo.exec.ExecJavaMojo$1.run(ExecJavaMojo.java:254)
-        at java.base/java.lang.Thread.run(Thread.java:829)
-
-== 2021-06-21 runs, 200 ports.
-
-* The three Ignite caches are empty.
-* NCM logs show no messages to show that ACA have sent something.
-* TC logs show goal states being created and sent.
-* TC logs also show that pings have been successful.
-
 === Logs from the runs
 * xref:ncm-21-06-21-03.log[NCM log file]
 * xref:ncm-21-06-21-03.html[NCM profile data (using async-profiler)]
@@ -154,4 +108,90 @@ java.lang.UnsatisfiedLinkError: no io_grpc_netty_shaded_netty_transport_native_e
 * xref:ignite-caches.txt[Ignite caches]
 * xref:tc-21-06-21-01.log[Test Controller log]
 
+
+=== Timing analysis.
+The following times are from creating two goal states with 100 through 2200 ports each and two with 5000 ports each. TestController was modified to not send GS to ACA or trigger on demand request to excercise just NCM to Ignite latency.
+
+|====
+| Log line | Method| Analysis
+
+|finished getting resource meta from cache| hostResourceMetadataCache.getResourceMeta| Direct call to Ignite. Time ranges from 1 to 29 ms. 29 x 1ms, 25 x 2ms, 14 x 3, 8 x 4ms, 1 x 6ms, 11ms, and 29ms. The time looks reasonably fast.
+
+|existing is null, finished adding resource meta from cache|hostResourceMetadataCache.addResourceMeta| Direct call to Ignite. Two GS were used and this component of the time is 10ms and 49ms. 49ms comes from 10.213.43.94, which seems to be slower for some reason.
+
+|existing is NOT null, finished adding resource meta from cache| Direct callto Ignite.| Updates exisitng resource. Times range from 0 to 7ms.With 78 times under 5ms and 5ms and 7ms for two requests, these times also appear to be reasonable.
+
+|finished processing goalState| processXYZstates| Indirect calls to Ignite. Eight different caches are written to, each through a loop. As number of ports increase, so does this time. It ranges fro 61ms to 5600ms. This time may be optimized by using batch insert (putAll) interface.
+
+| finished populating vpc resource cache| populateVpcResourceCache| Two calls to Ignite from a loop. Times range from 13,293ms through 468,639ms. This time includes all of the above. This is also very high and batch insert (putAll) could reduce it.
+
+|retrieved resource meta for vni| vpcResourceCache.getResourceMeta| Time ranges from 1ms to 56,805. 105 out of 175 calls take less than 100ms. This time may also be reduced by putAll.
+
+|added resource metadata for vpc with vni|vpcResourceCache.addResourceMeta| Time ranges from 1ms to 383ms. This time may also be reduced by putAll.
+|====
+
+
+|====
+| Number of ports in the GoalState|Time to persist ( seconds)
+
+|100|     13
+
+|200|     27
+
+|300|     42
+
+|400|     54
+
+|500|     67
+
+|600|     81
+
+|700|     94
+
+|800|    109
+
+|900|    122
+
+|1000|   137
+
+|1100|   310
+
+|1200|   341
+
+|1300|   360
+
+|1400|   390
+
+|1500|   420
+
+|1600|   441
+
+|1700|   470
+
+|1800|   491
+
+|1900|   520
+
+|2000|   540
+
+|2100|   571
+
+|2200|   611
+|====
+
+
+
+== Latency Plot
+
+
+image::ncm-inginte-gs-latency.png
+
+== Conclusions
+* Use PutAll interface whenever possible, especailly if cache get and put are from inside a lopp which iterates over a large collection.
+
+* Do as much work as possible outside Ignite transaction and loops.
+
+* Try to parallelize DB work.
+
+* Setup a performance test and run it periodically to monitor the DB performance changes as new code gets added.
 
