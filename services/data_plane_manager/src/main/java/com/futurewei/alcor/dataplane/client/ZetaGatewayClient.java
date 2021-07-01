@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -62,10 +63,10 @@ public class ZetaGatewayClient {
     @Value("${microservices.gateway.service.url}")
     private String gatewayUrl;
 
-    private RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
 
-    public ZetaGatewayClient() {
-
+    public ZetaGatewayClient(RestTemplateBuilder restTemplateBuilder) {
+        this.restTemplate = restTemplateBuilder.build();
     }
 
     public void updateVPCZetaGateway(GatewayInfo gatewayInfo) throws Exception {

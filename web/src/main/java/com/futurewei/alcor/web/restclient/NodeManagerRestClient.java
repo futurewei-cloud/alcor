@@ -15,12 +15,15 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.web.restclient;
 
+import com.futurewei.alcor.common.http.RestTemplateConfig;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.node.NodeInfoJson;
 import com.futurewei.alcor.web.entity.node.NodesWebJson;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -29,9 +32,14 @@ import java.util.Collections;
 import java.util.List;
 
 @Configuration
+@Import(RestTemplateConfig.class)
 public class NodeManagerRestClient extends AbstractRestClient {
     @Value("${microservices.node.service.url:#{\"\"}}")
     private String nodeManagerUrl;
+
+    public NodeManagerRestClient(RestTemplateBuilder restTemplateBuilder) {
+        super(restTemplateBuilder);
+    }
 
     @DurationStatistics
     public NodeInfoJson getNodeInfo(String nodeId) throws Exception {

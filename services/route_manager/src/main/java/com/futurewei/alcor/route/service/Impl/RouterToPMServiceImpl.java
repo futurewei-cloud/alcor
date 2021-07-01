@@ -23,6 +23,7 @@ import com.futurewei.alcor.web.entity.port.PortWebJson;
 import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
 import com.futurewei.alcor.web.entity.route.RouterUpdateInfo;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -36,7 +37,11 @@ public class RouterToPMServiceImpl implements RouterToPMService {
     @Value("${microservices.port.service.url}")
     private String portUrl;
 
-    private RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
+
+    public RouterToPMServiceImpl(RestTemplateBuilder restTemplateBuilder) {
+        this.restTemplate = restTemplateBuilder.build();
+    }
 
     @Override
     public List<String> getSubnetIdsFromPM(String projectid, List<String> gatewayPorts) throws PortWebBulkJsonOrPortEntitiesListIsNull {

@@ -26,6 +26,16 @@ data:
     spring.servlet.multipart.max-request-size=215MB
     microservices.netwconfigmanager.service.url=http://netwconfigmanager-service.default.svc.cluster.local:30016/network-configuration
     microservices.dataplane.nodeservice.url=http://dataplanemanager-service.default.svc.cluster.local:30010/nodes
+
+    opentracing.jaeger.udp-sender.host=localhost
+    opentracing.jaeger.udp-sender.port=6831
+    opentracing.jaeger.const-sampler.decision=true
+    opentracing.jaeger.enabled=true
+    opentracing.jaeger.log-spans=true
+    opentracing.jaeger.enable-w3c-propagation=true
+    opentracing.jaeger.enable-b3-propagation=true
+    opentracing.jaeger.service-name=alcor-ncm
+
 ---
 apiVersion: apps/v1
 kind: Deployment
