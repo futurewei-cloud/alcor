@@ -28,8 +28,8 @@ import java.util.List;
 
 public interface RouterService {
 
-    public Router getVpcRouter (String projectId, String vpcId) throws CanNotFindVpc, DatabasePersistenceException, CacheException, OwnMultipleVpcRouterException;
-    public Router createVpcRouter (String projectId, String vpcId) throws CanNotFindVpc, DatabasePersistenceException, CacheException, OwnMultipleVpcRouterException;
+    public Router getVpcRouter (String projectId, String vpcId) throws CanNotFindVpc, DatabasePersistenceException, CacheException, OwnMultipleVpcRouterException, CanNotFindRouter;
+    public Router createVpcRouter (String projectId, String vpcId) throws CanNotFindVpc, DatabasePersistenceException, CacheException, VpcRouterAlreadyExist;
     public Router createDefaultVpcRouter (String projectId, VpcEntity vpcEntity) throws DatabasePersistenceException;
     public String deleteVpcRouter (String projectId, String vpcId) throws Exception;
     public RouteTable getVpcRouteTable (String projectId, String vpcId) throws DatabasePersistenceException, CanNotFindVpc, CacheException, OwnMultipleVpcRouterException, CanNotFindRouter;

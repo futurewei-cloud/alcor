@@ -61,11 +61,7 @@ public class RouterServiceImpl implements RouterService {
 
 
     @Override
-    public Router getVpcRouter(String projectId, String vpcId) throws CanNotFindVpc, DatabasePersistenceException, CacheException, OwnMultipleVpcRouterException {
-        Router router = null;
-
-        VpcWebJson vpcResponse = this.vpcRouterToVpcService.getVpcWebJson(projectId, vpcId);
-
+    public Router getVpcRouter(String projectId, String vpcId) throws CanNotFindVpc, CacheException, OwnMultipleVpcRouterException, CanNotFindRouter {
         // If VPC already has a router, return the router state
         Map<String, Router> routerMap = null;
         Map<String, Object[]> queryParams = new HashMap<>();
@@ -75,26 +71,29 @@ public class RouterServiceImpl implements RouterService {
 
         routerMap = this.routerDatabaseService.getAllRouters(queryParams);
 
-        if (routerMap == null) {
-            routerMap = new HashMap<>();
+        if (routerMap == null || routerMap.size() == 0) {
+            throw new CanNotFindRouter();
         }
 
         if (routerMap.size() > 1) {
             throw new OwnMultipleVpcRouterException();
-        } else if (routerMap.size() == 1) {
-            for (Map.Entry<String, Router> entry : routerMap.entrySet()) {
-                router = (Router)entry.getValue();
-                return router;
-            }
         }
+
+        Router router = routerMap.values().stream().findFirst().get();
 
         return router;
     }
 
     @Override
-    public Router createVpcRouter(String projectId, String vpcId) throws CanNotFindVpc, DatabasePersistenceException, CacheException, OwnMultipleVpcRouterException {
+    public Router createVpcRouter(String projectId, String vpcId) throws CanNotFindVpc, DatabasePersistenceException, VpcRouterAlreadyExist {
         VpcWebJson vpcResponse = this.vpcRouterToVpcService.getVpcWebJson(projectId, vpcId);
         VpcEntity vpcEntity = vpcResponse.getNetwork();
+
+        if (vpcEntity.getRouter() != null)
+        {
+            throw new VpcRouterAlreadyExist();
+        }
+
         // If VPC doesn’t have a router, create a new router, create a VPC routing table and pump-in the VPC default routing rules
         return createDefaultVpcRouter(projectId, vpcEntity);
     }
@@ -188,7 +187,7 @@ public class RouterServiceImpl implements RouterService {
         }
 
         String defaultRouteTableId = router.getVpcDefaultRouteTableId();
-        if (defaultRouteTableId.isEmpty() || this.routeTableDatabaseService.getByRouteTableId(defaultRouteTableId) != null)
+        if (!defaultRouteTableId.isEmpty() && this.routeTableDatabaseService.getByRouteTableId(defaultRouteTableId) != null)
         {
             throw new RouteTableNotUnique();
         }

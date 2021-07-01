@@ -86,13 +86,15 @@ public class VpcRouterTests {
     public void getVpcRouter_alreadyHaveVpcRouter_pass () throws Exception {
         Router router = new Router();
         router.setId(UnitTestConfig.routerId);
+        router.setOwner(UnitTestConfig.vpcId);
 
         Mockito.when(routerDatabaseService.getAllRouters(anyMap()))
                 .thenReturn(new HashMap<String, Router>(){{put(UnitTestConfig.routerId, router);}});
         this.mockMvc.perform(get(vpcRouterUri))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.router.id").value(UnitTestConfig.routerId));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.router.id").value(UnitTestConfig.routerId))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.router.owner").value(UnitTestConfig.vpcId));
     }
 
     @Test
