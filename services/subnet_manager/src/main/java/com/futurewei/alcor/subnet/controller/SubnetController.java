@@ -537,7 +537,11 @@ public class SubnetController {
             }
 
             // delete subnet routing rule in route manager
-            this.subnetService.deleteSubnetRoutingRuleInRM(projectId, subnetId);
+            try {
+                this.subnetService.deleteSubnetRoutingRuleInRM(projectId, subnetId);
+            } catch (HttpClientErrorException.NotFound e) {
+                logger.warn(e.getMessage());
+            }
 
             // TODO: delete gateway port in port manager. Temporary solution, need PM fix issue
             GatewayPortDetail gatewayPortDetail = subnetEntity.getGatewayPortDetail();
