@@ -55,7 +55,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
     public boolean updateGoalState(String hostId, HostGoalState hostGoalState) throws Exception {
 
         // TODO: Use Ignite transaction here
-
+        hostResourceMetadataCache.getTransaction();
         // Step 1: Populate host resource metadata cache
         ResourceMeta existing = hostResourceMetadataCache.getResourceMeta(hostId);
         ResourceMeta latest = NetworkConfigManagerUtil.convertGoalStateToHostResourceMeta(
@@ -79,6 +79,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
 
         // Step 3
         populateVpcResourceCache(hostGoalState, vpcIdToVniMap);
+        hostResourceMetadataCache.commit();
         return false;
     }
 
@@ -152,10 +153,25 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
 
     private void populateVpcResourceCache(HostGoalState hostGoalState, Map<String, Integer> vpcIdToVniMap) throws Exception {
         Map<String, Port.PortState> portStatesMap = hostGoalState.getGoalState().getPortStatesMap();
-
+        HashMap<String, VpcResourceMeta> vniToVpcReourceMetaDataMap = new HashMap<>();
+        // Retrieve all needed VpcResourceMeta from cache to memory
+        for (String resourceId : portStatesMap.keySet()){
+            Port.PortState portState = portStatesMap.get(resourceId);
+            String vpcId = portState.getConfiguration().getVpcId();
+            String vni = String.valueOf(vpcIdToVniMap.get(vpcId));
+            // don't get the same vni again.
+            if ( ! vniToVpcReourceMetaDataMap.containsKey(vni)){
+                VpcResourceMeta vpcResourceMeta = vpcResourceCache.getResourceMeta(vni);
+                if (vpcResourceMeta == null) {
+                    // This is a new VPC
+                    vpcResourceMeta = new VpcResourceMeta(vni, new HashMap<String, ResourceMeta>());
+                }
+                vniToVpcReourceMetaDataMap.put(vni, vpcResourceMeta);
+            }
+        }
+        // Edit the in-memory VpcResourceData, instead of getting it from cache every time.
         for (String resourceId : portStatesMap.keySet()) {
             Port.PortState portState = portStatesMap.get(resourceId);
-
             String vpcId = portState.getConfiguration().getVpcId();
             String vni = String.valueOf(vpcIdToVniMap.get(vpcId));
             String portId = portState.getConfiguration().getId();
@@ -164,16 +180,10 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
             String gatewayId = "";
             String securityGroupId = "";
 
-            VpcResourceMeta vpcResourceMeta = vpcResourceCache.getResourceMeta(vni);
-            if (vpcResourceMeta == null) {
-                // This is a new VPC
-                vpcResourceMeta = new VpcResourceMeta(vni, new HashMap<String, ResourceMeta>());
-            }
-
+            VpcResourceMeta vpcResourceMeta = vniToVpcReourceMetaDataMap.get(vni);
             for (Port.PortConfiguration.FixedIp fixedIp : portState.getConfiguration().getFixedIpsList()) {
                 String subnetId = fixedIp.getSubnetId();
                 String portPrivateIp = fixedIp.getIpAddress();
-
                 ResourceMeta portResourceMeta = vpcResourceMeta.getResourceMeta(portPrivateIp);
                 if (portResourceMeta == null) {
                     // new port
@@ -181,7 +191,6 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
                 } else {
                     //TODO: handle port metadata consolidation including cleanup of legacy metadata
                 }
-
                 if (!CommonUtil.isNullOrEmpty(vpcId)) portResourceMeta.addVpcId(vpcId);
                 if (!CommonUtil.isNullOrEmpty(subnetId)) portResourceMeta.addSubnetId(subnetId);
                 if (!CommonUtil.isNullOrEmpty(portId)) portResourceMeta.addPortId(portId);
@@ -192,8 +201,10 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
 
                 vpcResourceMeta.setResourceMeta(portPrivateIp, portResourceMeta);
             }
-
-            vpcResourceCache.addResourceMeta(vpcResourceMeta);
+        }
+        // Commit the changes to the database. This is safe, it is wrapped by a transaction in updateGoalState
+        for(String vni : vniToVpcReourceMetaDataMap.keySet()){
+            vpcResourceCache.addResourceMeta(vniToVpcReourceMetaDataMap.get(vni));
         }
     }
 
