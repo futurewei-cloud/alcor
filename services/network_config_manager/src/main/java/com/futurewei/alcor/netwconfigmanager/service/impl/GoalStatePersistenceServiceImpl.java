@@ -56,6 +56,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
 
         // TODO: Use Ignite transaction here
         hostResourceMetadataCache.getTransaction();
+
         // Step 1: Populate host resource metadata cache
         ResourceMeta existing = hostResourceMetadataCache.getResourceMeta(hostId);
         ResourceMeta latest = NetworkConfigManagerUtil.convertGoalStateToHostResourceMeta(
@@ -154,6 +155,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
     private void populateVpcResourceCache(HostGoalState hostGoalState, Map<String, Integer> vpcIdToVniMap) throws Exception {
         Map<String, Port.PortState> portStatesMap = hostGoalState.getGoalState().getPortStatesMap();
         HashMap<String, VpcResourceMeta> vniToVpcReourceMetaDataMap = new HashMap<>();
+
         // Retrieve all needed VpcResourceMeta from cache to memory
         for (String resourceId : portStatesMap.keySet()){
             Port.PortState portState = portStatesMap.get(resourceId);
@@ -169,6 +171,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
                 vniToVpcReourceMetaDataMap.put(vni, vpcResourceMeta);
             }
         }
+
         // Edit the in-memory VpcResourceData, instead of getting it from cache every time.
         for (String resourceId : portStatesMap.keySet()) {
             Port.PortState portState = portStatesMap.get(resourceId);
@@ -202,6 +205,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
                 vpcResourceMeta.setResourceMeta(portPrivateIp, portResourceMeta);
             }
         }
+
         // Commit the changes to the database. This is safe, it is wrapped by a transaction in updateGoalState
         for(String vni : vniToVpcReourceMetaDataMap.keySet()){
             vpcResourceCache.addResourceMeta(vniToVpcReourceMetaDataMap.get(vni));
