@@ -22,6 +22,8 @@ import com.futurewei.alcor.netwconfigmanager.entity.ResourceMeta;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
+import com.futurewei.alcor.common.db.CacheException;
+import com.futurewei.alcor.common.db.Transaction;
 
 @Repository
 @ComponentScan(value = "com.futurewei.alcor.common.db")
@@ -29,6 +31,18 @@ public class HostResourceMetadataCache {
 
     // Map <HostId, List<ResoruceIDType>>
     private ICache<String, ResourceMeta> hostResourceMetas;
+
+    public Transaction getTransaction() throws CacheException {
+        return hostResourceMetas.getTransaction().start();
+    }
+
+    public void commit() throws CacheException {
+        hostResourceMetas.getTransaction().commit();
+    }
+
+    public void rollback() throws CacheException {
+        hostResourceMetas.getTransaction().rollback();
+    }
 
     @Autowired
     public HostResourceMetadataCache(CacheFactory cacheFactory) {
