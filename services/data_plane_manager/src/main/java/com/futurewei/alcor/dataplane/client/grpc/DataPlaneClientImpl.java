@@ -91,7 +91,7 @@ public class DataPlaneClientImpl implements DataPlaneClient {
     private List<String> doSendGoalStates(List<UnicastGoalState> unicastGoalStates) {
         List<Future<UnicastGoalState>>
                 futures = new ArrayList<>(unicastGoalStates.size());
-
+        unicastGoalStates.forEach(item -> System.out.println("HostIp: " + item.getHostIp()));
         for (UnicastGoalState unicastGoalState: unicastGoalStates) {
             Future<UnicastGoalState> future =
                     executor.submit(() -> {
