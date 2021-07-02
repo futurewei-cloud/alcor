@@ -486,7 +486,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
     }
 
     @Override
-    public UpdateRoutingRuleResponse updateRoutingRule (String owner, NewRoutesWebRequest newRouteEntry, boolean isDefaultRoutingRules) throws CacheException, CanNotFindRouteTableByOwner, QueryParamTypeNotSupportException, RouteTableNotUnique, DestinationInvalid {
+    public UpdateRoutingRuleResponse updateRoutingRule (String owner, NewRoutesWebRequest newRouteEntry, boolean isDefaultRoutingRules, boolean isAddOperation) throws CacheException, CanNotFindRouteTableByOwner, QueryParamTypeNotSupportException, RouteTableNotUnique, DestinationInvalid, DatabasePersistenceException {
         List<InternalRoutingRule> updateRoutes = new ArrayList<>();
         List<HostRoute> hostRouteToSubnet = new ArrayList<>();
 
@@ -514,7 +514,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         RouteTable existRouteTable = routeTables.get(0);
 
         List<RouteEntry> existRoutes = existRouteTable.getRouteEntities();
-        // TODO: existRoutes -> MAP: key - des(/前面的), value - nexthop, "10.0.0.0/16"
+        // TODO: existRoutes -> MAP: key - des, value - nexthop, "10.0.0.0/16"
         Map<String, RouteEntry> existRoutesMap = new HashMap<>();
         for (RouteEntry existRoute : existRoutes) {
             String[] existDes = existRoute.getDestination().split("\\/");
@@ -538,11 +538,23 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             int newBitmaskInt = Integer.parseInt(newBitmask);
             // TODO: 2. flag check if it is from vpc/Neutron(lower priority) or subnet.
             RouteEntry existRoute = existRoutesMap.get(newNetworkIP);
-            // dont find: Create (both)
+            // can't find: Add Operation - Create (both); Remove Operation - Skip
             if (existRoute == null) {
+                if (!isAddOperation) { // Remove Operation - Skip
+                    continue;
+                }
                 InternalRoutingRule internalRoutingRule = null;
                 if (isDefaultRoutingRules) {
                     internalRoutingRule = constructNewInternalRoutingRule(OperationType.CREATE, RoutingRuleType.DEFAULT, existRoute, newRouteRequest);
+                    existRoutes.add(new RouteEntry(existRouteTable.getProjectId(),
+                            UUID.randomUUID().toString(),
+                            "route" + UUID.randomUUID().toString(),
+                            null,
+                            internalRoutingRule.getDestination(),
+                            null,
+                            ConstantsConfig.LOW_PRIORITY,
+                            existRouteTable.getId(),
+                            internalRoutingRule.getNextHopIp()));
                 } else {
                     internalRoutingRule = constructNewInternalRoutingRule(OperationType.CREATE, RoutingRuleType.STATIC, existRoute, newRouteRequest);
                 }
@@ -558,13 +570,37 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
                     String[] existDes = existRoute.getDestination().split("\\/");
                     String existBitmask = existDes[1];
                     int existBitmaskInt = Integer.parseInt(existBitmask);
-                    if (newBitmaskInt <= existBitmaskInt) { // new routing rule bitmask is smaller or equal than old one, drop it
-                        continue;
-                    } else { // new routing rule bitmask is larger than old one, Create new rule with low priority
+                    if (isAddOperation) {
+                        if (newBitmaskInt <= existBitmaskInt) { // new routing rule bitmask is smaller or equal than old one, drop it
+                            continue;
+                        } else {
 
-                        InternalRoutingRule internalRoutingRule = constructNewInternalRoutingRule(OperationType.CREATE, RoutingRuleType.DEFAULT, existRoute, newRouteRequest);
+                            InternalRoutingRule internalRoutingRule = constructNewInternalRoutingRule(OperationType.CREATE, RoutingRuleType.DEFAULT, existRoute, newRouteRequest);
 
-                        updateRoutes.add(internalRoutingRule);
+                            String Des = internalRoutingRule.getDestination();
+                            String Nexthop = internalRoutingRule.getNextHopIp();
+
+                            existRoutes.add(new RouteEntry(existRouteTable.getProjectId(),
+                                    UUID.randomUUID().toString(),
+                                    "route" + UUID.randomUUID().toString(),
+                                    null,
+                                    Des,
+                                    null,
+                                    ConstantsConfig.LOW_PRIORITY,
+                                    existRouteTable.getId(),
+                                    Nexthop));
+                            updateRoutes.add(internalRoutingRule);
+
+                        }
+                    } else { // remove operation
+
+                        if (newBitmaskInt == existBitmaskInt) { // remove default routes
+
+                            InternalRoutingRule internalRoutingRule = constructNewInternalRoutingRule(OperationType.DELETE, RoutingRuleType.DEFAULT, existRoute, null);
+
+                            existRoutes.remove(existRoute);
+                            updateRoutes.add(internalRoutingRule);
+                        }
 
                     }
                 } else { // Subnet
@@ -580,13 +616,20 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
 
         }
 
-        for (Map.Entry<String, RouteEntry> existRouteEntry : existRoutesMap.entrySet()) {
-            RouteEntry existRoute = (RouteEntry)existRouteEntry.getValue();
-            InternalRoutingRule internalRoutingRule = constructNewInternalRoutingRule(OperationType.DELETE, RoutingRuleType.DEFAULT, existRoute, null);
+        if (!isDefaultRoutingRules) {// if from VPC/Neutron, it shouldn't delete default routing rules
+            for (Map.Entry<String, RouteEntry> existRouteEntry : existRoutesMap.entrySet()) {
+                RouteEntry existRoute = (RouteEntry)existRouteEntry.getValue();
+                InternalRoutingRule internalRoutingRule = constructNewInternalRoutingRule(OperationType.DELETE, RoutingRuleType.DEFAULT, existRoute, null);
 
-            updateRoutes.add(internalRoutingRule);
+                updateRoutes.add(internalRoutingRule);
+                updateRoutes.add(internalRoutingRule);
 
+            }
         }
+
+        // update subnet route table
+        existRouteTable.setRouteEntities(existRoutes);
+        this.routeTableDatabaseService.addRouteTable(existRouteTable);
 
         // construct List<InternalSubnetRoutingTable>
         InternalSubnetRoutingTable internalSubnetRoutingTable = new InternalSubnetRoutingTable();
@@ -870,10 +913,14 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
                 return false;
             }
             int suffix = Integer.parseInt(cidrs[1]);
+
             if (suffix < 16 || suffix > 28) {
-                return false;
-            } else if (suffix == 0 && !"0.0.0.0".equals(cidrs[0])) {
-                return false;
+                if (suffix == 0 && "0.0.0.0".equals(cidrs[0]))
+                {
+                    return true;
+                } else {
+                    return false;
+                }
             }
         }
         // verify cidr prefix

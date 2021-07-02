@@ -334,7 +334,7 @@ public class VpcRouterTests {
 
         Mockito.when(routeTableDatabaseService.getAllRouteTables(anyMap()))
                 .thenReturn(new HashMap<String, RouteTable>(){{put(UnitTestConfig.routeTableId, routetable);}});
-        Mockito.when(neutronRouterService.updateRoutingRule(anyString(), any(NewRoutesWebRequest.class), anyBoolean()))
+        Mockito.when(neutronRouterService.updateRoutingRule(anyString(), any(NewRoutesWebRequest.class), anyBoolean(), anyBoolean()))
                 .thenReturn(new UpdateRoutingRuleResponse() {
                     {
                         setHostRouteToSubnet(new ArrayList<>());
@@ -359,7 +359,7 @@ public class VpcRouterTests {
 
         Mockito.when(routeTableDatabaseService.getAllRouteTables(anyMap()))
                 .thenReturn(new HashMap<String, RouteTable>(){{put(UnitTestConfig.routeTableId, routetable);}});
-        Mockito.when(neutronRouterService.updateRoutingRule(anyString(), any(NewRoutesWebRequest.class), anyBoolean()))
+        Mockito.when(neutronRouterService.updateRoutingRule(anyString(), any(NewRoutesWebRequest.class), anyBoolean(), anyBoolean()))
                 .thenReturn(new UpdateRoutingRuleResponse(){{setHostRouteToSubnet(new ArrayList<>());}});
         this.mockMvc.perform(delete(subnetRouteTableUri))
                 .andDo(print())
