@@ -432,7 +432,7 @@ public class RouterController {
             RestPreconditionsUtil.verifyResourceFound(projectid);
 
             // check resource
-            if (!RouteManagerUtil.checkCreateNeutronSubnetRouteTableWebJsonResourceIsValid(resource)) {
+            if (!RouteManagerUtil.checkCreateSubnetRouteTableWebJsonResourceIsValid(resource)) {
                 throw new ResourceNotValidException("request resource is invalid");
             }
 
@@ -450,7 +450,7 @@ public class RouterController {
                     "0.0.0.0/0", null, 100, null, "192.168.0.1");
             routes.add(defaultRoute);
 
-            routeTable = this.routerService.createNeutronSubnetRouteTable(projectid, subnetid, resource, routes);
+            routeTable = this.routerService.createSubnetRouteTable(projectid, subnetid, resource, routes);
 
         } catch (ParameterNullOrEmptyException e) {
             throw e;

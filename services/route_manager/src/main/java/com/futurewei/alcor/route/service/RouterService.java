@@ -40,6 +40,6 @@ public interface RouterService {
     public RouteTable getSubnetRouteTable(String projectId, String subnetId) throws CacheException, CanNotFindRouteTableByOwner, OwnMultipleSubnetRouteTablesException;
     public RouteTable updateSubnetRouteTable (String projectId, String subnetId, UpdateRoutingRuleResponse resource) throws CacheException, DatabasePersistenceException, OwnMultipleSubnetRouteTablesException, CanNotFindRouteTableByOwner;
     public String deleteSubnetRouteTable (String projectId, String subnetId) throws Exception;
-    public RouteTable createNeutronSubnetRouteTable(String projectId, String subnetId, RouteTableWebJson resource, List<RouteEntry> routes) throws DatabasePersistenceException;
+    public RouteTable createSubnetRouteTable(String projectId, String subnetId, RouteTableWebJson resource, List<RouteEntry> routes) throws DatabasePersistenceException;
 
 }

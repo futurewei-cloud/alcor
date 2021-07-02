@@ -219,7 +219,6 @@ public class RouterServiceImpl implements RouterService {
 
     @Override
     public RouteTable updateVpcRouteTable(String projectId, String vpcId, RouteTableWebJson resource) throws DatabasePersistenceException, CanNotFindVpc, CacheException, OwnMultipleVpcRouterException, ResourceNotFoundException, ResourcePersistenceException, CanNotFindRouter {
-        RouteTable routeTable = null;
         RouteTable inRoutetable = resource.getRoutetable();
 
         // Get router
@@ -232,7 +231,7 @@ public class RouterServiceImpl implements RouterService {
         // check if there is a vpc default routetable
         List<RouteTable> vpcRouteTables = router.getVpcRouteTables();
         String vpcDefaultRouteTableId = router.getVpcDefaultRouteTableId();
-        routeTable = this.routeTableDatabaseService.getByRouteTableId(vpcDefaultRouteTableId);
+        RouteTable routeTable = this.routeTableDatabaseService.getByRouteTableId(vpcDefaultRouteTableId);
 
         if (routeTable == null) {
             String routeTableId = inRoutetable.getId();
@@ -352,7 +351,7 @@ public class RouterServiceImpl implements RouterService {
     }
 
     @Override
-    public RouteTable createNeutronSubnetRouteTable(String projectId, String subnetId, RouteTableWebJson resource, List<RouteEntry> routes) throws DatabasePersistenceException {
+    public RouteTable createSubnetRouteTable(String projectId, String subnetId, RouteTableWebJson resource, List<RouteEntry> routes) throws DatabasePersistenceException {
 
         // configure a new route table
         RouteTable routeTable = new RouteTable();
@@ -361,7 +360,7 @@ public class RouterServiceImpl implements RouterService {
         routeTable.setDescription("");
         routeTable.setName("subnet-" + id + "-routetable");
         routeTable.setProjectId(projectId);
-        routeTable.setRouteTableType(RouteTableType.NEUTRON_SUBNET.getRouteTableType());
+        routeTable.setRouteTableType(resource.getRoutetable().getRouteTableType());
         routeTable.setOwner(subnetId);
 
         routeTable.setRouteEntities(routes);
