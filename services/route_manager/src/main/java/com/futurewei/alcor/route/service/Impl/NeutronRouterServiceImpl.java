@@ -916,10 +916,14 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
                 return false;
             }
             int suffix = Integer.parseInt(cidrs[1]);
+
             if (suffix < 16 || suffix > 28) {
-                return false;
-            } else if (suffix == 0 && !"0.0.0.0".equals(cidrs[0])) {
-                return false;
+                if (suffix == 0 && "0.0.0.0".equals(cidrs[0]))
+                {
+                    return true;
+                } else {
+                    return false;
+                }
             }
         }
         // verify cidr prefix
