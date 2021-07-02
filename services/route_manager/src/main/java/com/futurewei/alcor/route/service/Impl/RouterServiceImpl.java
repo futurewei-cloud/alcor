@@ -171,7 +171,7 @@ public class RouterServiceImpl implements RouterService {
         List<RouteTable> vpcRouteTables = router.getVpcRouteTables();
         if (vpcRouteTables != null)
         {
-            return vpcRouteTables.stream().filter(vpcRouteTable -> RouteTableType.VPC.getRouteTableType().equals(vpcRouteTable.getRouteTableType())).findFirst().get();
+            return vpcRouteTables.stream().filter(vpcRouteTable -> RouteTableType.VPC.getRouteTableType().equals(vpcRouteTable.getRouteTableType())).findFirst().orElse(null);
         }
 
         return null;
