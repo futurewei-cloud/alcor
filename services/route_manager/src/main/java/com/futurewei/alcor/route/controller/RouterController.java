@@ -342,6 +342,11 @@ public class RouterController {
 
             routetables = this.routerService.getVpcRouteTables(projectid, vpcid);
 
+            if (routetables == null)
+            {
+                throw new RouterUnavailable();
+            }
+
         } catch (Exception e) {
             throw e;
         }
