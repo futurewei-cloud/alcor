@@ -158,7 +158,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     try {
                         Map<String, HostGoalState> filteredGoalStates = NetworkConfigManagerUtil.filterNeighbors(hostGoalStates);
 
-                        GoalStateClient grpcGoalStateClient = new GoalStateClientImpl();
+                        GoalStateClient grpcGoalStateClient = GoalStateClientImpl.getInstance();
                         grpcGoalStateClient.sendGoalStates(filteredGoalStates);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -251,7 +251,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     }
                 }
 
-                GoalStateClient grpcGoalStateClient = new GoalStateClientImpl();
+                GoalStateClient grpcGoalStateClient = GoalStateClientImpl.getInstance();
                 grpcGoalStateClient.sendGoalStates(hostGoalStates);
             } catch (Exception e) {
                 logger.log(Level.SEVERE, "[requestGoalStates] Retrieve from host fails. IP address = " + clientIpAddress);
