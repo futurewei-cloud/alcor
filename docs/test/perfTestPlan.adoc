@@ -33,7 +33,7 @@ network parameters, operation system and perf test tools.
 
 Our performance test environment contains 3 types of nodes:
 
-- Controller nodes: hosting both OpenStack control plane, Alcor control plane and ElasticSearch analytics cluster
+- Controller nodes: hosting both OpenStack control plane, Alcor control plane, ElasticSearch analytics cluster and Jaeger tracing cluster
 - Compute nodes: Hosting VMs and customer workload
 - Rally nodes: Hosting Perf test tool
 
