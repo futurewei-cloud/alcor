@@ -344,7 +344,7 @@ public class RouterController {
 
             if (routetables == null)
             {
-                throw new RouterUnavailable();
+                throw new RouterTableNotExist();
             }
 
         } catch (Exception e) {
