@@ -108,7 +108,7 @@ public class RouterService extends ResourceService {
         //TODO: where does the hostDvrMacAddress come from ?
         System.out.println("Route update type: " + routerInfo.getOperationType());
         System.out.println("Route host dvr mac: " + routerInfo.getRouterConfiguration().getHostDvrMac());
-        routerConfigBuilder.setHostDvrMacAddress(routerInfo.getRouterConfiguration().getHostDvrMac());
+        routerConfigBuilder.setHostDvrMacAddress(HOST_DVR_MAC);
         if (routerInfo.getRouterConfiguration().getId() != null)
         {
             routerConfigBuilder.setId(routerInfo.getRouterConfiguration().getId());
