@@ -16,13 +16,14 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.quota;
 
 import com.futurewei.alcor.common.db.DbBaseConfiguration;
+import com.futurewei.alcor.common.tracer.TracerConfiguration;
 import com.futurewei.alcor.web.json.JsonHandlerConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
-@Import({JsonHandlerConfiguration.class, DbBaseConfiguration.class})
+@Import({JsonHandlerConfiguration.class, DbBaseConfiguration.class, TracerConfiguration.class})
 public class QuotaManagerApplication {
 
     public static void main(String[] args) {

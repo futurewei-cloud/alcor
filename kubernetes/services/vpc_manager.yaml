@@ -16,6 +16,15 @@ data:
     microservices.subnet.service.url=http://subnetmanager-service.default.svc.cluster.local:9002
     
     rbac.policy.type=Enforced
+
+    opentracing.jaeger.udp-sender.host=localhost
+    opentracing.jaeger.udp-sender.port=6831
+    opentracing.jaeger.const-sampler.decision=true
+    opentracing.jaeger.enabled=true
+    opentracing.jaeger.log-spans=true
+    opentracing.jaeger.enable-w3c-propagation=true
+    opentracing.jaeger.enable-b3-propagation=true
+    opentracing.jaeger.service-name=alcor-vpc
 ---
 apiVersion: apps/v1
 kind: Deployment

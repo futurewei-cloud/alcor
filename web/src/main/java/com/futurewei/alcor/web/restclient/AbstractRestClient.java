@@ -15,13 +15,21 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.web.restclient;
 
+import com.futurewei.alcor.common.http.RestTemplateConfig;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Import;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Import(RestTemplateConfig.class)
 abstract class AbstractRestClient {
-    RestTemplate restTemplate = new RestTemplate();
+    RestTemplate restTemplate;
+
+    public AbstractRestClient(RestTemplateBuilder restTemplateBuilder) {
+        this.restTemplate = restTemplateBuilder.build();
+    }
 
     <T> T getForObject(String url, Class<T> tClass) throws Exception {
         T response = restTemplate.getForObject(url, tClass);
