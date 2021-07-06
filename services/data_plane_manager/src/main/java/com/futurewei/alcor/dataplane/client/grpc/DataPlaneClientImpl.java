@@ -129,7 +129,7 @@ public class DataPlaneClientImpl implements DataPlaneClient {
 
         Map<String, List<GoalStateOperationStatus>> result = new HashMap<>();
         System.out.println("Goal state type: " + goalState.getRouterStates(0).getConfiguration());
-        ManagedChannel channel = newChannel("192.168.1.138", grpcPort);
+        ManagedChannel channel = newChannel(hostIp, grpcPort);
         GoalStateProvisionerGrpc.GoalStateProvisionerBlockingStub blockingStub =
                 GoalStateProvisionerGrpc.newBlockingStub(channel);
 
