@@ -186,6 +186,31 @@ The following times are from creating two goal states with 100 through 2200 port
 
 image::ncm-inginte-gs-latency.png
 
+== Update on July 5, 2021
+This update contains all the experiments and observations collected over the last couple of weeks.
+One optimization to NCM is to call getResorceMeta in populateVpcResourceCache outside the loops once. Another change was to collect per call timing of getResorceMeta by calling it in a loop.
+The data collected include YourKit profiler snapshots of NCM and Ignite and relevant logfiles.
+
+* xref:Ignite-CPU-hot-spots-200p.html[hotspots in Ignite profile snapshot]
+* xref:ncm-CPU-hot-spots-200p.html[hotspots in NCM profile snapshot]
+* xref:networkconfigmanager-0.1.0-SNAPSHOT-2021-07-05_01.snapshot[NCM full CPU profiler snapshot, need YourKit to visualize it]
+* xref:ignite-ALL-UNNAMED-2021-07-05_1.snapshot[Ignite full CPU profiler snapshot, need YourKit to visualize it]
+* xref:getvni-2p.txt[Timings of calling vpcResourceCache.getResourceMeta 1000 times for a 2 port GS]
+* xref:ncm-2021-07-02-pvrco-02-2p.log[NCM log of 2 port goal state put/get]
+* xref:ncm-2021-07-02-pvrco-2p-prof.log[Same as above but NCM under profiler]
+* xref:getvni-100p.txt[Timings of calling vpcResourceCache.getResourceMeta 1000 times for a 100 port GS]
+* xref:ncm-2021-07-02-pvrco-02-100p.log[NCM log of 200 port goal state put/get]
+* xref:ncm-2021-07-05-pvrco-100p-prof.log[Same as above but NCM under profiler]
+* xref:getvni-freq.txt[Histogram of getResourceMeta latencies]
+
+
+The profiler shows that NCM had 28 GC pauses with average pause lasting 12ms to maximum of 44ms. Ignite had 6 GC pauses averaging 46ms per pause and maximum of 70ms.
+
+Most of the latency is inside the Ignite client which is part of NCM and Ignite server itself. Some of the latency is the network, which will be compurted in next iteration.
+
+One task is to breakdown the total latency into three components: NCM proper, network, and Ignite proper.
+Another experiment is to move VpcResourceCache into JVM heap to measure the effect of serialization and deserialization.
+
 == Conclusions
 * Use PutAll interface whenever possible, especailly if cache get and put are from inside a lopp which iterates over a large collection.
 
@@ -194,4 +219,6 @@ image::ncm-inginte-gs-latency.png
 * Try to parallelize DB work.
 
 * Setup a performance test and run it periodically to monitor the DB performance changes as new code gets added.
+
+* Approach Gridgain when there is enough data to show the source of latency to be Ignite.
 
