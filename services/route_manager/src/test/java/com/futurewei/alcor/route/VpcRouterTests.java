@@ -20,6 +20,7 @@ import com.futurewei.alcor.route.config.UnitTestConfig;
 import com.futurewei.alcor.route.service.*;
 import com.futurewei.alcor.web.entity.route.*;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
+import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
 import com.futurewei.alcor.web.entity.subnet.SubnetsWebJson;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
@@ -372,6 +373,8 @@ public class VpcRouterTests {
                         });
                     }
                 });
+        Mockito.when(vpcRouterToSubnetService.getSubnet(anyString(), anyString()))
+                .thenReturn(new SubnetWebJson(){{setSubnet(new SubnetEntity());}});
         this.mockMvc.perform(put(subnetRouteTableUri).contentType(MediaType.APPLICATION_JSON)
                 .content(UnitTestConfig.subnetRouteTableResource))
                 .andDo(print())
@@ -388,6 +391,8 @@ public class VpcRouterTests {
                 .thenReturn(new HashMap<String, RouteTable>(){{put(UnitTestConfig.routeTableId, routetable);}});
         Mockito.when(neutronRouterService.updateRoutingRule(anyString(), any(NewRoutesWebRequest.class), anyBoolean(), anyBoolean()))
                 .thenReturn(new UpdateRoutingRuleResponse(){{setHostRouteToSubnet(new ArrayList<>());}});
+        Mockito.when(vpcRouterToSubnetService.getSubnet(anyString(), anyString()))
+                .thenReturn(new SubnetWebJson(){{setSubnet(new SubnetEntity());}});
         this.mockMvc.perform(delete(subnetRouteTableUri))
                 .andDo(print())
                 .andExpect(status().isOk())

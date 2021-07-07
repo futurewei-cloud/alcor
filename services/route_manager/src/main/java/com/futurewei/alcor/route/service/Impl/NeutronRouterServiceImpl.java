@@ -703,7 +703,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
     }
 
     @Override
-    public List<InternalSubnetRoutingTable> constructInternalSubnetRoutingTables(Router router) throws DatabasePersistenceException, CanNotFindSubnet, OwnMultipleSubnetRouteTablesException, CacheException, ResourcePersistenceException, ResourceNotFoundException, OwnMultipleVpcRouterException, CanNotFindVpc {
+    public List<InternalSubnetRoutingTable> constructInternalSubnetRoutingTables(Router router) throws DatabasePersistenceException, CanNotFindSubnet, OwnMultipleSubnetRouteTablesException, CacheException, ResourcePersistenceException, ResourceNotFoundException, OwnMultipleVpcRouterException, CanNotFindVpc, CanNotFindRouteTableByOwner {
         if (router == null) {
             return new ArrayList<>();
         }
@@ -749,7 +749,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
     }
 
     @Override
-    public List<RouteTable> getRouteTablesBySubnetIds(List<String> subnetIds, String projectid) throws DatabasePersistenceException, CanNotFindSubnet, OwnMultipleSubnetRouteTablesException, CacheException, ResourcePersistenceException, ResourceNotFoundException, OwnMultipleVpcRouterException, CanNotFindVpc {
+    public List<RouteTable> getRouteTablesBySubnetIds(List<String> subnetIds, String projectid) throws DatabasePersistenceException, CanNotFindSubnet, OwnMultipleSubnetRouteTablesException, CacheException, ResourcePersistenceException, ResourceNotFoundException, OwnMultipleVpcRouterException, CanNotFindVpc, CanNotFindRouteTableByOwner {
         if (subnetIds == null) {
             return null;
         }
