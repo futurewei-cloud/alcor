@@ -540,7 +540,7 @@ public class SubnetController {
 
             // delete subnet routing rule in route manager
             try {
-                this.subnetService.deleteSubnetRoutingRuleInRM(projectId, subnetId);
+                this.subnetService.deleteSubnetRoutingTable(projectId, subnetId);
             } catch (HttpClientErrorException.NotFound e) {
                 logger.warn(e.getMessage());
             }

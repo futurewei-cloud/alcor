@@ -88,7 +88,7 @@ public interface SubnetService {
     public void updateSubnetHostRoutes (String subnetId, NewHostRoutes resource) throws ResourceNotFoundException, ResourcePersistenceException, DatabasePersistenceException, SubnetEntityNotFound, DestinationOrOperationTypeIsNull;
 
     // delete subnet routing rule in route manager
-    public void deleteSubnetRoutingRuleInRM (String projectId, String subnetId) throws SubnetIdIsNull;
+    public void deleteSubnetRoutingTable (String projectId, String subnetId) throws SubnetIdIsNull;
 
     // update subnet routing rule in route manager
     public void updateSubnetRoutingRuleInRM (String projectId, String subnetId, SubnetEntity subnetEntity) throws SubnetIdIsNull;
