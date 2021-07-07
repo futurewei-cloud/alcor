@@ -24,18 +24,17 @@ import com.futurewei.alcor.subnet.config.ConstantsConfig;
 import com.futurewei.alcor.subnet.service.SubnetService;
 import com.futurewei.alcor.subnet.service.implement.SubnetServiceImp;
 import com.futurewei.alcor.web.entity.subnet.HostRoute;
-import com.futurewei.alcor.web.entity.subnet.SubnetWebRequestJson;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebRequest;
+import com.futurewei.alcor.web.entity.subnet.SubnetWebRequestJson;
 import org.apache.commons.net.util.SubnetUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SubnetManagementUtil {
 
-    private static SubnetService subnetService = new SubnetServiceImp();
+    private static SubnetService subnetService = new SubnetServiceImp(new RestTemplateBuilder());
 
     public static boolean checkSubnetRequestResourceIsValid(SubnetWebRequestJson resource) {
         if (resource == null) {

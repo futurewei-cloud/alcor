@@ -15,10 +15,13 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.networkaclmanager;
 
+import com.futurewei.alcor.common.tracer.TracerConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
+@Import(TracerConfiguration.class)
 public class NetworkAclManagerApplication {
 
     public static void main(String[] args) {

@@ -1,0 +1,327 @@
+= Alcor Performance Test Plan
+Chun-Jen Chung <cchung@futurewei.com>, Liguang Xie <lxie@futurewei.com>
+v0.1, 2020-07-22; v0.2, 2021-06-15
+:toc: right
+:imagesdir: images
+
+== Overview
+
+In this document, we outline the performance test plan for Alcor SDN Control Plane and the performance comparison with
+OpenStack Neutron - the de facto networking control plane for OpenStack-based cloud.
+This test plan details test environment, tools, system monitoring and most importantly, test cases against Alcor and Neutron.
+The test cases includes a set of established test cases offered by Rally, which is an open-source performance test framework
+and benchmarking tool, as well as new test cases customized for public cloud scenarios.
+
+To ensure fair comparison between Alcor and Neutron, our setup proposal is as follows:
+
+- Same set of controller nodes will be used for Neutron control plane and Alcor control plane.
+When one control plane is under test, the other will be completely turned off.
+- Same set of compute nodes will be used to host VMs and/or other customer workloads.
+- Same benchmarking tool and test cases will be used to conduct the performance test.
+- Same set of performance metrics to measure the performance and scalability of a control plane.
+
+This test plan covers an ongoing effort to cover the most important cloud operations in terms of networking performance,
+starting with network/VPC, subnet and ports.
+We will continue to extend the coverage including routers, security groups and other networking objects.
+
+== Test Environment
+
+This section includes preparation and details of our test environment including hardware specification of servers,
+network parameters, operation system and perf test tools.
+
+=== Overall Setup
+
+Our performance test environment contains 3 types of nodes:
+
+- Controller nodes: hosting both OpenStack control plane, Alcor control plane, ElasticSearch analytics cluster and Jaeger tracing cluster
+- Compute nodes: Hosting VMs and customer workload
+- Rally nodes: Hosting Perf test tool
+
+[width="60%",options="header"]
+|====================
+|Category|Server Count| Server Type
+|controller| 3 | 1
+|compute | 44 | 1, 2, 3
+|rally | 1 | 1
+|====================
+
+===  Hardware
+
+Server Type 1: Huawei Tecal RH2288 V2 Server (Count: 7)
+[width="100%",options="header"]
+|====================
+|Server|Parameter|Value
+
+.4+^.^|CPU
+|Vendor/Model|Intel(R) Xeon(R) CPU E5-2670 0@ 2.60GHz
+|Processor Count| 2
+|Core Count| 32
+|Frequency HMz| 2600
+
+.2+^.^|RAM
+|Vendor/Model| 16 x 8GB
+|Amount (GB)| 128
+
+.4+^.^|NETWORK
+|Vendor/Model| Intel / 82580 Gigabit Network Connection
+|Bandwidth| 1 Gbit/s
+|Vendor/Model| Intel / 82599ES 10-Gigabit SFI/SFP+ Network Connection
+|Bandwidth| 10 Gbit/s
+
+.6+^.^|STORAGE
+|Vendor/Model|12 x 600 GB
+|SSD/HDD| HDD
+|Size| 7,200 GB
+|Vendor/Model|2 x 600GB
+|SSD/HDD| HDD
+|Size| 1,200 GB
+
+|====================
+
+
+Server Type 2: Huawei RH2288 V3 Server (Count: 11)
+[width="100%",options="header"]
+|====================
+|Server|Parameter|Value
+
+.4+^.^|CPU
+|Vendor/Model| Intel(R) Xeon(R) CPU E5-2698 v4 @ 2.20GHz
+|Processor Count| 80
+|Core Count| 80
+|Frequency HMz| 2200
+
+.2+^.^|RAM
+|Vendor/Model| 24 x 32G
+|Amount GB| 768
+
+.4+^.^|NETWORK
+|Vendor/Model| Intel / I350 Gigabit Network Connection
+|Bandwidth| 1 Gbit/s
+|Vendor/Model| Intel / 82599ES 10-Gigabit SFI/SFP+ Network Connection
+|Bandwidth| 10 Gbit/s
+
+.6+^.^|STORAGE
+|Vendor/Model| 8 x 4 TB
+|SSD/HDD| HDD
+|Size| 32,000 GB
+|Vendor/Model| 2 x 800G
+|SSD/HDD| HDD
+|Size| 1,200 GB
+
+|====================
+
+Server Type 3: Huawei RH2288 V3 Server (Count: 4)
+[width="100%",options="header"]
+|====================
+|Server|Parameter|Value
+
+.4+^.^|CPU
+|Vendor/Model| Intel(R) Xeon(R) CPU E5-2697 v3 @ 2.60GHz
+|Processor Count| 56
+|Core Count| 56
+|Frequency HMz| 2600
+
+.2+^.^|RAM
+|Vendor/Model| 24 x 16GB
+|Amount GB| 384
+
+.4+^.^|NETWORK
+|Vendor/Model| Intel / I350 Gigabit Network Connection
+|Bandwidth| 1 Gbit/s
+|Vendor/Model| Intel / 82599ES 10-Gigabit SFI/SFP+ Network Connection
+|Bandwidth| 10 Gbit/s
+
+.6+^.^|STORAGE
+|Vendor/Model| 6 x 1600 GB
+|SSD/HDD| SSD
+|Size| 9,600 GB
+
+|====================
+
+//=== Network
+
+=== OS/Software Version
+
+This section describes the version of installed OS and software.
+
+[width="75%",options="header"]
+|====================
+|OS/Software|Version|Comments
+|OS |Ubuntu 18.04 | LTS (Bionic Beaver)
+|OpenStack | Train | Released in Oct. 2019
+|Alcor | v0.14 | Released in April 2021
+|Rally<<Rally>> | 3.2.0 | Released in Oct. 2020
+|Rally-OpenStack<<Rally-OpenStack>> | 2.1.0 | Released in Nov. 2020
+|OSProfiler<<OSProfiler>> |  |
+|Jaeger<<Jaeger>> | |
+|Hypervisor	| KVM |
+|L2 segmentation | VxLAN |
+//|Neutron plugin	 	e.g. ML2 + OVS
+//|virtual routers	 	e.g. HA / DVR
+|====================
+
+
+=== Benchmarking Tool
+
+As mentioned, Rally is an open-source benchmarking tool that was designed specifically for OpenStack API testing,
+benchmarking and profiling.
+It established a number of mature test suites for various OpenStack components, and we leverage its Neutron test suites
+(refer to Section <<Test-cases>>).
+Also, we will customize a few new test cases that are designed for Public Cloud env.
+
+
+== Performance Metrics and Test Strategy
+
+In the test, we adopt three performance metrics <<openstack_perf>> to measure the performance and scalability for Alcor.
+
+- Operation Latency - the duration of performing a single operation in a single thread -
+min/max/average/median/90% tail/95% tail/99% tail latency will be collected
+- Operation Throughput - the average number of operations completed in one second.
+- Concurrency - the number of parallel operations when the operation throughput reaches its peak.
+
+We will measure the scale impact by comparing the above metrics in different test setups, which vary in one or more dimensions.
+
+- Number of network resources including network, subnet, ports, security groups etc. In the current environment,
+we will stress test the system by scaling up to 10,000 ports (~500 ports/node).
+- Combination of various resource size, for example, a limited number of large networks (each with 1,000 ports),
+a few median-sized networks (each with 100 ports), and a larger number of small networks (each with 10 ports).
+- Scale up and down of Alcor control plane with various replicas of microservice instances and db instances.
+
+We will show operation latency and throughput number for each scenario, and draw curve to see the changing trend
+when the system load gradually increases.
+
+[#Test-cases]
+== Test Cases
+
+=== Test Suite 1: Basic Test Suite
+
+The first test suite is to validate basic cloud operability.
+The following Rally test cases need to be executed:
+
+- create-and-list-networks
+- create-and-list-subnets
+- create-and-list-ports
+- create-and-delete-networks
+- create-and-delete-subnets
+- create-and-delete-ports
+- create-and-update-networks
+- create-and-update-subnets
+- create-and-update-ports
+- create-and-list-routers (_new!_)
+- create-and-list-security-groups (_new!_)
+- create-and-delete-routers (_new!_)
+- create-and-delete-security-groups (_new!_)
+- create-and-update-routers (_new!_)
+- create-and-update-security-groups (_new!_)
+
+Test Cases to be supported in the future:
+
+- create-and-list-floating-ips
+- create-and-delete-floating-ips
+
+=== Test Suite 2: Stressful Test Suite
+
+Test Suite 2 focuses on stress test with increasing number of iterations and concurrency that create sufficient load
+on Neutron and Alcor control plane.
+50-100 concurrency can be used with 2000-5000 iterations in total <<openstack_perf>>.
+
+The following Rally test cases will be executed:
+
+- create-and-list-networks
+- create-and-list-subnets
+- create-and-list-ports
+- boot-and-list-server
+- boot-runcommand-delete
+- create-and-list-routers (_new!_)
+
+Test cases to be supported in the future:
+
+- create-and-list-security-groups
+- boot-and-delete-server-with-secgroups
+
+NOTE:
+After we upgrade Rally to the latest version 3.2, we could enable simple data plane test to verify control plane effectiveness and measure the end-to-end VM latency (from customers booting a VM to the moment when data plane starts working).
+
+=== Test Suite 3: Scalability Test with Many Networks
+
+The goal of this test suite is to create a large number of networks and subnets per tenant.
+Each network has a single VM with one port attached.
+For example 1000 networks (each with one subnet and one port) can be created per each iteration (up to 200 iterations in total).
+
+
+=== Test Suite 4: Scalability Test with Large Network
+
+The focus of Test Suite 4 is slightly different from Test Suite 3.
+The main difference is that this test suite creates a larger number of VMs
+(e.g. a few hundreds, up to 1000) per network, to observe the trend.
+
+=== Test Suite 5: Scalability Test with Mixed Network Size
+
+This test suite aims to simulate a real public cloud scenario,
+where small/median/large business may have different requirements hence desire different combination of various resource size.
+One test case in our test would include:
+
+- a limited number of large networks (each with 1,000 ports),
+- a few median-sized networks (each with 100 ports)
+- a larger number of small networks (each with 10 ports).
+
+== System Tracing
+
+In order to enable fine-grain tracing for Alcor, we arrange a separate work item to support OpenStack cross-service, request-level tracing and profiling, which is tracked by Issue <<tracing_tracking_issue>>.
+We plan to leverage OSProfiler, Jaeger and Rally to provide a full set of tracing support.
+The end goal is to generate 1 trace per request, that goes through all involved services including Nova, KeyStone and Alcor.
+With OSProfiler, this trace can be extracted and used to build a tree of calls which can be used to isolate cross-service performance issues and locate the performance bottleneck rapidly.
+
+- OSProfiler is used for tracing in OpenStack services outside of Alcor.
+- Jaeger is used for tracing Alcor, a microservices-based distributed systems.
+- Rally is used to write complex tests scenarios for public cloud customers.
+
+When completed, our tracing system will generate 1 trace per request, that goes through all involved services including Nova, KeyStone and Alcor, and shows a tree of calls, which includes the order of calls, names of involved services and/or sub-services as well as latency for each call, in a single HTTP page.
+
+=== A Example of Alcor Trace
+
+The following image showcase a sample of across-microservices tracing for a specific VPC creation workflow in a Kubernetes cluster deployed in lab machines under OpenTracing framework.
+It demonstrates a trace with multiple spans starting from API gateway to specific services including VPC Manager, Route Manager, and Gateway Manager.
+
+image::Jaeger-vpc-creation.PNG["Jaeger VPC creation workflow", width=1024, link="Jaeger-vpc-creation.JPG"]
+
+
+=== Target User Scenario
+Support major user scenarios for public-cloud customers including but not limited to booting a VM, attaching a VNIC/port to a VM, associating a secondary private IP to a VNIC, creating a VPC/network and Subnet etc.
+We plan to stress test each scenario to reach its performance bottleneck with the support of our tracing framework.
+
+
+== System Monitoring
+
+We plan to leverage NetData for collecting metrics and monitoring control plane resource utilization.
+This will enable the following Alcor monitoring capabilities:
+
+- Monitor at various levels, from container pod, to microservice and to a host
+- Zoom into every microservice pod and infra pod
+- Include comprehensive metrics like cpu, ram, io, and network etc.
+
+The following image gives an example of cluster resource utilization with NetData enabled.
+
+image::NetData-monitor.png["Alcor monitoring with NetData", width=1024, link="NetData-monitor.png"]
+
+
+== Reports
+
+[width="100%",options="header"]
+|====================
+|Item|Test Suite|Alcor|OpenStack Neutron
+|1 |Basic Test Suite  | |
+|2 |Stressful Test Suite|  |
+|3 |Scalability Test with Many Networks|  |
+|4 |Scalability Test with Large Network|  |
+|5 |Scalability Test with Mixed Network Size|  |
+|====================
+
+[bibliography]
+== References
+- [[[openstack_perf,1]]] OpenStack Performance Test Plan: https://docs.openstack.org/developer/performance-docs/test_plans/openstack_api_metrics/plan.html
+- [[[tracing_tracking_issue,2]]] Tracing Tracking Issue: https://github.com/futurewei-cloud/alcor/issues/631
+- [[[Rally,3]]] Rally: https://github.com/openstack/rally/tree/3.2.0
+- [[[Rally-OpenStack,4]]] Rally-OpenStack: https://github.com/openstack/rally-openstack/tree/2.1.0
+- [[[OSProfiler,5]]] OpenStack/OSProfiler: https://github.com/openstack/osprofiler/tree/stable/train
+- [[[Jaeger,6]]] Jaeger: https://github.com/jaegertracing/jaeger

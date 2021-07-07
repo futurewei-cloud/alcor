@@ -15,6 +15,7 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.portmanager.proxy;
 
+import com.futurewei.alcor.common.tracer.Tracer;
 import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.rollback.CreateNetworkConfigRollback;
 import com.futurewei.alcor.portmanager.rollback.DeleteNetworkConfigRollback;
@@ -32,6 +33,7 @@ public class DataPlaneManagerProxy {
         this.rollbacks = rollbacks;
     }
 
+    @Tracer
     public NetworkConfiguration createNetworkConfig(Object arg) throws Exception {
         NetworkConfiguration networkConfiguration = (NetworkConfiguration)arg;
         dataPlaneManagerRestClient.createNetworkConfig(networkConfiguration);
@@ -43,6 +45,7 @@ public class DataPlaneManagerProxy {
         return networkConfiguration;
     }
 
+    @Tracer
     public void deleteNetworkConfig(Object arg) throws Exception {
         NetworkConfiguration networkConfiguration = (NetworkConfiguration)arg;
         dataPlaneManagerRestClient.deleteNetworkConfig(networkConfiguration);
@@ -52,6 +55,7 @@ public class DataPlaneManagerProxy {
         rollbacks.add(rollback);
     }
 
+    @Tracer
     public NetworkConfiguration updateNetworkConfig(Object arg) throws Exception {
         NetworkConfiguration networkConfiguration = (NetworkConfiguration)arg;
         dataPlaneManagerRestClient.updateNetworkConfig(networkConfiguration);
