@@ -21,6 +21,7 @@ import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.exception.ResourceNotValidException;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.ControllerUtil;
+import com.futurewei.alcor.route.exception.NeutronRouteTableIsNull;
 import com.futurewei.alcor.route.exception.RouterUnavailable;
 import com.futurewei.alcor.route.exception.RouterHasAttachedInterfaces;
 import com.futurewei.alcor.route.service.*;
@@ -303,6 +304,9 @@ public class NeutronRouterController {
             // TODO: waiting for PM new API
             // construct InternalRouterInfo
             RouteTable neutronRouteTable = router.getNeutronRouteTable();
+            if (neutronRouteTable == null) {
+                throw new NeutronRouteTableIsNull();
+            }
             List<RouteEntry> routeEntities = neutronRouteTable.getRouteEntities();
             List<NewRoutesRequest> routes = new ArrayList<>();
             for (RouteEntry routeEntry : routeEntities) {
