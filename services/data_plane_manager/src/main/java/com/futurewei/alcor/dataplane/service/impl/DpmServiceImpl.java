@@ -489,6 +489,7 @@ public class DpmServiceImpl implements DpmService {
             if (subnetRoutingTables != null) {
                 for (InternalSubnetRoutingTable subnetRoutingTable : subnetRoutingTables) {
                     String subnetId = subnetRoutingTable.getSubnetId();
+
                     InternalSubnetPorts subnetPorts = localCache.getSubnetPorts(subnetId);
                     if (subnetPorts == null) {
                         //throw new SubnetPortsNotFound();
@@ -506,6 +507,37 @@ public class DpmServiceImpl implements DpmService {
                         }
 
                         routerService.buildRouterState(routerInfo, subnetRoutingTable, unicastGoalState, multicastGoalState);
+
+                        InternalSubnetPorts subnetEntity = subnetPortsCache.getSubnetPorts(subnetId);
+                        if (subnetEntity != null) {
+                            if (unicastGoalState.getGoalStateBuilder().getSubnetStatesList().stream()
+                                    .filter(e -> e.getConfiguration().getId().equals(subnetEntity.getSubnetId()))
+                                    .findFirst().orElse(null) == null) {
+                                Subnet.SubnetConfiguration.Builder subnetConfigBuilder = Subnet.SubnetConfiguration.newBuilder();
+                                subnetConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
+                                subnetConfigBuilder.setId(subnetEntity.getSubnetId());
+                                subnetConfigBuilder.setVpcId(subnetEntity.getVpcId());
+                                subnetConfigBuilder.setName(subnetEntity.getName());
+                                subnetConfigBuilder.setCidr(subnetEntity.getCidr());
+                                subnetConfigBuilder.setTunnelId(subnetEntity.getTunnelId());
+
+                                Subnet.SubnetConfiguration.Gateway.Builder gatewayBuilder = Subnet.SubnetConfiguration.Gateway.newBuilder();
+                                gatewayBuilder.setIpAddress(subnetEntity.getGatewayPortIp());
+                                gatewayBuilder.setMacAddress(subnetEntity.getGatewayPortMac());
+                                subnetConfigBuilder.setGateway(gatewayBuilder.build());
+
+                                if (subnetEntity.getDhcpEnable() != null) {
+                                    subnetConfigBuilder.setDhcpEnable(subnetEntity.getDhcpEnable());
+                                }
+
+                                // TODO: need to set DNS based on latest contract
+
+                                Subnet.SubnetState.Builder subnetStateBuilder = Subnet.SubnetState.newBuilder();
+                                subnetStateBuilder.setOperationType(Common.OperationType.INFO);
+                                subnetStateBuilder.setConfiguration(subnetConfigBuilder.build());
+                                unicastGoalState.getGoalStateBuilder().addSubnetStates(subnetStateBuilder.build());
+                            }
+                        }
                     }
                 }
             }
