@@ -601,14 +601,6 @@ public class DpmServiceImpl implements DpmService {
                 break;
             case ROUTER:
                 failedHosts = processRouterConfiguration(networkConfig);
-                if (failedHosts != null)
-                {
-                    failedHosts.forEach(item -> System.out.println("Route rule update: " + item.toString()));
-                }
-                else
-                {
-                    System.out.println("Success");
-                }
                 break;
             default:
                 throw new UnknownResourceType();
