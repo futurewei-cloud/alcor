@@ -25,11 +25,10 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.entity.TokenEntity;
-import static com.futurewei.alcor.common.utils.DateUtil.getKeystoneDateFormat;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -39,6 +38,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+import static com.futurewei.alcor.common.utils.DateUtil.getKeystoneDateFormat;
 
 
 public class KeystoneClient {
@@ -100,11 +101,11 @@ public class KeystoneClient {
     @Value("${keystone.auth_url}")
     private String authUrl;
 
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
     private ICache<String, TokenEntity> cache;
 
-    public KeystoneClient(CacheFactory cacheFactory){
-        this.restTemplate = new RestTemplate();
+    public KeystoneClient(CacheFactory cacheFactory, RestTemplateBuilder restTemplateBuilder){
+        this.restTemplate = restTemplateBuilder.build();
         this.cache = cacheFactory.getExpireCache(TokenEntity.class, CACHE_EXPIRE_HOUR, TimeUnit.HOURS);
     }
 

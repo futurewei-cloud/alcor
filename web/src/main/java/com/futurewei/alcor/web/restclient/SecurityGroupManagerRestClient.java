@@ -15,20 +15,28 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.web.restclient;
 
+import com.futurewei.alcor.common.http.RestTemplateConfig;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.securitygroup.PortBindingSecurityGroupsJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupsJson;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpEntity;
 
 import java.util.List;
 
 @Configuration
-public class SecurityGroupManagerRestClient extends  AbstractRestClient {
+@Import(RestTemplateConfig.class)
+public class SecurityGroupManagerRestClient extends AbstractRestClient {
     @Value("${microservices.sg.service.url:#{\"\"}}")
     private String securityGroupManagerUrl;
+
+    public SecurityGroupManagerRestClient(RestTemplateBuilder restTemplateBuilder) {
+        super(restTemplateBuilder);
+    }
 
     @DurationStatistics
     public SecurityGroupJson getSecurityGroup(String projectId, String securityGroupId) throws Exception {

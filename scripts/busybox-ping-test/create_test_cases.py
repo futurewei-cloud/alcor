@@ -87,7 +87,7 @@ def prepare_test_L2_basic(ip_mac, ser_port):
     test_name = "L2_basic"
     print("Preparing test case {}...".format(test_name))
     serv = read_config_file_section("services")
-    create_default_segment_table(ser_port["vpm"])
+    create_default_segment_table(ser_port["sgs"])
     create_vpc(ser_port["vpm"])
     create_node(ser_port["nm"], ip_mac)
     create_subnet(ser_port["snm"])
@@ -114,7 +114,7 @@ def prepare_test_L3_AttachRouter_then_CreatePorts(ip_mac, ser_port):
     test_name = "L3_AttachRouter_then_CreatePorts"
     print("Preparing test case {}...".format(test_name))
     serv = read_config_file_section("services")
-    create_default_segment_table(ser_port["vpm"])
+    create_default_segment_table(ser_port["sgs"])
     create_node(ser_port["nm"], ip_mac)
     change = {'change':'cidr','cidr':"10.0.0.0/16"}
     create_vpc(ser_port["vpm"], change)
@@ -155,7 +155,7 @@ def prepare_test_L3_CreatePorts_then_AttachRouter(ip_mac, ser_port):
     test_name = "L3_CreatePorts_then_AttachRouter"
     print("Preparing test case {}...".format(test_name))
     serv = read_config_file_section("services")
-    create_default_segment_table(ser_port["vpm"])
+    create_default_segment_table(ser_port["sgs"])
     create_node(ser_port["nm"], ip_mac)
     change = {'change':'cidr','cidr':"10.0.0.0/16"}
     create_vpc(ser_port["vpm"], change)

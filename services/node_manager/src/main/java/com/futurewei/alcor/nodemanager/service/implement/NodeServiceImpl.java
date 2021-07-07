@@ -27,10 +27,7 @@ import com.futurewei.alcor.nodemanager.processor.ProcessorManager;
 import com.futurewei.alcor.nodemanager.service.NodeService;
 import com.futurewei.alcor.nodemanager.utils.NodeManagerConstant;
 import com.futurewei.alcor.web.entity.node.NcmInfo;
-import com.futurewei.alcor.web.entity.node.NcmInfoJson;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
-import com.futurewei.alcor.web.entity.node.NodeInfoJson;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +39,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @ComponentScan(value = "com.futurewei.alcor.common.utils")
@@ -90,14 +89,14 @@ public class NodeServiceImpl implements NodeService {
     }
 
     private void handleCreateNodeBulkRequest(List<NodeInfo> nodeInfos) {
-        NodeContext nodeContext = new NodeContext(nodeInfos);
-        IProcessor processorChain = ProcessorManager.getProcessChain();
-        try {
-            processorChain.createNodeBulk(nodeContext);
-            nodeContext.getRequestManager().waitAllRequestsFinish();
-        } catch (Exception e) {
-            logger.error("Catch exception: ", e);
-        }
+            NodeContext nodeContext = new NodeContext(nodeInfos);
+            IProcessor processorChain = ProcessorManager.getProcessChain();
+            try {
+                processorChain.createNodeBulk(nodeContext);
+                nodeContext.getRequestManager().waitAllRequestsFinish();
+            } catch (Exception e) {
+                logger.error("Catch exception: ", e);
+            }
     }
 
     private void augmentNodeInfosWithNcmUri(List<NodeInfo> nodeInfos) throws Exception {

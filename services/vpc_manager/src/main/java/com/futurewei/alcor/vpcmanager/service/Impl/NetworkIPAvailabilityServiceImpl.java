@@ -31,13 +31,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class NetworkIPAvailabilityServiceImpl implements NetworkIPAvailabilityService {
@@ -50,7 +50,11 @@ public class NetworkIPAvailabilityServiceImpl implements NetworkIPAvailabilitySe
     @Value("${microservices.subnet.service.url}")
     private String subnetUrl;
 
-    private RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
+
+    public NetworkIPAvailabilityServiceImpl(RestTemplateBuilder restTemplateBuilder) {
+        this.restTemplate = restTemplateBuilder.build();
+    }
 
     /**
      * get network ip availability by vpc id

@@ -17,6 +17,7 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.vpcmanager;
 
 import com.futurewei.alcor.common.db.DbBaseConfiguration;
+import com.futurewei.alcor.common.tracer.TracerConfiguration;
 import com.futurewei.alcor.web.json.JsonHandlerConfiguration;
 import com.futurewei.alcor.web.rbac.aspect.RbacConfiguration;
 import org.springframework.boot.SpringApplication;
@@ -24,7 +25,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
 
 @SpringBootApplication()
-@Import({DbBaseConfiguration.class, JsonHandlerConfiguration.class, RbacConfiguration.class})
+@Import({DbBaseConfiguration.class, JsonHandlerConfiguration.class, RbacConfiguration.class, TracerConfiguration.class})
 public class VpcManagerApplication {
 
     public static void main(String[] args) {

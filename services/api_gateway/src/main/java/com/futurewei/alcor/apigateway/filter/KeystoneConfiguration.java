@@ -20,8 +20,8 @@ import com.futurewei.alcor.apigateway.client.KeystoneClient;
 import com.futurewei.alcor.common.db.CacheFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
@@ -46,6 +46,6 @@ public class KeystoneConfiguration {
         if(!keystoneEnable){
             return null;
         }
-        return new KeystoneClient(cacheFactory);
+        return new KeystoneClient(cacheFactory, new RestTemplateBuilder());
     }
 }

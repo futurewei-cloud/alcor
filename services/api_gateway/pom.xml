@@ -55,7 +55,16 @@ Copyright(c) 2020 Futurewei Cloud
     </dependencyManagement>
 
     <dependencies>
-
+        <dependency>
+            <groupId>io.opentracing.contrib</groupId>
+            <artifactId>opentracing-spring-cloud-starter</artifactId>
+            <version>0.3.12</version>
+        </dependency>
+        <dependency>
+            <groupId>io.opentracing.contrib</groupId>
+            <artifactId>opentracing-spring-jaeger-cloud-starter</artifactId>
+            <version>3.3.1</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-gateway</artifactId>

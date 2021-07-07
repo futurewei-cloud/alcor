@@ -894,9 +894,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             RouteTable subnetRouteTable = null;
             try {
                 subnetRouteTable = this.routerService.getSubnetRouteTable(router.getProjectId(), entry.getValue());
-            } catch (CanNotFindSubnet | CacheException | OwnMultipleSubnetRouteTablesException |
-                    DatabasePersistenceException | ResourceNotFoundException | ResourcePersistenceException |
-                    OwnMultipleVpcRouterException | CanNotFindVpc canNotFindSubnet) {
+            } catch (Exception e) {
                 logger.log(Level.WARNING, "Subnet" + entry.getValue() + "'s routing table is empty!");;
             }
 

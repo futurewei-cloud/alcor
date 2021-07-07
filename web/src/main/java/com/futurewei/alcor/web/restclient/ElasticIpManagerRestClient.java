@@ -21,13 +21,16 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.web.restclient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.futurewei.alcor.common.http.RestTemplateConfig;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.web.entity.elasticip.ElasticIpInfo;
 import com.futurewei.alcor.web.entity.elasticip.ElasticIpInfoWrapper;
 import com.futurewei.alcor.web.entity.elasticip.ElasticIpsInfoWrapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.*;
 import org.springframework.util.MimeType;
 import org.springframework.util.MimeTypeUtils;
@@ -37,9 +40,14 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Map;
 
 @Configuration
+@Import(RestTemplateConfig.class)
 public class ElasticIpManagerRestClient extends AbstractRestClient {
     @Value("${microservices.elasticip.service.url:#{\"\"}}")
     private String elasticIpManagerUrl;
+
+    public ElasticIpManagerRestClient(RestTemplateBuilder restTemplateBuilder) {
+        super(restTemplateBuilder);
+    }
 
     @DurationStatistics
     public ElasticIpInfoWrapper updateElasticIp(ElasticIpInfoWrapper elasticIpInfoWrapper) throws Exception {
