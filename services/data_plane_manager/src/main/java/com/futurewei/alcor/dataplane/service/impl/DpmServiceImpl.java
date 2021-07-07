@@ -559,8 +559,15 @@ public class DpmServiceImpl implements DpmService {
         String resultMessage;
         if (failedHosts == null || failedHosts.size() == 0) {
             resultMessage = "Successfully Handle request !!";
+            System.out.println("Result message: " + resultMessage);
         } else {
+            System.out.println("Failed Hosts: " + failedHosts.size());
+            for (String item : failedHosts)
+            {
+                System.out.println("Item: " + item);
+            }
             resultMessage = "Failed Handle request !!";
+            System.out.println("Result message: " + resultMessage);
         }
 
         InternalDPMResult internalDPMResult = new InternalDPMResult();
