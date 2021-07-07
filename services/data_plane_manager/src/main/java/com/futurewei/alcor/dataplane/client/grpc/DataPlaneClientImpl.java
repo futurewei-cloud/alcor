@@ -91,7 +91,6 @@ public class DataPlaneClientImpl implements DataPlaneClient {
     private List<String> doSendGoalStates(List<UnicastGoalState> unicastGoalStates) {
         List<Future<UnicastGoalState>>
                 futures = new ArrayList<>(unicastGoalStates.size());
-        unicastGoalStates.forEach(item -> System.out.println("HostIp: " + item.getHostIp()));
         for (UnicastGoalState unicastGoalState: unicastGoalStates) {
             Future<UnicastGoalState> future =
                     executor.submit(() -> {
@@ -128,7 +127,6 @@ public class DataPlaneClientImpl implements DataPlaneClient {
     private void doSendGoalState(Goalstate.GoalState goalState, String hostIp) {
 
         Map<String, List<GoalStateOperationStatus>> result = new HashMap<>();
-        System.out.println("Goal state type: " + goalState.getRouterStates(0).getConfiguration());
         ManagedChannel channel = newChannel(hostIp, grpcPort);
         GoalStateProvisionerGrpc.GoalStateProvisionerBlockingStub blockingStub =
                 GoalStateProvisionerGrpc.newBlockingStub(channel);
