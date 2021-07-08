@@ -535,7 +535,7 @@ public class SubnetServiceImp implements SubnetService {
 
 
     @Override
-    public void deleteSubnetRoutingRuleInRM(String projectId, String subnetId) throws SubnetIdIsNull {
+    public void deleteSubnetRoutingTable(String projectId, String subnetId) throws SubnetIdIsNull {
 
         if (subnetId == null) {
             throw new SubnetIdIsNull();

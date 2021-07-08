@@ -58,6 +58,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import static com.futurewei.alcor.common.constants.CommonConstants.QUERY_ATTR_HEADER;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
+import org.springframework.web.client.HttpClientErrorException;
+
 @RestController
 @ComponentScan(value = "com.futurewei.alcor.common.stats")
 public class SubnetController {
@@ -537,7 +539,11 @@ public class SubnetController {
             }
 
             // delete subnet routing rule in route manager
-            this.subnetService.deleteSubnetRoutingRuleInRM(projectId, subnetId);
+            try {
+                this.subnetService.deleteSubnetRoutingTable(projectId, subnetId);
+            } catch (HttpClientErrorException.NotFound e) {
+                logger.warn(e.getMessage());
+            }
 
             // TODO: delete gateway port in port manager. Temporary solution, need PM fix issue
             GatewayPortDetail gatewayPortDetail = subnetEntity.getGatewayPortDetail();
