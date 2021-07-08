@@ -708,11 +708,6 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             return new ArrayList<>();
         }
 
-//        List<RouteTable> neutronSubnetRouteTables = router.getNeutronSubnetRouteTables();
-//        if (neutronSubnetRouteTables == null) {
-//            return new ArrayList<>();
-//        }
-
         List<String> subnetIds = router.getSubnetIds();
         List<RouteTable> neutronSubnetRouteTables = getRouteTablesBySubnetIds(subnetIds, router.getProjectId());
         if (neutronSubnetRouteTables == null) {
