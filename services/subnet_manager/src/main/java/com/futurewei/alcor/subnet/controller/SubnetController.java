@@ -22,6 +22,7 @@ import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.common.utils.DateUtil;
+import com.futurewei.alcor.common.utils.Ipv4AddrUtil;
 import com.futurewei.alcor.subnet.config.ConstantsConfig;
 import com.futurewei.alcor.subnet.exception.*;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
@@ -262,12 +263,16 @@ public class SubnetController {
                     inSubnetEntity.setGatewayPortDetail(gatewayPortDetail);
                     inSubnetEntity.setGatewayPortId(gatewayPortDetail.getGatewayPortId());
                 }
+
+                gatewayIp = adjustedGatewayIp;
             }
 
-            if (inSubnetEntity.getIpVersion() == 4) {
+            if (Ipv4AddrUtil.formatCheck(gatewayIp)) {
                 inSubnetEntity.setIpV4RangeId(ipFuture.join());
-            } else if (inSubnetEntity.getIpVersion() == 6) {
+                inSubnetEntity.setIpVersion(4);
+            } else {
                 inSubnetEntity.setIpV6RangeId(ipFuture.join());
+                inSubnetEntity.setIpVersion(6);
             }
 
             // create_at and update_at
