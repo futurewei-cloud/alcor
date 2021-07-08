@@ -22,10 +22,7 @@ import com.futurewei.alcor.common.exception.ResourceNotValidException;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.stats.DurationStatistics;
-import com.futurewei.alcor.route.exception.CanNotFindVpc;
-import com.futurewei.alcor.route.exception.HostRoutesToSubnetIsNull;
-import com.futurewei.alcor.route.exception.OwnMultipleSubnetRouteTablesException;
-import com.futurewei.alcor.route.exception.VpcNonEmptyException;
+import com.futurewei.alcor.route.exception.*;
 import com.futurewei.alcor.route.service.*;
 import com.futurewei.alcor.route.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.route.utils.RouteManagerUtil;
@@ -70,7 +67,7 @@ public class RouterController {
     private RouterToDPMService routerToDPMService;
 
     /**
-     * Get or Create VPC router
+     * Get VPC router
      * @param projectid
      * @param vpcid
      * @return
@@ -80,7 +77,7 @@ public class RouterController {
             method = GET,
             value = {"/project/{projectid}/vpcs/{vpcid}/router"})
     @DurationStatistics
-    public RouterWebJson getOrCreateVpcRouter(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
+    public RouterWebJson getVpcRouter(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
 
         Router router = null;
 
@@ -89,7 +86,46 @@ public class RouterController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyResourceFound(projectid);
 
-            router = this.routerService.getOrCreateVpcRouter(projectid, vpcid);
+            router = this.routerService.getVpcRouter(projectid, vpcid);
+
+        } catch (ParameterNullOrEmptyException e) {
+            throw e;
+        } catch (CanNotFindVpc e) {
+            logger.log(Level.WARNING, e.getMessage() + " : " + vpcid);
+            throw e;
+        } catch (DatabasePersistenceException e) {
+            throw e;
+        }
+
+        if (router == null)
+        {
+            throw new CanNotFindRouter();
+        }
+
+        return new RouterWebJson(router);
+    }
+
+    /**
+     * Create VPC router
+     * @param projectid
+     * @param vpcid
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(
+            method = POST,
+            value = {"/project/{projectid}/vpcs/{vpcid}/router"})
+    @DurationStatistics
+    public RouterWebJson createVpcRouter(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
+
+        Router router = null;
+
+        try {
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
+            RestPreconditionsUtil.verifyResourceFound(projectid);
+
+            router = this.routerService.createVpcRouter(projectid, vpcid);
 
         } catch (ParameterNullOrEmptyException e) {
             throw e;
@@ -139,7 +175,7 @@ public class RouterController {
     }
 
     /**
-     * Get or Create VPC default route table
+     * Get VPC default route table
      * @param projectid
      * @param vpcid
      * @return
@@ -149,7 +185,7 @@ public class RouterController {
             method = GET,
             value = {"/project/{projectid}/vpcs/{vpcid}/vpcroutetable"})
     @DurationStatistics
-    public RouteTableWebJson getOrCreateVpcRouteTable(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
+    public RouteTableWebJson getVpcRouteTable(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
 
         RouteTable routetable = null;
 
@@ -158,7 +194,41 @@ public class RouterController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyResourceFound(projectid);
 
-            routetable = this.routerService.getOrCreateVpcRouteTable(projectid, vpcid);
+            routetable = this.routerService.getVpcRouteTable(projectid, vpcid);
+
+        } catch (ParameterNullOrEmptyException e) {
+            throw e;
+        } catch (CanNotFindVpc e) {
+            logger.log(Level.WARNING, e.getMessage() + " : " + vpcid);
+            throw e;
+        } catch (DatabasePersistenceException e) {
+            throw e;
+        }
+
+        return new RouteTableWebJson(routetable);
+    }
+
+    /**
+     * Create VPC default route table
+     * @param projectid
+     * @param vpcid
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(
+            method = POST,
+            value = {"/project/{projectid}/vpcs/{vpcid}/vpcroutetable"})
+    @DurationStatistics
+    public RouteTableWebJson createVpcRouteTable(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
+
+        RouteTable routetable = null;
+
+        try {
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
+            RestPreconditionsUtil.verifyResourceFound(projectid);
+
+            routetable = this.routerService.createVpcRouteTable(projectid, vpcid);
 
         } catch (ParameterNullOrEmptyException e) {
             throw e;
@@ -217,7 +287,11 @@ public class RouterController {
             newRouteEntry.setRoutes(routes);
 
             // find subnets related to this vpc (getVpcRouteTables)
-            Router router = this.routerService.getOrCreateVpcRouter(projectid, vpcid);
+            Router router = this.routerService.getVpcRouter(projectid, vpcid);
+            if (router == null)
+            {
+                throw new CanNotFindRouter();
+            }
             List<RouteTable> vpcRouteTables = router.getVpcRouteTables();
 
             // sub-level routing rule update
@@ -229,10 +303,10 @@ public class RouterController {
                 internalSubnetRoutingTableList.add(internalSubnetRoutingTable);
             }
 
-            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTableList);
+            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(router.getId(), internalSubnetRoutingTableList);
 
             // send InternalRouterInfo contract to DPM
-//            this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
+            this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
 
         } catch (ParameterNullOrEmptyException e) {
             throw e;
@@ -267,6 +341,11 @@ public class RouterController {
             RestPreconditionsUtil.verifyResourceFound(projectid);
 
             routetables = this.routerService.getVpcRouteTables(projectid, vpcid);
+
+            if (routetables == null)
+            {
+                throw new RouterTableNotExist();
+            }
 
         } catch (Exception e) {
             throw e;
@@ -305,7 +384,7 @@ public class RouterController {
     }
 
     /**
-     * Show Subnet route table or Create Subnet route table
+     * Show Subnet route table
      * @param projectid
      * @param subnetid
      * @return
@@ -315,7 +394,7 @@ public class RouterController {
             method = GET,
             value = {"/project/{projectid}/subnets/{subnetid}/routetable"})
     @DurationStatistics
-    public RouteTableWebJson getOrCreateSubnetRouteTable(@PathVariable String projectid, @PathVariable String subnetid) throws Exception {
+    public RouteTableWebJson getSubnetRouteTable(@PathVariable String projectid, @PathVariable String subnetid) throws Exception {
 
         RouteTable routeTable = null;
 
@@ -330,8 +409,6 @@ public class RouterController {
             throw e;
         } catch (OwnMultipleSubnetRouteTablesException e) {
             logger.log(Level.WARNING, e.getMessage() + " , subnetId: " + subnetid);
-            throw e;
-        } catch (DatabasePersistenceException e) {
             throw e;
         }
 
@@ -350,7 +427,7 @@ public class RouterController {
             method = POST,
             value = {"/project/{projectid}/subnets/{subnetid}/routetable"})
     @DurationStatistics
-    public RouteTableWebJson createNeutronSubnetRouteTable(@PathVariable String projectid, @PathVariable String subnetid, @RequestBody RouteTableWebJson resource) throws Exception {
+    public RouteTableWebJson createSubnetRouteTable(@PathVariable String projectid, @PathVariable String subnetid, @RequestBody RouteTableWebJson resource) throws Exception {
 
         RouteTable routeTable = resource.getRoutetable();
 
@@ -360,7 +437,7 @@ public class RouterController {
             RestPreconditionsUtil.verifyResourceFound(projectid);
 
             // check resource
-            if (!RouteManagerUtil.checkCreateNeutronSubnetRouteTableWebJsonResourceIsValid(resource)) {
+            if (!RouteManagerUtil.checkCreateSubnetRouteTableWebJsonResourceIsValid(resource)) {
                 throw new ResourceNotValidException("request resource is invalid");
             }
 
@@ -373,12 +450,8 @@ public class RouterController {
                         routeEntry.getDestination(), null, 100, null, routeEntry.getNexthop());
                 routes.add(newRoute);
             }
-            String d_uuid = UUID.randomUUID().toString();
-            RouteEntry defaultRoute = new RouteEntry(projectid, d_uuid, "default-route-" + d_uuid, "Default Routing Rule",
-                    "0.0.0.0/0", null, 100, null, "192.168.0.1");
-            routes.add(defaultRoute);
 
-            routeTable = this.routerService.createNeutronSubnetRouteTable(projectid, subnetid, resource, routes);
+            routeTable = this.routerService.createSubnetRouteTable(projectid, subnetid, resource, routes);
 
         } catch (ParameterNullOrEmptyException e) {
             throw e;
@@ -434,7 +507,7 @@ public class RouterController {
             InternalSubnetRoutingTable internalSubnetRoutingTable = updateRoutingRuleResponse.getInternalSubnetRoutingTable();
             List<InternalSubnetRoutingTable> internalSubnetRoutingTables = new ArrayList<>();
             internalSubnetRoutingTables.add(internalSubnetRoutingTable);
-            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTables);
+            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(null, internalSubnetRoutingTables);
             List<HostRoute> hostRouteToSubnet = updateRoutingRuleResponse.getHostRouteToSubnet();
 
             this.routerService.updateSubnetRouteTable(projectid, subnetid, updateRoutingRuleResponse);
@@ -487,7 +560,7 @@ public class RouterController {
             InternalSubnetRoutingTable internalSubnetRoutingTable = updateRoutingRuleResponse.getInternalSubnetRoutingTable();
             List<InternalSubnetRoutingTable> internalSubnetRoutingTables = new ArrayList<>();
             internalSubnetRoutingTables.add(internalSubnetRoutingTable);
-            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(internalSubnetRoutingTables);
+            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(null, internalSubnetRoutingTables);
             List<HostRoute> hostRouteToSubnet = updateRoutingRuleResponse.getHostRouteToSubnet();
 
             // send InternalRouterInfo contract to DPM

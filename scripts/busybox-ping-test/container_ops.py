@@ -40,6 +40,7 @@ def busybox_container_cleanup(aca_node_ip, con):
     command = "sudo /usr/local/share/openvswitch/scripts/ovs-ctl start"
     output = run_command_on_host(aca_node_ip, command)
     print("Cleanup task: ", command, "\n", output, "\n")
+    print("SUCCESS: busybox cleanup")
 
 
 def busybox_container_deploy(target_ips, ip_mac_db, container_names):
@@ -52,8 +53,9 @@ def busybox_container_deploy(target_ips, ip_mac_db, container_names):
        command1 = "sudo docker run -itd --name " + con + " --net=none busybox sh"
        command2 = "sudo ovs-docker add-port br-int eth1 " + con + " --ipaddress=" + db_ip + "/24" + " --macaddress=" + db_mac
        command3 = "sudo ovs-docker set-vlan br-int eth1 " + con + " 1"
-       print("deploying busybox " + con + " on " + aca_ip)
-
+       print("Deploying busybox " + con + " on " + aca_ip)
+       gw = get_gateway_for_ip(db_ip)
+       command4 = "sudo docker exec -u root --privileged -it " + con + " route add default gw " + gw
        output = run_command_on_host(aca_ip, command1)
        print(con, "deploy task: ", output, "\n")
 
@@ -62,6 +64,9 @@ def busybox_container_deploy(target_ips, ip_mac_db, container_names):
 
        output = run_command_on_host(aca_ip, command3)
        print(con, "deploy task: ", output, "\n")
+       output = run_command_on_host(aca_ip, command4)
+       print(con, "add default gw : ", output, "\n")
+       print("SUCCESS: deploying busybox " + con + " on " + aca_ip)
 
        ip_addrs = list(ip_mac_db.keys())
 
@@ -71,18 +76,20 @@ def run_ping_test(target_machines, ip_addrs, container_names):
     index_1 = 1
     ping_counts = 2
 
-    ping_0_to_1 = "sudo docker exec -it " + container_names[index_0] + " ping -c " + str(ping_counts) + " " + ip_addrs[index_1]
-    ping_1_to_0 = "sudo docker exec -it " + container_names[index_1] + " ping -c " + str(ping_counts) + " " + ip_addrs[index_0]
+    dest1 = ip_addrs[index_1]
+    dest2 = ip_addrs[index_0]
+    ping_0_to_1 = "sudo docker exec -it " + container_names[index_0] + " ping -c " + str(ping_counts) + " " + dest1
+    ping_1_to_0 = "sudo docker exec -it " + container_names[index_1] + " ping -c " + str(ping_counts) + " " + dest2
 
     HOST = target_machines[index_0]
-    print("Ping test on ", HOST)
+    print("Ping test on {} to {}".format(HOST, dest1))
     output1 = run_command_on_host(HOST, ping_0_to_1)
-    print("DDD: run_ping_test: 0 -> 1: ", output1)
+    print("run_ping_test: {} to {} result: ".format(HOST, dest1, output1))
 
     HOST = target_machines[index_1]
-    print("Ping test on ", HOST)
+    print("Ping test on {} to {}".format(HOST, dest2))
     output2 = run_command_on_host(HOST, ping_1_to_0)
-    print("DDD: run_ping_test: 1 -> 0: ", output2)
+    print("run_ping_test: {} to {} result: ".format(HOST, dest2, output2))
 
     expected_output = "2 packets transmitted, 2 packets received"
     if expected_output in str(output1) and expected_output in str(output2):

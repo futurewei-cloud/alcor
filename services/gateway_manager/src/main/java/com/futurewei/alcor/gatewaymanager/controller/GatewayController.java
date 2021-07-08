@@ -25,6 +25,7 @@ import com.futurewei.alcor.web.entity.gateway.GatewayEntity;
 import com.futurewei.alcor.web.entity.gateway.GatewayInfo;
 import com.futurewei.alcor.web.entity.gateway.GatewayInfoJson;
 import com.futurewei.alcor.web.entity.gateway.VpcInfoJson;
+import io.opentracing.Tracer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,9 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 public class GatewayController {
+
+    @Autowired
+    private Tracer tracer;
 
     @Autowired
     private GatewayService gatewayService;
@@ -45,11 +49,17 @@ public class GatewayController {
     @PostMapping("/project/{project_id}/gatewayinfo")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseId createGatewayInfo(@PathVariable("project_id") String projectId, @RequestBody VpcInfoJson vpcInfoJson) throws Exception {
-        RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
-        VerifyParameterUtils.checkVpcInfo(vpcInfoJson.getVpcInfo());
-        GatewayInfo gatewayInfo = gatewayService.createGatewayInfo(projectId, vpcInfoJson.getVpcInfo());
-        log.info("GatewayInfo created success,GatewayInfo is: {}", gatewayInfo);
-        return new ResponseId(gatewayInfo.getResourceId());
+//        Span pSpan = tracer.activeSpan();
+//        Span span = tracer.buildSpan("createGatewayInfo").asChildOf(pSpan.context()).start();
+//        try (Scope scope = tracer.scopeManager().activate(span)) {
+            RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
+            VerifyParameterUtils.checkVpcInfo(vpcInfoJson.getVpcInfo());
+            GatewayInfo gatewayInfo = gatewayService.createGatewayInfo(projectId, vpcInfoJson.getVpcInfo());
+            log.info("GatewayInfo created success,GatewayInfo is: {}", gatewayInfo);
+            return new ResponseId(gatewayInfo.getResourceId());
+//        } finally {
+//            span.finish();
+//        }
     }
 
     /**

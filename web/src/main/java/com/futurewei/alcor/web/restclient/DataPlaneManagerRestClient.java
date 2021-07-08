@@ -15,6 +15,7 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.web.restclient;
 
+import com.futurewei.alcor.common.http.RestTemplateConfig;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.dataplane.InternalDPMResultList;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
@@ -25,7 +26,9 @@ import com.futurewei.alcor.web.entity.node.NodeInfoJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -34,6 +37,7 @@ import org.springframework.http.MediaType;
 import java.util.Arrays;
 
 @Configuration
+@Import(RestTemplateConfig.class)
 public class DataPlaneManagerRestClient extends AbstractRestClient {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -46,6 +50,10 @@ public class DataPlaneManagerRestClient extends AbstractRestClient {
 
     @Value("${microservices.zeta.management.url:#{\"\"}}")
     private String zetaManagerUrl;
+
+    public DataPlaneManagerRestClient(RestTemplateBuilder restTemplateBuilder) {
+        super(restTemplateBuilder);
+    }
 
     @DurationStatistics
     public InternalDPMResultList createNetworkConfig(NetworkConfiguration message) throws Exception {

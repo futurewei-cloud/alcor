@@ -15,19 +15,27 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.web.restclient;
 
+import com.futurewei.alcor.common.http.RestTemplateConfig;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.ip.*;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 
 import java.util.List;
 
 @Configuration
+@Import(RestTemplateConfig.class)
 public class IpManagerRestClient extends AbstractRestClient {
     @Value("${microservices.ip.service.url:#{\"\"}}")
     private String ipManagerUrl;
+
+    public IpManagerRestClient(RestTemplateBuilder restTemplateBuilder) {
+        super(restTemplateBuilder);
+    }
 
     private void verifyAllocatedIpAddr(IpAddrRequest result) throws Exception {
         if (result == null || result.getIp() == null ||

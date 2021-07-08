@@ -24,6 +24,7 @@ import com.futurewei.alcor.web.entity.subnet.NewHostRoutes;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
 import com.futurewei.alcor.web.entity.subnet.SubnetsWebJson;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -36,7 +37,11 @@ public class VpcRouterToSubnetServiceImpl implements VpcRouterToSubnetService {
     @Value("${microservices.subnet.service.url}")
     private String subnetUrl;
 
-    private RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
+
+    public VpcRouterToSubnetServiceImpl(RestTemplateBuilder restTemplateBuilder) {
+        this.restTemplate = restTemplateBuilder.build();
+    }
 
     @Override
     public SubnetWebJson getSubnet(String projectId, String subnetId) throws CanNotFindSubnet {

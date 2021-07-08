@@ -15,21 +15,21 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.netwconfigmanager;
 
+import com.futurewei.alcor.common.tracer.TracerConfiguration;
 import com.futurewei.alcor.netwconfigmanager.server.NetworkConfigServer;
-import com.futurewei.alcor.netwconfigmanager.server.grpc.GoalStateProvisionerServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 
 @SpringBootApplication
 @ComponentScan(value = "com.futurewei.alcor.netwconfigmanager.server")
 @EnableAsync
+@Import(TracerConfiguration.class)
 public class NetworkConfigManagerApplication {
 
     @Autowired

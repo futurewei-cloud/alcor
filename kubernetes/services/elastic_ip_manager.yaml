@@ -10,8 +10,14 @@ data:
     ignite.thin.client.enable=true
     management.health.redis.enabled=false
 
-    # the zipkin host should be YOURS
-    spring.zipkin.base-url=http://10.213.43.187:9411
+    opentracing.jaeger.udp-sender.host=localhost
+    opentracing.jaeger.udp-sender.port=6831
+    opentracing.jaeger.const-sampler.decision=true
+    opentracing.jaeger.enabled=true
+    opentracing.jaeger.log-spans=true
+    opentracing.jaeger.enable-w3c-propagation=true
+    opentracing.jaeger.enable-b3-propagation=true
+    opentracing.jaeger.service-name=alcor-eip
 ---
 apiVersion: apps/v1
 kind: Deployment

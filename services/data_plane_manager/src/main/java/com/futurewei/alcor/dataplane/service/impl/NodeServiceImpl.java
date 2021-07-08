@@ -16,6 +16,7 @@ Copyright(c) 2020 Futurewei Cloud
 
 package com.futurewei.alcor.dataplane.service.impl;
 
+import com.futurewei.alcor.common.tracer.Tracer;
 import com.futurewei.alcor.dataplane.cache.LocalCache;
 import com.futurewei.alcor.dataplane.service.NodeService;
 import com.futurewei.alcor.web.entity.node.BulkNodeInfoJson;
@@ -32,6 +33,7 @@ public class NodeServiceImpl implements NodeService {
     private LocalCache localCache;
 
     @Override
+    @Tracer
     public void createNodeInfo(NodeInfoJson nodeInfoJson) throws Exception {
         localCache.addNodeInfo(nodeInfoJson.getNodeInfo());
     }
