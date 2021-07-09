@@ -34,7 +34,6 @@ import com.futurewei.alcor.subnet.service.SubnetService;
 import com.futurewei.alcor.subnet.utils.SubnetManagementUtil;
 import com.futurewei.alcor.web.entity.ip.IpAddrRangeRequest;
 import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
-import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.route.*;
@@ -116,40 +115,18 @@ public class SubnetServiceImp implements SubnetService {
     @DurationStatistics
     public void fallbackOperation(AtomicReference<RouteWebJson> routeResponseAtomic,
                                   AtomicReference<MacStateJson> macResponseAtomic,
-                                  AtomicReference<IpAddrRequest> ipResponseAtomic,
-                                  SubnetWebRequestJson resource,
+                                  SubnetEntity subnetEntity,
                                   String message) throws CacheException {
         RouteWebJson routeResponse = (RouteWebJson) routeResponseAtomic.get();
         MacStateJson macResponse = (MacStateJson) macResponseAtomic.get();
-        IpAddrRequest ipResponse = (IpAddrRequest) ipResponseAtomic.get();
         logger.error(message);
 
         // Subnet fallback
         logger.info("subnet fallback start");
-        this.subnetDatabaseService.deleteSubnet(resource.getSubnet().getId());
+        this.subnetDatabaseService.deleteSubnet(subnetEntity.getId());
         logger.info("subnet fallback end");
 
-        // Route fallback
-        logger.info("Route fallback start");
-        if (routeResponse != null) {
-            RouteEntity routeEntity = routeResponse.getRoute();
-            this.routeFallback(routeEntity.getId(), resource.getSubnet().getVpcId());
-        }
-        logger.info("Route fallback end");
-
-        // Mac fallback
-        logger.info("Mac fallback start");
-        if (macResponse != null) {
-            this.macFallback(macResponse.getMacState().getMacAddress());
-        }
-        logger.info("Mac fallback end");
-
-        // IP fallback
-        logger.info("IP fallback start");
-        if (ipResponse != null) {
-            this.ipFallback(ipResponse.getRangeId(), ipResponse.getIp());
-        }
-        logger.info("IP fallback end");
+        // TODO: Need to delete gateway port...
     }
 
     @Override
@@ -165,49 +142,13 @@ public class SubnetServiceImp implements SubnetService {
 
     @Override
     @DurationStatistics
-    public RouteWebJson createRouteRules(String subnetId, SubnetEntity subnetEntity) throws FallbackException {
-        String routeManagerServiceUrl = routeUrl + "subnets/" + subnetId + "/routes";
-        HttpEntity<SubnetWebJson> routeRequest = new HttpEntity<>(new SubnetWebJson(subnetEntity));
-        RouteWebJson routeResponse = restTemplate.postForObject(routeManagerServiceUrl, routeRequest, RouteWebJson.class);
-        // retry if routeResponse is null
-        if (routeResponse == null) {
-            routeResponse = restTemplate.postForObject(routeManagerServiceUrl, routeRequest, RouteWebJson.class);
-        }
-        if (routeResponse == null) {
-            throw new FallbackException("fallback request");
-        }
-        return routeResponse;
-    }
+    public String allocateIpRange(String subnetId, String cidr, String vpcId) throws FallbackException {
 
-    @Override
-    @DurationStatistics
-    public MacStateJson allocateMacAddressForGatewayPort(String projectId, String vpcId, String portId) throws FallbackException {
-        String macManagerServiceUrl = macUrl;
-        MacState macState = new MacState();
-        macState.setProjectId(projectId);
-        macState.setPortId(portId);
-        macState.setVpcId(vpcId);
-
-        HttpEntity<MacStateJson> macRequest = new HttpEntity<>(new MacStateJson(macState));
-        MacStateJson macResponse = restTemplate.postForObject(macManagerServiceUrl, macRequest, MacStateJson.class);
-        // retry if macResponse is null
-        if (macResponse == null) {
-            macResponse = restTemplate.postForObject(macManagerServiceUrl, macRequest, MacStateJson.class);
-        }
-        if (macResponse == null) {
-            throw new FallbackException("fallback request");
-        }
-        return macResponse;
-    }
-
-    @Override
-    @DurationStatistics
-    public IpAddrRequest allocateIpAddressForGatewayPort(String subnetId, String cidr, String vpcId, String gatewayIp, boolean isOpenToBeAllocated) throws FallbackException {
+        final int maxNumRetry = 3;
         String ipManagerServiceUrl = ipUrl;
         String ipManagerCreateRangeUrl = ipUrl + "range";
         String ipAddressRangeId = UUID.randomUUID().toString();
 
-        // Create Ip Address Range
         // Verify cidr block
         boolean isCidrValid = verifyCidrBlock(cidr);
         if (!isCidrValid) {
@@ -226,7 +167,6 @@ public class SubnetServiceImp implements SubnetService {
         ipAddrRangeRequest.setLastIp(ips[1]);
         ipAddrRangeRequest.setVpcId(vpcId);
 
-
         HttpEntity<IpAddrRangeRequest> ipRangeRequest = new HttpEntity<>(new IpAddrRangeRequest(
                 ipAddrRangeRequest.getId(),
                 ipAddrRangeRequest.getVpcId(),
@@ -234,56 +174,32 @@ public class SubnetServiceImp implements SubnetService {
                 ipAddrRangeRequest.getIpVersion(),
                 ipAddrRangeRequest.getFirstIp(),
                 ipAddrRangeRequest.getLastIp()));
-        IpAddrRangeRequest ipRangeResponse = restTemplate.postForObject(ipManagerCreateRangeUrl, ipRangeRequest, IpAddrRangeRequest.class);
+
+        // Create Ip Address Range
+        IpAddrRangeRequest ipRangeResponse = null;
+        int retry = 0;
+
         // retry if ipRangeResponse is null
-        if (ipRangeResponse == null) {
+        while (ipRangeResponse == null && retry < maxNumRetry){
             ipRangeResponse = restTemplate.postForObject(ipManagerCreateRangeUrl, ipRangeRequest, IpAddrRangeRequest.class);
+            retry++;
         }
+
         if (ipRangeResponse == null) {
             throw new FallbackException("fallback request");
         }
 
-        if (!isOpenToBeAllocated) {
-            IpAddrRequest ipAddrRequest = new IpAddrRequest();
-            ipAddrRequest.setIpVersion(ipRangeResponse.getIpVersion());
-            ipAddrRequest.setRangeId(ipRangeResponse.getId());
-            return ipAddrRequest;
-        }
-
-        // Allocate Ip Address
-        IpAddrRequest ipAddrRequest = new IpAddrRequest();
-        ipAddrRequest.setRangeId(ipRangeResponse.getId());
-        ipAddrRequest.setIpVersion(ipRangeResponse.getIpVersion());
-        ipAddrRequest.setIp(gatewayIp);
-        ipAddrRequest.setVpcId(vpcId);
-        ipAddrRequest.setSubnetId(subnetId);
-
-        HttpEntity<IpAddrRequest> ipRequest = new HttpEntity<>(new IpAddrRequest(
-                ipAddrRequest.getIpVersion(),
-                ipAddrRequest.getVpcId(),
-                ipAddrRequest.getSubnetId(),
-                ipAddrRequest.getRangeId(),
-                ipAddrRequest.getIp(),
-                ipAddrRequest.getState()));
-        IpAddrRequest ipResponse = restTemplate.postForObject(ipManagerServiceUrl, ipRequest, IpAddrRequest.class);
-        // retry if ipResponse is null
-        if (ipResponse == null) {
-            ipResponse = restTemplate.postForObject(ipManagerServiceUrl, ipRequest, IpAddrRequest.class);
-        }
-        if (ipResponse == null) {
-            throw new FallbackException("fallback request");
-        }
-
-
-        return ipResponse;
+        return ipRangeResponse.getId();
     }
 
     @Override
     @DurationStatistics
     public String[] cidrToFirstIpAndLastIp(String cidr) {
+
         if (cidr == null) {
             return null;
         }
+
         SubnetUtils utils = new SubnetUtils(cidr);
         String highIp = utils.getInfo().getHighAddress();
         String lowIp = utils.getInfo().getLowAddress();
