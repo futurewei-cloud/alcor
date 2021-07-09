@@ -190,7 +190,6 @@ public class DataPlaneClientImpl implements DataPlaneClient {
     }
 
     private ManagedChannel newChannel(String host, int port) {
-        System.out.println("ManagedChannel host: " + host);
         return ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext()
                 .build();

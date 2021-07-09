@@ -16,16 +16,16 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.dataplane.service.impl;
 
 import com.futurewei.alcor.common.enumClass.VpcRouteTarget;
+import com.futurewei.alcor.dataplane.cache.SubnetPortsCache;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
-import com.futurewei.alcor.schema.Goalstate;
-import com.futurewei.alcor.schema.Port;
-import com.futurewei.alcor.schema.Router;
+import com.futurewei.alcor.schema.*;
 import com.futurewei.alcor.web.entity.dataplane.InternalSubnetEntity;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
 import com.futurewei.alcor.web.entity.route.InternalRoutingRule;
 import com.futurewei.alcor.web.entity.route.InternalSubnetRoutingTable;
+import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +38,9 @@ import java.util.Set;
 public class RouterService extends ResourceService {
     @Autowired
     private SubnetService subnetService;
+
+    @Autowired
+    private SubnetPortsCache subnetPortsCache;
 
     private Router.DestinationType getDestinationType(VpcRouteTarget vpcRouteTarget) {
         switch (vpcRouteTarget) {
@@ -106,8 +109,6 @@ public class RouterService extends ResourceService {
         routerConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
 
         //TODO: where does the hostDvrMacAddress come from ?
-        System.out.println("Route update type: " + routerInfo.getOperationType());
-        System.out.println("Route host dvr mac: " + routerInfo.getRouterConfiguration().getHostDvrMac());
         routerConfigBuilder.setHostDvrMacAddress(HOST_DVR_MAC);
         if (routerInfo.getRouterConfiguration().getId() != null)
         {
@@ -156,6 +157,40 @@ public class RouterService extends ResourceService {
                         break;
                     }
                 }
+            }
+        }
+    }
+
+    public void buildSubnetState (UnicastGoalState unicastGoalState, String subnetId) throws Exception
+    {
+        InternalSubnetPorts subnetEntity = subnetPortsCache.getSubnetPorts(subnetId);
+        if (subnetEntity != null) {
+            if (unicastGoalState.getGoalStateBuilder().getSubnetStatesList().stream()
+                    .filter(e -> e.getConfiguration().getId().equals(subnetEntity.getSubnetId()))
+                    .findFirst().orElse(null) == null) {
+                Subnet.SubnetConfiguration.Builder subnetConfigBuilder = Subnet.SubnetConfiguration.newBuilder();
+                subnetConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
+                subnetConfigBuilder.setId(subnetEntity.getSubnetId());
+                subnetConfigBuilder.setVpcId(subnetEntity.getVpcId());
+                subnetConfigBuilder.setName(subnetEntity.getName());
+                subnetConfigBuilder.setCidr(subnetEntity.getCidr());
+                subnetConfigBuilder.setTunnelId(subnetEntity.getTunnelId());
+
+                Subnet.SubnetConfiguration.Gateway.Builder gatewayBuilder = Subnet.SubnetConfiguration.Gateway.newBuilder();
+                gatewayBuilder.setIpAddress(subnetEntity.getGatewayPortIp());
+                gatewayBuilder.setMacAddress(subnetEntity.getGatewayPortMac());
+                subnetConfigBuilder.setGateway(gatewayBuilder.build());
+
+                if (subnetEntity.getDhcpEnable() != null) {
+                    subnetConfigBuilder.setDhcpEnable(subnetEntity.getDhcpEnable());
+                }
+
+                // TODO: need to set DNS based on latest contract
+
+                Subnet.SubnetState.Builder subnetStateBuilder = Subnet.SubnetState.newBuilder();
+                subnetStateBuilder.setOperationType(Common.OperationType.INFO);
+                subnetStateBuilder.setConfiguration(subnetConfigBuilder.build());
+                unicastGoalState.getGoalStateBuilder().addSubnetStates(subnetStateBuilder.build());
             }
         }
     }
