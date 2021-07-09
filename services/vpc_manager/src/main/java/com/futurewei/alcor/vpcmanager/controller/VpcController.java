@@ -408,7 +408,7 @@ public class VpcController {
 
             inVpcState = this.vpcDatabaseService.deleteSubnetIdInVpc(vpcid, subnetid);
 
-        } catch (ParameterNullOrEmptyException e) {
+        } catch (Exception e) {
             throw new Exception(e);
         }
 

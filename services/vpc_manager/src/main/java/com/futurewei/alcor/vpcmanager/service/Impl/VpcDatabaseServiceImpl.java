@@ -17,6 +17,7 @@ package com.futurewei.alcor.vpcmanager.service.Impl;
 
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.stats.DurationStatistics;
@@ -79,12 +80,12 @@ public class VpcDatabaseServiceImpl implements VpcDatabaseService {
     }
 
     @Override
-    public VpcEntity deleteSubnetIdInVpc(String vpcId, String subnetId) throws ResourceNotFoundException, DatabasePersistenceException, CacheException {
+    public VpcEntity deleteSubnetIdInVpc(String vpcId, String subnetId) throws Exception {
 
         VpcEntity currentVpcState = null;
 
-        try {
-            this.vpcRepository.startTransaction();
+        try (Transaction tx = this.vpcRepository.startTransaction()) {
+
             currentVpcState = getByVpcId(vpcId);
             if (currentVpcState == null) {
                 throw new ResourceNotFoundException("Vpc not found : " + vpcId);
@@ -98,10 +99,13 @@ public class VpcDatabaseServiceImpl implements VpcDatabaseService {
             subnets.remove(subnetId);
             currentVpcState.setSubnets(subnets);
             addVpc(currentVpcState);
+
+            tx.commit();
         } catch (ResourceNotFoundException | DatabasePersistenceException | CacheException e) {
             throw e;
-        } finally {
-            this.vpcRepository.commitTransaction();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
         }
 
         return currentVpcState;

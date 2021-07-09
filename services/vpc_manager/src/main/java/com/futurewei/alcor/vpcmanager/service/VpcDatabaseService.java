@@ -31,7 +31,7 @@ public interface VpcDatabaseService {
     public Map getAllVpcs (Map<String, Object[]> queryParams) throws CacheException;
     public void addVpc (VpcEntity vpcState) throws DatabasePersistenceException;
     public void deleteVpc (String id) throws CacheException;
-    public VpcEntity deleteSubnetIdInVpc(String vpcId, String subnetId) throws ResourceNotFoundException, DatabasePersistenceException, CacheException;
+    public VpcEntity deleteSubnetIdInVpc(String vpcId, String subnetId) throws Exception;
     public ICache<String, VpcEntity> getCache ();
 
 }
