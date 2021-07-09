@@ -37,9 +37,10 @@ public class SubnetManagementUtil {
     private static SubnetService subnetService = new SubnetServiceImp(new RestTemplateBuilder());
 
     public static boolean checkSubnetRequestResourceIsValid(SubnetWebRequestJson resource) {
-        if (resource == null) {
+        if (resource == null || resource.getSubnet() == null) {
             return false;
         }
+
         SubnetWebRequest subnet = resource.getSubnet();
 
         // network_id
@@ -64,7 +65,7 @@ public class SubnetManagementUtil {
         String ipv6AddressMode = subnet.getIpv6AddressMode();
         if (!(ipv6AddressMode == null || Ipv6AddressModeEnum.SLAAC.getMode().equals(ipv6AddressMode)
                 || Ipv6AddressModeEnum.STATEFUL.getMode().equals(ipv6AddressMode)
-                || Ipv6AddressModeEnum.STATELESS.getMode().equals(ipv6AddressMode)) ) {
+                || Ipv6AddressModeEnum.STATELESS.getMode().equals(ipv6AddressMode))) {
             return false;
         }
 
@@ -72,42 +73,46 @@ public class SubnetManagementUtil {
         String ipv6RaMode = subnet.getIpv6AddressMode();
         if (!(ipv6RaMode == null || Ipv6RaModeEnum.SLAAC.getMode().equals(ipv6RaMode)
                 || Ipv6RaModeEnum.STATEFUL.getMode().equals(ipv6RaMode)
-                || Ipv6RaModeEnum.STATELESS.getMode().equals(ipv6RaMode)) ) {
+                || Ipv6RaModeEnum.STATELESS.getMode().equals(ipv6RaMode))) {
             return false;
         }
 
         // tags
         List<String> tags = subnet.getTags();
         if (tags == null) {
-            tags = new ArrayList<String>(){};
+            tags = new ArrayList<String>() {
+            };
             subnet.setTags(tags);
         }
 
         // dns_nameservers
         List<String> dnsNameservers = subnet.getDnsNameservers();
         if (dnsNameservers == null) {
-            dnsNameservers = new ArrayList<String>(){};
+            dnsNameservers = new ArrayList<String>() {
+            };
             subnet.setDnsNameservers(dnsNameservers);
         }
 
         // host_routes
         List<HostRoute> hostRoutes = subnet.getHostRoutes();
         if (hostRoutes == null) {
-            hostRoutes = new ArrayList<HostRoute>(){};
+            hostRoutes = new ArrayList<HostRoute>() {
+            };
             subnet.setHostRoutes(hostRoutes);
         }
 
         // service_types
         List<String> serviceType = subnet.getServiceTypes();
         if (serviceType == null) {
-            serviceType = new ArrayList<String>(){};
+            serviceType = new ArrayList<String>() {
+            };
             subnet.setServiceTypes(serviceType);
         }
 
         return true;
     }
 
-    public static String setGatewayIpValue(String gatewayIp, String cidr) {
+    public static String adjustGatewayIpValue(String gatewayIp, String cidr) {
         // gatewayIP is null
         if (gatewayIp == null) {
             return null;
@@ -167,14 +172,12 @@ public class SubnetManagementUtil {
     }
 
     public static boolean checkGatewayIpIsInAllocatedRange(String gatewayIp, String cidr) {
-        if (gatewayIp == null) {
-            return false;
-        }
-        if (gatewayIp.length() == 0) {
-            return false;
-        }
-        String[] ips = subnetService.cidrToFirstIpAndLastIp(cidr);
 
+        if (gatewayIp == null || gatewayIp.length() == 0) {
+            return false;
+        }
+
+        String[] ips = subnetService.cidrToFirstIpAndLastIp(cidr);
         long gatewayIpNum = getIpNum(gatewayIp);
         long firstIpNum = getIpNum(ips[0]);
         long lastIpNum = getIpNum(ips[1]);
@@ -198,7 +201,7 @@ public class SubnetManagementUtil {
 
         for (String segment : ips) {
             char[] chars = segment.toCharArray();
-            for (int i = 0; i < chars.length; i ++) {
+            for (int i = 0; i < chars.length; i++) {
                 char c = chars[i];
                 if (c < '0' || c > '9') {
                     return false;
@@ -238,7 +241,7 @@ public class SubnetManagementUtil {
         return (userIp >= begin) && (userIp <= end);
     }
 
-    public static boolean IsCidrWithin (String cidr1, String cidr2) {
+    public static boolean IsCidrWithin(String cidr1, String cidr2) {
         if (cidr2 == null || cidr2.length() == 0) {
             return false;
         }
@@ -261,7 +264,7 @@ public class SubnetManagementUtil {
         return false;
     }
 
-    public static boolean IsCidrOverlap (String cidr1, String cidr2) {
+    public static boolean IsCidrOverlap(String cidr1, String cidr2) {
         if (cidr1 == null || cidr2 == null || cidr1.length() == 0 || cidr2.length() == 0) {
             return false;
         }
