@@ -518,18 +518,10 @@ public class SubnetController {
             }
 
             String rangeId = null;
-            String ipV4RangeId = subnetEntity.getIpV4RangeId();
-            String ipV6RangeId = subnetEntity.getIpV6RangeId();
-            if (ipV4RangeId != null) {
-                rangeId = ipV4RangeId;
+            if (subnetEntity.getIpVersion() == 6) {
+                rangeId = subnetEntity.getIpV6RangeId();
             } else {
-                rangeId = ipV6RangeId;
-            }
-
-            // TODO: check if there is any gateway / non-gateway port for the subnet, waiting for PM new API
-            Boolean checkIfAnyNoneGatewayPortInSubnet = this.subnetService.checkIfAnyPortInSubnet(projectId, subnetId);
-            if (checkIfAnyNoneGatewayPortInSubnet) {
-                throw new HavePortInSubnet();
+                rangeId = subnetEntity.getIpV4RangeId();
             }
 
             // check if subnet bind any router
@@ -545,7 +537,13 @@ public class SubnetController {
                 logger.warn(e.getMessage());
             }
 
-            // TODO: delete gateway port in port manager. Temporary solution, need PM fix issue
+            // check if there is any non-gateway port for the subnet
+            Boolean checkIfAnyNoneGatewayPortInSubnet = this.subnetService.checkIfAnyNonGatewayPortInSubnet(projectId, subnetEntity);
+            if (checkIfAnyNoneGatewayPortInSubnet) {
+                throw new HaveNonGatewayPortInSubnet();
+            }
+
+            // delete gateway port in port manager
             GatewayPortDetail gatewayPortDetail = subnetEntity.getGatewayPortDetail();
             if (gatewayPortDetail != null) {
                 this.subnetToPortManagerService.deleteGatewayPort(projectId, gatewayPortDetail.getGatewayPortId());
@@ -559,7 +557,7 @@ public class SubnetController {
 
             this.subnetDatabaseService.deleteSubnet(subnetId);
 
-        } catch (ParameterNullOrEmptyException | HavePortInSubnet | SubnetBindRouter e) {
+        } catch (ParameterNullOrEmptyException | HaveNonGatewayPortInSubnet | SubnetBindRouter e) {
             logger.error(e.getMessage());
             throw new Exception(e);
         }

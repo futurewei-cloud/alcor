@@ -68,7 +68,7 @@ public class VpcController {
      * @return vpc state
      * @throws Exception
      */
-    @Rbac(resource ="vpc")
+    @Rbac(resource = "vpc")
     @FieldFilter(type = VpcEntity.class)
     @RequestMapping(
             method = GET,
@@ -114,7 +114,7 @@ public class VpcController {
      * @return vpc state
      * @throws Exception
      */
-    @Rbac(resource ="vpc")
+    @Rbac(resource = "vpc")
     @RequestMapping(
             method = POST,
             value = {"/project/{projectid}/vpcs"})
@@ -194,7 +194,7 @@ public class VpcController {
      * @return vpc state
      * @throws Exception
      */
-    @Rbac(resource ="vpc")
+    @Rbac(resource = "vpc")
     @RequestMapping(
             method = PUT,
             value = {"/project/{projectid}/vpcs/{vpcid}"})
@@ -252,7 +252,7 @@ public class VpcController {
      * @return network id
      * @throws Exception
      */
-    @Rbac(resource ="vpc")
+    @Rbac(resource = "vpc")
     @RequestMapping(
             method = DELETE,
             value = {"/project/{projectid}/vpcs/{vpcid}"})
@@ -290,7 +290,7 @@ public class VpcController {
      * @return Map<String, VpcWebResponseObject>
      * @throws Exception
      */
-    @Rbac(resource ="vpc")
+    @Rbac(resource = "vpc")
     @FieldFilter(type = VpcEntity.class)
     @RequestMapping(
             method = GET,
@@ -298,8 +298,8 @@ public class VpcController {
     @DurationStatistics
     public VpcsWebJson getVpcStatesByProjectId(@PathVariable String projectId) throws Exception {
         Map<String, VpcEntity> vpcStates = null;
-        Map<String, String[]> requestParams = (Map<String, String[]>)request.getAttribute(QUERY_ATTR_HEADER);
-        requestParams = requestParams == null ? request.getParameterMap():requestParams;
+        Map<String, String[]> requestParams = (Map<String, String[]>) request.getAttribute(QUERY_ATTR_HEADER);
+        requestParams = requestParams == null ? request.getParameterMap() : requestParams;
         Map<String, Object[]> queryParams =
                 ControllerUtil.transformUrlPathParams(requestParams, VpcEntity.class);
 
@@ -339,6 +339,7 @@ public class VpcController {
 
     /**
      * Updates a network with subnet id
+     *
      * @param projectid
      * @param vpcid
      * @param subnetid
@@ -381,11 +382,11 @@ public class VpcController {
         }
 
         return new VpcWebJson(inVpcState);
-
     }
 
     /**
      * delete subnet id in a network
+     *
      * @param projectid
      * @param vpcid
      * @param subnetid
@@ -398,35 +399,19 @@ public class VpcController {
     @DurationStatistics
     public VpcWebJson deleteSubnetIdInVpcState(@PathVariable String projectid, @PathVariable String vpcid, @PathVariable String subnetid) throws Exception {
 
-        VpcEntity inVpcState = new VpcEntity();
+        VpcEntity inVpcState = null;
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetid);
 
-            inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
-            if (inVpcState == null) {
-                throw new ResourceNotFoundException("Vpc not found : " + vpcid);
-            }
-
-            List<String> subnets = inVpcState.getSubnets();
-            if (subnets == null || !subnets.contains(subnetid)) {
-                return new VpcWebJson(inVpcState);
-            }
-            subnets.remove(subnetid);
-
-            inVpcState.setSubnets(subnets);
-
-            this.vpcDatabaseService.addVpc(inVpcState);
-
-            inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
+            inVpcState = this.vpcDatabaseService.deleteSubnetIdInVpc(vpcid, subnetid);
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
         }
 
         return new VpcWebJson(inVpcState);
-
     }
 }
