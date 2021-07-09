@@ -181,6 +181,7 @@ public class SubnetServiceImp implements SubnetService {
         // retry if ipRangeResponse is null
         while (ipRangeResponse == null && retry < maxNumRetry){
             ipRangeResponse = restTemplate.postForObject(ipManagerCreateRangeUrl, ipRangeRequest, IpAddrRangeRequest.class);
+            retry++;
         }
 
         if (ipRangeResponse == null) {
