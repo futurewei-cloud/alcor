@@ -32,6 +32,9 @@ public class Router extends CustomerResource {
     @JsonProperty("neutron_subnet_routetables")
     private List<RouteTable> neutronSubnetRouteTables;
 
+    @JsonProperty("subnet_Ids")
+    private List<String> subnetIds;
+
     @JsonProperty("routetables")
     private List<RouteTable> vpcRouteTables;
 
