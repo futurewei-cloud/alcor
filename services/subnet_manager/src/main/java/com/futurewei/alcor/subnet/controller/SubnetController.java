@@ -22,6 +22,7 @@ import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.common.utils.DateUtil;
+import com.futurewei.alcor.common.utils.Ipv4AddrUtil;
 import com.futurewei.alcor.subnet.config.ConstantsConfig;
 import com.futurewei.alcor.subnet.exception.*;
 import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
@@ -56,6 +57,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static com.futurewei.alcor.common.constants.CommonConstants.QUERY_ATTR_HEADER;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
+
+import org.springframework.web.client.HttpClientErrorException;
 
 @RestController
 @ComponentScan(value = "com.futurewei.alcor.common.stats")
@@ -262,12 +265,16 @@ public class SubnetController {
                     inSubnetEntity.setGatewayPortDetail(gatewayPortDetail);
                     inSubnetEntity.setGatewayPortId(gatewayPortDetail.getGatewayPortId());
                 }
+
+                gatewayIp = adjustedGatewayIp;
             }
 
-            if (inSubnetEntity.getIpVersion() == 4) {
+            if (Ipv4AddrUtil.formatCheck(gatewayIp)) {
                 inSubnetEntity.setIpV4RangeId(ipFuture.join());
-            } else if (inSubnetEntity.getIpVersion() == 6) {
+                inSubnetEntity.setIpVersion(4);
+            } else {
                 inSubnetEntity.setIpV6RangeId(ipFuture.join());
+                inSubnetEntity.setIpVersion(6);
             }
 
             // create_at and update_at
@@ -481,7 +488,11 @@ public class SubnetController {
             }
 
             // delete subnet routing rule in route manager
-            this.subnetService.deleteSubnetRoutingRuleInRM(projectId, subnetId);
+            try {
+                this.subnetService.deleteSubnetRoutingTable(projectId, subnetId);
+            } catch (HttpClientErrorException.NotFound e) {
+                logger.warn(e.getMessage());
+            }
 
             // TODO: delete gateway port in port manager. Temporary solution, need PM fix issue
             GatewayPortDetail gatewayPortDetail = subnetEntity.getGatewayPortDetail();
