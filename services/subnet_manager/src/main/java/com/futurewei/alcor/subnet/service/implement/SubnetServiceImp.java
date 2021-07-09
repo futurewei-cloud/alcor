@@ -320,6 +320,7 @@ public class SubnetServiceImp implements SubnetService {
             return false;
         }
 
+        logger.info("portCount == " + portCount + " && subnetEntity.getGatewayPortId() = " + subnetEntity.getGatewayPortId());
         return true;
     }
 
