@@ -313,8 +313,10 @@ public class SubnetServiceImp implements SubnetService {
         String portManagerServiceUrl = portUrl + "project/" + projectId + "/subnet-port-count/" + subnetEntity.getId();
         int portCount = restTemplate.getForObject(portManagerServiceUrl, Integer.class);
         if (portCount == 0 && StringUtil.isNullOrEmpty(subnetEntity.getGatewayPortId())) {
+            logger.info("portCount == 0 && subnetEntity.getGatewayPortId() = " + subnetEntity.getGatewayPortId());
             return false;
         } else if (portCount == 1 && !StringUtil.isNullOrEmpty(subnetEntity.getGatewayPortId())) {
+            logger.info("portCount == 1 && subnetEntity.getGatewayPortId() = " + subnetEntity.getGatewayPortId());
             return false;
         }
 
