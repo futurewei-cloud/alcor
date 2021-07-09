@@ -15,6 +15,7 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.route.service.Impl;
 
+import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.route.config.ConstantsConfig;
 import com.futurewei.alcor.route.exception.DPMFailedHandleRequest;
 import com.futurewei.alcor.route.service.RouterToDPMService;
@@ -22,9 +23,14 @@ import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.web.entity.dataplane.InternalDPMResultList;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
+import com.futurewei.alcor.web.restclient.DataPlaneManagerRestClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.boot.web.client.RestTemplateBuilder;
+
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -50,12 +56,12 @@ public class RouterToDPMServiceImpl implements RouterToDPMService {
         internalRouterInfos.add(internalRouterInfo);
         networkConfiguration.setInternalRouterInfos(internalRouterInfos);
         networkConfiguration.setRsType(Common.ResourceType.ROUTER);
-
         networkConfiguration.setOpType(Common.OperationType.valueOf(internalRouterInfo.getOperationType().name()));
 
         String dpmServiceUrl = dpmUrl + "/network-configuration";
         HttpEntity<NetworkConfiguration> dpmRequest = new HttpEntity<>(networkConfiguration);
         InternalDPMResultList dpmResponse = restTemplate.postForObject(dpmServiceUrl, dpmRequest, InternalDPMResultList.class);
+
         if (dpmResponse == null) {
             throw new DPMFailedHandleRequest();
         }
@@ -63,7 +69,5 @@ public class RouterToDPMServiceImpl implements RouterToDPMService {
         if (resultMessage.equals(ConstantsConfig.DPMFailedHandleRequest)) {
             throw new DPMFailedHandleRequest();
         }
-
     }
-
 }

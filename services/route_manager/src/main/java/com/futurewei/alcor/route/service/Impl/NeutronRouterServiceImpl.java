@@ -541,7 +541,6 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             RouteEntry existRoute = existRoutesMap.get(newNetworkIP);
             // can't find: Add Operation - Create (both); Remove Operation - Skip
             if (existRoute == null) {
-
                 if (!isAddOperation) { // Remove Operation - Skip
                     continue;
                 }
@@ -549,7 +548,6 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
                 InternalRoutingRule internalRoutingRule = null;
                 if (isDefaultRoutingRules) {
                     internalRoutingRule = constructNewInternalRoutingRule(OperationType.CREATE, RoutingRuleType.DEFAULT, existRoute, newRouteRequest);
-
                     existRoutes.add(new RouteEntry(existRouteTable.getProjectId(),
                             UUID.randomUUID().toString(),
                             "route" + UUID.randomUUID().toString(),
@@ -575,7 +573,6 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
                     String[] existDes = existRoute.getDestination().split("\\/");
                     String existBitmask = existDes[1];
                     int existBitmaskInt = Integer.parseInt(existBitmask);
-
                     if (isAddOperation) {
                         if (newBitmaskInt <= existBitmaskInt) { // new routing rule bitmask is smaller or equal than old one, drop it
                             continue;
