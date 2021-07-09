@@ -487,7 +487,7 @@ public class SubnetController {
             }
 
             // check if there is any non-gateway port for the subnet
-            Boolean checkIfAnyNoneGatewayPortInSubnet = this.subnetService.checkIfAnyNonGatewayPortInSubnet(projectId, subnetEntity);
+            boolean checkIfAnyNoneGatewayPortInSubnet = this.subnetService.checkIfAnyNonGatewayPortInSubnet(projectId, subnetEntity);
             if (checkIfAnyNoneGatewayPortInSubnet) {
                 throw new HaveNonGatewayPortInSubnet();
             }
