@@ -383,19 +383,32 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         }
         RouteTable routeTable = router.getNeutronRouteTable();
         List<RouteEntry> routeEntities = routeTable.getRouteEntities();
+
+
         List<NewRoutesRequest> requestRoutes = requestRouter.getRoutes();
+        for (NewRoutesRequest requestRoute : requestRoutes) {
+            String requestDestination = requestRoute.getDestination();
+            String requestNexthop = requestRoute.getNexthop();
 
-        List<RouteEntry> requestRouteEntries = new ArrayList<>();
-        requestRoutes.stream().map(item -> requestRouteEntries.add(new RouteEntry(){{setDestination(item.getDestination()); setNexthop(item.getNexthop());}}));
-
-        for (RouteEntry entry : requestRouteEntries)
-        {
-            if (routeEntities.contains(entry))
-            {
-                throw new DestinationSame();
+            if (requestDestination == null || requestNexthop == null) {
+                throw new DestinationOrNexthopCanNotBeNull();
             }
+
+            for (RouteEntry routeEntry : routeEntities) {
+                String destination = routeEntry.getDestination();
+                if (requestDestination.equals(destination)) {
+                    throw new DestinationSame();
+                }
+            }
+
+            RouteEntry routeEntry = new RouteEntry();
+            routeEntry.setDestination(requestDestination);
+            routeEntry.setNexthop(requestNexthop);
+            routeEntities.add(routeEntry);
+
         }
-        routeEntities.addAll(requestRouteEntries);
+        routeTable.setRouteEntities(routeEntities);
+        router.setNeutronRouteTable(routeTable);
         this.routerDatabaseService.addRouter(router);
 
         // Construct response
