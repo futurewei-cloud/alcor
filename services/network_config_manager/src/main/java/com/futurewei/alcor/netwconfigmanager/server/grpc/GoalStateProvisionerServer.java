@@ -302,8 +302,8 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             // Step 3: Send response to target ACAs
             long end = System.currentTimeMillis();
             logger.log(Level.INFO, "[requestGoalStates] From received hostOperation to before response, elapsed Time in milli seconds: "+ (end-start));
-            logger.log(Level.INFO, "requestGoalStates : replying HostRequest with UUID: " + state_request_uuid + " at: " + end);
             responseObserver.onNext(reply);
+            logger.log(Level.INFO, "requestGoalStates : replying HostRequest with UUID: " + state_request_uuid + " at: " + end);
             responseObserver.onCompleted();
             long end1 = System.currentTimeMillis();
             logger.log(Level.INFO, "requestGoalStates : sent on-demand response to ACA | ",
