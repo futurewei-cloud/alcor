@@ -156,7 +156,7 @@ public class GoalStateClientImpl implements GoalStateClient {
     }
 
     // try to warmup a gRPC channel and its stub, by sending an empty GoalState`.
-    void warmUpChannelStub(GrpcChannelStub channelStub, String hostIp ){
+    void warmUpChannelStub(GrpcChannelStub channelStub, String hostIp) {
         GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub = channelStub.stub;
         long stub_established = System.currentTimeMillis();
 
@@ -181,7 +181,7 @@ public class GoalStateClientImpl implements GoalStateClient {
         try {
             Goalstate.GoalStateV2 goalState = Goalstate.GoalStateV2.getDefaultInstance();
             logger.log(Level.INFO, "Sending GS to Host " + hostIp + " as follows | " + goalState.toString());
-            for ( int i = 0 ; i < numberOfWarmupsPerChannel ; i ++){
+            for (int i = 0; i < numberOfWarmupsPerChannel; i++) {
                 requestObserver.onNext(goalState);
             }
         } catch (RuntimeException e) {
@@ -246,7 +246,7 @@ public class GoalStateClientImpl implements GoalStateClient {
             Goalstate.GoalStateV2 goalState = hostGoalState.getGoalState();
             logger.log(Level.INFO, "Sending GS to Host " + hostIp + " as follows | " + goalState.toString());
             requestObserver.onNext(goalState);
-            if (hostGoalState.getGoalState().getNeighborStatesCount() == 1 && hostIp.equals("10.213.43.92")) {
+            if (hostGoalState.getGoalState().getNeighborStatesCount() == 1 && (hostIp.equals("192.168.20.92") || hostIp.equals("10.213.43.92"))) {
                 long sent_gs_time = System.currentTimeMillis();
                 // If there's only one neighbor state and it is trying to send it to aca_node_one, the IP of which is now
                 // hardcoded) this send goalstate action is probably caused by on-demand workflow, need to record when it
