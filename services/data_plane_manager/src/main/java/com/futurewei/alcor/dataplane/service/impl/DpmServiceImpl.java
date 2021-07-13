@@ -507,8 +507,7 @@ public class DpmServiceImpl implements DpmService {
                         }
 
                         routerService.buildRouterState(routerInfo, subnetRoutingTable, unicastGoalState, multicastGoalState);
-                        routerService.buildSubnetState(unicastGoalState, subnetId);
-
+                        subnetService.buildSubnetState(unicastGoalState, subnetId);
                     }
                 }
             }

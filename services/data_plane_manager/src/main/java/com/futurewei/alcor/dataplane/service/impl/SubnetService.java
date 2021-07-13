@@ -15,6 +15,7 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.dataplane.service.impl;
 
+import com.futurewei.alcor.dataplane.cache.SubnetPortsCache;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.exception.SubnetEntityNotFound;
@@ -23,6 +24,8 @@ import com.futurewei.alcor.schema.Port;
 import com.futurewei.alcor.schema.Subnet;
 import com.futurewei.alcor.web.entity.dataplane.InternalSubnetEntity;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
+import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -30,6 +33,10 @@ import java.util.List;
 
 @Service
 public class SubnetService extends ResourceService {
+
+    @Autowired
+    private SubnetPortsCache subnetPortsCache;
+
     public InternalSubnetEntity getInternalSubnetEntity(NetworkConfiguration networkConfig, String subnetId) throws Exception {
         InternalSubnetEntity result = null;
         for (InternalSubnetEntity internalSubnetEntity: networkConfig.getSubnets()) {
@@ -96,6 +103,40 @@ public class SubnetService extends ResourceService {
             subnetStateBuilder.setConfiguration(subnetConfigBuilder.build());
             unicastGoalState.getGoalStateBuilder().addSubnetStates(subnetStateBuilder.build());
             multicastGoalState.getGoalStateBuilder().addSubnetStates(subnetStateBuilder.build());
+        }
+    }
+
+    public void buildSubnetState (UnicastGoalState unicastGoalState, String subnetId) throws Exception
+    {
+        InternalSubnetPorts subnetEntity = subnetPortsCache.getSubnetPorts(subnetId);
+        if (subnetEntity != null) {
+            if (unicastGoalState.getGoalStateBuilder().getSubnetStatesList().stream()
+                    .filter(e -> e.getConfiguration().getId().equals(subnetEntity.getSubnetId()))
+                    .findFirst().orElse(null) == null) {
+                Subnet.SubnetConfiguration.Builder subnetConfigBuilder = Subnet.SubnetConfiguration.newBuilder();
+                subnetConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
+                subnetConfigBuilder.setId(subnetEntity.getSubnetId());
+                subnetConfigBuilder.setVpcId(subnetEntity.getVpcId());
+                subnetConfigBuilder.setName(subnetEntity.getName());
+                subnetConfigBuilder.setCidr(subnetEntity.getCidr());
+                subnetConfigBuilder.setTunnelId(subnetEntity.getTunnelId());
+
+                Subnet.SubnetConfiguration.Gateway.Builder gatewayBuilder = Subnet.SubnetConfiguration.Gateway.newBuilder();
+                gatewayBuilder.setIpAddress(subnetEntity.getGatewayPortIp());
+                gatewayBuilder.setMacAddress(subnetEntity.getGatewayPortMac());
+                subnetConfigBuilder.setGateway(gatewayBuilder.build());
+
+                if (subnetEntity.getDhcpEnable() != null) {
+                    subnetConfigBuilder.setDhcpEnable(subnetEntity.getDhcpEnable());
+                }
+
+                // TODO: need to set DNS based on latest contract
+
+                Subnet.SubnetState.Builder subnetStateBuilder = Subnet.SubnetState.newBuilder();
+                subnetStateBuilder.setOperationType(Common.OperationType.INFO);
+                subnetStateBuilder.setConfiguration(subnetConfigBuilder.build());
+                unicastGoalState.getGoalStateBuilder().addSubnetStates(subnetStateBuilder.build());
+            }
         }
     }
 }
