@@ -243,8 +243,12 @@ public class SubnetController {
             // Synchronous blocking
             CompletableFuture<Void> allFuture = CompletableFuture.allOf(vpcFuture, ipFuture);
             allFuture.join();
+            VpcWebJson vpcResponse = vpcFuture.join();
+            String ipRangeId = ipFuture.join();
 
-            logger.info("Total processing time:" + (System.currentTimeMillis() - start) + "ms");
+            logger.info("[createSubnetState] Verified VPC id:" + vpcResponse.toString());
+            logger.info("[createSubnetState] Allocated ip range:" + ipRangeId);
+            logger.info("[createSubnetState] Time to verify VPC id and allocate ip range:" + (System.currentTimeMillis() - start) + "ms");
 
             this.subnetDatabaseService.addSubnet(inSubnetEntity);
 
@@ -270,10 +274,10 @@ public class SubnetController {
             }
 
             if (Ipv4AddrUtil.formatCheck(gatewayIp)) {
-                inSubnetEntity.setIpV4RangeId(ipFuture.join());
+                inSubnetEntity.setIpV4RangeId(ipRangeId);
                 inSubnetEntity.setIpVersion(4);
             } else {
-                inSubnetEntity.setIpV6RangeId(ipFuture.join());
+                inSubnetEntity.setIpV6RangeId(ipRangeId);
                 inSubnetEntity.setIpVersion(6);
             }
 
