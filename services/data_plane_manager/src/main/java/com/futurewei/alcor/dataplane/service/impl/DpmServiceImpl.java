@@ -508,12 +508,16 @@ public class DpmServiceImpl implements DpmService {
 
                         routerService.buildRouterState(routerInfo, subnetRoutingTable, unicastGoalState, multicastGoalState);
                         subnetService.buildSubnetState(unicastGoalState, subnetId);
-                        List<String> ips = new ArrayList<>();
+                        Set<String> ips = new HashSet<>();
                         System.out.println("IP Size" + ips.size());
                         subnetRoutingTables.forEach(routingTable -> routingTable.getRoutingRules().forEach(routingRule -> {ips.add(routingRule.getNextHopIp()); System.out.println(routingRule.getNextHopIp());}));
-                        System.out.println("Neighbors: " + neighborService.getAllNeighbors(ips).size());
+                        System.out.println("Neighbors: " + neighborService.getAllNeighbors(new ArrayList<>(ips)).size());
                         System.out.println("IP Size" + ips.size());
-                        neighborService.buildNeighborStates(neighborService.getAllNeighbors(ips), unicastGoalState, multicastGoalState);
+                        List<Neighbor.NeighborState> neighbors = neighborService.getAllNeighbors(new ArrayList<>(ips));
+                        for (Neighbor.NeighborState neighbor : neighbors)
+                        {
+                            unicastGoalState.getGoalStateBuilder().addNeighborStates(neighbor);
+                        }
                     }
                 }
             }

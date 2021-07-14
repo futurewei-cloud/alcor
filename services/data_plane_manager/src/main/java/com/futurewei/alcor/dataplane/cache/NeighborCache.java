@@ -19,6 +19,7 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.schema.Neighbor;
 import com.futurewei.alcor.web.entity.dataplane.NeighborEntry;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
@@ -33,29 +34,20 @@ import java.util.Map;
 @ComponentScan(value="com.futurewei.alcor.common.db")
 public class NeighborCache {
     // The cache is a map(subnetId, subnetPorts)
-    private ICache<String, NeighborInfo> neighborCache;
+    private ICache<String, Neighbor.NeighborState> neighborCache;
 
     @Autowired
     public NeighborCache(CacheFactory cacheFactory) {
-        neighborCache = cacheFactory.getCache(NeighborInfo.class);
+        neighborCache = cacheFactory.getCache(Neighbor.NeighborState.class);
     }
 
     @DurationStatistics
-    public NeighborInfo getPortNeighborByID(String portId) throws CacheException {
-        return neighborCache.get(portId);
+    public Neighbor.NeighborState getNeiborByIP(String ip) throws Exception {
+        return neighborCache.get(ip);
     }
 
-    public Map<String, NeighborInfo> getNeiborByIP(String ip) throws Exception {
-        Map<String, Object[]> queryParams =  new HashMap<>();
-        Object[] value = new Object[1];
-        value[0] = ip;
-        queryParams.put("port_ip", value);
-        return neighborCache.getAll(queryParams);
+    public void setNeighborState(Neighbor.NeighborState neighborState) throws Exception {
+        //TODO support multiple FixIps
+        neighborCache.put(neighborState.toBuilder().getConfiguration().getFixedIps(0).getIpAddress(), neighborState);
     }
-
-    @DurationStatistics
-    public Map<String, NeighborInfo> getAllNeighbors(Map<String, Object[]> queryParams) throws CacheException {
-        return neighborCache.getAll(queryParams);
-    }
-
 }

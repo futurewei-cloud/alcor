@@ -38,7 +38,7 @@ public class NeighborService extends ResourceService {
     @Autowired
     private NeighborCache neighborCache;
 
-    public Neighbor.NeighborState buildNeighborState(NeighborEntry.NeighborType type, NeighborInfo neighborInfo, Common.OperationType operationType) {
+    public Neighbor.NeighborState buildNeighborState(NeighborEntry.NeighborType type, NeighborInfo neighborInfo, Common.OperationType operationType) throws Exception {
         Neighbor.NeighborConfiguration.Builder neighborConfigBuilder = Neighbor.NeighborConfiguration.newBuilder();
         neighborConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
         neighborConfigBuilder.setId(neighborInfo.getPortId()); // TODO: We are going to need this per latest ACA change
@@ -61,7 +61,7 @@ public class NeighborService extends ResourceService {
         Neighbor.NeighborState.Builder neighborStateBuilder = Neighbor.NeighborState.newBuilder();
         neighborStateBuilder.setOperationType(operationType);
         neighborStateBuilder.setConfiguration(neighborConfigBuilder.build());
-
+        neighborCache.setNeighborState(neighborStateBuilder.build());
         return neighborStateBuilder.build();
     }
 
@@ -187,15 +187,14 @@ public class NeighborService extends ResourceService {
         }
     }
 
-    public Map<String, NeighborInfo> getAllNeighbors (List<String> ips) throws Exception
+    public List<Neighbor.NeighborState> getAllNeighbors (List<String> ips) throws Exception
     {
-        Map<String, NeighborInfo> neighbors = new HashMap<>();
+        List<Neighbor.NeighborState> neighbors = new ArrayList<>();
         for (String ip : ips)
         {
-            neighbors.putAll(neighborCache.getNeiborByIP(ip));
+            neighbors.add(neighborCache.getNeiborByIP(ip));
 
         }
-        System.out.println(neighborCache.getPortNeighborByID("7172a4d4-ffff-4ece-b3f0-8d36e3d00101"));
         return neighbors;
     }
 }
