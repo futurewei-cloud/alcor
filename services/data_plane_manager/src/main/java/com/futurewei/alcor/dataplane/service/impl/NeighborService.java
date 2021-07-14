@@ -15,6 +15,8 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.dataplane.service.impl;
 
+import com.futurewei.alcor.dataplane.cache.NeighborCache;
+import com.futurewei.alcor.dataplane.cache.SubnetPortsCache;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.exception.NeighborInfoNotFound;
@@ -25,12 +27,17 @@ import com.futurewei.alcor.web.entity.dataplane.NeighborEntry;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
 public class NeighborService extends ResourceService {
+
+    @Autowired
+    private NeighborCache neighborCache;
+
     public Neighbor.NeighborState buildNeighborState(NeighborEntry.NeighborType type, NeighborInfo neighborInfo, Common.OperationType operationType) {
         Neighbor.NeighborConfiguration.Builder neighborConfigBuilder = Neighbor.NeighborConfiguration.newBuilder();
         neighborConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
@@ -83,6 +90,20 @@ public class NeighborService extends ResourceService {
         }
 
         return neighborInfos;
+    }
+
+    public void buildNeighborStates(Map<String, NeighborInfo> neighborInfos,
+                                    UnicastGoalState unicastGoalState,
+                                    MulticastGoalState multicastGoalState) throws Exception
+    {
+        if (neighborInfos == null || neighborInfos.size() == 0) {
+            return;
+        }
+        for (NeighborInfo neighborInfo : neighborInfos.values())
+        {
+            unicastGoalState.getGoalStateBuilder().addNeighborStates(buildNeighborState(NeighborEntry.NeighborType.L3, neighborInfo, Common.OperationType.GET));
+        }
+
     }
 
     public void buildNeighborStates(NetworkConfiguration networkConfig, String hostIp,
@@ -164,5 +185,17 @@ public class NeighborService extends ResourceService {
                 neighborInfoSet.add(neighborInfo1);
             }
         }
+    }
+
+    public Map<String, NeighborInfo> getAllNeighbors (List<String> ips) throws Exception
+    {
+        Map<String, NeighborInfo> neighbors = new HashMap<>();
+        for (String ip : ips)
+        {
+            neighbors.putAll(neighborCache.getNeiborByIP(ip));
+
+        }
+        System.out.println(neighborCache.getPortNeighborByID("7172a4d4-ffff-4ece-b3f0-8d36e3d00101"));
+        return neighbors;
     }
 }
