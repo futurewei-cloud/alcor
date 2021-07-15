@@ -30,6 +30,8 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import io.netty.util.concurrent.DefaultThreadFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -37,10 +39,7 @@ import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinPool.ForkJoinWorkerThreadFactory;
-import java.util.concurrent.ForkJoinWorkerThread;
-
+@Configuration
 @Service("grpcGoalStateClient")
 public class GoalStateClientImpl implements GoalStateClient {
 
@@ -53,8 +52,11 @@ public class GoalStateClientImpl implements GoalStateClient {
     private final ExecutorService executor;
 
     // each host_ip should have this amount of gRPC channels.
+    @Value("${grpc.number-of-channels-per-host:#{1}}")
     private final int numberOfGrpcChannelPerHost = 10;
 
+    // when a channel is set up, send this amount of default GoalStates for warmup.
+    @Value("${grpc.number-of-warmups-per-channel:#{1}}")
     private final int numberOfWarmupsPerChannel = 1;
 
     private SortedMap<String, ArrayList<GrpcChannelStub>> hostIpGrpcChannelStubMap;
@@ -69,15 +71,8 @@ public class GoalStateClientImpl implements GoalStateClient {
 
     //    @Autowired
     public GoalStateClientImpl() {
-//        this.grpcPort = globalConfig.targetHostPort;
-//        this.executor = new ThreadPoolExecutor(globalConfig.grpcMinThreads,
-//                globalConfig.grpcMaxThreads,
-//                50,
-//                TimeUnit.SECONDS,
-//                new LinkedBlockingDeque<>(),
-//                new DefaultThreadFactory(globalConfig.grpThreadsName));
         this.hostAgentPort = 50001;
-//        this.executor = new ForkJoinPool();
+
         this.executor = new ThreadPoolExecutor(100,
                 200,
                 50,
@@ -133,12 +128,11 @@ public class GoalStateClientImpl implements GoalStateClient {
 
         ConnectivityState channelState = chan.getState(true);
         if (channelState != ConnectivityState.READY && channelState != ConnectivityState.CONNECTING && channelState != ConnectivityState.IDLE) {
-//            this.hostIpGrpcChannelStubMap.put(hostIp, createGrpcChannelStub(hostIp));
             GrpcChannelStub newChannelStub = createGrpcChannelStub(hostIp);
             this.hostIpGrpcChannelStubMap.get(hostIp).set(usingChannelWithThisIndex, newChannelStub);
             logger.log(Level.INFO, "[getOrCreateGrpcChannel] Replaced a channel and stub to host IP: " + hostIp);
         }
-        logger.log(Level.INFO, "[getOrCreateGrpcChannel] Using channel and stub index " + usingChannelWithThisIndex + " to host IP: " + hostIp);
+        logger.log(Level.FINE, "[getOrCreateGrpcChannel] Using channel and stub index " + usingChannelWithThisIndex + " to host IP: " + hostIp);
         return this.hostIpGrpcChannelStubMap.get(hostIp).get(usingChannelWithThisIndex);
     }
 
@@ -158,7 +152,6 @@ public class GoalStateClientImpl implements GoalStateClient {
     // try to warmup a gRPC channel and its stub, by sending an empty GoalState`.
     void warmUpChannelStub(GrpcChannelStub channelStub, String hostIp) {
         GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub = channelStub.stub;
-        long stub_established = System.currentTimeMillis();
 
         StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver = new StreamObserver<>() {
             @Override
@@ -211,14 +204,12 @@ public class GoalStateClientImpl implements GoalStateClient {
         String hostIp = hostGoalState.getHostIp();
         logger.log(Level.INFO, "Setting up a channel to ACA on: " + hostIp);
         long start = System.currentTimeMillis();
-//        ManagedChannel channel = ManagedChannelBuilder.forAddress(hostIp, this.hostAgentPort)
-//                .usePlaintext()
-//                .build();
+
         GrpcChannelStub channelStub = getOrCreateGrpcChannel(hostIp);
         long chan_established = System.currentTimeMillis();
         logger.log(Level.INFO, "[doSendGoalState] Established channel, elapsed Time in milli seconds: " + (chan_established - start));
         GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub = channelStub.stub;
-//        GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub = GoalStateProvisionerGrpc.newStub(channel);
+
         long stub_established = System.currentTimeMillis();
         logger.log(Level.INFO, "[doSendGoalState] Established stub, elapsed Time after channel established in milli seconds: " + (stub_established - chan_established));
 
@@ -278,15 +269,9 @@ public class GoalStateClientImpl implements GoalStateClient {
         public ManagedChannel channel;
         public GoalStateProvisionerGrpc.GoalStateProvisionerStub stub;
 
-        //        public StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver;
-//        public StreamObserver<Goalstate.GoalStateV2> requestObserver;
-//        Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>> result;
         public GrpcChannelStub(ManagedChannel channel, GoalStateProvisionerGrpc.GoalStateProvisionerStub stub) {
             this.channel = channel;
             this.stub = stub;
-//            this.requestObserver = requestObserver;
-//            this.responseObserver = responseObserver;
-//            this.result = result;
         }
     }
 
