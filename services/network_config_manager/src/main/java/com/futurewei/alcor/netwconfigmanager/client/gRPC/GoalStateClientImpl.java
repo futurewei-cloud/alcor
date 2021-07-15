@@ -60,7 +60,7 @@ public class GoalStateClientImpl implements GoalStateClient {
     @Value("${grpc.number-of-warmups-per-channel:#{1}}")
     private final int numberOfWarmupsPerChannel = 1;
 
-    private SortedMap<String, ArrayList<GrpcChannelStub>> hostIpGrpcChannelStubMap;
+    private ConcurrentHashMap<String, ArrayList<GrpcChannelStub>> hostIpGrpcChannelStubMap;
 
 
     public static GoalStateClientImpl getInstance() {
@@ -81,7 +81,7 @@ public class GoalStateClientImpl implements GoalStateClient {
                 new LinkedBlockingDeque<>(),
                 new DefaultThreadFactory("grpc-thread-pool"));
         //TODO: Setup a connection pool. one ACA, one client.
-        this.hostIpGrpcChannelStubMap = new TreeMap<>();
+        this.hostIpGrpcChannelStubMap = new ConcurrentHashMap<>();
     }
 
     @Override
