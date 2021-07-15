@@ -54,11 +54,11 @@ public class GoalStateClientImpl implements GoalStateClient {
 
     // each host_ip should have this amount of gRPC channels.
     @Value("${grpc.number-of-channels-per-host:#{1}}")
-    private final int numberOfGrpcChannelPerHost = 10;
+    private int numberOfGrpcChannelPerHost;
 
     // when a channel is set up, send this amount of default GoalStates for warmup.
     @Value("${grpc.number-of-warmups-per-channel:#{1}}")
-    private final int numberOfWarmupsPerChannel = 1;
+    private int numberOfWarmupsPerChannel;
 
     private ConcurrentHashMap<String, ArrayList<GrpcChannelStub>> hostIpGrpcChannelStubMap;
 
@@ -81,7 +81,9 @@ public class GoalStateClientImpl implements GoalStateClient {
                 new LinkedBlockingDeque<>(),
                 new DefaultThreadFactory("grpc-thread-pool"));
         //TODO: Setup a connection pool. one ACA, one client.
-        this.hostIpGrpcChannelStubMap = new ConcurrentHashMap<>();
+        this.hostIpGrpcChannelStubMap = new ConcurrentHashMap();
+        logger.log(Level.FINE, "This instance has "+numberOfGrpcChannelPerHost+" channels, and "+numberOfWarmupsPerChannel+" warmups");
+
     }
 
     @Override
@@ -146,7 +148,7 @@ public class GoalStateClientImpl implements GoalStateClient {
             arr.add(channelStub);
         }
         long end = System.currentTimeMillis();
-        logger.log(Level.INFO, "[createGrpcChannelStubArrayList] Created " + numberOfGrpcChannelPerHost + " gRPC channel stubs for host " + hostIp + ", elapsed Time in milli seconds: " + (end - start));
+        logger.log(Level.FINE, "[createGrpcChannelStubArrayList] Created " + numberOfGrpcChannelPerHost + " gRPC channel stubs for host " + hostIp + ", elapsed Time in milli seconds: " + (end - start));
         return arr;
     }
 
@@ -203,16 +205,16 @@ public class GoalStateClientImpl implements GoalStateClient {
     private void doSendGoalState(HostGoalState hostGoalState) throws InterruptedException {
 
         String hostIp = hostGoalState.getHostIp();
-        logger.log(Level.INFO, "Setting up a channel to ACA on: " + hostIp);
+        logger.log(Level.FINE, "Setting up a channel to ACA on: " + hostIp);
         long start = System.currentTimeMillis();
 
         GrpcChannelStub channelStub = getOrCreateGrpcChannel(hostIp);
         long chan_established = System.currentTimeMillis();
-        logger.log(Level.INFO, "[doSendGoalState] Established channel, elapsed Time in milli seconds: " + (chan_established - start));
+        logger.log(Level.FINE, "[doSendGoalState] Established channel, elapsed Time in milli seconds: " + (chan_established - start));
         GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub = channelStub.stub;
 
         long stub_established = System.currentTimeMillis();
-        logger.log(Level.INFO, "[doSendGoalState] Established stub, elapsed Time after channel established in milli seconds: " + (stub_established - chan_established));
+        logger.log(Level.FINE, "[doSendGoalState] Established stub, elapsed Time after channel established in milli seconds: " + (stub_established - chan_established));
 
         Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>> result = new HashMap<>();
         StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver = new StreamObserver<>() {

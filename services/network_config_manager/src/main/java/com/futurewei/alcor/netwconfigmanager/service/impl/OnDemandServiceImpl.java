@@ -114,7 +114,7 @@ public class OnDemandServiceImpl implements OnDemandService {
             }
         };
         long end3 = System.currentTimeMillis();
-        logger.log(Level.INFO, "[retrieveGoalState] added portResourceMetadata in the arrayList, elapsed Time in milli seconds: "+ (end3-end2));
+        logger.log(Level.FINE, "[retrieveGoalState] added portResourceMetadata in the arrayList, elapsed Time in milli seconds: "+ (end3-end2));
 
         Goalstate.GoalStateV2 goalState = retrieveResourceState(resourceMetas);
         if (goalState == null) {
