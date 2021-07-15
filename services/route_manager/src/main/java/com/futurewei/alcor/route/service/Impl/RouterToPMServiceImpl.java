@@ -20,8 +20,10 @@ import com.futurewei.alcor.route.service.RouterToPMService;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortWebBulkJson;
 import com.futurewei.alcor.web.entity.port.PortWebJson;
+import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
 import com.futurewei.alcor.web.entity.route.RouterUpdateInfo;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -35,7 +37,11 @@ public class RouterToPMServiceImpl implements RouterToPMService {
     @Value("${microservices.port.service.url}")
     private String portUrl;
 
-    private RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
+
+    public RouterToPMServiceImpl(RestTemplateBuilder restTemplateBuilder) {
+        this.restTemplate = restTemplateBuilder.build();
+    }
 
     @Override
     public List<String> getSubnetIdsFromPM(String projectid, List<String> gatewayPorts) throws PortWebBulkJsonOrPortEntitiesListIsNull {
@@ -44,13 +50,13 @@ public class RouterToPMServiceImpl implements RouterToPMService {
         }
 
         List<String> subnetIds = new ArrayList<>();
-        String portManagerServiceUrl = portUrl + "/project/" + projectid + "/ports?id=";
+        String portManagerServiceUrl = portUrl + "/project/" + projectid + "/ports?";
         for (int i = 0 ; i < gatewayPorts.size(); i ++) {
             String gatewayPortId = gatewayPorts.get(i);
             if (i != gatewayPorts.size() - 1) {
-                portManagerServiceUrl = portManagerServiceUrl + gatewayPortId + ",";
+                portManagerServiceUrl = portManagerServiceUrl + "id=" + gatewayPortId + "&";
             } else {
-                portManagerServiceUrl = portManagerServiceUrl + gatewayPortId;
+                portManagerServiceUrl = portManagerServiceUrl + "id=" + gatewayPortId;
             }
         }
         PortWebBulkJson portResponse = restTemplate.getForObject(portManagerServiceUrl, PortWebBulkJson.class);
@@ -84,13 +90,9 @@ public class RouterToPMServiceImpl implements RouterToPMService {
     }
 
     @Override
-    public void updateL3Neighbors(String projectid, String vpcId, String subnetId, String operationType, List<String> gatewayPorts) {
+    public void updateL3Neighbors(String projectid, String vpcId, String subnetId, String operationType, List<String> gatewayPorts, InternalRouterInfo internalRouterInfo) {
         String portManagerServiceUrl = portUrl + "/project/" + projectid + "/update-l3-neighbors";
-        RouterUpdateInfo routerUpdateInfo = new RouterUpdateInfo();
-        routerUpdateInfo.setGatewayPortIds(gatewayPorts);
-        routerUpdateInfo.setSubnetId(subnetId);
-        routerUpdateInfo.setOperationType(operationType);
-        routerUpdateInfo.setVpcId(vpcId);
+        RouterUpdateInfo routerUpdateInfo = new RouterUpdateInfo(vpcId, subnetId, operationType, gatewayPorts, internalRouterInfo);
 
         HttpEntity<RouterUpdateInfo> request = new HttpEntity<>(routerUpdateInfo);
         restTemplate.put(portManagerServiceUrl, request, RouterUpdateInfo.class);

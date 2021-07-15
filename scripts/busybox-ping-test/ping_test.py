@@ -19,6 +19,7 @@
 
 import time, os
 import argparse
+import textwrap
 import json
 from helper_functions import *
 from create_test_setup import *
@@ -41,6 +42,8 @@ def build_containers(services_dict):
     print("building container images")
     services_list = get_file_list(ALCOR_SERVICES)
     for service_name in services_dict.keys():
+      if service_name == "segment_service":
+         continue
       service_path = ALCOR_SERVICES + service_name
       service_info = json.loads(services_dict[service_name])
       build_image = "sudo docker build" + " -t {} ".format(service_info["name"])
@@ -58,6 +61,8 @@ def build_containers(services_dict):
 def start_containers(serv):
     start_containers = []
     for service_name in serv.keys():
+        if service_name == "segment_service":
+            continue
         service_info = json.loads(serv[service_name])
         run_container = "sudo docker run --name={} ".format(service_info["name"])
         mnt_and_image = "-v /tmp:/tmp -tid {} ".format(service_info["name"])
@@ -80,12 +85,16 @@ def start_containers(serv):
 def stop_containers(service_list):
     command = "sudo docker container stop "
     for service in service_list:
+      if service == "segment_service":
+         continue
       execute_command(command + service)
 
 
 def remove_containers(service_list):
     command = "sudo docker container rm "
     for service in service_list:
+      if service == "segment_service":
+         continue
       execute_command(command + service)
 
 
@@ -94,9 +103,17 @@ def main():
     config_file_object = read_config_file(config_file)
     services_dict = dict(config_file_object.items("services"))
     service_port_map = get_service_port_map(services_dict)
-    parser = argparse.ArgumentParser(description='Busybox ping test', epilog='Example of use: python script_name -b')
+    parser = argparse.ArgumentParser(prog='ping_test',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description='Busybox ping test',
+        epilog=textwrap.dedent('''\
+Example of use: python script_name -b
+-t 1 : L2 Basic
+-t 2 : L3_AttachRouter_then_CreatePorts (S4)
+-t 3 : L3_CreatePorts_then_AttachRouter (S5)
+'''))
     parser.add_argument("-b", "--build", type=str, nargs='?', help=' to build alcor services provide :{} as an option'.format('-b build'))
-    parser.add_argument("-t", "--testcase", type=int, nargs='?', help='Test case number or {} for all tests cases '.format('all'))
+    parser.add_argument("-t", "--testcase", type=int, nargs='?', help='Test case number or {} for all tests cases. Default -t 1'.format('all'), default="1")
     parser.add_argument("-s", "--all", type=str, nargs='?', help = 'all tests cases')
     args = parser.parse_args()
 
@@ -133,7 +150,7 @@ def main():
       print("Check the target nodes and run again")
       print("ERROR: Quitting test\n")
       sys.exit(1)
-    time.sleep(10)
+    time.sleep(60)
 
     aca_nodes_ip_mac = get_macaddr_alcor_agents(aca)
     print("ACA nodes IP MAC pair::", aca_nodes_ip_mac)
@@ -148,9 +165,11 @@ def main():
 
     if args.testcase:
       if (args.testcase == 1):
-        ip_mac_db = prepare_test_case_1(aca_nodes_ip_mac, service_port_map)
+        ip_mac_db = prepare_test_L2_basic(aca_nodes_ip_mac, service_port_map)
       elif(args.testcase == 2):
-        ip_mac_db = prepare_test_case_2(aca_nodes_ip_mac, service_port_map)
+        ip_mac_db = prepare_test_L3_AttachRouter_then_CreatePorts(aca_nodes_ip_mac, service_port_map)
+      elif (args.testcase == 3):
+        ip_mac_db = prepare_test_L3_CreatePorts_then_AttachRouter(aca_nodes_ip_mac, service_port_map)
       else:
         print("Invoke {}".format('-t <testcase number>'))
         print("ERROR: Quitting test\n")

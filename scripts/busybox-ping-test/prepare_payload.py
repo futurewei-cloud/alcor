@@ -55,6 +55,7 @@ def post_httprequest(url, data=""):
        if 'ports' in url:
          valid_response = json.loads(response.text, object_pairs_hook = dict_clean)
          get_mac_for_ips(valid_response)
+         print("POST RESPONSE: {}".format(valid_response))
      else:
        response.raise_for_status()
   except requests.exceptions.HTTPError as err:
@@ -70,7 +71,7 @@ def get_mac_for_ips(valid_response):
   key = ports_info["fixed_ips"][0]["ip_address"]
   value =  ports_info["mac_address"]
   ip_mac_db[key] = value
-  #print(ip_mac_db)
+  print("IP_MAC_DB = ", ip_mac_db)
 
 
 def get_httprequest(url):

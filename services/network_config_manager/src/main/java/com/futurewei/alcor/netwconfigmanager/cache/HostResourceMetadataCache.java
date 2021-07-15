@@ -43,6 +43,8 @@ public class HostResourceMetadataCache {
     public void rollback() throws CacheException {
         hostResourceMetas.getTransaction().rollback();
     }
+
+
     @Autowired
     public HostResourceMetadataCache(CacheFactory cacheFactory) {
         this.hostResourceMetas = cacheFactory.getCache(ResourceMeta.class);

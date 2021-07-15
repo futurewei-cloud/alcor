@@ -15,20 +15,28 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.web.restclient;
 
+import com.futurewei.alcor.common.http.RestTemplateConfig;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.mac.MacState;
 import com.futurewei.alcor.web.entity.mac.MacStateBulkJson;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpEntity;
 
 import java.util.List;
 
 @Configuration
+@Import(RestTemplateConfig.class)
 public class MacManagerRestClient extends AbstractRestClient {
     @Value("${microservices.mac.service.url:#{\"\"}}")
     private String macManagerUrl;
+
+    public MacManagerRestClient(RestTemplateBuilder restTemplateBuilder) {
+        super(restTemplateBuilder);
+    }
 
     private void verifyAllocatedMacAddress(MacStateJson result) throws Exception {
         if (result == null || result.getMacState() == null ||

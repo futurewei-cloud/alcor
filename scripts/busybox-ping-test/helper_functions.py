@@ -114,6 +114,7 @@ def get_username():
 # Returns output on success, otherwise prints error code
 def run_command_on_host(HOST, COMMAND):
     try:
+      print("run_command_on_host: U = {}, H = {}, C = {}".format(get_username(), HOST, COMMAND))
       ssh1 = sp.Popen(['ssh',
                        '-o StrictHostKeyChecking=no',
                        '-o UserKnownHostsFile=/dev/null',
@@ -124,11 +125,11 @@ def run_command_on_host(HOST, COMMAND):
                        stderr=sp.PIPE,
                        encoding='utf8')
       result = ssh1.communicate()
-      #print("Remote output",result)
+      print("Remote output",result)
       retcode = ssh1.returncode
       if "Segmentation fault" in str(result):
         return "segmentation  fault"
-      #print(retcode)
+      print("Remote: ", retcode)
       if retcode > 0:
         print(result[1],retcode)
         if 'Connection to' not in result[1] and 'closed' not in result[1]:
@@ -191,7 +192,8 @@ def dict_clean(dict):
 # Return project id from config file under section 'test_setup'
 def get_projectid():
     test_setup = read_config_file_section("test_setup")
-    return test_setup["project_id"]
+    proj = test_setup["project_id"]
+    return proj.replace('"', '')
 
 
 # Return container 'ip_addrs' from config file under test_setup section
@@ -246,3 +248,14 @@ def check_alcor_agents_running(aca):
       else:
          print("AlcorControlAgent is not running on {}".format(ip_addr))
 
+def get_gateway_for_ip(ip_addr):
+    gateways = read_config_file_section("gateways")
+    # print(gateways)
+    gateway_info = json.loads(gateways["gateway_info"])
+    # print(gateway_info)
+    for gw in gateway_info:
+        for ip in gw["ips"]:
+            if ip == ip_addr:
+                # print("FOUND GW: IP = {}, GW = {}".format(ip_addr, gw["gw"]))
+                return gw["gw"]
+    return None

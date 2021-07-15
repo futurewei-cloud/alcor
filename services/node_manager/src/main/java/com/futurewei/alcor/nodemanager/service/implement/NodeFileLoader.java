@@ -96,7 +96,7 @@ public class NodeFileLoader {
         String veth = (String) nodeJson.get(NodeManagerConstant.JSON_VETH1);
         int gRPCServerPort = NodeManagerConstant.GRPC_SERVER_PORT;
         try {
-            node = new NodeInfo(id, id, ip, mac, veth, gRPCServerPort);
+            node = new NodeInfo(id, name, ip, mac, veth, gRPCServerPort);
             String message = "";
             if (node.validateIp(ip) == false)
                 message = NodeManagerConstant.NODE_EXCEPTION_IP_FORMAT_INVALID;

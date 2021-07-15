@@ -19,6 +19,7 @@ import com.futurewei.alcor.route.exception.CanNotFindVpc;
 import com.futurewei.alcor.route.service.VpcRouterToVpcService;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -28,7 +29,11 @@ public class VpcRouterToVpcServiceImpl implements VpcRouterToVpcService {
     @Value("${microservices.vpc.service.url}")
     private String vpcUrl;
 
-    private RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
+
+    public VpcRouterToVpcServiceImpl(RestTemplateBuilder restTemplateBuilder) {
+        this.restTemplate = restTemplateBuilder.build();
+    }
 
     @Override
     public VpcWebJson getVpcWebJson(String projectId, String vpcId) throws CanNotFindVpc {

@@ -16,13 +16,11 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.route.service.Impl;
 
 import com.futurewei.alcor.route.service.NeutronRouterToSubnetService;
-import com.futurewei.alcor.route.service.RouterDatabaseService;
-import com.futurewei.alcor.route.service.RouterExtraAttributeDatabaseService;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
 import com.futurewei.alcor.web.entity.subnet.SubnetsWebJson;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -33,7 +31,11 @@ public class NeutronRouterToSubnetServiceImpl implements NeutronRouterToSubnetSe
     @Value("${microservices.subnet.service.url}")
     private String subnetUrl;
 
-    private RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
+
+    public NeutronRouterToSubnetServiceImpl(RestTemplateBuilder restTemplateBuilder) {
+        this.restTemplate = restTemplateBuilder.build();
+    }
 
     @Override
     public SubnetWebJson getSubnet(String projectid, String subnetId) {

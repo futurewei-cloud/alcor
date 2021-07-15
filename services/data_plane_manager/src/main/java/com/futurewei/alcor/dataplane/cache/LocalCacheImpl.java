@@ -23,8 +23,9 @@ import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortHostInfo;
+import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
+import com.futurewei.alcor.web.entity.route.InternalSubnetRoutingTable;
 import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
-import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ public class LocalCacheImpl implements LocalCache {
     private NodeInfoCache nodeInfoCache;
 
     @Override
-    public void addSubnetPorts(NetworkConfiguration networkConfig) throws Exception {
+    public void setSubnetPorts(NetworkConfiguration networkConfig) throws Exception {
         List<InternalPortEntity> portEntities = networkConfig.getPortEntities();
         if (portEntities == null) {
             return;
@@ -72,13 +73,36 @@ public class LocalCacheImpl implements LocalCache {
 
                 InternalSubnetPorts subnetPorts = subnetPortsMap.get(subnetId);
                 if (subnetPorts == null) {
-                    SubnetEntity subnetEntity = getSubnetEntity(networkConfig, fixedIp.getSubnetId());
+                    InternalSubnetEntity subnetEntity = getSubnetEntity(networkConfig, fixedIp.getSubnetId());
+
                     subnetPorts = new InternalSubnetPorts();
                     subnetPorts.setSubnetId(subnetId);
                     subnetPorts.setGatewayPortMac(subnetEntity.getGatewayPortDetail().getGatewayMacAddress());
                     subnetPorts.setGatewayPortIp(subnetEntity.getGatewayIp());
                     subnetPorts.setGatewayPortId(subnetEntity.getGatewayPortDetail().getGatewayPortId());
+                    subnetPorts.setName(subnetEntity.getName());
+                    subnetPorts.setCidr(subnetEntity.getCidr());
+                    subnetPorts.setVpcId(subnetEntity.getVpcId());
+                    subnetPorts.setTunnelId(subnetEntity.getTunnelId());
+                    subnetPorts.setDhcpEnable(subnetEntity.getDhcpEnable());
                     subnetPorts.setPorts(new ArrayList<>());
+
+                    List<InternalRouterInfo> routers = networkConfig.getInternalRouterInfos();
+                    if (routers != null && routers.size() > 0) {
+                        String router_id = "";
+                        for (InternalRouterInfo router : routers) {
+                            List<InternalSubnetRoutingTable> subnetRoutingTables = router.getRouterConfiguration().getSubnetRoutingTables();
+                            if (subnetRoutingTables == null) continue;
+                            for (InternalSubnetRoutingTable subnetRoutingTable: subnetRoutingTables) {
+                                if (subnetRoutingTable.getSubnetId().equals(subnetId)) {
+                                    router_id = router.getRouterConfiguration().getId();
+                                    subnetPorts.setRouterId(router_id);
+                                    break;
+                                }
+                            }
+                            if (!router_id.equals("")) break;
+                        }
+                    }
 
                     subnetPortsMap.put(subnetId, subnetPorts);
                 }
@@ -92,13 +116,13 @@ public class LocalCacheImpl implements LocalCache {
         }
     }
 
-    private SubnetEntity getSubnetEntity(NetworkConfiguration networkConfig, String subnetId) throws Exception {
+    private InternalSubnetEntity getSubnetEntity(NetworkConfiguration networkConfig, String subnetId) throws Exception {
         List<InternalSubnetEntity> subnetEntities = networkConfig.getSubnets();
         if (subnetEntities == null) {
             throw new SubnetEntityNotFound();
         }
 
-        for (SubnetEntity subnetEntity: subnetEntities) {
+        for (InternalSubnetEntity subnetEntity: subnetEntities) {
             if (subnetId.equals(subnetEntity.getId())) {
                 return subnetEntity;
             }
@@ -127,10 +151,8 @@ public class LocalCacheImpl implements LocalCache {
         OperationType opType = networkConfig.getOpType();
         switch (opType) {
             case CREATE:
-                addSubnetPorts(networkConfig);
-                break;
             case UPDATE:
-                updateSubnetPorts(networkConfig);
+                setSubnetPorts(networkConfig);
                 break;
             case DELETE:
                 deleteSubnetPorts(networkConfig);

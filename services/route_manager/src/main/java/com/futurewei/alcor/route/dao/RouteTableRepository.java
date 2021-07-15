@@ -75,15 +75,7 @@ public class RouteTableRepository implements ICacheRepository<RouteTable> {
     @Override
     @DurationStatistics
     public void addItem(RouteTable routeTable) throws CacheException {
-        try (Transaction tx = cache.getTransaction().start()) {
-
-            logger.log(Level.INFO, "Add route table, route table Id:" + routeTable.getId());
-            cache.put(routeTable.getId(), routeTable);
-
-            tx.commit();
-        } catch (Exception e) {
-            throw new CacheException();
-        }
+        cache.put(routeTable.getId(), routeTable);
     }
 
     @Override
@@ -96,14 +88,6 @@ public class RouteTableRepository implements ICacheRepository<RouteTable> {
     @Override
     @DurationStatistics
     public void deleteItem(String id) throws CacheException {
-        try (Transaction tx = cache.getTransaction().start()) {
-
-            logger.log(Level.INFO, "Delete route table, route table Id:" + id);
-            cache.remove(id);
-
-            tx.commit();
-        } catch (Exception e) {
-            throw new CacheException();
-        }
+        cache.remove(id);
     }
 }

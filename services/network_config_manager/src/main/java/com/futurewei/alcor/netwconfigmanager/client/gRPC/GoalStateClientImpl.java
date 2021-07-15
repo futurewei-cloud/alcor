@@ -25,6 +25,7 @@ import com.futurewei.alcor.schema.GoalStateProvisionerGrpc;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
 import io.grpc.CallOptions;
+
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -253,7 +254,10 @@ public class GoalStateClientImpl implements GoalStateClient {
         }
         // Mark the end of requests
         logger.log(Level.INFO, "Sending GS to Host " + hostIp + " is completed");
-//        requestObserver.onCompleted();
+
+        // comment out onCompleted so that the same channel/stub and keep sending next time.
+        //        requestObserver.onCompleted();
+
 //        shutdown(channel);
     }
 
@@ -274,5 +278,4 @@ public class GoalStateClientImpl implements GoalStateClient {
             this.stub = stub;
         }
     }
-
 }

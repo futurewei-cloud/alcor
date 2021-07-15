@@ -31,6 +31,7 @@ import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortWebBulkJson;
 import com.futurewei.alcor.web.entity.port.PortWebJson;
+import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
 import com.futurewei.alcor.web.entity.route.RouterUpdateInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -280,6 +281,8 @@ public class PortServiceImpl implements PortService {
     public RouterUpdateInfo updateL3Neighbors(String projectId, RouterUpdateInfo routerUpdateInfo) throws Exception {
         Map<String, NeighborInfo> neighborInfos = new HashMap<>();
         Map<String, List<NeighborEntry>> neighborTable = updateNeighborTable(routerUpdateInfo, neighborInfos);
+        List<InternalRouterInfo> internalRouterInfos = new ArrayList<>();
+        internalRouterInfos.add(routerUpdateInfo.getInternalRouterInfo());
 
         for (String privateIp: neighborTable.keySet()) {
             LOG.info("NeighborTable- key: {}, size: {}", privateIp, neighborTable.get(privateIp).size());
@@ -295,6 +298,7 @@ public class PortServiceImpl implements PortService {
             }
             networkConfiguration.setNeighborInfos(neighborInfos);
             networkConfiguration.setNeighborTable(neighborTable);
+            networkConfiguration.setInternalRouterInfos(internalRouterInfos);
             new UpdateNetworkConfigRequest(null, networkConfiguration).send();
         }
 

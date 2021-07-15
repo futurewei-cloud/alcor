@@ -57,6 +57,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
 
         // TODO: Use Ignite transaction here
         hostResourceMetadataCache.getTransaction();
+
         // Step 1: Populate host resource metadata cache
         Long t1 = System.currentTimeMillis();
         ResourceMeta existing = hostResourceMetadataCache.getResourceMeta(hostId);
@@ -99,6 +100,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
         Long t_total = (t6 - t5) + (t4 - t3) + (t2 - t1);
         logger.log(Level.FINE, "updateGoalstate : hostId: "+hostId+", finished populating vpc resource cache, elapsed time in milliseconds: " + (t6-t5_plus));
         logger.log(Level.FINE, "updateGoalstate : hostId: "+hostId+", total time, elapsed time in milliseconds: " + t_total);
+
         hostResourceMetadataCache.commit();
         return false;
     }
@@ -178,6 +180,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
 
         Map<String, Port.PortState> portStatesMap = hostGoalState.getGoalState().getPortStatesMap();
         HashMap<String, VpcResourceMeta> vniToVpcReourceMetaDataMap = new HashMap<>();
+
         for (String resourceId : portStatesMap.keySet()){
             Port.PortState portState = portStatesMap.get(resourceId);
             String vpcId = portState.getConfiguration().getVpcId();
@@ -193,10 +196,25 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
             }
         }
 
+        // Retrieve all needed VpcResourceMeta from cache to memory
+        for (String resourceId : portStatesMap.keySet()){
+            Port.PortState portState = portStatesMap.get(resourceId);
+            String vpcId = portState.getConfiguration().getVpcId();
+            String vni = String.valueOf(vpcIdToVniMap.get(vpcId));
+            // don't get the same vni again.
+            if ( ! vniToVpcReourceMetaDataMap.containsKey(vni)){
+                VpcResourceMeta vpcResourceMeta = vpcResourceCache.getResourceMeta(vni);
+                if (vpcResourceMeta == null) {
+                    // This is a new VPC
+                    vpcResourceMeta = new VpcResourceMeta(vni, new HashMap<String, ResourceMeta>());
+                }
+                vniToVpcReourceMetaDataMap.put(vni, vpcResourceMeta);
+            }
+        }
 
+        // Edit the in-memory VpcResourceData, instead of getting it from cache every time.
         for (String resourceId : portStatesMap.keySet()) {
             Port.PortState portState = portStatesMap.get(resourceId);
-
             String vpcId = portState.getConfiguration().getVpcId();
             String vni = String.valueOf(vpcIdToVniMap.get(vpcId));
             String portId = portState.getConfiguration().getId();
@@ -207,11 +225,12 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
             Long t1 = System.currentTimeMillis();
 
             VpcResourceMeta vpcResourceMeta = vniToVpcReourceMetaDataMap.get(vni);
+
             Long t3 = System.currentTimeMillis();
+
             for (Port.PortConfiguration.FixedIp fixedIp : portState.getConfiguration().getFixedIpsList()) {
                 String subnetId = fixedIp.getSubnetId();
                 String portPrivateIp = fixedIp.getIpAddress();
-
                 ResourceMeta portResourceMeta = vpcResourceMeta.getResourceMeta(portPrivateIp);
                 if (portResourceMeta == null) {
                     // new port
@@ -219,7 +238,6 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
                 } else {
                     //TODO: handle port metadata consolidation including cleanup of legacy metadata
                 }
-
                 if (!CommonUtil.isNullOrEmpty(vpcId)) portResourceMeta.addVpcId(vpcId);
                 if (!CommonUtil.isNullOrEmpty(subnetId)) portResourceMeta.addSubnetId(subnetId);
                 if (!CommonUtil.isNullOrEmpty(portId)) portResourceMeta.addPortId(portId);
@@ -237,6 +255,9 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
             Long t6 = System.currentTimeMillis();
             logger.log(Level.FINE, "populateVpcResourceCache : added resource metadata for vpc with vni: "+vni+",  elapsed time in milliseconds: " + (t6 - t5));
         }
+
+
+        // Commit the changes to the database. This is safe, it is wrapped by a transaction in updateGoalState
         for(String vni : vniToVpcReourceMetaDataMap.keySet()){
             vpcResourceCache.addResourceMeta(vniToVpcReourceMetaDataMap.get(vni));
         }
