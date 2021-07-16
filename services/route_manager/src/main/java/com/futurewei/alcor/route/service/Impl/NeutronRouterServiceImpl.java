@@ -439,26 +439,9 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         List<NewRoutesRequest> requestRoutes = requestRouter.getRoutes();
 
         // TODO: time complexity O(n^2), check if it effect performance
-        for (NewRoutesRequest requestRoute : requestRoutes) {
-            String requestDestination = requestRoute.getDestination();
-            String requestNexthop = requestRoute.getNexthop();
-
-            if (requestDestination == null || requestNexthop == null) {
-                throw new DestinationOrNexthopCanNotBeNull();
-            }
-
-            for (int i = 0; i < routeEntities.size(); i++) {
-                RouteEntry routeEntry = routeEntities.get(i);
-                String destination = routeEntry.getDestination();
-                String nexthop = routeEntry.getNexthop();
-                if (destination.equals(requestDestination) && nexthop.equals(requestNexthop)) {
-                    routeEntities.remove(i);
-                    break;
-                }
-            }
-        }
-        routeTable.setRouteEntities(routeEntities);
-        router.setNeutronRouteTable(routeTable);
+        requestRoutes.forEach(item -> {
+            routeEntities.removeIf(routingRule -> routingRule.getDestination().equals(item.getDestination()) && routingRule.getNexthop().equals(item.getNexthop()));
+        });
         this.routerDatabaseService.addRouter(router);
 
         // Construct response
