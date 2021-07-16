@@ -359,6 +359,7 @@ public class PortEntity extends CustomerResource {
             this.macAddress = macAddress;
         }
     }
+
     @NoArgsConstructor
     public static class ExtraDhcpOpt {
         @JsonProperty("ip_version")
