@@ -145,7 +145,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 public void onNext(Goalstate.GoalStateV2 value) {
 
                     logger.log(Level.INFO, "pushGoalStatesStream : receiving GS V2 message " + value.toString());
-                    Long start = System.currentTimeMillis();
+                    long start = System.currentTimeMillis();
 
                     //prepare GS message based on host
                     Map<String, HostGoalState> hostGoalStates = NetworkConfigManagerUtil.splitClusterToHostGoalState(value);
@@ -204,7 +204,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         @DurationStatistics
         public void requestGoalStates(Goalstateprovisioner.HostRequest request,
                                       StreamObserver<Goalstateprovisioner.HostRequestReply> responseObserver) {
-            Long start = System.currentTimeMillis();
+            long start = System.currentTimeMillis();
             String state_request_uuid = "";
             if (request.getStateRequestsList().size() == 1){
                 state_request_uuid = request.getStateRequests(0).getRequestId();
