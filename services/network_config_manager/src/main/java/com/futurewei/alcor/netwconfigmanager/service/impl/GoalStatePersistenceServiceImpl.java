@@ -59,15 +59,15 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
         hostResourceMetadataCache.getTransaction();
 
         // Step 1: Populate host resource metadata cache
-        Long t1 = System.currentTimeMillis();
+        long t1 = System.currentTimeMillis();
         ResourceMeta existing = hostResourceMetadataCache.getResourceMeta(hostId);
-        Long t2 = System.currentTimeMillis();
+        long t2 = System.currentTimeMillis();
         ResourceMeta latest = NetworkConfigManagerUtil.convertGoalStateToHostResourceMeta(
                 hostId, hostGoalState.getGoalState().getHostResourcesMap().get(hostId));
         logger.log(Level.FINE, "updateGoalstate : hostId: "+hostId+", finished getting resource meta from cache, elapsed time in milliseconds: " + (t2-t1));
 
-        Long t3 = 0l;
-        Long t4 = 0l;
+        long t3 = 0l;
+        long t4 = 0l;
         if (existing == null) {
             t3 = System.currentTimeMillis();
             hostResourceMetadataCache.addResourceMeta(latest);
@@ -80,7 +80,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
             t4 = System.currentTimeMillis();
             logger.log(Level.FINE, "updateGoalstate : hostId: "+hostId+", existing is NOT null, finished adding resource meta from cache, elapsed time in milliseconds: " + (t4-t3));
         }
-        Long t5 = System.currentTimeMillis();
+        long t5 = System.currentTimeMillis();
 
         // Step 2: Populate resource state cache
         Map<String, Integer> vpcIdToVniMap = processVpcStates(hostGoalState);
@@ -91,13 +91,13 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
         processSecurityGroupStates(hostGoalState);
         processRouterStates(hostGoalState);
         processGatewayStates(hostGoalState);
-        Long t5_plus = System.currentTimeMillis();
+        long t5_plus = System.currentTimeMillis();
         logger.log(Level.FINE, "updateGoalstate : hostId: "+hostId+", finished processing goalState, elapsed time in milliseconds: " + (t5_plus-t5));
 
         // Step 3
         populateVpcResourceCache(hostGoalState, vpcIdToVniMap);
-        Long t6 = System.currentTimeMillis();
-        Long t_total = (t6 - t5) + (t4 - t3) + (t2 - t1);
+        long t6 = System.currentTimeMillis();
+        long t_total = (t6 - t5) + (t4 - t3) + (t2 - t1);
         logger.log(Level.FINE, "updateGoalstate : hostId: "+hostId+", finished populating vpc resource cache, elapsed time in milliseconds: " + (t6-t5_plus));
         logger.log(Level.FINE, "updateGoalstate : hostId: "+hostId+", total time, elapsed time in milliseconds: " + t_total);
 
@@ -174,27 +174,12 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
     }
 
     private void populateVpcResourceCache(HostGoalState hostGoalState, Map<String, Integer> vpcIdToVniMap) throws Exception {
-        Long start = System.currentTimeMillis();
+        long start = System.currentTimeMillis();
 
         logger.log(Level.FINE, "populateVpcResourceCache : beginning");
 
         Map<String, Port.PortState> portStatesMap = hostGoalState.getGoalState().getPortStatesMap();
         HashMap<String, VpcResourceMeta> vniToVpcReourceMetaDataMap = new HashMap<>();
-
-        for (String resourceId : portStatesMap.keySet()){
-            Port.PortState portState = portStatesMap.get(resourceId);
-            String vpcId = portState.getConfiguration().getVpcId();
-            String vni = String.valueOf(vpcIdToVniMap.get(vpcId));
-            // don't get the same vni again.
-            if ( ! vniToVpcReourceMetaDataMap.containsKey(vni)){
-                VpcResourceMeta vpcResourceMeta = vpcResourceCache.getResourceMeta(vni);
-                if (vpcResourceMeta == null) {
-                    // This is a new VPC
-                    vpcResourceMeta = new VpcResourceMeta(vni, new HashMap<String, ResourceMeta>());
-                }
-                vniToVpcReourceMetaDataMap.put(vni, vpcResourceMeta);
-            }
-        }
 
         // Retrieve all needed VpcResourceMeta from cache to memory
         for (String resourceId : portStatesMap.keySet()){
@@ -222,11 +207,10 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
             String routerId = "";
             String gatewayId = "";
             String securityGroupId = "";
-            Long t1 = System.currentTimeMillis();
 
             VpcResourceMeta vpcResourceMeta = vniToVpcReourceMetaDataMap.get(vni);
 
-            Long t3 = System.currentTimeMillis();
+            long t3 = System.currentTimeMillis();
 
             for (Port.PortConfiguration.FixedIp fixedIp : portState.getConfiguration().getFixedIpsList()) {
                 String subnetId = fixedIp.getSubnetId();
@@ -248,11 +232,11 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
 
                 vpcResourceMeta.setResourceMeta(portPrivateIp, portResourceMeta);
             }
-            Long t4 = System.currentTimeMillis();
+            long t4 = System.currentTimeMillis();
             logger.log(Level.FINE, "populateVpcResourceCache : looped throught the port states for vpc with vni: "+vni+",  elapsed time in milliseconds: " + (t4 - t3));
-            Long t5 = System.currentTimeMillis();
+            long t5 = System.currentTimeMillis();
 //            vpcResourceCache.addResourceMeta(vpcResourceMeta);
-            Long t6 = System.currentTimeMillis();
+            long t6 = System.currentTimeMillis();
             logger.log(Level.FINE, "populateVpcResourceCache : added resource metadata for vpc with vni: "+vni+",  elapsed time in milliseconds: " + (t6 - t5));
         }
 
@@ -261,7 +245,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
         for(String vni : vniToVpcReourceMetaDataMap.keySet()){
             vpcResourceCache.addResourceMeta(vniToVpcReourceMetaDataMap.get(vni));
         }
-        Long end = System.currentTimeMillis();
+        long end = System.currentTimeMillis();
         logger.log(Level.FINE, "populateVpcResourceCache : end,  elapsed time in milliseconds: " + (end-start));
     }
 

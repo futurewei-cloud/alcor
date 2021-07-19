@@ -50,8 +50,8 @@ public class VpcResourceMeta {
     }
 
     public ResourceMeta getResourceMeta(String privateIp) {
-        Long sTime = System.currentTimeMillis();
-        Long uMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        long sTime = System.currentTimeMillis();
+        long uMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
         LOG.log(Level.FINE, "[getResourceMeta(privateIP)] GRM: time " + sTime + " usedmem1 " + uMem);
         ResourceMeta ret = null;
 
@@ -61,7 +61,7 @@ public class VpcResourceMeta {
 
         uMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 
-        Long fTime = System.currentTimeMillis() - sTime;
+        long fTime = System.currentTimeMillis() - sTime;
 
         LOG.log(Level.FINE, "[getResourceMeta(privateIP)] GRM: time " + fTime + " usedmem2 " + uMem);
 
