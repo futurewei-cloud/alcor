@@ -32,6 +32,7 @@ import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -49,12 +50,19 @@ import java.util.logging.Level;
 @Configurable
 @ComponentScan(value = "com.futurewei.alcor.netwconfigmanager.service")
 public class GoalStateProvisionerServer implements NetworkConfigServer {
-
     private static final Logger logger = LoggerFactory.getLogger();
 
     private final int responseDefaultFormatVersion = 1;
     private final int port;
     private final Server server;
+
+    // each host_ip should have this amount of gRPC channels.
+    @Value("${grpc.number-of-channels-per-host:1}")
+    private int numberOfGrpcChannelPerHost;
+
+    // when a channel is set up, send this amount of default GoalStates for warmup.
+    @Value("${grpc.number-of-warmups-per-channel:1}")
+    private int numberOfWarmupsPerChannel;
 
     @Autowired
     private OnDemandService onDemandService;
@@ -160,7 +168,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     try {
                         Map<String, HostGoalState> filteredGoalStates = NetworkConfigManagerUtil.filterNeighbors(hostGoalStates);
 
-                        GoalStateClient grpcGoalStateClient =  GoalStateClientImpl.getInstance();
+                        GoalStateClient grpcGoalStateClient =  GoalStateClientImpl.getInstance(numberOfGrpcChannelPerHost, numberOfWarmupsPerChannel);
 
                         grpcGoalStateClient.sendGoalStates(filteredGoalStates);
                     } catch (Exception e) {
@@ -261,7 +269,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     }
                 }
 
-                GoalStateClient grpcGoalStateClient = GoalStateClientImpl.getInstance();
+                GoalStateClient grpcGoalStateClient = GoalStateClientImpl.getInstance(numberOfGrpcChannelPerHost, numberOfWarmupsPerChannel);
                 long end = System.currentTimeMillis();
                 logger.log(Level.FINE, "requestGoalStates : Pushing GS with UUID: " + state_request_uuid + " at: " + end);
                 grpcGoalStateClient.sendGoalStates(hostGoalStates);
