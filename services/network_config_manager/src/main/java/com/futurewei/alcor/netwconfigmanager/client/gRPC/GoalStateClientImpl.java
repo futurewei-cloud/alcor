@@ -30,7 +30,6 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -38,7 +37,6 @@ import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-@Configuration
 @Service("grpcGoalStateClient")
 public class GoalStateClientImpl implements GoalStateClient {
 
