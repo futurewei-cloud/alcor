@@ -44,7 +44,6 @@ public class HostResourceMetadataCache {
         hostResourceMetas.getTransaction().rollback();
     }
 
-
     @Autowired
     public HostResourceMetadataCache(CacheFactory cacheFactory) {
         this.hostResourceMetas = cacheFactory.getCache(ResourceMeta.class);

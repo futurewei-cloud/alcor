@@ -24,17 +24,13 @@ import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
 import com.futurewei.alcor.schema.GoalStateProvisionerGrpc;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
-import io.grpc.CallOptions;
 
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -54,12 +50,10 @@ public class GoalStateClientImpl implements GoalStateClient {
 
     private final ExecutorService executor;
 
-//    // each host_ip should have this amount of gRPC channels.
-//    @Value("${grpc.number-of-channels-per-host:1}")
+//    // each host_ip should have this amount of gRPC channels
     private int numberOfGrpcChannelPerHost;
 //
 //    // when a channel is set up, send this amount of default GoalStates for warmup.
-//    @Value("${grpc.number-of-warmups-per-channel:1}")
     private int numberOfWarmupsPerChannel;
 
     private ConcurrentHashMap<String, ArrayList<GrpcChannelStub>> hostIpGrpcChannelStubMap;
