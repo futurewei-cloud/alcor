@@ -45,4 +45,11 @@ public class Config {
 
     @Value("${protobuf.goal-state-message.version: 2}")
     public int goalStateMessageVersion;
+
+    @Value("${grpc.number-of-channels-per-host:1}")
+    public static int numberOfGrpcChannelPerHost;
+
+    // when a channel is set up, send this amount of default GoalStates for warmup.
+    @Value("${grpc.number-of-warmups-per-channel:1}")
+    public static int numberOfWarmupsPerChannel;
 }

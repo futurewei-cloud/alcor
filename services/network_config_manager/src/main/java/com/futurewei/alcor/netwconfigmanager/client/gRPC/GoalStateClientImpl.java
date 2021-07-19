@@ -52,13 +52,13 @@ public class GoalStateClientImpl implements GoalStateClient {
 
     private final ExecutorService executor;
 
-    // each host_ip should have this amount of gRPC channels.
-    @Value("${grpc.number-of-channels-per-host:#{1}}")
-    private int numberOfGrpcChannelPerHost;
-
-    // when a channel is set up, send this amount of default GoalStates for warmup.
-    @Value("${grpc.number-of-warmups-per-channel:#{1}}")
-    private int numberOfWarmupsPerChannel;
+//    // each host_ip should have this amount of gRPC channels.
+//    @Value("${grpc.number-of-channels-per-host:1}")
+//    private int numberOfGrpcChannelPerHost;
+//
+//    // when a channel is set up, send this amount of default GoalStates for warmup.
+//    @Value("${grpc.number-of-warmups-per-channel:1}")
+//    private int numberOfWarmupsPerChannel;
 
     private ConcurrentHashMap<String, ArrayList<GrpcChannelStub>> hostIpGrpcChannelStubMap;
 
@@ -82,8 +82,7 @@ public class GoalStateClientImpl implements GoalStateClient {
                 new DefaultThreadFactory("grpc-thread-pool"));
         //TODO: Setup a connection pool. one ACA, one client.
         this.hostIpGrpcChannelStubMap = new ConcurrentHashMap();
-        logger.log(Level.FINE, "This instance has "+numberOfGrpcChannelPerHost+" channels, and "+numberOfWarmupsPerChannel+" warmups");
-
+        logger.log(Level.FINE, "This instance has "+ Config.numberOfGrpcChannelPerHost+" channels, and "+ Config.numberOfWarmupsPerChannel+" warmups");
     }
 
     @Override
@@ -125,7 +124,7 @@ public class GoalStateClientImpl implements GoalStateClient {
             this.hostIpGrpcChannelStubMap.put(hostIp, createGrpcChannelStubArrayList(hostIp));
             logger.log(Level.INFO, "[getOrCreateGrpcChannel] Created a channel and stub to host IP: " + hostIp);
         }
-        int usingChannelWithThisIndex = ThreadLocalRandom.current().nextInt(0, numberOfGrpcChannelPerHost);
+        int usingChannelWithThisIndex = ThreadLocalRandom.current().nextInt(0, Config.numberOfGrpcChannelPerHost);
         ManagedChannel chan = this.hostIpGrpcChannelStubMap.get(hostIp).get(usingChannelWithThisIndex).channel;
         //checks the channel status, reconnects if the channel is IDLE
 
@@ -142,13 +141,13 @@ public class GoalStateClientImpl implements GoalStateClient {
     private ArrayList<GrpcChannelStub> createGrpcChannelStubArrayList(String hostIp) {
         long start = System.currentTimeMillis();
         ArrayList<GrpcChannelStub> arr = new ArrayList<>();
-        for (int i = 0; i < numberOfGrpcChannelPerHost; i++) {
+        for (int i = 0; i < Config.numberOfGrpcChannelPerHost; i++) {
             GrpcChannelStub channelStub = createGrpcChannelStub(hostIp);
             warmUpChannelStub(channelStub, hostIp);
             arr.add(channelStub);
         }
         long end = System.currentTimeMillis();
-        logger.log(Level.FINE, "[createGrpcChannelStubArrayList] Created " + numberOfGrpcChannelPerHost + " gRPC channel stubs for host " + hostIp + ", elapsed Time in milli seconds: " + (end - start));
+        logger.log(Level.FINE, "[createGrpcChannelStubArrayList] Created " + Config.numberOfGrpcChannelPerHost + " gRPC channel stubs for host " + hostIp + ", elapsed Time in milli seconds: " + (end - start));
         return arr;
     }
 
@@ -177,7 +176,7 @@ public class GoalStateClientImpl implements GoalStateClient {
         try {
             Goalstate.GoalStateV2 goalState = Goalstate.GoalStateV2.getDefaultInstance();
             logger.log(Level.INFO, "Sending GS to Host " + hostIp + " as follows | " + goalState.toString());
-            for (int i = 0; i < numberOfWarmupsPerChannel; i++) {
+            for (int i = 0; i < Config.numberOfWarmupsPerChannel; i++) {
                 requestObserver.onNext(goalState);
             }
         } catch (RuntimeException e) {
