@@ -509,7 +509,7 @@ public class DpmServiceImpl implements DpmService {
                         routerService.buildRouterState(routerInfo, subnetRoutingTable, unicastGoalState, multicastGoalState);
                         subnetService.buildSubnetState(unicastGoalState, subnetId);
                         Set<String> ips = new HashSet<>();
-                        subnetRoutingTables.forEach(routingTable -> routingTable.getRoutingRules().forEach(routingRule -> {ips.add(routingRule.getNextHopIp()); System.out.println(routingRule.getNextHopIp());}));
+                        subnetRoutingTables.forEach(routingTable -> routingTable.getRoutingRules().forEach(routingRule -> {ips.add(routingRule.getNextHopIp());}));
                         List<Neighbor.NeighborState> neighbors = neighborService.getAllNeighbors(new ArrayList<>(ips));
                         for (Neighbor.NeighborState neighbor : neighbors)
                         {
