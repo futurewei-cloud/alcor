@@ -21,8 +21,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
 
 public class VpcResourceMeta {
+    private static final Logger LOG = LoggerFactory.getLogger();
 
     private final String NEIGHBOR_POSTFIX = "_n";
 
@@ -45,11 +50,22 @@ public class VpcResourceMeta {
     }
 
     public ResourceMeta getResourceMeta(String privateIp) {
-        if (this.resourceMetaMap == null || !this.resourceMetaMap.containsKey(privateIp)) {
-            return null;
+        long sTime = System.currentTimeMillis();
+        long uMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        LOG.log(Level.FINE, "[getResourceMeta(privateIP)] GRM: time " + sTime + " usedmem1 " + uMem);
+        ResourceMeta ret = null;
+
+        if (this.resourceMetaMap != null && this.resourceMetaMap.containsKey(privateIp)) {
+            ret = this.resourceMetaMap.get(privateIp);
         }
 
-        return this.resourceMetaMap.get(privateIp);
+        uMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+
+        long fTime = System.currentTimeMillis() - sTime;
+
+        LOG.log(Level.FINE, "[getResourceMeta(privateIP)] GRM: time " + fTime + " usedmem2 " + uMem);
+
+        return ret;
     }
 
     public void setResourceMeta(String privateIP, ResourceMeta portAssociatedResourceMeta) {
