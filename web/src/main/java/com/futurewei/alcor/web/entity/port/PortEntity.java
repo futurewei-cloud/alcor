@@ -442,6 +442,8 @@ public class PortEntity extends CustomerResource {
         @JsonProperty("fqdn")
         private String fqdn;
 
+        public DnsRecord() {}
+
         public DnsRecord(String hostName, String ipAddress, String fqdn) {
             this.hostName = hostName;
             this.ipAddress = ipAddress;
