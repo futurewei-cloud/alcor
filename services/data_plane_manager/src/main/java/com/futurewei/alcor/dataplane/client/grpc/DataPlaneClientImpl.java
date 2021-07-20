@@ -98,6 +98,7 @@ public class DataPlaneClientImpl implements DataPlaneClient {
                     LOG.debug(unicastGoalState.getGoalState().toString());
                     sendGoalState(unicastGoalState);
                 } catch (InterruptedException e) {
+                    LOG.debug("Send message to " + unicastGoalState.getHostIp()+ " get message: " );
                     e.printStackTrace();
                     return e.getMessage();
                 }
