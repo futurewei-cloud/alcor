@@ -48,23 +48,42 @@ public class GoalStateClientImpl implements GoalStateClient {
 
     private final ExecutorService executor;
 
-//    // each host_ip should have this amount of gRPC channels
+    // each host_ip should have this amount of gRPC channels
     private int numberOfGrpcChannelPerHost;
-//
-//    // when a channel is set up, send this amount of default GoalStates for warmup.
+
+    // when a channel is set up, send this amount of default GoalStates for warmup.
     private int numberOfWarmupsPerChannel;
+
+    // prints out UUID and time, when sending a GoalState to any of the monitorHosts
+    private ArrayList<String> monitorHosts;
 
     private ConcurrentHashMap<String, ArrayList<GrpcChannelStub>> hostIpGrpcChannelStubMap;
 
 
-    public static GoalStateClientImpl getInstance(int numberOfGrpcChannelPerHost, int numberOfWarmupsPerChannel) {
+    public static GoalStateClientImpl getInstance(int numberOfGrpcChannelPerHost, int numberOfWarmupsPerChannel, ArrayList<String> monitorHosts) {
         if (instance == null) {
-            instance = new GoalStateClientImpl(numberOfGrpcChannelPerHost, numberOfWarmupsPerChannel);
+            instance = new GoalStateClientImpl(numberOfGrpcChannelPerHost, numberOfWarmupsPerChannel, monitorHosts);
         }
         return instance;
     }
 
-    public GoalStateClientImpl(int numberOfGrpcChannelPerHost, int numberOfWarmupsPerChannel) {
+    public GoalStateClientImpl(int numberOfGrpcChannelPerHost, int numberOfWarmupsPerChannel, ArrayList<String> monitorHosts) {
+        // each host should have at least 1 gRPC channel
+        if(numberOfGrpcChannelPerHost < 1) {
+            numberOfGrpcChannelPerHost = 1;
+        }
+
+        // allow users to not send warmups, if they wish to.
+        if(numberOfWarmupsPerChannel < 0){
+            numberOfWarmupsPerChannel = 0;
+        }
+
+        this.monitorHosts = monitorHosts;
+        logger.log(Level.FINE, "Printing out all monitorHosts");
+        for(String host : this.monitorHosts){
+            logger.log(Level.FINE, "Monitoring this host: "+ host);
+        }
+        logger.log(Level.FINE, "Done printing out all monitorHosts");
         this.numberOfGrpcChannelPerHost = numberOfGrpcChannelPerHost;
         this.numberOfWarmupsPerChannel = numberOfWarmupsPerChannel;
         this.hostAgentPort = 50001;
@@ -234,7 +253,7 @@ public class GoalStateClientImpl implements GoalStateClient {
             Goalstate.GoalStateV2 goalState = hostGoalState.getGoalState();
             logger.log(Level.INFO, "Sending GS to Host " + hostIp + " as follows | " + goalState.toString());
             requestObserver.onNext(goalState);
-            if (hostGoalState.getGoalState().getNeighborStatesCount() == 1 && (hostIp.equals("192.168.20.92") || hostIp.equals("10.213.43.92"))) {
+            if (hostGoalState.getGoalState().getNeighborStatesCount() == 1 && monitorHosts.contains(hostIp)) {
                 long sent_gs_time = System.currentTimeMillis();
                 // If there's only one neighbor state and it is trying to send it to aca_node_one, the IP of which is now
                 // hardcoded) this send goalstate action is probably caused by on-demand workflow, need to record when it

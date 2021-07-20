@@ -91,6 +91,7 @@ public class OnDemandServiceImpl implements OnDemandService {
             logger.log(Level.INFO, "[retrieveGoalState] retrieved vpc resource metadata is null | vni = " + vni);
             return null;
         }
+
         long end = System.currentTimeMillis();
         logger.log(Level.FINE, "[retrieveGoalState] retrieved vpc resource metadata, elapsed Time in milli seconds: "+ (end-start));
         ResourceMeta portResourceMetadata = vpcResourceMetadata.getResourceMeta(sourceIp);
@@ -98,6 +99,7 @@ public class OnDemandServiceImpl implements OnDemandService {
             logger.log(Level.INFO, "[retrieveGoalState] retrieved port resource metadata is null | sourceIp = " + sourceIp);
             return null;
         }
+
         long end1 = System.currentTimeMillis();
         logger.log(Level.FINE, "[retrieveGoalState] retrieved port resource metadata, elapsed Time in milli seconds: "+ (end1-end));
         //populate portResourceMetadata with existing neighbors in the same VPC
@@ -105,6 +107,7 @@ public class OnDemandServiceImpl implements OnDemandService {
         for (String neighborId : neighborIdSet) {
             portResourceMetadata.addNeighborEntry(neighborId, neighborId); //TODO: consider to store id => ip or vice versa
         }
+
         long end2 = System.currentTimeMillis();
         logger.log(Level.FINE, "[retrieveGoalState] populated portResourceMetadata with existing neighbors in the same VPC, elapsed Time in milli seconds: "+ (end2-end1));
 
@@ -142,6 +145,7 @@ public class OnDemandServiceImpl implements OnDemandService {
         if (resourceMetas == null) {
             return null;
         }
+
         long start = System.currentTimeMillis();
         // TODO: This triggers quite a few db read access. Need to evaluate performance or rewrite with bulk access
         Goalstate.GoalStateV2.Builder builder = Goalstate.GoalStateV2.newBuilder();
@@ -166,6 +170,7 @@ public class OnDemandServiceImpl implements OnDemandService {
                 builder.putRouterStates(routerId, (Router.RouterState) resourceStateCache.getResourceState(routerId));
             }
         }
+
         long end = System.currentTimeMillis();
         logger.log(Level.FINE, "[retrieveGoalState] Got GS from Ignite, elapsed Time in milli seconds: "+ (end-start));
         return builder.build();

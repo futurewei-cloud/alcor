@@ -39,6 +39,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -92,7 +93,7 @@ public class GoalStateProvisionerServerTest {
                 hostGoalStates.get(DemoUtil.aca_node_one_ip).getGoalState().toString());
 
         try {
-            GoalStateClient grpcGoalStateClient = new GoalStateClientImpl(1,1);
+            GoalStateClient grpcGoalStateClient = new GoalStateClientImpl(1,1, new ArrayList<>());
             grpcGoalStateClient.sendGoalStates(hostGoalStates);
         } catch (Exception e) {
             e.printStackTrace();
