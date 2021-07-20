@@ -33,4 +33,5 @@ public class UnitTestConfig {
     public static String createFallbackException = "Request processing failed; nested exception is java.lang.Exception: java.util.concurrent.CompletionException: java.util.concurrent.CompletionException: com.futurewei.alcor.common.exception.FallbackException: fallback request";
     public static String macAddress = "00-AA-BB-CC-36-51";
     public static String gatewayPortId = "9192a4d4-ffff-4ece-b3f0-8d36e3d87000";
+    public static String ipRangeId = "9192a4d4-ffff-4ece-b3f0-8d36e3d87001";
 }

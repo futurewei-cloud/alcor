@@ -44,21 +44,14 @@ public interface SubnetService {
     // Fallback operation
     public void fallbackOperation (AtomicReference<RouteWebJson> routeResponseAtomic,
                                    AtomicReference<MacStateJson> macResponseAtomic,
-                                   AtomicReference<IpAddrRequest> ipResponseAtomic,
-                                   SubnetWebRequestJson resource,
+                                   SubnetEntity subnetEntity,
                                    String message) throws CacheException;
 
     // Verify VPC ID
     public VpcWebJson verifyVpcId (String projectId, String vpcId) throws Exception;
 
-    // Prepare Route Rule(IPv4/6) for Subnet
-    public RouteWebJson createRouteRules (String subnetId, SubnetEntity subnetEntity) throws Exception;
-
-    // Allocate Gateway Mac
-    public MacStateJson allocateMacAddressForGatewayPort(String projectId, String vpcId, String portId) throws Exception;
-
     // Verify/Allocate Gateway IP
-    public IpAddrRequest allocateIpAddressForGatewayPort(String subnetId, String cidr, String vpcId, String gatewayIp, boolean isOpenToBeAllocated) throws Exception;
+    public String allocateIpRange(String subnetId, String cidr, String vpcId) throws Exception;
 
     // Transfer cidr to first IP and last IP
     public String[] cidrToFirstIpAndLastIp (String cidr);
@@ -88,7 +81,7 @@ public interface SubnetService {
     public void updateSubnetHostRoutes (String subnetId, NewHostRoutes resource) throws ResourceNotFoundException, ResourcePersistenceException, DatabasePersistenceException, SubnetEntityNotFound, DestinationOrOperationTypeIsNull;
 
     // delete subnet routing rule in route manager
-    public void deleteSubnetRoutingRuleInRM (String projectId, String subnetId) throws SubnetIdIsNull;
+    public void deleteSubnetRoutingTable (String projectId, String subnetId) throws SubnetIdIsNull;
 
     // update subnet routing rule in route manager
     public void updateSubnetRoutingRuleInRM (String projectId, String subnetId, SubnetEntity subnetEntity) throws SubnetIdIsNull;

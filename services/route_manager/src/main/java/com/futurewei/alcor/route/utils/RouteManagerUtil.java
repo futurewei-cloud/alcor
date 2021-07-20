@@ -158,13 +158,13 @@ public class RouteManagerUtil {
         return true;
     }
 
-    public static boolean checkCreateNeutronSubnetRouteTableWebJsonResourceIsValid(RouteTableWebJson resource) {
+    public static boolean checkCreateSubnetRouteTableWebJsonResourceIsValid(RouteTableWebJson resource) {
         if (resource == null) {
             return false;
         }
 
         RouteTable routetable = resource.getRoutetable();
-        if (routetable == null) {
+        if (routetable == null || routetable.getRouteTableType() == null || routetable.getRouteTableType().trim().isEmpty()) {
             return false;
         }
 
