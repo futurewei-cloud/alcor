@@ -542,7 +542,7 @@ public class DpmServiceImpl implements DpmService {
         result.setOverrallTime(endTime - startTime);
 
         String resultMessage;
-        if (failedHosts == null || failedHosts.size() == 0 || failedHosts.get(0) == null) {
+        if (failedHosts == null || failedHosts.size() == 0) {
             resultMessage = "Successfully Handle request !!";
         } else {
             resultMessage = "Failed Handle request !!";

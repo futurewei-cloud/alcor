@@ -89,20 +89,20 @@ public class DataPlaneClientImpl implements DataPlaneClient {
     }
 
     private List<String> doSendGoalStates(List<UnicastGoalState> unicastGoalStates) {
-        List<Future<UnicastGoalState>>
+        List<Future<String>>
                 futures = new ArrayList<>(unicastGoalStates.size());
         for (UnicastGoalState unicastGoalState: unicastGoalStates) {
-            Future<UnicastGoalState> future =
+            Future<String> future =
                     executor.submit(() -> {
                 try {
                     LOG.debug(unicastGoalState.getGoalState().toString());
                     sendGoalState(unicastGoalState);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                    return unicastGoalState;
+                    return e.getMessage();
                 }
 
-                return new UnicastGoalState();
+                        return null;
             });
 
             futures.add(future);
@@ -111,13 +111,13 @@ public class DataPlaneClientImpl implements DataPlaneClient {
         //Handle all failed hosts
         return futures.parallelStream().filter(Objects::nonNull).map(future -> {
             try {
-                return future.get().getHostIp();
+                return future.get();
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
 
             return null;
-        }).collect(Collectors.toList());
+        }).filter(item -> item != null).collect(Collectors.toList());
     }
 
     private void sendGoalState(UnicastGoalState unicastGoalState) throws InterruptedException {
