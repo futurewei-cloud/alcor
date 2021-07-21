@@ -3,7 +3,18 @@
 Prasad Kommoju <pkommoju@futurewei.com>, Zhaoxi Zhu <zzhu@futurewei.com>
 2021-06-15
 
+:toc: right
+
 :imagesdir: ../../images
+
+== Introduction
+The purpose of these experiments is to measure the latency of Ignite in combination with NCM, specifically the latency of put and get of Goal State. GS can become very large (MB to GB) and get/put latencies become crtitcal to the acceptable performance of Alcor project.
+
+== Methodology
+The Test Controller (TC) has been modified to not use ACA, which means the latency of get/put from OnDemand path is not measured.
+TC sends GS to NCM, NCM stores it into three Ignite Caches of NCM 1) ResourceMeta, 2) VpcResourceMeta, 3) hostResourceStates (in the benchmark it is created as   ncm_hostResourceStates instead of java.lang.Object)
+
+Some of the measurements were taken by NCM itself calling vpcResourceCache.getResourceMeta 1000 times in a loop. This was to simulate the get() of GS from the OnDemand path.
 
 == Machine Configuration
 [source]
@@ -46,6 +57,15 @@ All machines have only one disk on line and it appears to be a spinning disk. Ha
             -Xloggc:/tmp/<service-specific-tag>-gc-log.txt
 
 == Ignite configuration
+
+The caches were tested in "OnHeap", "Near Cache", "OnHeap" and "Near Cache" combination and also without Ignite persistence.
+
+OnHeap means the cache is located inside JVM's own heap. The default is store them outside JVM's heap. Storing outside JVM's heap makes the cache performance less suseptible to the effects of GC but it may cost in serializing and deserializing in and out of JVM's heap.
+
+Near Cahce is a client side cache maintained by Ignite client library. This avoids network communiacion to the Ignite server if the values are frequently read.
+
+Ignite transactions are run in Pessimistic mode in combination with Transactional atomictiy mode. Pessimistic tranasaction acquire locks aggressively, reducing concurrency. Transactional atomicity mode means client will have to explicitley start a transaction, do all the work and at the end commit or rollback. Again, this could lead to reduced concurrency. This benchmark is largely signle threaded so Transactional modes have no observable effects on the timings.
+
 [source]
       <property name="dataStorageConfiguration">
          <bean class="org.apache.ignite.configuration.DataStorageConfiguration">
@@ -100,6 +120,8 @@ All machines have only one disk on line and it appears to be a spinning disk. Ha
 == Observations
 
 === Logs from the runs
+* xref:ncm-2021-07-13-pvrco-near-times.txt[Near Cache with PVRCO change in NCM]
+*
 * xref:ncm-21-06-21-03.log[NCM log file]
 * xref:ncm-21-06-21-03.html[NCM profile data (using async-profiler)]
 * xref:run-200p-run-01.nps[Ignite VisualVM profile snapshot]
@@ -111,6 +133,7 @@ All machines have only one disk on line and it appears to be a spinning disk. Ha
 
 === Timing analysis.
 The following times are from creating two goal states with 100 through 2200 ports each and two with 5000 ports each. TestController was modified to not send GS to ACA or trigger on demand request to excercise just NCM to Ignite latency.
+
 
 |====
 | Log line | Method| Analysis
@@ -211,6 +234,25 @@ Most of the latency is inside the Ignite client which is part of NCM and Ignite 
 One task is to breakdown the total latency into three components: NCM proper, network, and Ignite proper.
 Another experiment is to move VpcResourceCache into JVM heap to measure the effect of serialization and deserialization.
 
+== Update on July, 20
+
+=== VpcResourceMeta.get() times (ms) (5000 ports)
+
+|===
+|Config/|PVRCO | PVRCO + OnHeap | PVRCO + Near | PVRCO + OnHeap + Near | PVRCO + NoDisk|
+|Time   |      |                |              |                       |               |
+
+|Min    |  54  |31              |54            |  51                   |   79          |
+
+|Max    | 158  |49              |186           |133                    |167            |
+
+|Mode   |55    |32              |116           |56                     |82             |
+
+|===
+
+These times are not very consistant and vary from run to run.
+
+ 
 == Conclusions
 * Use PutAll interface whenever possible, especailly if cache get and put are from inside a lopp which iterates over a large collection.
 
