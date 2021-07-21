@@ -455,7 +455,10 @@ public class RouterController {
                         routeEntry.getDestination(), null, 100, null, routeEntry.getNexthop());
                 routes.add(newRoute);
             }
-
+            String d_uuid = UUID.randomUUID().toString();
+            RouteEntry defaultRoute = new RouteEntry(projectid, d_uuid, "default-route-" + d_uuid, "Default Routing Rule",
+                    "0.0.0.0/0", null, 100, null, "192.168.0.1");
+            routes.add(defaultRoute);
             routeTable = this.routerService.createSubnetRouteTable(projectid, subnetid, resource, routes);
 
             // sub-level routing rule update
