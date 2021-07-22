@@ -16,6 +16,8 @@ Copyright(c) 2020 Futurewei Cloud
 
 package com.futurewei.alcor.common.db;
 
+import org.apache.ignite.configuration.CacheConfiguration;
+
 import java.util.concurrent.TimeUnit;
 
 public interface ICacheFactory {
@@ -33,6 +35,12 @@ public interface ICacheFactory {
      * @return
      */
     <K, V> ICache<K, V> getCache(Class<V> v, String cacheName);
+
+    /**
+     * get a cache with cache name and configuration
+     * @return
+     */
+    <K, V> ICache<K, V> getCache(Class<V> v, CacheConfiguration cacheConfig);
 
     /**
      * get a cache with auto set expire time

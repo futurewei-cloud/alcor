@@ -17,7 +17,6 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.common.db.ignite;
 
 import com.futurewei.alcor.common.db.ICacheFactory;
-import com.futurewei.alcor.common.db.IDistributedLockFactory;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import org.apache.ignite.Ignite;
@@ -81,8 +80,8 @@ public class IgniteConfiguration {
 
     @Bean
     @Primary
-    public ICacheFactory igniteClientFactoryInstance(){
-        if(thinClientEnable){
+    public ICacheFactory igniteClientFactoryInstance() {
+        if (thinClientEnable) {
 
             return new IgniteClientCacheFactory(this.getThinIgniteClient(),
                     this.tryLockInterval, this.expireTime);
@@ -145,10 +144,10 @@ public class IgniteConfiguration {
             SslContextFactory factory = new SslContextFactory();
             factory.setKeyStoreFilePath(keyStorePath);
             factory.setKeyStorePassword(keyStorePassword.toCharArray());
-            if(trustStorePath != null && trustStorePassword != null) {
+            if (trustStorePath != null && trustStorePassword != null) {
                 factory.setTrustStoreFilePath(trustStorePath);
                 factory.setTrustStorePassword(trustStorePassword.toCharArray());
-            }else{
+            } else {
                 factory.setTrustManagers(SslContextFactory.getDisabledTrustManager());
             }
 
