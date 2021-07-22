@@ -57,7 +57,7 @@ public class RouterService extends ResourceService {
         subnetRoutingTableBuilder.setSubnetId(subnetId);
         List<InternalRoutingRule> routingRules = subnetRoutingTable.getRoutingRules();
 
-        if (routingRules != null || routingRules.size() > 0) {
+        if (routingRules != null && routingRules.size() > 0) {
             for (InternalRoutingRule routingRule: routingRules) {
                 Router.RouterConfiguration.RoutingRule.Builder routingRuleBuilder = Router.RouterConfiguration.RoutingRule.newBuilder();
                 routingRuleBuilder.setOperationType(getOperationType(routingRule.getOperationType()));
