@@ -199,23 +199,4 @@ public class NeighborService extends ResourceService {
         }
         return neighbors;
     }
-
-    public List<Neighbor.NeighborState> getNeighbor(SubnetPortsCache subnetPortsCache, Set<String> ips) throws Exception
-    {
-        List<Neighbor.NeighborState> neighbors = new ArrayList<>();
-        for (InternalSubnetPorts subnetPorts : subnetPortsCache.getAllSubnetPorts().values())
-        {
-            String nexthopVpcId = subnetPorts.getVpcId();
-            String nexthopSubnetId = subnetPorts.getSubnetId();
-            for (PortHostInfo portHostInfo : subnetPorts.getPorts())
-            {
-                if (portHostInfo != null && portHostInfo.getHostIp() != null && !portHostInfo.getHostIp().isEmpty())
-                {
-                    NeighborInfo neighborInfo = new NeighborInfo(portHostInfo.getHostIp(), portHostInfo.getHostId(), portHostInfo.getPortId(), portHostInfo.getPortMac(), portHostInfo.getPortIp(), nexthopVpcId, nexthopSubnetId);
-                    neighbors.add(buildNeighborState(NeighborEntry.NeighborType.L3, neighborInfo, Common.OperationType.GET));
-                }
-            }
-        }
-        return neighbors;
-    }
 }
