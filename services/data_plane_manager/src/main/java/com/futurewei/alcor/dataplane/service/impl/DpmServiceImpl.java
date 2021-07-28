@@ -496,6 +496,12 @@ public class DpmServiceImpl implements DpmService {
                         //return new ArrayList<>();
                         continue;
                     }
+                    Set<String> ips = new HashSet<>();
+                    subnetRoutingTable.getRoutingRules().forEach(routingRule -> {ips.add(routingRule.getNextHopIp());});
+                    List<Neighbor.NeighborState> neighbors = neighborService.getAllNeighbors(ips) ;
+                    if (neighbors == null || neighbors.size() == 0) {
+                        neighbors = neighborService.getNeighbor(subnetPortsCache, ips);
+                    }
 
                     for (PortHostInfo portHostInfo : subnetPorts.getPorts()) {
                         String hostIp = portHostInfo.getHostIp();
@@ -504,17 +510,21 @@ public class DpmServiceImpl implements DpmService {
                             unicastGoalState = new UnicastGoalState();
                             unicastGoalState.setHostIp(hostIp);
                             unicastGoalStateMap.put(hostIp, unicastGoalState);
+                            for (Neighbor.NeighborState neighbor : neighbors)
+                            {
+                                unicastGoalState.getGoalStateBuilder().addNeighborStates(neighbor);
+                                for (Neighbor.NeighborConfiguration.FixedIp fixIp : neighbor.getConfiguration().getFixedIpsList())
+                                {
+                                    if (ips.contains(fixIp.getIpAddress()))
+                                    {
+                                        subnetService.buildSubnetState(unicastGoalState, fixIp.getSubnetId());
+                                    }
+                                }
+                            }
                         }
 
                         routerService.buildRouterState(routerInfo, subnetRoutingTable, unicastGoalState, multicastGoalState);
                         subnetService.buildSubnetState(unicastGoalState, subnetId);
-                        Set<String> ips = new HashSet<>();
-                        subnetRoutingTables.forEach(routingTable -> routingTable.getRoutingRules().forEach(routingRule -> {ips.add(routingRule.getNextHopIp());}));
-                        List<Neighbor.NeighborState> neighbors = neighborService.getAllNeighbors(new ArrayList<>(ips));
-                        for (Neighbor.NeighborState neighbor : neighbors)
-                        {
-                            unicastGoalState.getGoalStateBuilder().addNeighborStates(neighbor);
-                        }
                     }
                 }
             }

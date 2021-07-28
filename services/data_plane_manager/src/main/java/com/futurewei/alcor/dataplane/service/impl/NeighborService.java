@@ -27,6 +27,8 @@ import com.futurewei.alcor.web.entity.dataplane.NeighborEntry;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortEntity;
+import com.futurewei.alcor.web.entity.port.PortHostInfo;
+import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -187,13 +189,32 @@ public class NeighborService extends ResourceService {
         }
     }
 
-    public List<Neighbor.NeighborState> getAllNeighbors (List<String> ips) throws Exception
+    public List<Neighbor.NeighborState> getAllNeighbors (Set<String> ips) throws Exception
     {
         List<Neighbor.NeighborState> neighbors = new ArrayList<>();
         for (String ip : ips)
         {
             neighbors.add(neighborCache.getNeiborByIP(ip));
 
+        }
+        return neighbors;
+    }
+
+    public List<Neighbor.NeighborState> getNeighbor(SubnetPortsCache subnetPortsCache, Set<String> ips) throws Exception
+    {
+        List<Neighbor.NeighborState> neighbors = new ArrayList<>();
+        for (InternalSubnetPorts subnetPorts : subnetPortsCache.getAllSubnetPorts().values())
+        {
+            String nexthopVpcId = subnetPorts.getVpcId();
+            String nexthopSubnetId = subnetPorts.getSubnetId();
+            for (PortHostInfo portHostInfo : subnetPorts.getPorts())
+            {
+                if (portHostInfo != null && portHostInfo.getHostIp() != null && !portHostInfo.getHostIp().isEmpty())
+                {
+                    NeighborInfo neighborInfo = new NeighborInfo(portHostInfo.getHostIp(), portHostInfo.getHostId(), portHostInfo.getPortId(), portHostInfo.getPortMac(), portHostInfo.getPortIp(), nexthopVpcId, nexthopSubnetId);
+                    neighbors.add(buildNeighborState(NeighborEntry.NeighborType.L3, neighborInfo, Common.OperationType.GET));
+                }
+            }
         }
         return neighbors;
     }
