@@ -30,4 +30,3 @@ CMD java -jar /app/AlcorNetworkConfigManager-0.1.0.jar \
     --add-exports=jdk.internal.jvmstat/sun.jvmstat.monitor=ALL-UNNAMED \
     --add-exports=java.base/sun.reflect.generics.reflectiveObjects=ALL-UNNAMED \
     --illegal-access=permit
-
