@@ -11,6 +11,9 @@ data:
     grpc.min-threads = 100
     grpc.max-threads = 200
     grpc.threads-pool-name = grpc-thread-pool
+    grpc.number-of-channels-per-host = 10
+    grpc.number-of-warmups-per-channel = 1
+    grpc.monitor-hosts = 0.0.0.0,0.0.0.1
     protobuf.goal-state-message.version = 102
     ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
     ignite.port=10800
