@@ -60,7 +60,10 @@ public class RouterService extends ResourceService {
                 Router.RouterConfiguration.RoutingRule.Builder routingRuleBuilder = Router.RouterConfiguration.RoutingRule.newBuilder();
                 routingRuleBuilder.setOperationType(getOperationType(routingRule.getOperationType()));
                 routingRuleBuilder.setId(routingRule.getId());
-                routingRuleBuilder.setName(routingRule.getName());
+                if (routingRule.getName() != null)
+                {
+                    routingRuleBuilder.setName(routingRule.getName());
+                }
                 routingRuleBuilder.setDestination(routingRule.getDestination());
                 routingRuleBuilder.setNextHopIp(routingRule.getNextHopIp());
                 routingRuleBuilder.setPriority(routingRule.getPriority());
@@ -69,7 +72,10 @@ public class RouterService extends ResourceService {
                     Router.RouterConfiguration.RoutingRuleExtraInfo.Builder extraInfoBuilder = Router.RouterConfiguration.RoutingRuleExtraInfo.newBuilder();
                     extraInfoBuilder.setDestinationType(getDestinationType(
                             routingRule.getRoutingRuleExtraInfo().getDestinationType()));
-                    extraInfoBuilder.setNextHopMac(routingRule.getRoutingRuleExtraInfo().getNextHopMac());
+                    if (routingRule.getRoutingRuleExtraInfo().getNextHopMac() != null)
+                    {
+                        extraInfoBuilder.setNextHopMac(routingRule.getRoutingRuleExtraInfo().getNextHopMac());
+                    }
                     routingRuleBuilder.setRoutingRuleExtraInfo(extraInfoBuilder.build());
                 }
                 subnetRoutingTableBuilder.addRoutingRules(routingRuleBuilder.build());
