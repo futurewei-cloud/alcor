@@ -16,6 +16,7 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.route.controller;
 
 import com.futurewei.alcor.common.entity.ResponseId;
+import com.futurewei.alcor.common.enumClass.OperationType;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.exception.ResourceNotValidException;
@@ -480,6 +481,7 @@ public class RouterController {
             List<HostRoute> hostRouteToSubnet = updateRoutingRuleResponse.getHostRouteToSubnet();
 
             // send InternalRouterInfo contract to DPM
+            internalRouterInfo.setOperationType(OperationType.CREATE);
             this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
 
             // update routes in subnet manager
@@ -551,6 +553,7 @@ public class RouterController {
             this.routerService.updateSubnetRouteTable(projectid, subnetid, updateRoutingRuleResponse);
 
             // send InternalRouterInfo contract to DPM
+            internalRouterInfo.setOperationType(OperationType.UPDATE);
             this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
 
             // update routes in subnet manager
@@ -606,6 +609,7 @@ public class RouterController {
             List<HostRoute> hostRouteToSubnet = updateRoutingRuleResponse.getHostRouteToSubnet();
 
             // send InternalRouterInfo contract to DPM
+            internalRouterInfo.setOperationType(OperationType.DELETE);
             this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
 
             // update routes in subnet manager

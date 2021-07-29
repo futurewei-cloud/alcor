@@ -58,6 +58,8 @@ public class RouterToDPMServiceImpl implements RouterToDPMService {
                 networkConfiguration.setOpType(Common.OperationType.UPDATE);
             case DELETE:
                 networkConfiguration.setOpType(Common.OperationType.DELETE);
+            default:
+                networkConfiguration.setOpType(Common.OperationType.INFO);
         }
 
         String dpmServiceUrl = dpmUrl + "/network-configuration";
