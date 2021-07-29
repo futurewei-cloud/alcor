@@ -926,7 +926,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
                 return false;
             }
             int suffix = Integer.parseInt(cidrs[1]);
-
+            // if suffix verification is correcct, then verify prefix.
             if (suffix < 16 || suffix > 28) {
                 if (suffix == 0 && "0.0.0.0".equals(cidrs[0]))
                 {
