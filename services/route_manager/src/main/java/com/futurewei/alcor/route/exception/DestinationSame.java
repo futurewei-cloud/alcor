@@ -8,41 +8,23 @@ Copyright(c) 2020 Futurewei Cloud
     to whom the Software is furnished to do so, subject to the following conditions:
 
     The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-    
+
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
+package com.futurewei.alcor.route.exception;
 
-package com.futurewei.alcor.common.db;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.futurewei.alcor.common.db.ignite.IgniteCacheFactory;
-import com.futurewei.alcor.common.db.ignite.IgniteClientCacheFactory;
-import com.futurewei.alcor.common.db.redis.RedisCacheFactory;
-import org.apache.ignite.Ignite;
-import org.apache.ignite.client.IgniteClient;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.stereotype.Component;
+@ResponseStatus(code= HttpStatus.CONFLICT, reason="destinations are same")
+public class DestinationSame extends Exception {
 
-import java.util.concurrent.TimeUnit;
+    public DestinationSame () {}
 
-@ComponentScan
-@Component
-public class CacheFactory {
-
-    @Autowired
-    private ICacheFactory iCacheFactory;
-    public <K, V> ICache<K, V> getCache(Class<V> v) {
-        return iCacheFactory.getCache(v);
+    public DestinationSame (String message) {
+        super(message);
     }
 
-    public <K, V> ICache<K, V> getCache(Class<V> v, String cacheName) {
-        return iCacheFactory.getCache(v, cacheName);
-    }
-
-    public <K, V> ICache<K, V> getExpireCache(Class<V> v, long timeout, TimeUnit timeUnit){
-        return iCacheFactory.getExpireCache(v, timeout, timeUnit);
-    }
 }
