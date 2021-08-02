@@ -13,7 +13,9 @@ data:
     logging.type=file
     apache.kafka.address=172.17.0.1:9092
     microservices.route.service.url=http://routemanager-service.default.svc.cluster.local:9003/
-    microservices.subnet.service.url=http://subnetmanager-service.default.svc.cluster.local:9002
+    microservices.subnet.service.url=http://subnetmanager-service.default.svc.cluster.local:9002/
+    microservices.gateway.service.url=http://gatewaymanager-service.default.svc.cluster.local:9015/
+    management.health.redis.enabled=false
     
     rbac.policy.type=Enforced
 
