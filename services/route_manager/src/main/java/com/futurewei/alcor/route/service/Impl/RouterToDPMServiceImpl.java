@@ -50,7 +50,19 @@ public class RouterToDPMServiceImpl implements RouterToDPMService {
         internalRouterInfos.add(internalRouterInfo);
         networkConfiguration.setInternalRouterInfos(internalRouterInfos);
         networkConfiguration.setRsType(Common.ResourceType.ROUTER);
-        networkConfiguration.setOpType(Common.OperationType.INFO);
+        switch (internalRouterInfo.getOperationType())
+        {
+            case CREATE:
+                networkConfiguration.setOpType(Common.OperationType.CREATE);
+            case UPDATE:
+                networkConfiguration.setOpType(Common.OperationType.UPDATE);
+            case DELETE:
+                networkConfiguration.setOpType(Common.OperationType.DELETE);
+            case INFO:
+                networkConfiguration.setOpType(Common.OperationType.INFO);
+            default:
+                networkConfiguration.setOpType(Common.OperationType.UNRECOGNIZED);
+        }
 
         String dpmServiceUrl = dpmUrl + "/network-configuration";
         HttpEntity<NetworkConfiguration> dpmRequest = new HttpEntity<>(networkConfiguration);

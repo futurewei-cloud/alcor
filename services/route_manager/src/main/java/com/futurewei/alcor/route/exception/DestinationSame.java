@@ -26,5 +26,4 @@ public class DestinationSame extends Exception {
     public DestinationSame (String message) {
         super(message);
     }
-
 }
