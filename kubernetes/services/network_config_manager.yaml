@@ -30,7 +30,7 @@ data:
     microservices.netwconfigmanager.service.url=http://netwconfigmanager-service.default.svc.cluster.local:30016/network-configuration
     microservices.dataplane.nodeservice.url=http://dataplanemanager-service.default.svc.cluster.local:30010/nodes
 
-    opentracing.jaeger.udp-sender.host=localhost
+    opentracing.jaeger.udp-sender.host=10.111.132.59
     opentracing.jaeger.udp-sender.port=6831
     opentracing.jaeger.const-sampler.decision=true
     opentracing.jaeger.enabled=true

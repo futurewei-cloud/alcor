@@ -43,7 +43,7 @@ data:
     server.max-initial-line-length=65536
 
     #refer to https://github.com/opentracing-contrib/java-spring-jaeger/tree/release-3.2.1
-    opentracing.jaeger.udp-sender.host=localhost
+    opentracing.jaeger.udp-sender.host=10.111.132.59
     opentracing.jaeger.udp-sender.port=6831
     opentracing.jaeger.const-sampler.decision=true
     opentracing.jaeger.enabled=true

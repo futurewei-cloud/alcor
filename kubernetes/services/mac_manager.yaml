@@ -18,7 +18,7 @@ data:
     macmanager.pool.size = 100
     macmanager.retrylimit = 10
 
-    opentracing.jaeger.udp-sender.host=localhost
+    opentracing.jaeger.udp-sender.host=10.111.132.59
     opentracing.jaeger.udp-sender.port=6831
     opentracing.jaeger.const-sampler.decision=true
     opentracing.jaeger.enabled=true
