@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -328,6 +329,7 @@ public class PortEntity extends CustomerResource {
         }
     }
 
+    @NoArgsConstructor
     public static class AllowAddressPair {
 
         @JsonProperty("ip_address")
@@ -358,6 +360,7 @@ public class PortEntity extends CustomerResource {
         }
     }
 
+    @NoArgsConstructor
     public static class ExtraDhcpOpt {
         @JsonProperty("ip_version")
         private String ipVersion;
