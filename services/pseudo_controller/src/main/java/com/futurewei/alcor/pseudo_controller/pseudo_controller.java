@@ -69,6 +69,8 @@ public class pseudo_controller {
     static SortedMap<String, String> port_ip_to_container_name = new TreeMap<>();
     static Vector<String> node_one_port_ips = new Vector<>();
     static Vector<String> node_two_port_ips = new Vector<>();
+    static int THREAD_POOL_SIZE = 50;
+    static ExecutorService concurrent_create_containers_thread_pool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
     public static void main(String[] args) throws InterruptedException {
         System.out.println("Start of the test controller");
@@ -84,7 +86,7 @@ public class pseudo_controller {
 
         }
         generate_ip_macs(ports_to_generate_on_each_aca_node * 2);
-        create_containers_on_both_hosts();
+        create_containers_on_both_hosts_concurrently();
         System.out.println("aca_node_one_ip: " + aca_node_one_ip + "\naca_node_two_ip: " + aca_node_two_ip + "\nuser name: " + user_name + "\npassword: " + password);
 
         System.out.println("Containers setup done, now we gotta construct the GoalStateV2");
@@ -268,9 +270,9 @@ public class pseudo_controller {
         System.out.println("After calling onNext");
         response_observer.onCompleted();
         System.out.println("After the GRPC call, it's time to do the ping test");
-        System.out.println("Sleep 1 second first");
+        System.out.println("Sleep 20 second first");
         try {
-            TimeUnit.SECONDS.sleep(1);
+            TimeUnit.SECONDS.sleep(20);
 
         } catch (Exception e) {
             System.out.println("I can't sleep!!!!");
@@ -356,6 +358,49 @@ public class pseudo_controller {
         execute_ssh_commands(aca_node_one_commands, aca_node_one_ip, user_name, password);
         execute_ssh_commands(aca_node_two_commands, aca_node_two_ip, user_name, password);
 
+        System.out.println("DONE creating containers on both hosts");
+
+    }
+
+    private static void create_containers_on_both_hosts_concurrently() {
+        System.out.println("Creating containers on both hosts");
+        int i = 1;
+        for (String port_ip : ip_mac_map.keySet()) {
+            String port_mac = ip_mac_map.get(port_ip);
+            String container_name = "test" + Integer.toString(i);
+            port_ip_to_container_name.put(port_ip, container_name);
+            String create_container_cmd = "docker run -itd --name " + container_name + " --net=none --label test=ACA busybox sh";
+            String ovs_docker_add_port_cmd = "ovs-docker add-port br-int eth0 " + container_name + " --ipaddress=" + port_ip + "/16 --macaddress=" + port_mac;
+            String ovs_set_vlan_cmd = "ovs-docker set-vlan br-int eth0 " + container_name + " 1";
+            Vector<String> create_one_container_and_assign_IP_vlax_commands = new Vector<>();
+            create_one_container_and_assign_IP_vlax_commands.add(create_container_cmd);
+            create_one_container_and_assign_IP_vlax_commands.add(ovs_docker_add_port_cmd);
+            create_one_container_and_assign_IP_vlax_commands.add(ovs_set_vlan_cmd);
+
+            int ip_last_octet = Integer.parseInt(port_ip.split("\\.")[3]);
+            if (ip_last_octet % 2 != 0) {
+                System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + aca_node_one_ip + "]");
+                node_one_port_ips.add(port_ip);
+                port_ip_to_host_ip_map.put(port_ip, aca_node_one_ip);
+                concurrent_create_containers_thread_pool.execute(() -> execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands, aca_node_one_ip, user_name, password));
+            } else {
+                System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + aca_node_two_ip + "]");
+                node_two_port_ips.add(port_ip);
+                port_ip_to_host_ip_map.put(port_ip, aca_node_two_ip);
+                concurrent_create_containers_thread_pool.execute(() -> execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands, aca_node_two_ip, user_name, password));
+            }
+            i++;
+        }
+
+        concurrent_create_containers_thread_pool.shutdown();
+        try{
+            if(!concurrent_create_containers_thread_pool.awaitTermination(60, TimeUnit.SECONDS)){
+                concurrent_create_containers_thread_pool.shutdownNow();
+            }
+        }catch (InterruptedException e){
+            concurrent_create_containers_thread_pool.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
         System.out.println("DONE creating containers on both hosts");
 
     }
