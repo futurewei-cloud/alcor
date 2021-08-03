@@ -24,6 +24,8 @@ Params:
 5. Port of the GRPC call
 6. User name of aca_nodes
 7. Password of aca_nodes
+8. Ping mode, either CONCURRENT_PING_MODE(0 and default), or SEQUENTIAL_PING_MODE(other numnbers)
+9. Whether execute background ping or not. If set to 1, execute background ping; otherwise, don't execute background ping
 */
 package com.futurewei.alcor.pseudo_controller;
 
@@ -69,12 +71,17 @@ public class pseudo_controller {
     static SortedMap<String, String> port_ip_to_container_name = new TreeMap<>();
     static Vector<String> node_one_port_ips = new Vector<>();
     static Vector<String> node_two_port_ips = new Vector<>();
-    static int THREAD_POOL_SIZE = 50;
+    static final int CONCURRENT_PING_MODE = 0;
+    static int user_chosen_ping_method = CONCURRENT_PING_MODE;
+    static final int THREAD_POOL_SIZE = 50;
     static ExecutorService concurrent_create_containers_thread_pool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+    static ExecutorService backgroundPingExecutor = Executors.newFixedThreadPool(1);
+    static int user_chosen_execute_background_ping = 0;
+    static final int DO_EXECUTE_BACKGROUND_PING = 1;
 
     public static void main(String[] args) throws InterruptedException {
         System.out.println("Start of the test controller");
-        if (args.length == 7) {
+        if (args.length == 9) {
             System.out.println("User passed in params and we need to read them.");
             ports_to_generate_on_each_aca_node = Integer.parseInt(args[0]);
             aca_node_one_ip = args[1];
@@ -83,8 +90,10 @@ public class pseudo_controller {
             ncm_port = Integer.parseInt(args[4]);
             user_name = args[5];
             password = args[6];
-
+            user_chosen_ping_method = Integer.parseInt(args[7]);
+            user_chosen_execute_background_ping = Integer.parseInt(args[8]);
         }
+
         generate_ip_macs(ports_to_generate_on_each_aca_node * 2);
         create_containers_on_both_hosts_concurrently();
         System.out.println("aca_node_one_ip: " + aca_node_one_ip + "\naca_node_two_ip: " + aca_node_two_ip + "\nuser name: " + user_name + "\npassword: " + password);
@@ -142,7 +151,7 @@ public class pseudo_controller {
             Neighbor.NeighborConfiguration.Builder NeighborConfiguration_builder = Neighbor.NeighborConfiguration.newBuilder();
             NeighborConfiguration_builder.setRevisionNumber(2);
             NeighborConfiguration_builder.setVpcId(vpc_id_1);
-            NeighborConfiguration_builder.setId(port_id+"_n");
+            NeighborConfiguration_builder.setId(port_id + "_n");
             NeighborConfiguration_builder.setMacAddress(port_mac);
             NeighborConfiguration_builder.setHostIpAddress(host_ip);
 
@@ -301,13 +310,16 @@ public class pseudo_controller {
 
         // Concurrently execute the pings.
         for (concurrent_run_cmd cmd : concurrent_ping_cmds) {
-            //concurrent
-            Thread t = new Thread(cmd);
-            t.start();
-            // sequential
-            //cmd.run()
+            if (user_chosen_ping_method == CONCURRENT_PING_MODE) {
+                //concurrent
+                Thread t = new Thread(cmd);
+                t.start();
+            } else {
+                // sequential
+                cmd.run();
+            }
             // use thread pool
-//            pool.execute(cmd);
+            //pool.execute(cmd);
         }
 
 
@@ -365,6 +377,8 @@ public class pseudo_controller {
     private static void create_containers_on_both_hosts_concurrently() {
         System.out.println("Creating containers on both hosts");
         int i = 1;
+        String background_pinger = "";
+        String background_pingee = "";
         for (String port_ip : ip_mac_map.keySet()) {
             String port_mac = ip_mac_map.get(port_ip);
             String container_name = "test" + Integer.toString(i);
@@ -383,26 +397,37 @@ public class pseudo_controller {
                 node_one_port_ips.add(port_ip);
                 port_ip_to_host_ip_map.put(port_ip, aca_node_one_ip);
                 concurrent_create_containers_thread_pool.execute(() -> execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands, aca_node_one_ip, user_name, password));
+                background_pinger = port_ip;
             } else {
                 System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + aca_node_two_ip + "]");
                 node_two_port_ips.add(port_ip);
                 port_ip_to_host_ip_map.put(port_ip, aca_node_two_ip);
                 concurrent_create_containers_thread_pool.execute(() -> execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands, aca_node_two_ip, user_name, password));
+                background_pingee = port_ip;
             }
             i++;
         }
 
         concurrent_create_containers_thread_pool.shutdown();
-        try{
-            if(!concurrent_create_containers_thread_pool.awaitTermination(60, TimeUnit.SECONDS)){
+        try {
+            if (!concurrent_create_containers_thread_pool.awaitTermination(60, TimeUnit.SECONDS)) {
                 concurrent_create_containers_thread_pool.shutdownNow();
             }
-        }catch (InterruptedException e){
+        } catch (InterruptedException e) {
             concurrent_create_containers_thread_pool.shutdownNow();
             Thread.currentThread().interrupt();
         }
-        System.out.println("DONE creating containers on both hosts");
 
+        if (user_chosen_execute_background_ping == DO_EXECUTE_BACKGROUND_PING) {
+            // start the background thread here doing the ping from 1 port to another, util the ping is successful.
+            // it pings every 0.001 second, or 1 millisecond, for 60 seconds
+            String background_ping_command = "docker exec " + port_ip_to_container_name.get(background_pinger) + " ping -I " + background_pinger + " -c 60000 -i  0.001 " + background_pingee + " > /home/user/background_ping_output.log";
+            System.out.println("Created background ping cmd: " + background_ping_command);
+            concurrent_run_cmd c = new concurrent_run_cmd(background_ping_command, aca_node_one_ip, user_name, password);
+            backgroundPingExecutor.execute(c);
+        }
+
+        System.out.println("DONE creating containers on both hosts");
     }
 
 
@@ -469,6 +494,7 @@ public class pseudo_controller {
             e.printStackTrace();
         }
     }
+
     public static void executeBashCommand(String command) {
 //        boolean success = false;
         System.out.println("Executing BASH command:\n   " + command);
