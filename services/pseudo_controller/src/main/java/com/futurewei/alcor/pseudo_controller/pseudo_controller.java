@@ -46,11 +46,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.awaitility.Awaitility;
+
 
 public class pseudo_controller {
 
     static String aca_node_one_ip = "ip_one";
     static String aca_node_two_ip = "ip_two";
+    static final int NUMBER_OF_NODES = 2;
     static String ncm_ip = "ip_three";
     static int ncm_port = 123;
     static String user_name = "root";
@@ -78,6 +81,7 @@ public class pseudo_controller {
     static ExecutorService backgroundPingExecutor = Executors.newFixedThreadPool(1);
     static int user_chosen_execute_background_ping = 0;
     static final int DO_EXECUTE_BACKGROUND_PING = 1;
+    static int finished_sending_goalstate_hosts_count = 0;
 
     public static void main(String[] args) throws InterruptedException {
         System.out.println("Start of the test controller");
@@ -257,6 +261,7 @@ public class pseudo_controller {
         StreamObserver<Goalstateprovisioner.GoalStateOperationReply> message_observer = new StreamObserver<>() {
             @Override
             public void onNext(Goalstateprovisioner.GoalStateOperationReply value) {
+                finished_sending_goalstate_hosts_count ++ ;
                 System.out.println("onNext function with this GoalStateOperationReply: \n" + value.toString() + "\n");
             }
 
@@ -279,14 +284,9 @@ public class pseudo_controller {
         System.out.println("After calling onNext");
         response_observer.onCompleted();
         System.out.println("After the GRPC call, it's time to do the ping test");
-        System.out.println("Sleep 20 second first");
-        try {
-            TimeUnit.SECONDS.sleep(20);
 
-        } catch (Exception e) {
-            System.out.println("I can't sleep!!!!");
-
-        }
+        System.out.println("Wait no longer than 60 seconds until both goalstates are sent to both hosts.");
+        Awaitility.await().atMost(60, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == NUMBER_OF_NODES);
         List<concurrent_run_cmd> concurrent_ping_cmds = new ArrayList<>();
         for (int i = 0; i < node_one_port_ips.size(); i++) {
             if (i >= node_two_port_ips.size()) {
@@ -302,13 +302,7 @@ public class pseudo_controller {
 
         System.out.println("Time to execute these ping commands concurrently");
 
-        // Create a thread pool to execute the pings
-
-//        int MAX_THREADS = 5;  // thread pool size
-//
-//        ExecutorService pool = Executors.newFixedThreadPool(MAX_THREADS);
-
-        // Concurrently execute the pings.
+        // Execute the pings.
         for (concurrent_run_cmd cmd : concurrent_ping_cmds) {
             if (user_chosen_ping_method == CONCURRENT_PING_MODE) {
                 //concurrent
@@ -318,10 +312,7 @@ public class pseudo_controller {
                 // sequential
                 cmd.run();
             }
-            // use thread pool
-            //pool.execute(cmd);
         }
-
 
         System.out.println("End of the test controller");
         channel.shutdown();
