@@ -499,6 +499,8 @@ public class DpmServiceImpl implements DpmService {
                     Set<String> ips = new HashSet<>();
                     subnetRoutingTable.getRoutingRules().forEach(routingRule -> {ips.add(routingRule.getNextHopIp());});
                     List<Neighbor.NeighborState> neighbors = neighborService.getAllNeighbors(ips) ;
+                    LOG.debug("processRouterConfiguration: ips = " + ips.toString() + " neighbors = " + neighbors.toString());
+                    LOG.debug("processRouterConfiguration: neighbors is " + (neighbors == null ? "NULL" : "NOT NULL") + "\n");
 
                     for (PortHostInfo portHostInfo : subnetPorts.getPorts()) {
                         String hostIp = portHostInfo.getHostIp();

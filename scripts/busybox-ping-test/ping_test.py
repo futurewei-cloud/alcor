@@ -82,7 +82,7 @@ def start_containers(serv):
 
         start_cmd = run_container + ports + mnt_and_image
         if not extra_args:
-            start_cmd.append(extra_args)
+            start_cmd = start_cmd + " " + extra_args
 
         start_containers.append(start_cmd)
 
