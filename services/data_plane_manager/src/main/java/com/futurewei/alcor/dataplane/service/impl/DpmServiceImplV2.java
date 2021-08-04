@@ -125,7 +125,7 @@ public class DpmServiceImplV2 implements DpmService {
         securityGroupService.buildSecurityGroupStates(networkConfig, unicastGoalState);
         dhcpService.buildDhcpStates(networkConfig, unicastGoalState);
         routerService.buildRouterStates(networkConfig, unicastGoalState, multicastGoalState);
-//        patchGoalstateForNeighbor(unicastGoalState);
+        patchGoalstateForNeighbor(unicastGoalState);
 
         unicastGoalState.setGoalState(unicastGoalState.getGoalStateBuilder().build());
         unicastGoalState.setGoalStateBuilder(null);
@@ -135,8 +135,8 @@ public class DpmServiceImplV2 implements DpmService {
         return unicastGoalState;
     }
 
-    private void patchGoalstateForNeighbor(UnicastGoalState unicastGoalState) throws CacheException {
-        List<Neighbor.NeighborState.Builder> neighborStates = unicastGoalState.getGoalStateBuilder().getNeighborStatesBuilderList();
+    private void patchGoalstateForNeighbor(UnicastGoalStateV2 unicastGoalState) throws CacheException {
+        Map<String, Neighbor.NeighborState> neighborStates = unicastGoalState.getGoalStateBuilder().getNeighborStatesMap();
         for (Neighbor.NeighborState.Builder neighborState : neighborStates) {
             List<Neighbor.NeighborConfiguration.FixedIp> fixedIps = neighborState.build().getConfiguration().getFixedIpsList();
             for (Neighbor.NeighborConfiguration.FixedIp fixedIp : fixedIps) {
