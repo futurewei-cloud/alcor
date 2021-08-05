@@ -95,7 +95,7 @@ def start_containers(serv):
 def stop_containers(service_list):
     command = "sudo docker container stop "
     for service in service_list:
-      if service == "segment_service":
+      if service == "sgs":
          continue
       execute_command(command + service)
 
@@ -103,7 +103,7 @@ def stop_containers(service_list):
 def remove_containers(service_list):
     command = "sudo docker container rm "
     for service in service_list:
-      if service == "segment_service":
+      if service == "sgs":
          continue
       execute_command(command + service)
 
