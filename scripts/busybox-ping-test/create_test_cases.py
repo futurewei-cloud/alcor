@@ -116,7 +116,7 @@ def prepare_test_L3_AttachRouter_then_CreatePorts(ip_mac, ser_port):
     serv = read_config_file_section("services")
     create_default_segment_table(ser_port["sgs"])
     create_node(ser_port["nm"], ip_mac)
-    change = {'change':'cidr','cidr':"10.0.0.0/16"}
+    change = {'change':'cidr','cidr':"172.16.0.0/16"}
     create_vpc(ser_port["vpm"], change)
     create_security_group(ser_port["sgm"])
 
@@ -157,7 +157,7 @@ def prepare_test_L3_CreatePorts_then_AttachRouter(ip_mac, ser_port):
     serv = read_config_file_section("services")
     create_default_segment_table(ser_port["sgs"])
     create_node(ser_port["nm"], ip_mac)
-    change = {'change':'cidr','cidr':"10.0.0.0/16"}
+    change = {'change':'cidr','cidr':"172.16.0.0/16"}
     create_vpc(ser_port["vpm"], change)
     get_vpcs(ser_port["vpm"])
     create_security_group(ser_port["sgm"])
