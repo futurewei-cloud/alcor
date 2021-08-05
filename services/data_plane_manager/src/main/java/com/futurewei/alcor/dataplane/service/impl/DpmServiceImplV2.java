@@ -136,16 +136,16 @@ public class DpmServiceImplV2 implements DpmService {
     }
 
     private void patchGoalstateForNeighbor(UnicastGoalStateV2 unicastGoalState) throws CacheException {
-        Map<String, Neighbor.NeighborState> neighborStates = unicastGoalState.getGoalStateBuilder().getNeighborStatesMap();
-        for (Neighbor.NeighborState.Builder neighborState : neighborStates) {
-            List<Neighbor.NeighborConfiguration.FixedIp> fixedIps = neighborState.build().getConfiguration().getFixedIpsList();
+        Map<String, Neighbor.NeighborState> neighborStatesMap = unicastGoalState.getGoalStateBuilder().getNeighborStatesMap();
+        for (Map.Entry<String, Neighbor.NeighborState> neighborStateEntry : neighborStatesMap.entrySet()) {
+            List<Neighbor.NeighborConfiguration.FixedIp> fixedIps = neighborStateEntry.getValue().getConfiguration().getFixedIpsList();
             for (Neighbor.NeighborConfiguration.FixedIp fixedIp : fixedIps) {
                 if (fixedIp != null && fixedIp.getNeighborType().equals(Neighbor.NeighborType.L3)) {
                     String subnetId = fixedIp.getSubnetId();
                     InternalSubnetPorts subnetEntity = subnetPortsCache.getSubnetPorts(subnetId);
                     if (subnetEntity != null) {
-                        if (unicastGoalState.getGoalStateBuilder().getSubnetStatesList().stream()
-                                .filter(e -> e.getConfiguration().getId().equals(subnetEntity.getSubnetId()))
+                        if (unicastGoalState.getGoalStateBuilder().getSubnetStatesMap().entrySet().stream()
+                                .filter(e -> e.getValue().getConfiguration().getId().equals(subnetEntity.getSubnetId()))
                                 .findFirst().orElse(null) == null) {
                             Subnet.SubnetConfiguration.Builder subnetConfigBuilder = Subnet.SubnetConfiguration.newBuilder();
                             subnetConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
@@ -169,7 +169,7 @@ public class DpmServiceImplV2 implements DpmService {
                             Subnet.SubnetState.Builder subnetStateBuilder = Subnet.SubnetState.newBuilder();
                             subnetStateBuilder.setOperationType(Common.OperationType.INFO);
                             subnetStateBuilder.setConfiguration(subnetConfigBuilder.build());
-                            unicastGoalState.getGoalStateBuilder().addSubnetStates(subnetStateBuilder.build());
+                            unicastGoalState.getGoalStateBuilder().putSubnetStates(subnetEntity.getSubnetId(), subnetStateBuilder.build());
 
                             Router.RouterConfiguration.SubnetRoutingTable.Builder subnetRoutingTableBuilder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
                             subnetRoutingTableBuilder.setSubnetId(subnetEntity.getSubnetId());
@@ -177,15 +177,15 @@ public class DpmServiceImplV2 implements DpmService {
                             List<Router.RouterConfiguration.SubnetRoutingTable> subnetRoutingTablesList = new ArrayList<>();
                             subnetRoutingTablesList.add(subnetRoutingTableBuilder.build());
 
-                            Goalstate.GoalState.Builder goalStateBuilder = unicastGoalState.getGoalStateBuilder();
-                            List<Router.RouterState.Builder> routerStatesBuilders = goalStateBuilder.getRouterStatesBuilderList();
-                            if (routerStatesBuilders != null && routerStatesBuilders.size() > 0) {
-                                subnetRoutingTablesList.addAll(goalStateBuilder.
-                                        getRouterStatesBuilder(0).
-                                        getConfiguration().
-                                        getSubnetRoutingTablesList());
-                                goalStateBuilder.removeRouterStates(0);
-                            }
+//                            Goalstate.GoalStateV2.Builder goalStateBuilder = unicastGoalState.getGoalStateBuilder();
+//                            List<Router.RouterState.Builder> routerStatesBuilders = new ArrayList<>(goalStateBuilder.getRouterStatesMap().values());
+//                            if (routerStatesBuilders != null && routerStatesBuilders.size() > 0) {
+//                                subnetRoutingTablesList.addAll(goalStateBuilder.
+//                                        getRouterStatesBuilder(0).
+//                                        getConfiguration().
+//                                        getSubnetRoutingTablesList());
+//                                goalStateBuilder.removeRouterStates(0);
+//                            }
 
                             // Add subnet to router_state
                             Router.RouterConfiguration.Builder routerConfigBuilder = Router.RouterConfiguration.newBuilder();
@@ -195,7 +195,7 @@ public class DpmServiceImplV2 implements DpmService {
                             routerConfigBuilder.addAllSubnetRoutingTables(subnetRoutingTablesList);
                             Router.RouterState.Builder routerStateBuilder = Router.RouterState.newBuilder();
                             routerStateBuilder.setConfiguration(routerConfigBuilder.build());
-                            unicastGoalState.getGoalStateBuilder().addRouterStates(routerStateBuilder.build());
+                            unicastGoalState.getGoalStateBuilder().putRouterStates(subnetEntity.getRouterId(), routerStateBuilder.build());
                         }
                     }
                 }
@@ -227,11 +227,11 @@ public class DpmServiceImplV2 implements DpmService {
         }
         // portEntities in the same unicastGoalStates should have the same opType
 
-        if (zetaGatwayEnabled && zetaPortsGoalState.getPortEntities().size() > 0) {
-            return zetaGatewayClient.sendGoalStateToZetaAcA(unicastGoalStates, multicastGoalState, dataPlaneClient, zetaPortsGoalState, failedZetaPorts);
-        } else {
-            return dataPlaneClient.sendGoalStates(unicastGoalStates, multicastGoalState);
-        }
+//        if (zetaGatwayEnabled && zetaPortsGoalState.getPortEntities().size() > 0) {
+//            return zetaGatewayClient.sendGoalStateToZetaAcA(unicastGoalStates, multicastGoalState, dataPlaneClient, zetaPortsGoalState, failedZetaPorts);
+//        } else {
+//            return dataPlaneClient.sendGoalStates(unicastGoalStates, multicastGoalState);
+//        }
     }
 
     /**
