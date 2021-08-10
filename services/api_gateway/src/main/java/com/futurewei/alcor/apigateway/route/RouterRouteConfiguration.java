@@ -32,10 +32,10 @@ public class RouterRouteConfiguration {
         return builder.routes()
                 .route(r -> r.path("/*/routers", "/*/routers/*",
                         "/*/routers/*/add_router_interface", "/*/routers/*/remove_router_interface",
-                        "/*/routers/*/add_extra_routes", "/*/routers/*/remove_extra_routes",
+                        "/*/routers/*/add_extra_routes", "/*/routers/*/remove_extra_routes", "/*/subnets/*/routetable",
                         "/project/*/routers", "/project/*/routers/*",
                         "/project/*/routers/*/add_router_interface", "/project/*/routers/*/remove_router_interface",
-                        "/project/*/routers/*/add_extra_routes", "/project/*/routers/*/remove_extra_routes")
+                        "/project/*/routers/*/add_extra_routes", "/project/*/routers/*/remove_extra_routes", "/project/*/subnets/*/routetable")
                         .uri(routeUrl))
                 .build();
     }
