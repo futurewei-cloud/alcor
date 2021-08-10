@@ -32,16 +32,14 @@ import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
@@ -49,12 +47,22 @@ import java.util.logging.Level;
 @Configurable
 @ComponentScan(value = "com.futurewei.alcor.netwconfigmanager.service")
 public class GoalStateProvisionerServer implements NetworkConfigServer {
-
     private static final Logger logger = LoggerFactory.getLogger();
 
     private final int responseDefaultFormatVersion = 1;
     private final int port;
     private final Server server;
+
+    // each host_ip should have this amount of gRPC channels.
+    @Value("${grpc.number-of-channels-per-host:1}")
+    private int numberOfGrpcChannelPerHost;
+
+    // when a channel is set up, send this amount of default GoalStates for warmup.
+    @Value("${grpc.number-of-warmups-per-channel:1}")
+    private int numberOfWarmupsPerChannel;
+
+    @Value("${grpc.monitor-hosts}")
+    private ArrayList<String> monitorHosts;
 
     @Autowired
     private OnDemandService onDemandService;
@@ -137,6 +145,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 public void onNext(Goalstate.GoalStateV2 value) {
 
                     logger.log(Level.INFO, "pushGoalStatesStream : receiving GS V2 message " + value.toString());
+                    long start = System.currentTimeMillis();
 
                     //prepare GS message based on host
                     Map<String, HostGoalState> hostGoalStates = NetworkConfigManagerUtil.splitClusterToHostGoalState(value);
@@ -153,12 +162,14 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                             e.printStackTrace();
                         }
                     }
-
+                    long end = System.currentTimeMillis();
+                    logger.log(Level.FINE, "pushGoalStatesStream : finished putting GS into cache, elapsed time in milliseconds: " + + (end-start));
                     // filter neighbor/SG update, and send them down to target ACA
                     try {
                         Map<String, HostGoalState> filteredGoalStates = NetworkConfigManagerUtil.filterNeighbors(hostGoalStates);
 
-                        GoalStateClient grpcGoalStateClient = new GoalStateClientImpl();
+                        GoalStateClient grpcGoalStateClient =  GoalStateClientImpl.getInstance(numberOfGrpcChannelPerHost, numberOfWarmupsPerChannel, monitorHosts);
+
                         grpcGoalStateClient.sendGoalStates(filteredGoalStates);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -170,6 +181,8 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                                     .setFormatVersion(100)
                                     .build();
                     responseObserver.onNext(reply);
+                    long end1 = System.currentTimeMillis();
+                    logger.log(Level.FINE, "pushGoalStatesStream : Replied to DPM, from received to replied, elapsed time in milliseconds: " + + (end1-end));
                 }
 
                 @Override
@@ -191,7 +204,12 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         @DurationStatistics
         public void requestGoalStates(Goalstateprovisioner.HostRequest request,
                                       StreamObserver<Goalstateprovisioner.HostRequestReply> responseObserver) {
-
+            long start = System.currentTimeMillis();
+            String state_request_uuid = "";
+            if (request.getStateRequestsList().size() == 1){
+                state_request_uuid = request.getStateRequests(0).getRequestId();
+                logger.log(Level.FINE, "requestGoalStates : received HostRequest with UUID: " + state_request_uuid + " at: " + start);
+            }
             logger.log(Level.INFO, "requestGoalStates : receiving request " + request.toString());
             logger.log(Level.INFO, "requestGoalStates : receiving request list " + request.getStateRequestsList());
             logger.log(Level.INFO, "requestGoalStates : receiving request count" + request.getStateRequestsCount());
@@ -251,8 +269,11 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     }
                 }
 
-                GoalStateClient grpcGoalStateClient = new GoalStateClientImpl();
+                GoalStateClient grpcGoalStateClient = GoalStateClientImpl.getInstance(numberOfGrpcChannelPerHost, numberOfWarmupsPerChannel, monitorHosts);
+                long end = System.currentTimeMillis();
+                logger.log(Level.FINE, "requestGoalStates : Pushing GS with UUID: " + state_request_uuid + " at: " + end);
                 grpcGoalStateClient.sendGoalStates(hostGoalStates);
+                logger.log(Level.FINE, "[requestGoalStates] From retrieving goalstate to sent goalstate to host, elapsed Time in milli seconds: "+ (end-start));
             } catch (Exception e) {
                 logger.log(Level.SEVERE, "[requestGoalStates] Retrieve from host fails. IP address = " + clientIpAddress);
                 e.printStackTrace();
@@ -288,10 +309,14 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             logger.log(Level.INFO, "requestGoalStates : generate reply " + reply.toString());
 
             // Step 3: Send response to target ACAs
+            long end = System.currentTimeMillis();
+            logger.log(Level.FINE, "[requestGoalStates] From received hostOperation to before response, elapsed Time in milli seconds: "+ (end-start));
             responseObserver.onNext(reply);
+            logger.log(Level.FINE, "requestGoalStates : replying HostRequest with UUID: " + state_request_uuid + " at: " + end);
             responseObserver.onCompleted();
-            logger.log(Level.INFO, "requestGoalStates : send on-demand response to ACA " + DemoUtil.aca_node_one_ip + " | ",
-                    reply.toString());
+            long end1 = System.currentTimeMillis();
+            logger.log(Level.FINE, "requestGoalStates : sent on-demand response to ACA | ",
+                    reply.toString() + " took " + (end1-end) + " milliseconds");
         }
     }
 }

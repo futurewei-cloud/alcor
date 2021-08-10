@@ -120,6 +120,8 @@ public class GatewayService {
 
     public void deleteGatewayInfoForZeta(String projectId, String vpcId) throws Exception {
         //TODO check whether the project type is zeta by projectId
+        
+        if (!zetaGatewayEnabled) return;
 
         Map<String, Object[]> queryParams = new HashMap<>();
         queryParams.put("resourceId", new String[]{vpcId});

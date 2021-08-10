@@ -16,16 +16,19 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.route.controller;
 
 import com.futurewei.alcor.common.entity.ResponseId;
+import com.futurewei.alcor.common.enumClass.OperationType;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.exception.ResourceNotValidException;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.ControllerUtil;
+import com.futurewei.alcor.route.exception.NeutronRouteTableIsNull;
 import com.futurewei.alcor.route.exception.RouterUnavailable;
 import com.futurewei.alcor.route.exception.RouterHasAttachedInterfaces;
 import com.futurewei.alcor.route.service.*;
 import com.futurewei.alcor.route.utils.RouteManagerUtil;
 import com.futurewei.alcor.route.utils.RestPreconditionsUtil;
+import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.web.entity.route.*;
 import com.futurewei.alcor.common.logging.*;
 import org.springframework.beans.BeanUtils;
@@ -302,7 +305,23 @@ public class NeutronRouterController {
         if (gatewayPorts != null && gatewayPorts.size() > 0) {
             // TODO: waiting for PM new API
             // construct InternalRouterInfo
+            RouteTable neutronRouteTable = router.getNeutronRouteTable();
+            if (neutronRouteTable == null) {
+                throw new NeutronRouteTableIsNull();
+            }
+            List<RouteEntry> routeEntities = neutronRouteTable.getRouteEntities();
+            List<NewRoutesRequest> routes = new ArrayList<>();
+            for (RouteEntry routeEntry : routeEntities) {
+                NewRoutesRequest newRoutesRequest = new NewRoutesRequest(routeEntry.getDestination(), routeEntry.getNexthop());
+                routes.add(newRoutesRequest);
+            }
+
+            NewRoutesWebRequest routerRoutingRules = new NewRoutesWebRequest(routes);
+
+            UpdateRoutingRuleResponse updateRoutingRuleResponse = this.neutronRouterService.updateRoutingRule(subnetId, routerRoutingRules, true, true);
+            InternalSubnetRoutingTable internalSubnetRoutingTable = updateRoutingRuleResponse.getInternalSubnetRoutingTable();
             List<InternalSubnetRoutingTable> internalSubnetRoutingTableList = this.neutronRouterService.constructInternalSubnetRoutingTables(router);
+            internalSubnetRoutingTableList.add(internalSubnetRoutingTable);
             InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(routerid, internalSubnetRoutingTableList);
             this.routerToPMService.updateL3Neighbors(projectid, router.getOwner(), subnetId, "add", gatewayPorts, internalRouterInfo);
         }
@@ -339,7 +358,21 @@ public class NeutronRouterController {
         if (gatewayPorts != null && gatewayPorts.size() > 0) {
             // TODO: waiting for PM new API
             // construct InternalRouterInfo
+            RouteTable neutronRouteTable = router.getNeutronRouteTable();
+            List<RouteEntry> routeEntities = neutronRouteTable.getRouteEntities();
+            List<NewRoutesRequest> routes = new ArrayList<>();
+            for (RouteEntry routeEntry : routeEntities) {
+                NewRoutesRequest newRoutesRequest = new NewRoutesRequest(routeEntry.getDestination(), routeEntry.getNexthop());
+                routes.add(newRoutesRequest);
+            }
+
+            NewRoutesWebRequest routerRoutingRules = new NewRoutesWebRequest(routes);
+
+            UpdateRoutingRuleResponse updateRoutingRuleResponse = this.neutronRouterService.updateRoutingRule(subnetId, routerRoutingRules, true, false);
+            InternalSubnetRoutingTable internalSubnetRoutingTable = updateRoutingRuleResponse.getInternalSubnetRoutingTable();
+
             List<InternalSubnetRoutingTable> internalSubnetRoutingTableList = this.neutronRouterService.constructInternalSubnetRoutingTables(router);
+            internalSubnetRoutingTableList.add(internalSubnetRoutingTable);
             InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(routerid, internalSubnetRoutingTableList);
             this.routerToPMService.updateL3Neighbors(projectid, router.getOwner(), subnetId, "delete", gatewayPorts, internalRouterInfo);
         }
@@ -362,10 +395,8 @@ public class NeutronRouterController {
         if (newRoutes == null) {
             return new RoutesToNeutronWebResponse();
         }
-
         // List<String> ports -> port entity -> subnet id
         Router router = this.routerDatabaseService.getByRouterId(routerid);
-
         RoutesToNeutronWebResponse routesToNeutronWebResponse = this.neutronRouterService.addRoutesToNeutronRouter(routerid, newRoutes);
 
         List<String> gatewayPorts = router.getGatewayPorts();
@@ -374,12 +405,13 @@ public class NeutronRouterController {
             // sub-level routing rule update
             List<InternalSubnetRoutingTable> internalSubnetRoutingTableList = new ArrayList<>();
             for (String subnetId : subnetIds) {
-                UpdateRoutingRuleResponse updateRoutingRuleResponse = this.neutronRouterService.updateRoutingRule(subnetId, newRoutes, true);
+                UpdateRoutingRuleResponse updateRoutingRuleResponse = this.neutronRouterService.updateRoutingRule(subnetId, newRoutes, true, true);
                 InternalSubnetRoutingTable internalSubnetRoutingTable = updateRoutingRuleResponse.getInternalSubnetRoutingTable();
                 internalSubnetRoutingTableList.add(internalSubnetRoutingTable);
             }
 
             InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(routerid, internalSubnetRoutingTableList);
+            internalRouterInfo.setOperationType(OperationType.UPDATE);
 
             // send InternalRouterInfo contract to DPM
             this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
@@ -414,13 +446,14 @@ public class NeutronRouterController {
             // sub-level routing rule update
             List<InternalSubnetRoutingTable> internalSubnetRoutingTableList = new ArrayList<>();
             for (String subnetId : subnetIds) {
-                UpdateRoutingRuleResponse updateRoutingRuleResponse = this.neutronRouterService.updateRoutingRule(subnetId, newRoutes, true);
+                UpdateRoutingRuleResponse updateRoutingRuleResponse = this.neutronRouterService.updateRoutingRule(subnetId, newRoutes, true, false);
                 InternalSubnetRoutingTable internalSubnetRoutingTable = updateRoutingRuleResponse.getInternalSubnetRoutingTable();
                 internalSubnetRoutingTableList.add(internalSubnetRoutingTable);
             }
 
             InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(routerid, internalSubnetRoutingTableList);
 
+            internalRouterInfo.setOperationType(OperationType.DELETE);
             // send InternalRouterInfo contract to DPM
             this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo);
         }
