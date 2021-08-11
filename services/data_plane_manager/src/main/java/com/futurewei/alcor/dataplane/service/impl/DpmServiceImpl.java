@@ -509,6 +509,9 @@ public class DpmServiceImpl implements DpmService {
                             unicastGoalStateMap.put(hostIp, unicastGoalState);
                             for (Neighbor.NeighborState neighbor : neighbors)
                             {
+                                // neighbor can be NULL, at least in S5, so skip it
+                                if (neighbor == null)
+                                    continue;
                                 unicastGoalState.getGoalStateBuilder().addNeighborStates(neighbor);
                                 for (Neighbor.NeighborConfiguration.FixedIp fixIp : neighbor.getConfiguration().getFixedIpsList())
                                 {
