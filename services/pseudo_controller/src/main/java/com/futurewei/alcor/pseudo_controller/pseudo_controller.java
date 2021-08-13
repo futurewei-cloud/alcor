@@ -76,7 +76,7 @@ public class pseudo_controller {
     static Vector<String> node_two_port_ips = new Vector<>();
     static final int CONCURRENT_PING_MODE = 0;
     static int user_chosen_ping_method = CONCURRENT_PING_MODE;
-    static final int THREAD_POOL_SIZE = 50;
+    static final int THREAD_POOL_SIZE = 10;
     static ExecutorService concurrent_create_containers_thread_pool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
     static ExecutorService backgroundPingExecutor = Executors.newFixedThreadPool(1);
     static int user_chosen_execute_background_ping = 0;
@@ -283,10 +283,31 @@ public class pseudo_controller {
 
         System.out.println("After calling onNext");
         response_observer.onCompleted();
+
+        ManagedChannel v1_chan = ManagedChannelBuilder.forAddress(ncm_ip, ncm_port).usePlaintext().build();
+
+        GoalStateProvisionerGrpc.GoalStateProvisionerBlockingStub v1_stub = GoalStateProvisionerGrpc.newBlockingStub(v1_chan);
+
+        System.out.println("Try to send gsv1 to the host!");
+        //  try to send gsv1 to the host, to see if the server supports gsv1 or not.
+        for(int i = 0 ; i < ports_to_generate_on_each_aca_node ; i ++){
+            Goalstateprovisioner.GoalStateOperationReply reply_v1 = v1_stub.pushNetworkResourceStates(Goalstate.GoalState.getDefaultInstance());
+            System.out.println("Received the " + i + "th reply: " + reply_v1.toString());
+        }
+        System.out.println("Done sending gsv1 to the host!");
+
         System.out.println("After the GRPC call, it's time to do the ping test");
 
         System.out.println("Wait no longer than 60 seconds until both goalstates are sent to both hosts.");
         Awaitility.await().atMost(60, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == NUMBER_OF_NODES);
+        System.out.println("Sleep 10 seconds before executing the ping");
+        try {
+            TimeUnit.SECONDS.sleep(10);
+
+        } catch (Exception e) {
+            System.out.println("I can't sleep!!!!");
+
+        }
         List<concurrent_run_cmd> concurrent_ping_cmds = new ArrayList<>();
         for (int i = 0; i < node_one_port_ips.size(); i++) {
             if (i >= node_two_port_ips.size()) {
