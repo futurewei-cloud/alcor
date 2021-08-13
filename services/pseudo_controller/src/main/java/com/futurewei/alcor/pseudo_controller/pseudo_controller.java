@@ -278,8 +278,8 @@ public class pseudo_controller {
         System.out.println("Created GoalStateOperationReply observer class");
         io.grpc.stub.StreamObserver<Goalstate.GoalStateV2> response_observer = stub.pushGoalStatesStream(message_observer);
         System.out.println("Connected the observers");
-        response_observer.onNext(message_one);
-        response_observer.onNext(message_two);
+//        response_observer.onNext(message_one);
+//        response_observer.onNext(message_two);
 
         System.out.println("After calling onNext");
         response_observer.onCompleted();
