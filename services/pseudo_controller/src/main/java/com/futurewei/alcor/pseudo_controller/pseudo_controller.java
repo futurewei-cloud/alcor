@@ -284,13 +284,6 @@ public class pseudo_controller {
         System.out.println("After calling onNext");
         response_observer.onCompleted();
 
-
-
-        System.out.println("After the GRPC call, it's time to do the ping test");
-
-        System.out.println("Wait no longer than 60 seconds until both goalstates are sent to both hosts.");
-        Awaitility.await().atMost(60, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == NUMBER_OF_NODES);
-
         ManagedChannel v1_chan = ManagedChannelBuilder.forAddress(ncm_ip, ncm_port).usePlaintext().build();
 
         GoalStateProvisionerGrpc.GoalStateProvisionerBlockingStub v1_stub = GoalStateProvisionerGrpc.newBlockingStub(v1_chan);
@@ -302,6 +295,13 @@ public class pseudo_controller {
             System.out.println("Received the " + i + "th reply: " + reply_v1.toString());
         }
         System.out.println("Done sending gsv1 to the host!");
+
+        System.out.println("After the GRPC call, it's time to do the ping test");
+
+        System.out.println("Wait no longer than 60 seconds until both goalstates are sent to both hosts.");
+        Awaitility.await().atMost(60, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == NUMBER_OF_NODES);
+
+
 
 
         System.out.println("Sleep 10 seconds before executing the ping");
