@@ -282,7 +282,7 @@ public class pseudo_controller {
 //        response_observer.onNext(message_two);
 
         System.out.println("After calling onNext");
-        response_observer.onCompleted();
+//        response_observer.onCompleted();
 
         ManagedChannel v1_chan = ManagedChannelBuilder.forAddress(ncm_ip, ncm_port).usePlaintext().build();
 
@@ -291,6 +291,7 @@ public class pseudo_controller {
         System.out.println("Try to send gsv1 to the host!");
         //  try to send gsv1 to the host, to see if the server supports gsv1 or not.
         for(int i = 0 ; i < ports_to_generate_on_each_aca_node ; i ++){
+            System.out.println("Sending the " + i + "th gsv1");
             Goalstateprovisioner.GoalStateOperationReply reply_v1 = v1_stub.pushNetworkResourceStates(Goalstate.GoalState.getDefaultInstance());
             System.out.println("Received the " + i + "th reply: " + reply_v1.toString());
         }
