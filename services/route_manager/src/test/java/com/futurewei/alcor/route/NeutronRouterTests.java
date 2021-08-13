@@ -77,8 +77,6 @@ public class NeutronRouterTests {
     @MockBean
     private RouterService routerService;
 
-
-
     private String getNeutronRouterByRouterIdUri = "/project/" + UnitTestConfig.projectId + "/routers/" + UnitTestConfig.routerId;
     private String createNeutronRoutersUri = "/project/" + UnitTestConfig.projectId + "/routers";
     private String updateNeutronRouterByRouterIdUri = "/project/" + UnitTestConfig.projectId + "/routers/" + UnitTestConfig.routerId;
