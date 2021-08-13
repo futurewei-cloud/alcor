@@ -72,20 +72,18 @@ public class RequestManager {
             span = tracer.buildSpan("alcor-port-async").start();
         }
 
-        try (Scope scope = tracer.scopeManager().activate(span)) {
-            CompletableFuture future = CompletableFuture.supplyAsync(() -> {
-                try (Scope cscope = tracer.scopeManager().activate(span)) {
-                    try {
-                        sendRequest(request, callback);
-                    } catch (Exception e) {
-                        throw new CompletionException(e);
-                    }
-                    return null;
+        CompletableFuture future = CompletableFuture.supplyAsync(() -> {
+            try (Scope cscope = tracer.scopeManager().activate(span)) {
+                try {
+                    sendRequest(request, callback);
+                } catch (Exception e) {
+                    throw new CompletionException(e);
                 }
-            }, AsyncExecutor.executor).thenRun(span::finish);
+                return null;
+            }
+        }, AsyncExecutor.executor).thenRun(span::finish);
 
-            addFuture(request, future);
-        }
+        addFuture(request, future);
     }
 
     /**
