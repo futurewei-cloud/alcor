@@ -7,7 +7,7 @@ data:
     dataplane.grpc.port = 50001
     dataplane.isovs=true
     # the zipkin host should be YOURS
-    spring.zipkin.base-url=http://10.213.43.187:9411
+    # spring.zipkin.base-url=http://10.213.43.187:9411
     
     grpc.min-threads = 100
     grpc.max-threads = 200
@@ -35,8 +35,10 @@ data:
     group.topic.to.multicast.topic.map=multicast-topic1:group-topic1,group-topic3 multicast-topic2:group-topic2,group-topic4
 
     zetaGateway.enabled=false
+    zetaGateway.node.mac=e0:97:96:02:45:53
+    microservices.node.service.url=http://nodemanager-service.default.svc.cluster.local:9007/nodes
     microservices.zeta.management.url=http://10.213.43.90
-    microservices.gateway.service.url=http://localhost:9015
+    microservices.gateway.service.url=http://gatewaymanager-service.default.svc.cluster.local:9015
     zetaGateway.check.timeout = 30
     zetaGateway.check.interval = 2
 
