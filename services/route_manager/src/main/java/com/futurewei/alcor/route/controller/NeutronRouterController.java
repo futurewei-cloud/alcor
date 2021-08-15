@@ -383,7 +383,7 @@ public class NeutronRouterController {
 
     @RequestMapping(
             method = PUT,
-            value = {"/project/{projectid}/routers/{routerid}/add_extra_routes"})
+            value = {"/project/{projectid}/routers/{routerid}/add_extraroutes"})
     @DurationStatistics
     public RoutesToNeutronWebResponse addRoutesToNeutronRouter(@PathVariable String projectid, @PathVariable String routerid, @RequestBody RoutesToNeutronWebRequest resource) throws Exception {
 
@@ -423,7 +423,7 @@ public class NeutronRouterController {
 
     @RequestMapping(
             method = PUT,
-            value = {"/project/{projectid}/routers/{routerid}/remove_extra_routes"})
+            value = {"/project/{projectid}/routers/{routerid}/remove_extraroutes"})
     @DurationStatistics
     public RoutesToNeutronWebResponse removeRoutesFromNeutronRouter(@PathVariable String projectid, @PathVariable String routerid, @RequestBody RoutesToNeutronWebRequest resource) throws Exception {
 
