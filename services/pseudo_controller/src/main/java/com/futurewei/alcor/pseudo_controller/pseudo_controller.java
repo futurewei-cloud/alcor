@@ -290,6 +290,12 @@ public class pseudo_controller {
         GoalStateProvisionerGrpc.GoalStateProvisionerBlockingStub v1_stub_aca_1 = GoalStateProvisionerGrpc.newBlockingStub(v1_chan_aca_1);
         GoalStateProvisionerGrpc.GoalStateProvisionerBlockingStub v1_stub_aca_2 = GoalStateProvisionerGrpc.newBlockingStub(v1_chan_aca_2);
 
+
+
+        System.out.println("Wait no longer than 60 seconds until both goalstates are sent to both hosts.");
+        Awaitility.await().atMost(60, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == NUMBER_OF_NODES);
+
+
         System.out.println("Try to send gsv1 to the host!");
         //  try to send gsv1 to the host, to see if the server supports gsv1 or not.
         for(int i = 0 ; i < ports_to_generate_on_each_aca_node ; i ++){
@@ -303,12 +309,6 @@ public class pseudo_controller {
         System.out.println("Done sending gsv1 to the host!");
 
         System.out.println("After the GRPC call, it's time to do the ping test");
-
-        System.out.println("Wait no longer than 60 seconds until both goalstates are sent to both hosts.");
-        Awaitility.await().atMost(60, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == NUMBER_OF_NODES);
-
-
-
 
         System.out.println("Sleep 10 seconds before executing the ping");
         try {
