@@ -290,25 +290,25 @@ public class pseudo_controller {
 
         System.out.println("Try to send gsv1 to the host!");
 
-//        ManagedChannel v1_chan_aca_1 = ManagedChannelBuilder.forAddress(aca_node_one_ip, 50001).usePlaintext().build();
-//        ManagedChannel v1_chan_aca_2 = ManagedChannelBuilder.forAddress(aca_node_two_ip, 50001).usePlaintext().build();
-//
-//        GoalStateProvisionerGrpc.GoalStateProvisionerBlockingStub v1_stub_aca_1 = GoalStateProvisionerGrpc.newBlockingStub(v1_chan_aca_1);
-//        GoalStateProvisionerGrpc.GoalStateProvisionerBlockingStub v1_stub_aca_2 = GoalStateProvisionerGrpc.newBlockingStub(v1_chan_aca_2);
-//
-//
-//        //  try to send gsv1 to the host, to see if the server supports gsv1 or not.
-//        for(int i = 0 ; i < ports_to_generate_on_each_aca_node ; i ++){
-//            System.out.println("Sending the " + i + "th gsv1 to ACA1 at: "+aca_node_one_ip);
-//            Goalstateprovisioner.GoalStateOperationReply reply_v1_aca_1 = v1_stub_aca_1.pushNetworkResourceStates(Goalstate.GoalState.getDefaultInstance());
-//            System.out.println("Received the " + i + "th reply: " + reply_v1_aca_1.toString()+" from ACA1 at: "+aca_node_one_ip);
-//            System.out.println("Sending the " + i + "th gsv1 to ACA2 at: "+aca_node_two_ip);
-//            Goalstateprovisioner.GoalStateOperationReply reply_v1_aca_2 = v1_stub_aca_2.pushNetworkResourceStates(Goalstate.GoalState.getDefaultInstance());
-//            System.out.println("Received the " + i + "th reply: " + reply_v1_aca_2.toString()+" from ACA1 at: "+aca_node_two_ip);
-//        }
-//        System.out.println("Done sending gsv1 to the host!");
-//
-//        System.out.println("After the GRPC call, it's time to do the ping test");
+        ManagedChannel v1_chan_aca_1 = ManagedChannelBuilder.forAddress(aca_node_one_ip, 50001).usePlaintext().build();
+        ManagedChannel v1_chan_aca_2 = ManagedChannelBuilder.forAddress(aca_node_two_ip, 50001).usePlaintext().build();
+
+        GoalStateProvisionerGrpc.GoalStateProvisionerBlockingStub v1_stub_aca_1 = GoalStateProvisionerGrpc.newBlockingStub(v1_chan_aca_1);
+        GoalStateProvisionerGrpc.GoalStateProvisionerBlockingStub v1_stub_aca_2 = GoalStateProvisionerGrpc.newBlockingStub(v1_chan_aca_2);
+
+
+        //  try to send gsv1 to the host, to see if the server supports gsv1 or not.
+        for(int i = 0 ; i < ports_to_generate_on_each_aca_node ; i ++){
+            System.out.println("Sending the " + i + "th gsv1 to ACA1 at: "+aca_node_one_ip);
+            Goalstateprovisioner.GoalStateOperationReply reply_v1_aca_1 = v1_stub_aca_1.pushNetworkResourceStates(Goalstate.GoalState.getDefaultInstance());
+            System.out.println("Received the " + i + "th reply: " + reply_v1_aca_1.toString()+" from ACA1 at: "+aca_node_one_ip);
+            System.out.println("Sending the " + i + "th gsv1 to ACA2 at: "+aca_node_two_ip);
+            Goalstateprovisioner.GoalStateOperationReply reply_v1_aca_2 = v1_stub_aca_2.pushNetworkResourceStates(Goalstate.GoalState.getDefaultInstance());
+            System.out.println("Received the " + i + "th reply: " + reply_v1_aca_2.toString()+" from ACA1 at: "+aca_node_two_ip);
+        }
+        System.out.println("Done sending gsv1 to the host!");
+
+        System.out.println("After the GRPC call, it's time to do the ping test");
 
         System.out.println("Sleep 10 seconds before executing the ping");
         try {
