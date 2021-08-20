@@ -41,6 +41,8 @@ def build_containers(services_dict):
 
     print("building container images")
     services_list = get_file_list(ALCOR_SERVICES)
+    # segment_service is bogus service, only used to pick up the
+    # internal port number of vpc_manager, which is 9001
     for service_name in services_dict.keys():
       if service_name == "segment_service":
          continue
@@ -61,6 +63,7 @@ def build_containers(services_dict):
 def start_containers(serv):
     start_containers = []
     for service_name in serv.keys():
+        extra_args = ""
         if service_name == "segment_service":
             continue
         service_info = json.loads(serv[service_name])
@@ -69,10 +72,17 @@ def start_containers(serv):
 
         if service_name == "ignite":
             ports = "-p 10800:10800 -p 10801:10801 -p 47100:47100 -p 47500:47500 "
-            start_cmd = run_container + ports + mnt_and_image + "sh"
+            extra_args = "sh"
+        elif service_name == "vpc_manager":
+            # expose internal and external ports in VPM
+            vpm_info = json.loads(serv["segment_service"])
+            ports = "--net=host -p {}:{} -p {}:{} ".format(service_info["port"], service_info["port"], vpm_info["port"], vpm_info["port"])
         else:
             ports = "--net=host -p {}:{} ".format(service_info["port"], service_info["port"])
-            start_cmd = run_container + ports + mnt_and_image
+
+        start_cmd = run_container + ports + mnt_and_image
+        if not extra_args:
+            start_cmd = start_cmd + " " + extra_args
 
         start_containers.append(start_cmd)
 
@@ -85,7 +95,7 @@ def start_containers(serv):
 def stop_containers(service_list):
     command = "sudo docker container stop "
     for service in service_list:
-      if service == "segment_service":
+      if service == "sgs":
          continue
       execute_command(command + service)
 
@@ -93,12 +103,13 @@ def stop_containers(service_list):
 def remove_containers(service_list):
     command = "sudo docker container rm "
     for service in service_list:
-      if service == "segment_service":
+      if service == "sgs":
          continue
       execute_command(command + service)
 
 
 def main():
+    extra_wait_time = 120
     config_file =  "{}/alcor_services.ini".format(ALCOR_TEST_DIR)
     config_file_object = read_config_file(config_file)
     services_dict = dict(config_file_object.items("services"))
@@ -160,8 +171,14 @@ Example of use: python script_name -b
       print("ERROR: Quitting test\n")
       sys.exit(1)
 
-    print("Wait for 60 seconds until all services are started...")
-    time.sleep(60)
+    print("Waiting for Alcor services to be up and running...\n")
+    alcor_status = check_alcor_services()
+    if alcor_status == False:
+        print("ERROR: Alcor Services failed to start ...\n")
+        sys.exit(1)
+
+    print("Alcor Services are up and running, but waiting for {} seconds more...\n".format(extra_wait_time))
+    time.sleep(extra_wait_time)
 
     if args.testcase:
       if (args.testcase == 1):

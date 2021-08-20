@@ -17,6 +17,10 @@ package com.futurewei.alcor.portmanager.request;
 
 import com.futurewei.alcor.common.executor.AsyncExecutor;
 import com.futurewei.alcor.portmanager.processor.CallbackFunction;
+import io.opentracing.Scope;
+import io.opentracing.Span;
+import io.opentracing.Tracer;
+import io.opentracing.contrib.tracerresolver.TracerResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +35,8 @@ public class RequestManager {
 
     private List<CompletableFuture> futures = new ArrayList<>();
     private List<IRestRequest> requests = new ArrayList<>();
+
+    private static final Tracer tracer = TracerResolver.resolveTracer();
 
     private void sendRequest(IRestRequest request, CallbackFunction callback) throws Exception {
         request.send();
@@ -58,14 +64,24 @@ public class RequestManager {
     }
 
     public void sendRequestAsync(IRestRequest request, CallbackFunction callback) {
+        Span pSpan = tracer.activeSpan();
+        Span span;
+        if (pSpan != null) {
+            span = tracer.buildSpan("alcor-port-async").asChildOf(pSpan.context()).start();
+        } else {
+            span = tracer.buildSpan("alcor-port-async").start();
+        }
+
         CompletableFuture future = CompletableFuture.supplyAsync(() -> {
-            try {
-                sendRequest(request, callback);
-            } catch (Exception e) {
-                throw new CompletionException(e);
+            try (Scope cscope = tracer.scopeManager().activate(span)) {
+                try {
+                    sendRequest(request, callback);
+                } catch (Exception e) {
+                    throw new CompletionException(e);
+                }
+                return null;
             }
-            return null;
-        }, AsyncExecutor.executor);
+        }, AsyncExecutor.executor).thenRun(span::finish);
 
         addFuture(request, future);
     }

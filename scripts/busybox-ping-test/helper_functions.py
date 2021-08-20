@@ -148,6 +148,39 @@ def print_output(output):
       print(line)
 
 
+# check if all alcor services are up and running.
+# Success: all ports from 9001 through 9016 should show up in netstat output
+# try for 5 minutes, waiting 10 seconds each time
+# NOTE: Update the port list when new services are added.
+# 9001 9002 9003 9004 9005 9006 9007 9008 9009 9010 9011 9012 9015 9016
+def check_alcor_services():
+    wait_limit = 300
+    sleep_time = 10
+    wait_time = 0
+    try:
+        command = "netstat -ant | awk -F: '/90[0-9][0-9]/ {print $4}' | sed 's/[\t ]*$//' | sort -n | tr '[\n]' ' ' | sed 's/[\t ]*$//'"
+        iter = 1
+        while wait_time < wait_limit:
+            pipe = sp.Popen(command, stdout=sp.PIPE, stderr=sp.PIPE, shell=True)
+            res = pipe.communicate()
+            retcode = pipe.returncode
+            if retcode > 0:
+                print("Failed to execute command", repr(str(command)))
+                print_output(res[1])
+            elif "9001 9002 9003 9004 9005 9006 9007 9008 9009 9010 9011 9012 9015 9016" in str(res):
+                print("SUCCESS for: ", command, "\n")
+                return True
+            iter = iter + 1
+            wait_time = wait_time + sleep_time
+            time.sleep(sleep_time)
+
+        return False
+    except:
+        print("ERROR", sys.exc_info()[0])
+    return False
+
+
+
 def execute_command(command):
     try:
       pipe = sp.Popen(command, stdout=sp.PIPE, stderr=sp.PIPE, shell=True)
