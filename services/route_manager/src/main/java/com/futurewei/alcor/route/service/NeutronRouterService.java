@@ -36,6 +36,6 @@ public interface NeutronRouterService {
     public ConnectedSubnetsWebResponse getConnectedSubnets (String projectId, String vpcId, String subnetId) throws ResourceNotFoundException, ResourcePersistenceException, SubnetNotBindUniquePortId;
     public UpdateRoutingRuleResponse updateRoutingRule (String owner, NewRoutesWebRequest newRouteEntry, boolean isNeutronOrVPCLevelRoutingRule, boolean isAddOperation) throws DestinationOrNexthopCanNotBeNull, CacheException, CanNotFindRouteTableByOwner, QueryParamTypeNotSupportException, RouteTableNotUnique, DestinationInvalid, DatabasePersistenceException;
     public InternalRouterInfo constructInternalRouterInfo (String routerid, List<InternalSubnetRoutingTable> internalSubnetRoutingTableList);
-    public List<InternalSubnetRoutingTable> constructInternalSubnetRoutingTables (Router router) throws DatabasePersistenceException, CanNotFindSubnet, OwnMultipleSubnetRouteTablesException, CacheException, ResourcePersistenceException, ResourceNotFoundException, OwnMultipleVpcRouterException, CanNotFindVpc, CanNotFindRouteTableByOwner;
-    public List<RouteTable> getRouteTablesBySubnetIds (List<String> subnetIds, String projectid) throws DatabasePersistenceException, CanNotFindSubnet, OwnMultipleSubnetRouteTablesException, CacheException, ResourcePersistenceException, ResourceNotFoundException, OwnMultipleVpcRouterException, CanNotFindVpc, CanNotFindRouteTableByOwner;
+    public List<InternalSubnetRoutingTable> constructInternalSubnetRoutingTables (Router router) throws Exception;
+    public List<RouteTable> getRouteTablesBySubnetIds (List<String> subnetIds, String projectid) throws Exception;
 }

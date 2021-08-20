@@ -15,6 +15,8 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.dataplane.service.impl;
 
+import com.futurewei.alcor.dataplane.cache.NeighborCache;
+import com.futurewei.alcor.dataplane.cache.SubnetPortsCache;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.exception.NeighborInfoNotFound;
@@ -25,13 +27,20 @@ import com.futurewei.alcor.web.entity.dataplane.NeighborEntry;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortEntity;
+import com.futurewei.alcor.web.entity.port.PortHostInfo;
+import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
 public class NeighborService extends ResourceService {
-    public Neighbor.NeighborState buildNeighborState(NeighborEntry.NeighborType type, NeighborInfo neighborInfo, Common.OperationType operationType) {
+
+    @Autowired
+    private NeighborCache neighborCache;
+
+    public Neighbor.NeighborState buildNeighborState(NeighborEntry.NeighborType type, NeighborInfo neighborInfo, Common.OperationType operationType) throws Exception {
         Neighbor.NeighborConfiguration.Builder neighborConfigBuilder = Neighbor.NeighborConfiguration.newBuilder();
         neighborConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
         neighborConfigBuilder.setId(neighborInfo.getPortId()); // TODO: We are going to need this per latest ACA change
@@ -54,7 +63,7 @@ public class NeighborService extends ResourceService {
         Neighbor.NeighborState.Builder neighborStateBuilder = Neighbor.NeighborState.newBuilder();
         neighborStateBuilder.setOperationType(operationType);
         neighborStateBuilder.setConfiguration(neighborConfigBuilder.build());
-
+        neighborCache.setNeighborState(neighborStateBuilder.build());
         return neighborStateBuilder.build();
     }
 
@@ -83,6 +92,20 @@ public class NeighborService extends ResourceService {
         }
 
         return neighborInfos;
+    }
+
+    public void buildNeighborStates(Map<String, NeighborInfo> neighborInfos,
+                                    UnicastGoalState unicastGoalState,
+                                    MulticastGoalState multicastGoalState) throws Exception
+    {
+        if (neighborInfos == null || neighborInfos.size() == 0) {
+            return;
+        }
+        for (NeighborInfo neighborInfo : neighborInfos.values())
+        {
+            unicastGoalState.getGoalStateBuilder().addNeighborStates(buildNeighborState(NeighborEntry.NeighborType.L3, neighborInfo, Common.OperationType.GET));
+        }
+
     }
 
     public void buildNeighborStates(NetworkConfiguration networkConfig, String hostIp,
@@ -164,5 +187,16 @@ public class NeighborService extends ResourceService {
                 neighborInfoSet.add(neighborInfo1);
             }
         }
+    }
+
+    public List<Neighbor.NeighborState> getAllNeighbors (Set<String> ips) throws Exception
+    {
+        List<Neighbor.NeighborState> neighbors = new ArrayList<>();
+        for (String ip : ips)
+        {
+            neighbors.add(neighborCache.getNeiborByIP(ip));
+
+        }
+        return neighbors;
     }
 }

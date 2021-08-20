@@ -144,7 +144,7 @@ Copyright(c) 2020 Futurewei Cloud
                 <property name="cacheMode" value="PARTITIONED"/>
              </bean>
          </list>
-  </property>
+      </property>
 
       <!-- Explicitly configure TCP discovery SPI to provide list of initial nodes. -->
       <property name="discoverySpi">
