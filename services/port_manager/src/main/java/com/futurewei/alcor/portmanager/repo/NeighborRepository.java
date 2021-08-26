@@ -22,8 +22,11 @@ import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.portmanager.entity.PortNeighbors;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.port.PortEntity;
+import org.apache.ignite.cache.CacheAtomicityMode;
+import org.apache.ignite.configuration.CacheConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Map;
@@ -37,6 +40,7 @@ public class NeighborRepository {
     private ICache<String, PortNeighbors> neighborCache;
     private CacheFactory cacheFactory;
 
+    @Autowired
     public NeighborRepository(CacheFactory cacheFactory) {
         this.cacheFactory = cacheFactory;
         this.neighborCache= cacheFactory.getCache(PortNeighbors.class);
@@ -53,16 +57,21 @@ public class NeighborRepository {
                         .stream()
                         .collect(Collectors.toMap(NeighborInfo::getPortIp, Function.identity()));
 
-                ICache<String, NeighborInfo> neighborCache = this.cacheFactory.getCache(
-                        NeighborInfo.class, getNeighborCacheName(entry.getKey()));
+                CacheConfiguration cfg = new CacheConfiguration();
+                cfg.setName(getNeighborCacheName(entry.getKey()));
+                cfg.setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL);
+                ICache<String, NeighborInfo> neighborCache = cacheFactory.getCache(NeighborInfo.class, cfg);
                 neighborCache.putAll(neighborMap);
             }
         }
     }
 
     public void updateNeighbors(PortEntity oldPortEntity, List<NeighborInfo> newNeighbors) throws Exception {
+        CacheConfiguration cfg = new CacheConfiguration();
+        cfg.setName(getNeighborCacheName(oldPortEntity.getVpcId()));
+        cfg.setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL);
         ICache<String, NeighborInfo> neighborCache = this.cacheFactory.getCache(
-                NeighborInfo.class, getNeighborCacheName(oldPortEntity.getVpcId()));
+                NeighborInfo.class, cfg);
 
         //Delete old neighborInfos
         if (oldPortEntity.getFixedIps() != null) {
@@ -90,8 +99,11 @@ public class NeighborRepository {
                     .map(PortEntity.FixedIp::getIpAddress)
                     .collect(Collectors.toList());
 
+            CacheConfiguration cfg = new CacheConfiguration();
+            cfg.setName(getNeighborCacheName(portEntity.getVpcId()));
+            cfg.setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL);
             ICache<String, NeighborInfo> neighborCache = this.cacheFactory.getCache(
-                    NeighborInfo.class, getNeighborCacheName(portEntity.getVpcId()));
+                    NeighborInfo.class, cfg);
 
             //Delete old neighborInfos
             for (String oldPortIp: oldPortIps) {
@@ -102,8 +114,11 @@ public class NeighborRepository {
 
     @DurationStatistics
     public Map<String, NeighborInfo> getNeighbors(String vpcId) throws CacheException {
+        CacheConfiguration cfg = new CacheConfiguration();
+        cfg.setName(getNeighborCacheName(vpcId));
+        cfg.setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL);
         ICache<String, NeighborInfo> neighborCache = this.cacheFactory.getCache(
-                NeighborInfo.class, getNeighborCacheName(vpcId));
+                NeighborInfo.class, cfg);
         return neighborCache.getAll();
     }
 }

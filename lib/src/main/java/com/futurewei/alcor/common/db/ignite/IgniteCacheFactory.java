@@ -21,6 +21,7 @@ import com.futurewei.alcor.common.db.ICacheFactory;
 import com.futurewei.alcor.common.db.IDistributedLock;
 import com.futurewei.alcor.common.db.Transaction;
 import org.apache.ignite.Ignite;
+import org.apache.ignite.configuration.CacheConfiguration;
 
 import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.cache.expiry.Duration;
@@ -49,6 +50,10 @@ public class IgniteCacheFactory implements ICacheFactory {
     public <K, V> ICache<K, V> getCache(Class<V> v, String cacheName) {
         return new IgniteDbCache<>(ignite, cacheName);
     }
+
+    @Override
+    public <K, V> ICache<K, V>
+    getCache(Class<V> v, CacheConfiguration cacheConfig) { return new IgniteDbCache<>(ignite, cacheConfig); }
 
     @Override
     public <K, V> ICache<K, V> getExpireCache(Class<V> v, long timeout, TimeUnit timeUnit) {
