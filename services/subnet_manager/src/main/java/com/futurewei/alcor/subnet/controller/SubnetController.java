@@ -499,7 +499,11 @@ public class SubnetController {
             // delete gateway port in port manager
             GatewayPortDetail gatewayPortDetail = subnetEntity.getGatewayPortDetail();
             if (gatewayPortDetail != null) {
-                this.subnetToPortManagerService.deleteGatewayPort(projectId, gatewayPortDetail.getGatewayPortId());
+                try{
+                    this.subnetToPortManagerService.deleteGatewayPort(projectId, gatewayPortDetail.getGatewayPortId());
+                } catch (HttpClientErrorException.NotFound e) {
+                    logger.warn(e.getMessage());
+                }    
             }
 
             // delete subnet id in vpc
