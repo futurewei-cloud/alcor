@@ -28,8 +28,10 @@ import org.apache.ignite.cache.query.Query;
 import org.apache.ignite.cache.query.QueryCursor;
 import org.apache.ignite.cache.query.ScanQuery;
 import org.apache.ignite.client.ClientCache;
+import org.apache.ignite.client.ClientCacheConfiguration;
 import org.apache.ignite.client.ClientException;
 import org.apache.ignite.client.IgniteClient;
+import org.apache.ignite.configuration.CacheConfiguration;
 import org.apache.ignite.lang.IgniteBiPredicate;
 import org.springframework.util.Assert;
 
@@ -61,12 +63,28 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
         this.transaction = new IgniteClientTransaction(igniteClient);
     }
 
+    public IgniteClientDbCache(IgniteClient igniteClient, CacheConfiguration cacheConfig) {
+        try {
+            ClientCacheConfiguration clientCacheConfig = new ClientCacheConfiguration();
+            clientCacheConfig.setName(cacheConfig.getName());
+            clientCacheConfig.setAtomicityMode(cacheConfig.getAtomicityMode());
+            logger.log(Level.INFO, "Getting or creating cache " + clientCacheConfig.getName() + " AtomicityMode is " + clientCacheConfig.getAtomicityMode());
+            this.cache = igniteClient.getOrCreateCache(clientCacheConfig);
+            logger.log(Level.INFO, "Retrieved cache " +  this.cache.getConfiguration().getName() + " AtomicityMode is " + this.cache.getConfiguration().getAtomicityMode());
+        } catch (ClientException e) {
+            logger.log(Level.ERROR, "Create cache for client " + cacheConfig.getName() + " failed:" + e.getMessage());
+        }
+
+        Assert.notNull(this.cache, "Create cache for client " + cacheConfig.getName() + "failed");
+        this.transaction = new IgniteClientTransaction(igniteClient);
+    }
+
     public IgniteClientDbCache(IgniteClient igniteClient, String name, ExpiryPolicy ep) {
         try {
             this.cache = igniteClient.getOrCreateCache(name).withExpirePolicy(ep);
             logger.log(Level.INFO, "Cache " + name + " AtomicityMode is " + this.cache.getConfiguration().getAtomicityMode());
         } catch (ClientException e) {
-            logger.log(Level.WARNING, "Create cache for client " + name + " failed:" + e.getMessage());
+            logger.log(Level.ERROR, "Create cache for client " + name + " failed:" + e.getMessage());
         }
 
         Assert.notNull(this.cache, "Create cache for client " + name + "failed");

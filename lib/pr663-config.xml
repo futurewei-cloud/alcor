@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation=" http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+        <bean id="grid.cfg" class="org.apache.ignite.configuration.IgniteConfiguration">
+            <property name="peerClassLoadingEnabled" value="true" />
+            <property name="cacheConfiguration">
+                <list>
+                    <bean class="org.apache.ignite.configuration.CacheConfiguration">
+                        <property name="name" value="com.futurewei.alcor.web.entity.vpc.VpcEntity"/>
+                        <property name="atomicityMode" value="TRANSACTIONAL"/>
+                    </bean>
+                    <bean class="org.apache.ignite.configuration.CacheConfiguration">
+                        <property name="name" value="dpm_nodeinfo_cache"/>
+                        <property name="atomicityMode" value="TRANSACTIONAL"/>
+                    </bean>
+                    <bean class="org.apache.ignite.configuration.CacheConfiguration">
+                        <property name="name" value="com.futurewei.alcor.dataplane.entity.InternalPorts"/>
+                        <property name="atomicityMode" value="TRANSACTIONAL"/>
+                    </bean>
+                    <bean class="org.apache.ignite.configuration.CacheConfiguration">
+                        <property name="name" value="com.futurewei.alcor.dataplane.entity.InternalSubnets"/>
+                        <property name="atomicityMode" value="TRANSACTIONAL"/>
+                    </bean>
+                    <bean class="org.apache.ignite.configuration.CacheConfiguration">
+                        <property name="name" value="com.futurewei.alcor.dataplane.entity.InternalSubnetPorts"/>
+                        <property name="atomicityMode" value="TRANSACTIONAL"/>
+                    </bean>
+                    <bean class="org.apache.ignite.configuration.CacheConfiguration">
+                        <property name="name" value="com.futurewei.alcor.dataplane.entity.GatewayInfo"/>
+                        <property name="atomicityMode" value="TRANSACTIONAL"/>
+                    </bean>
+                    <bean class="org.apache.ignite.configuration.CacheConfiguration">
+                        <property name="name" value="ncm_nodeinfo_cache"/>
+                        <property name="atomicityMode" value="TRANSACTIONAL"/>
+                    </bean>
+                    <bean class="org.apache.ignite.configuration.CacheConfiguration">
+                        <property name="name" value="com.futurewei.alcor.netwconfigmanager.entity.ResourceMeta"/>
+                        <property name="atomicityMode" value="TRANSACTIONAL"/>
+                    </bean>
+                    <bean class="org.apache.ignite.configuration.CacheConfiguration">
+                        <property name="name" value="com.futurewei.alcor.netwconfigmanager.entity.VpcResourceMeta"/>
+                        <property name="atomicityMode" value="TRANSACTIONAL"/>
+                    </bean>
+                    <bean class="org.apache.ignite.configuration.CacheConfiguration">
+                        <property name="name" value="com.futurewei.alcor.dataplane.entity.VpcResourceMeta"/>
+                        <property name="atomicityMode" value="TRANSACTIONAL"/>
+                    </bean>
+                    <bean class="org.apache.ignite.configuration.CacheConfiguration">
+                        <property name="name" value="com.futurewei.alcor.privateipmanager.entity.IpAddrAlloc"/>
+                        <property name="atomicityMode" value="TRANSACTIONAL"/>
+                    </bean>
+                    <bean class="org.apache.ignite.configuration.CacheConfiguration">
+                        <property name="name" value="com.futurewei.alcor.privateipmanager.entity.IpAddrRange"/>
+                        <property name="atomicityMode" value="TRANSACTIONAL"/>
+                    </bean>
+                    <bean class="org.apache.ignite.configuration.CacheConfiguration">
+                        <property name="name" value="com.futurewei.alcor.privateipmanager.entity.VpcIpRange"/>
+                        <property name="atomicityMode" value="TRANSACTIONAL"/>
+                    </bean>
+                </list>
+            </property>
+            <property name="discoverySpi">
+                <bean class="org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi">
+                    <property name="ipFinder">
+                        <bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder">
+                            <property name="addresses">
+                                <list>
+                                    <value>127.0.0.1:47500</value>
+                                    <value>127.0.0.1:47501</value>
+                                    <value>127.0.0.1:47502</value>
+                                    <value>127.0.0.1:47503</value>
+                                    <value>127.0.0.1:47504</value>
+                                    <value>127.0.0.1:47505</value>
+                                    <value>127.0.0.1:47506</value>
+                                    <value>127.0.0.1:47507</value>
+                                    <value>127.0.0.1:47508</value>
+                                    <value>127.0.0.1:47509</value>
+                                </list>
+                            </property>
+                        </bean>
+                    </property>
+                </bean>
+            </property>
+    </bean>
+</beans>

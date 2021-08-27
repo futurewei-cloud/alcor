@@ -39,6 +39,7 @@ import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.route.*;
 import com.futurewei.alcor.web.entity.subnet.*;
 import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
+import io.netty.util.internal.StringUtil;
 import org.apache.commons.net.util.SubnetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -304,12 +305,15 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
-    public boolean checkIfAnyPortInSubnet(String projectId, String subnetId) throws SubnetIdIsNull {
-        if (subnetId == null) {
+    public boolean checkIfAnyNonGatewayPortInSubnet(String projectId, SubnetEntity subnetEntity) throws SubnetIdIsNull {
+        if (subnetEntity == null || StringUtil.isNullOrEmpty(subnetEntity.getId())) {
             throw new SubnetIdIsNull();
         }
-        String portManagerServiceUrl = portUrl + "project/" + projectId + "/subnet-port-count/" + subnetId;
-        int  portCount = restTemplate.getForObject(portManagerServiceUrl, Integer.class);
+
+        String portManagerServiceUrl = portUrl + "project/" + projectId + "/subnet-port-count/" + subnetEntity.getId();
+        int portCount = restTemplate.getForObject(portManagerServiceUrl, Integer.class);
+
+        logger.info("[checkIfAnyNonGatewayPortInSubnet]: portCount == " + portCount + " && subnetEntity.getGatewayPortId() = " + subnetEntity.getGatewayPortId());
         if (portCount == 0) {
             return false;
         }
@@ -321,7 +325,7 @@ public class SubnetServiceImp implements SubnetService {
     public boolean checkIfSubnetBindAnyRouter(SubnetEntity subnetEntity) {
 
         String attachedRouterId = subnetEntity.getAttachedRouterId();
-        if (attachedRouterId == null || attachedRouterId.equals("")){
+        if (attachedRouterId == null || attachedRouterId.equals("")) {
             return false;
         }
 
@@ -330,7 +334,7 @@ public class SubnetServiceImp implements SubnetService {
 
     @Override
     @DurationStatistics
-    public boolean checkIfCidrOverlap(String cidr,String projectId, String vpcId) throws FallbackException, ResourceNotFoundException, ResourcePersistenceException, CidrNotWithinNetworkCidr, CidrOverlapWithOtherSubnets {
+    public boolean checkIfCidrOverlap(String cidr, String projectId, String vpcId) throws FallbackException, ResourceNotFoundException, ResourcePersistenceException, CidrNotWithinNetworkCidr, CidrOverlapWithOtherSubnets {
 
         // get vpc and check with vpc cidr
         VpcWebJson vpcWebJson = verifyVpcId(projectId, vpcId);
@@ -341,8 +345,7 @@ public class SubnetServiceImp implements SubnetService {
                 throw new CidrNotWithinNetworkCidr();
             }
         }
-
-
+        
         // get subnet list and check with subnets cidr
         List<String> subnetIds = vpcWebJson.getNetwork().getSubnets();
         for (String subnetId : subnetIds) {
@@ -552,7 +555,7 @@ public class SubnetServiceImp implements SubnetService {
             return;
         }
 
-        String ipManagerCreateRangeUrl = ipUrl + "range/"+ rangeId;
+        String ipManagerCreateRangeUrl = ipUrl + "range/" + rangeId;
         restTemplate.delete(ipManagerCreateRangeUrl);
     }
 

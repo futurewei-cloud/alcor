@@ -17,7 +17,6 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.common.db.ignite;
 
 import com.futurewei.alcor.common.db.CacheException;
-import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.db.ignite.query.ScanQueryBuilder;
 import com.futurewei.alcor.common.db.ignite.query.MapPredicate;
@@ -31,6 +30,7 @@ import org.apache.ignite.cache.CachePeekMode;
 import org.apache.ignite.cache.query.Query;
 import org.apache.ignite.cache.query.QueryCursor;
 import org.apache.ignite.cache.query.ScanQuery;
+import org.apache.ignite.configuration.CacheConfiguration;
 import org.apache.ignite.lang.IgniteBiPredicate;
 import org.apache.ignite.transactions.TransactionException;
 import org.springframework.util.Assert;
@@ -64,6 +64,21 @@ public class IgniteDbCache<K, V> implements IgniteICache<K, V> {
         }
 
         Assert.notNull(cache, "Create cache for client " + name + "failed");
+        this.transaction = new IgniteTransaction(ignite);
+    }
+
+    public IgniteDbCache(Ignite ignite, CacheConfiguration cfg) {
+
+        try {
+            this.cache = ignite.getOrCreateCache(cfg);
+        } catch (javax.cache.CacheException e) {
+            this.cache = ignite.getOrCreateCache(cfg);
+            logger.log(Level.WARNING, "Create cache for client " + cfg + " failed:" + e.getMessage());
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Unexpected failure:" + e.getMessage());
+        }
+
+        Assert.notNull(cache, "Create cache for client " + cfg + "failed");
         this.transaction = new IgniteTransaction(ignite);
     }
 
@@ -162,19 +177,19 @@ public class IgniteDbCache<K, V> implements IgniteICache<K, V> {
         QueryCursor<Cache.Entry<E1, E2>> cursor =
                 cache.withKeepBinary().query(ScanQueryBuilder.newScanQuery(igniteBiPredicate));
         List<Cache.Entry<E1, E2>> result = cursor.getAll();
-        if(result.size() > 1){
+        if (result.size() > 1) {
             throw new CacheException("more than one rows found!");
         }
 
-        if(result.isEmpty()){
+        if (result.isEmpty()) {
             return null;
         }
 
         E2 obj = result.get(0).getValue();
-        if (obj instanceof BinaryObject){
-            BinaryObject binaryObject = (BinaryObject)obj;
+        if (obj instanceof BinaryObject) {
+            BinaryObject binaryObject = (BinaryObject) obj;
             return binaryObject.deserialize();
-        }else{
+        } else {
             throw new CacheException("no support for object type:" + obj.getClass().getName());
         }
     }
@@ -190,16 +205,16 @@ public class IgniteDbCache<K, V> implements IgniteICache<K, V> {
         QueryCursor<Cache.Entry<E1, E2>> cursor =
                 cache.withKeepBinary().query(ScanQueryBuilder.newScanQuery(igniteBiPredicate));
         List<Cache.Entry<E1, E2>> result = cursor.getAll();
-        if(result.size() >= RESULT_THRESHOLD_SIZE){
+        if (result.size() >= RESULT_THRESHOLD_SIZE) {
             throw new CacheException("too many rows found!");
         }
         Map<K, V> values = new HashMap<>(result.size());
-        for(Cache.Entry<E1, E2> entry: result){
+        for (Cache.Entry<E1, E2> entry : result) {
             E2 obj = entry.getValue();
-            if (obj instanceof BinaryObject){
-                BinaryObject binaryObject = (BinaryObject)obj;
-                values.put((K)entry.getKey(), binaryObject.deserialize());
-            }else{
+            if (obj instanceof BinaryObject) {
+                BinaryObject binaryObject = (BinaryObject) obj;
+                values.put((K) entry.getKey(), binaryObject.deserialize());
+            } else {
                 throw new CacheException("no support for object type:" + obj.getClass().getName());
             }
         }
