@@ -21,8 +21,13 @@ import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.tracerresolver.TracerResolver;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -76,6 +81,22 @@ public class RequestManager {
             try (Scope cscope = tracer.scopeManager().activate(span)) {
                 try {
                     sendRequest(request, callback);
+                } catch (HttpClientErrorException e) {
+                    JSONParser parser = new JSONParser();
+                    JSONObject resp = null;
+                    try {
+                        resp = (JSONObject) parser.parse(e.getResponseBodyAsString());
+                    } catch (ParseException parseException) {
+                        parseException.printStackTrace();
+                    }
+                    if (e.getStatusCode() == HttpStatus.NOT_FOUND && (resp.get("message").equals("Ip address allocation not found") || resp.get("message").equals("Ip range not found"))) {
+                        LOG.warn("Not found ip");
+                    }
+                    else
+                    {
+                        throw e;
+                    }
+
                 } catch (Exception e) {
                     throw new CompletionException(e);
                 }

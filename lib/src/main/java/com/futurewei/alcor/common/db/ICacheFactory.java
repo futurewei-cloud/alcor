@@ -36,8 +36,6 @@ public interface ICacheFactory {
      */
     <K, V> ICache<K, V> getCache(Class<V> v, String cacheName);
 
-    <K, V> ICache<K, V> getCache(Class<V> v, CacheConfiguration cacheConfig);
-
     /**
      * get a cache with cache name and configuration
      * @return
