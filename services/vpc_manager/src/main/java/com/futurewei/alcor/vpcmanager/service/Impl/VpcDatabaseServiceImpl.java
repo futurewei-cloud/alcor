@@ -17,16 +17,20 @@ package com.futurewei.alcor.vpcmanager.service.Impl;
 
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
+import com.futurewei.alcor.common.exception.ResourceNotFoundException;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.vpcmanager.dao.VpcRepository;
 import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
+import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -42,7 +46,7 @@ public class VpcDatabaseServiceImpl implements VpcDatabaseService {
     public VpcEntity getByVpcId(String vpcId) {
         try {
             return this.vpcRepository.findItem(vpcId);
-        }catch (Exception e) {
+        } catch (Exception e) {
             return null;
         }
     }
@@ -73,6 +77,38 @@ public class VpcDatabaseServiceImpl implements VpcDatabaseService {
     @DurationStatistics
     public void deleteVpc(String id) throws CacheException {
         this.vpcRepository.deleteItem(id);
+    }
+
+    @Override
+    public VpcEntity deleteSubnetIdInVpc(String vpcId, String subnetId) throws Exception {
+
+        VpcEntity currentVpcState = null;
+
+        try (Transaction tx = this.vpcRepository.startTransaction()) {
+
+            currentVpcState = getByVpcId(vpcId);
+            if (currentVpcState == null) {
+                throw new ResourceNotFoundException("Vpc not found : " + vpcId);
+            }
+
+            List<String> subnets = currentVpcState.getSubnets();
+            if (subnets == null || !subnets.contains(subnetId)) {
+                return currentVpcState;
+            }
+
+            subnets.remove(subnetId);
+            currentVpcState.setSubnets(subnets);
+            addVpc(currentVpcState);
+
+            tx.commit();
+        } catch (ResourceNotFoundException | DatabasePersistenceException | CacheException e) {
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+        return currentVpcState;
     }
 
     @Override

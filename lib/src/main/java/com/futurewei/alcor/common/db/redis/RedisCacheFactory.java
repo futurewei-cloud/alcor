@@ -65,7 +65,7 @@ public class RedisCacheFactory implements ICacheFactory {
         return new RedisExpireCache<>(template, timeout, timeUnit);
     }
 
-    private <K, V> RedisTemplate<K, V> getRedisTemplate(Class<?> v){
+    private <K, V> RedisTemplate<K, V> getRedisTemplate(Class<?> v) {
 
         RedisTemplate<K, V> template = new RedisTemplate<>();
         template.setConnectionFactory(lettuceConnectionFactory);

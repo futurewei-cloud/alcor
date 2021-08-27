@@ -17,7 +17,6 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.common.db.ignite;
 
 import com.futurewei.alcor.common.db.CacheException;
-import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.db.ignite.query.ScanQueryBuilder;
 import com.futurewei.alcor.common.db.ignite.query.MapPredicate;
@@ -178,19 +177,19 @@ public class IgniteDbCache<K, V> implements IgniteICache<K, V> {
         QueryCursor<Cache.Entry<E1, E2>> cursor =
                 cache.withKeepBinary().query(ScanQueryBuilder.newScanQuery(igniteBiPredicate));
         List<Cache.Entry<E1, E2>> result = cursor.getAll();
-        if(result.size() > 1){
+        if (result.size() > 1) {
             throw new CacheException("more than one rows found!");
         }
 
-        if(result.isEmpty()){
+        if (result.isEmpty()) {
             return null;
         }
 
         E2 obj = result.get(0).getValue();
-        if (obj instanceof BinaryObject){
-            BinaryObject binaryObject = (BinaryObject)obj;
+        if (obj instanceof BinaryObject) {
+            BinaryObject binaryObject = (BinaryObject) obj;
             return binaryObject.deserialize();
-        }else{
+        } else {
             throw new CacheException("no support for object type:" + obj.getClass().getName());
         }
     }
@@ -206,16 +205,16 @@ public class IgniteDbCache<K, V> implements IgniteICache<K, V> {
         QueryCursor<Cache.Entry<E1, E2>> cursor =
                 cache.withKeepBinary().query(ScanQueryBuilder.newScanQuery(igniteBiPredicate));
         List<Cache.Entry<E1, E2>> result = cursor.getAll();
-        if(result.size() >= RESULT_THRESHOLD_SIZE){
+        if (result.size() >= RESULT_THRESHOLD_SIZE) {
             throw new CacheException("too many rows found!");
         }
         Map<K, V> values = new HashMap<>(result.size());
-        for(Cache.Entry<E1, E2> entry: result){
+        for (Cache.Entry<E1, E2> entry : result) {
             E2 obj = entry.getValue();
-            if (obj instanceof BinaryObject){
-                BinaryObject binaryObject = (BinaryObject)obj;
-                values.put((K)entry.getKey(), binaryObject.deserialize());
-            }else{
+            if (obj instanceof BinaryObject) {
+                BinaryObject binaryObject = (BinaryObject) obj;
+                values.put((K) entry.getKey(), binaryObject.deserialize());
+            } else {
                 throw new CacheException("no support for object type:" + obj.getClass().getName());
             }
         }

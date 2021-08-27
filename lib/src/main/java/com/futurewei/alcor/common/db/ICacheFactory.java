@@ -39,6 +39,12 @@ public interface ICacheFactory {
     <K, V> ICache<K, V> getCache(Class<V> v, CacheConfiguration cacheConfig);
 
     /**
+     * get a cache with cache name and configuration
+     * @return
+     */
+    <K, V> ICache<K, V> getCache(Class<V> v, CacheConfiguration cacheConfig);
+
+    /**
      * get a cache with auto set expire time
      * @return
      */

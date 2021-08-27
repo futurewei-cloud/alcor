@@ -27,7 +27,6 @@ import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.cache.expiry.Duration;
 import javax.cache.expiry.ExpiryPolicy;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
 
 public class IgniteCacheFactory implements ICacheFactory {
 

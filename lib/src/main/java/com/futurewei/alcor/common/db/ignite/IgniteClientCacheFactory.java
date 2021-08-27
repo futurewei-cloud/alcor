@@ -22,8 +22,6 @@ import com.futurewei.alcor.common.db.IDistributedLock;
 import com.futurewei.alcor.common.db.Transaction;
 import org.apache.ignite.client.IgniteClient;
 import org.apache.ignite.configuration.CacheConfiguration;
-import org.apache.ignite.configuration.ClientConfiguration;
-
 import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.cache.expiry.Duration;
 import javax.cache.expiry.ExpiryPolicy;

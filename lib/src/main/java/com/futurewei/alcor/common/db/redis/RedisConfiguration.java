@@ -18,18 +18,14 @@ package com.futurewei.alcor.common.db.redis;
 
 
 import com.futurewei.alcor.common.db.ICacheFactory;
-import com.futurewei.alcor.common.db.IDistributedLock;
-import com.futurewei.alcor.common.db.IDistributedLockFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.data.redis.core.StringRedisTemplate;
 
 @Configuration
 @ComponentScan("com.futurewei.alcor.common.db")

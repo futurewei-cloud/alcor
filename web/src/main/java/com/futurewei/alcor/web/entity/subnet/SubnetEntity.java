@@ -150,6 +150,7 @@ public class SubnetEntity extends CustomerResource {
         super(projectId, id, name, null);
         this.vpcId = vpcId;
         this.cidr = cidr;
+        this.ipVersion = 4;
     }
 
     public SubnetEntity(String projectId, String id, String name, String description, String vpcId,

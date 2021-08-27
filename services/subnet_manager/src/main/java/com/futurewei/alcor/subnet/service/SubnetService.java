@@ -69,7 +69,7 @@ public interface SubnetService {
     public void deleteSubnetIdInVpc (String subnetId, String projectId, String vpcId) throws Exception;
 
     // check if there is any port in this subnet
-    public boolean checkIfAnyPortInSubnet (String projectId, String subnetId) throws SubnetIdIsNull;
+    public boolean checkIfAnyNonGatewayPortInSubnet(String projectId, SubnetEntity subnetEntity) throws SubnetIdIsNull;
 
     // check if subnet bind any routes
     public boolean checkIfSubnetBindAnyRouter(SubnetEntity subnetEntity);
