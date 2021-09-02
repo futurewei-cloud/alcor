@@ -41,6 +41,36 @@ Copyright(c) 2020 Futurewei Cloud
          </bean>
       </property>
 
+      <property name="cacheConfiguration">
+         <list>
+
+            <bean class="org.apache.ignite.configuration.CacheConfiguration">
+               <!-- Set the cache name. -->
+               <property name="name" value="com.futurewei.alcor.portmanager.entity.PortNeighbors"/>
+               <!-- Set the cache mode. -->
+               <property name="atomicityMode" value="TRANSACTIONAL"/>
+               <!-- Other cache parameters. -->
+               <property name="cacheMode" value="PARTITIONED"/>
+            </bean>
+            <bean class="org.apache.ignite.configuration.CacheConfiguration">
+               <!-- Set the cache name. -->
+               <property name="name" value="com.futurewei.alcor.web.entity.port.PortEntity"/>
+               <!-- Set the cache mode. -->
+               <property name="atomicityMode" value="TRANSACTIONAL"/>
+               <!-- Other cache parameters. -->
+               <property name="cacheMode" value="PARTITIONED"/>
+            </bean>
+            <bean class="org.apache.ignite.configuration.CacheConfiguration">
+               <!-- Set the cache name. -->
+               <property name="name" value="com.futurewei.alcor.portmanager.entity.SubnetPortIds"/>
+               <!-- Set the cache mode. -->
+               <property name="atomicityMode" value="TRANSACTIONAL"/>
+               <!-- Other cache parameters. -->
+               <property name="cacheMode" value="PARTITIONED"/>
+            </bean>
+         </list>
+      </property>
+
       <!-- Explicitly configure TCP discovery SPI to provide list of initial nodes. -->
       <property name="discoverySpi">
          <bean class="org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi">

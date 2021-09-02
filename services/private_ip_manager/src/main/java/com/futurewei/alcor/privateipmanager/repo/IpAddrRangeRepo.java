@@ -173,6 +173,7 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
             }
 
             ipAddrRangeCache.put(ipAddrRange.getId(), ipAddrRange);
+            break;
         }
 
         if (ipAddrAlloc == null) {
@@ -192,7 +193,6 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
     public synchronized IpAddrAlloc allocateIpAddr(IpAddrRequest request) throws Exception {
         IpAddrAlloc ipAddrAlloc = null;
         try (Transaction tx = ipAddrRangeCache.getTransaction().start()) {
-            ipAddrRangeCache.get("test");
             ipAddrAlloc = allocateIpAddrMethod(request);
             tx.commit();
             return ipAddrAlloc;
@@ -298,7 +298,6 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
                                                              Map<String, List<IpAddrRequest>> vpcIpv6Requests) throws Exception {
         List<IpAddrAlloc> result = new ArrayList<>();
         try (Transaction tx = ipAddrRangeCache.getTransaction().start()) {
-            ipAddrRangeCache.get("test");
             allocateIpAddrBulkMethod(rangeRequests,vpcIpv4Requests,vpcIpv6Requests,result);
             tx.commit();
         } catch (Exception e) {
@@ -341,7 +340,6 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
     @DurationStatistics
     public synchronized void releaseIpAddrBulk(Map<String, List<String>> requests) throws Exception {
         try (Transaction tx = ipAddrRangeCache.getTransaction().start()) {
-            ipAddrRangeCache.get("test");
             releaseIpAddrBulkMethod(requests);
             tx.commit();
         } catch (Exception e) {
@@ -394,9 +392,6 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
                 LOG.warn("Create ip address range failed: IpAddressRange already exists");
                 throw new IpAddrRangeExistException();
             }
-
-
-
             ipAddrRangeCache.put(request.getId(), ipAddrRange);
 
             request.setUsedIps(ipAddrRange.getUsedIps());
@@ -454,7 +449,6 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
         List<IpAddrAlloc> result = null;
 
         try (Transaction tx = ipAddrRangeCache.getTransaction().start()) {
-            ipAddrRangeCache.get("test");
             if (request.getOldIpAddrRequests().size() > 0) {
                 if (request.getOldIpAddrRequests().size() > 1) {
                     releaseIpAddrBulkMethod(rangeToIpAddrList);
