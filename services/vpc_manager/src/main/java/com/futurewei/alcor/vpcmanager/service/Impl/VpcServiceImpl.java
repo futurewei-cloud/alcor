@@ -123,7 +123,7 @@ public class VpcServiceImpl implements VpcService {
             return true;
         }
         List<String> subnets = vpcEntity.getSubnets();
-        if (!(subnets == null || subnets.size() == 0)) {
+        if (subnets != null && subnets.size() > 0) {
             throw new SubnetsNotEmptyException();
         }
         return true;
