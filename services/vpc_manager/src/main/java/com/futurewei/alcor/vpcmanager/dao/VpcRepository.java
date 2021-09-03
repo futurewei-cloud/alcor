@@ -18,6 +18,7 @@ package com.futurewei.alcor.vpcmanager.dao;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
@@ -75,7 +76,12 @@ public class VpcRepository implements ICacheRepository<VpcEntity> {
     @DurationStatistics
     public void addItem(VpcEntity vpcState) throws CacheException {
         logger.log(Level.INFO, "Add vpc, Vpc Id:" + vpcState.getId());
-        cache.put(vpcState.getId(), vpcState);
+        try (Transaction tx = cache.getTransaction().start()){
+            cache.put(vpcState.getId(), vpcState);
+            tx.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -83,13 +89,24 @@ public class VpcRepository implements ICacheRepository<VpcEntity> {
     public void addItems(List<VpcEntity> items) throws CacheException {
         logger.log(Level.INFO, "Add vpc batch: {}",items);
         Map<String, VpcEntity> vpcEntityMap = items.stream().collect(Collectors.toMap(VpcEntity::getId, Function.identity()));
-        cache.putAll(vpcEntityMap);
+        try (Transaction tx = cache.getTransaction().start()){
+            cache.putAll(vpcEntityMap);
+            tx.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
     @DurationStatistics
     public void deleteItem(String id) throws CacheException {
-        logger.log(Level.INFO, "Delete vpc, Vpc Id:" + id);
-        cache.remove(id);
+        logger.log(Level.INFO, "Delete vpc, Vpc Id:" + id);\
+        try (Transaction tx = cache.getTransaction().start()){
+            cache.remove(id);
+            tx.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -17,6 +17,7 @@ package com.futurewei.alcor.vpcmanager.service.Impl;
 
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.vpcmanager.dao.VpcRepository;
