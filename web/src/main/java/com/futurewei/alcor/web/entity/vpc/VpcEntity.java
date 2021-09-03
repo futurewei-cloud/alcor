@@ -25,6 +25,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 public class VpcEntity extends CustomerResource {
@@ -110,7 +111,7 @@ public class VpcEntity extends CustomerResource {
     private String l2Adjacency;
 
     @JsonProperty("subnets")
-    private List<String> subnets;
+    private Set<String> subnets;
 
     public VpcEntity() {}
 
