@@ -101,7 +101,7 @@ public class VpcRepository implements ICacheRepository<VpcEntity> {
     @Override
     @DurationStatistics
     public void deleteItem(String id) throws CacheException {
-        logger.log(Level.INFO, "Delete vpc, Vpc Id:" + id);\
+        logger.log(Level.INFO, "Delete vpc, Vpc Id:" + id);
         try (Transaction tx = cache.getTransaction().start()){
             cache.remove(id);
             tx.commit();
