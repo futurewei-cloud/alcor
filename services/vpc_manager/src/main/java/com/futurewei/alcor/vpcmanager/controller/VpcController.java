@@ -17,6 +17,7 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.vpcmanager.controller;
 
 import com.futurewei.alcor.common.db.CacheException;
+import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
@@ -358,23 +359,27 @@ public class VpcController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetid);
 
-            inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
-            if (inVpcState == null) {
-                throw new ResourceNotFoundException("Vpc not found : " + vpcid);
+            try (Transaction tx = vpcDatabaseService.getCache().getTransaction().start()) {
+                inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
+                if (inVpcState == null) {
+                    throw new ResourceNotFoundException("Vpc not found : " + vpcid);
+                }
+
+                List<String> subnets = inVpcState.getSubnets();
+                if (subnets == null) {
+                    subnets = new ArrayList<>();
+                }
+                if (!subnets.contains(subnetid)) {
+                    subnets.add(subnetid);
+                }
+                inVpcState.setSubnets(subnets);
+
+                this.vpcDatabaseService.addVpc(inVpcState);
+
+                inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
+                tx.commit();
             }
 
-            List<String> subnets = inVpcState.getSubnets();
-            if (subnets == null) {
-                subnets = new ArrayList<>();
-            }
-            if (!subnets.contains(subnetid)) {
-                subnets.add(subnetid);
-            }
-            inVpcState.setSubnets(subnets);
-
-            this.vpcDatabaseService.addVpc(inVpcState);
-
-            inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
@@ -400,7 +405,7 @@ public class VpcController {
 
         VpcEntity inVpcState = new VpcEntity();
 
-        try {
+        try (Transaction tx = vpcDatabaseService.getCache().getTransaction().start()) {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetid);
@@ -421,6 +426,7 @@ public class VpcController {
             this.vpcDatabaseService.addVpc(inVpcState);
 
             inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
+            tx.commit();
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
