@@ -57,13 +57,27 @@ public class VpcRepository implements ICacheRepository<VpcEntity> {
     @Override
     @DurationStatistics
     public VpcEntity findItem(String id) throws CacheException {
-        return cache.get(id);
+        VpcEntity vpcEntity = null;
+        try (Transaction tx = cache.getTransaction().start()){
+            vpcEntity = cache.get(id);
+            tx.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return vpcEntity;
     }
 
     @Override
     @DurationStatistics
     public Map findAllItems() throws CacheException {
-        return cache.getAll();
+        Map map = null;
+        try (Transaction tx = cache.getTransaction().start()){
+            map = cache.getAll();
+            tx.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return map;
     }
 
     @Override
