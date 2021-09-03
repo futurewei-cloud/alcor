@@ -18,7 +18,6 @@ package com.futurewei.alcor.vpcmanager.dao;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
-import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
@@ -57,27 +56,13 @@ public class VpcRepository implements ICacheRepository<VpcEntity> {
     @Override
     @DurationStatistics
     public VpcEntity findItem(String id) throws CacheException {
-        VpcEntity vpcEntity = null;
-        try (Transaction tx = cache.getTransaction().start()){
-            vpcEntity = cache.get(id);
-            tx.commit();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return vpcEntity;
+        return cache.get(id);
     }
 
     @Override
     @DurationStatistics
     public Map findAllItems() throws CacheException {
-        Map map = null;
-        try (Transaction tx = cache.getTransaction().start()){
-            map = cache.getAll();
-            tx.commit();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return map;
+        return cache.getAll();
     }
 
     @Override
@@ -90,12 +75,7 @@ public class VpcRepository implements ICacheRepository<VpcEntity> {
     @DurationStatistics
     public void addItem(VpcEntity vpcState) throws CacheException {
         logger.log(Level.INFO, "Add vpc, Vpc Id:" + vpcState.getId());
-        try (Transaction tx = cache.getTransaction().start()){
-            cache.put(vpcState.getId(), vpcState);
-            tx.commit();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        cache.put(vpcState.getId(), vpcState);
     }
 
     @Override
@@ -103,24 +83,13 @@ public class VpcRepository implements ICacheRepository<VpcEntity> {
     public void addItems(List<VpcEntity> items) throws CacheException {
         logger.log(Level.INFO, "Add vpc batch: {}",items);
         Map<String, VpcEntity> vpcEntityMap = items.stream().collect(Collectors.toMap(VpcEntity::getId, Function.identity()));
-        try (Transaction tx = cache.getTransaction().start()){
-            cache.putAll(vpcEntityMap);
-            tx.commit();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        cache.putAll(vpcEntityMap);
     }
 
     @Override
     @DurationStatistics
     public void deleteItem(String id) throws CacheException {
         logger.log(Level.INFO, "Delete vpc, Vpc Id:" + id);
-        try (Transaction tx = cache.getTransaction().start()){
-            cache.remove(id);
-            tx.commit();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        cache.remove(id);
     }
 }
