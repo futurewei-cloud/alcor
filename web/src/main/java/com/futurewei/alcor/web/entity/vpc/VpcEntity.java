@@ -120,7 +120,7 @@ public class VpcEntity extends CustomerResource {
         this.routeEntities = routeEntities;
     }
 
-    public VpcEntity(String projectId, String id, String name, String description, List<RouteEntity> routeEntities, boolean adminStateUp, String dnsDomain, Integer mtu, boolean portSecurityEnabled, String networkType, String physicalNetwork, Integer segmentationId, boolean routerExternal, List<SegmentInfoInVpc> segments, boolean shared, boolean vlanTransparent, boolean isDefault, List availabilityZoneHints, List availabilityZones, String qosPolicyId, Integer revisionNumber, String status, List<String> tags, String created_at, String updated_at, String ipv4AddressScope, String ipv6AddressScope, String l2Adjacency, List<String> subnets, String cidr) {
+    public VpcEntity(String projectId, String id, String name, String description, List<RouteEntity> routeEntities, boolean adminStateUp, String dnsDomain, Integer mtu, boolean portSecurityEnabled, String networkType, String physicalNetwork, Integer segmentationId, boolean routerExternal, List<SegmentInfoInVpc> segments, boolean shared, boolean vlanTransparent, boolean isDefault, List availabilityZoneHints, List availabilityZones, String qosPolicyId, Integer revisionNumber, String status, List<String> tags, String created_at, String updated_at, String ipv4AddressScope, String ipv6AddressScope, String l2Adjacency, Set<String> subnets, String cidr) {
         super(projectId, id, name, description);
         this.routeEntities = routeEntities;
         this.adminStateUp = adminStateUp;
@@ -350,11 +350,11 @@ public class VpcEntity extends CustomerResource {
         this.l2Adjacency = l2Adjacency;
     }
 
-    public List<String> getSubnets() {
+    public Set<String> getSubnets() {
         return subnets;
     }
 
-    public void setSubnets(List<String> subnets) {
+    public void setSubnets(Set<String> subnets) {
         this.subnets = subnets;
     }
 }

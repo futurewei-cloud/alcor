@@ -365,9 +365,9 @@ public class VpcController {
                     throw new ResourceNotFoundException("Vpc not found : " + vpcid);
                 }
 
-                List<String> subnets = inVpcState.getSubnets();
+                Set<String> subnets = inVpcState.getSubnets();
                 if (subnets == null) {
-                    subnets = new ArrayList<>();
+                    subnets = new HashSet<>();
                 }
                 if (!subnets.contains(subnetid)) {
                     subnets.add(subnetid);
@@ -415,7 +415,7 @@ public class VpcController {
                 throw new ResourceNotFoundException("Vpc not found : " + vpcid);
             }
 
-            List<String> subnets = inVpcState.getSubnets();
+            Set<String> subnets = inVpcState.getSubnets();
             if (subnets == null || !subnets.contains(subnetid)) {
                 return new VpcWebJson(inVpcState);
             }

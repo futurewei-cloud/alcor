@@ -38,6 +38,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 public class NetworkIPAvailabilityServiceImpl implements NetworkIPAvailabilityService {
@@ -113,7 +114,7 @@ public class NetworkIPAvailabilityServiceImpl implements NetworkIPAvailabilitySe
         NetworkIPAvailabilityEntity networkIPAvailabilityEntity = new NetworkIPAvailabilityEntity();
 
         // set up properties value related with vpc
-        List<String> subnetIds = vpcEntity.getSubnets();
+        Set<String> subnetIds = vpcEntity.getSubnets();
         List<SubnetIPAvailabilityEntity> subnetIpAvailability = new ArrayList<SubnetIPAvailabilityEntity>();
         if (subnetIds == null) {
             networkIPAvailabilityEntity.setSubnetIpAvailability(subnetIpAvailability);
@@ -190,7 +191,7 @@ public class NetworkIPAvailabilityServiceImpl implements NetworkIPAvailabilitySe
      * @throws ResourceNotFoundException
      */
     @Override
-    public List<SubnetEntity> getSubnets(List<String> subnets) throws ResourceNotFoundException {
+    public List<SubnetEntity> getSubnets(Set<String> subnets) throws ResourceNotFoundException {
 
         List<SubnetEntity> subnetEntities = new ArrayList<>();
 
