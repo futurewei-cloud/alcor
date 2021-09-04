@@ -38,7 +38,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @Repository
-public class VpcRepository implements ICacheRepository<VpcEntity> {
+public class VpcRepository implements IVpcRepository<VpcEntity> {
     private static final Logger logger = LoggerFactory.getLogger();
 
     public ICache<String, VpcEntity> getCache() {

@@ -249,22 +249,4 @@ public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
     public synchronized NetworkVlanRange getRange(String rangeId) throws Exception {
         return cache.get(rangeId);
     }
-
-    @Override
-    @DurationStatistics
-    public Set<String> getSubnetIds(String vpcId) throws CacheException {
-        return new HashSet<>();
-    }
-
-    @Override
-    @DurationStatistics
-    public void addSubnetId(String vpcId, String subnetId) throws CacheException {
-
-    }
-
-    @Override
-    @DurationStatistics
-    public void deleteSubnetId(String vpcId, String subnetId) throws CacheException {
-
-    }
 }

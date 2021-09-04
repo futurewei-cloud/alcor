@@ -95,23 +95,4 @@ public class VxlanRepository implements ICacheRepository<NetworkVxlanType> {
         logger.log(Level.INFO, "Delete Vxlan, Vxlan Id:" + id);
         cache.remove(id);
     }
-
-    @Override
-    @DurationStatistics
-    public Set<String> getSubnetIds(String vpcId) throws CacheException {
-        return new HashSet<>();
-    }
-
-    @Override
-    @DurationStatistics
-    public void addSubnetId(String vpcId, String subnetId) throws CacheException {
-
-    }
-
-    @Override
-    @DurationStatistics
-    public void deleteSubnetId(String vpcId, String subnetId) throws CacheException {
-
-    }
-
 }

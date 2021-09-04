@@ -95,23 +95,5 @@ public class SegmentRepository implements ICacheRepository<SegmentEntity> {
         logger.log(Level.INFO, "Delete segment, Segment Id:" + id);
         cache.remove(id);
     }
-
-    @Override
-    @DurationStatistics
-    public Set<String> getSubnetIds(String vpcId) throws CacheException {
-        return new HashSet<>();
-    }
-
-    @Override
-    @DurationStatistics
-    public void addSubnetId(String vpcId, String subnetId) throws CacheException {
-
-    }
-
-    @Override
-    @DurationStatistics
-    public void deleteSubnetId(String vpcId, String subnetId) throws CacheException {
-
-    }
 }
 

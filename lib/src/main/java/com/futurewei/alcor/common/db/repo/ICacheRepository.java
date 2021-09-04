@@ -34,10 +34,4 @@ public interface ICacheRepository<T> {
     void addItems(List<T> items) throws CacheException;
 
     void deleteItem(String id) throws CacheException;
-
-    public Set<String> getSubnetIds(String vpcId) throws CacheException;
-
-    public void addSubnetId(String vpcId, String subnetId) throws CacheException;
-
-    public void deleteSubnetId(String vpcId, String subnetId) throws CacheException;
 }
