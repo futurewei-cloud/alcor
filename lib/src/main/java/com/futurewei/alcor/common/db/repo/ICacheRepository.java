@@ -15,11 +15,11 @@ Copyright(c) 2020 Futurewei Cloud
 */
 
 package com.futurewei.alcor.common.db.repo;
-
 import com.futurewei.alcor.common.db.CacheException;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface ICacheRepository<T> {
 
@@ -34,4 +34,10 @@ public interface ICacheRepository<T> {
     void addItems(List<T> items) throws CacheException;
 
     void deleteItem(String id) throws CacheException;
+
+    public Set<String> getSubnetIds(String vpcId) throws CacheException;
+
+    public void addSubnetId(String vpcId, String subnetId) throws CacheException;
+
+    public void deleteSubnetId(String vpcId, String subnetId) throws CacheException;
 }

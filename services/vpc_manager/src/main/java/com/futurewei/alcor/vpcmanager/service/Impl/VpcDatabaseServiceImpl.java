@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Set;
 
 @Service
 public class VpcDatabaseServiceImpl implements VpcDatabaseService {
@@ -85,7 +86,19 @@ public class VpcDatabaseServiceImpl implements VpcDatabaseService {
 
     @Override
     @DurationStatistics
-    public CacheFactory getCacheFactory() {
-        return this.vpcRepository.getCacheFactory();
+    public Set<String> getSubnetIds(String vpcId) throws CacheException {
+        return this.vpcRepository.getSubnetIds(vpcId);
+    }
+
+    @Override
+    @DurationStatistics
+    public void addSubnetId(String vpcId, String subnetId) throws CacheException {
+        this.vpcRepository.addSubnetId(vpcId, subnetId);
+    }
+
+    @Override
+    @DurationStatistics
+    public void deleteSubnetId(String vpcId, String subnetId) throws CacheException {
+        this.vpcRepository.deleteSubnetId(vpcId, subnetId);
     }
 }

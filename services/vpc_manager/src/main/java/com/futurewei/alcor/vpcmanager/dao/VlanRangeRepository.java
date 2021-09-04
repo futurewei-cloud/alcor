@@ -35,9 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -250,5 +248,23 @@ public class VlanRangeRepository implements ICacheRepository<NetworkVlanRange> {
     @DurationStatistics
     public synchronized NetworkVlanRange getRange(String rangeId) throws Exception {
         return cache.get(rangeId);
+    }
+
+    @Override
+    @DurationStatistics
+    public Set<String> getSubnetIds(String vpcId) throws CacheException {
+        return new HashSet<>();
+    }
+
+    @Override
+    @DurationStatistics
+    public void addSubnetId(String vpcId, String subnetId) throws CacheException {
+
+    }
+
+    @Override
+    @DurationStatistics
+    public void deleteSubnetId(String vpcId, String subnetId) throws CacheException {
+
     }
 }

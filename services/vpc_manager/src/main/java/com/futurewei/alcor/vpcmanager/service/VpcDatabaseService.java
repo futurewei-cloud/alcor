@@ -24,6 +24,7 @@ import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 
 import java.util.Map;
+import java.util.Set;
 
 public interface VpcDatabaseService {
 
@@ -33,6 +34,8 @@ public interface VpcDatabaseService {
     public void addVpc (VpcEntity vpcState) throws DatabasePersistenceException;
     public void deleteVpc (String id) throws CacheException;
     public ICache<String, VpcEntity> getCache ();
-    public CacheFactory getCacheFactory();
+    public Set<String> getSubnetIds(String vpcId) throws CacheException;
+    public void addSubnetId(String vpcId, String subnetId) throws CacheException;
+    public void deleteSubnetId(String vpcId, String subnetId) throws CacheException;
 
 }

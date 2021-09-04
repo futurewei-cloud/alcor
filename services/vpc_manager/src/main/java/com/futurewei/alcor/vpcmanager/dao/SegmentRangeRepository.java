@@ -18,17 +18,22 @@ package com.futurewei.alcor.vpcmanager.dao;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.vpc.NetworkSegmentRangeEntity;
+import org.apache.ignite.cache.CacheAtomicityMode;
+import org.apache.ignite.configuration.CacheConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -92,5 +97,23 @@ public class SegmentRangeRepository implements ICacheRepository<NetworkSegmentRa
     public void deleteItem(String id) throws CacheException {
         logger.log(Level.INFO, "Delete segment range, Segment Range Id:" + id);
         cache.remove(id);
+    }
+
+    @Override
+    @DurationStatistics
+    public Set<String> getSubnetIds(String vpcId) throws CacheException {
+        return new HashSet<>();
+    }
+
+    @Override
+    @DurationStatistics
+    public void addSubnetId(String vpcId, String subnetId) throws CacheException {
+
+    }
+
+    @Override
+    @DurationStatistics
+    public void deleteSubnetId(String vpcId, String subnetId) throws CacheException {
+
     }
 }

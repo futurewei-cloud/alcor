@@ -27,8 +27,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -92,6 +94,24 @@ public class GreRepository implements ICacheRepository<NetworkGREType> {
     public void deleteItem(String id) throws CacheException {
         logger.log(Level.INFO, "Delete Gre, Gre Id:" + id);
         cache.remove(id);
+    }
+
+    @Override
+    @DurationStatistics
+    public Set<String> getSubnetIds(String vpcId) throws CacheException {
+        return new HashSet<>();
+    }
+
+    @Override
+    @DurationStatistics
+    public void addSubnetId(String vpcId, String subnetId) throws CacheException {
+
+    }
+
+    @Override
+    @DurationStatistics
+    public void deleteSubnetId(String vpcId, String subnetId) throws CacheException {
+
     }
 
 }

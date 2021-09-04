@@ -83,19 +83,16 @@ public class VpcController {
     public VpcWebJson getVpcStateByVpcId(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
 
         VpcEntity vpcState = null;
-        CacheFactory catchFactory = vpcDatabaseService.getCacheFactory();
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditionsUtil.verifyResourceFound(projectid);
+            Set<String> subnetIds = this.vpcDatabaseService.getSubnetIds(vpcid);
             vpcState = this.vpcDatabaseService.getByVpcId(vpcid);
-
-            CacheConfiguration cfg = new CacheConfiguration();
-            cfg.setName(vpcid);
-            cfg.setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL);
-            ICache<String, String> subnetCache = catchFactory.getCache(String.class, cfg);
-            vpcState.setSubnets(subnetCache.getAll().keySet());
+            if (vpcState != null) {
+                vpcState.setSubnets(subnetIds);
+            }
 
         } catch (ParameterNullOrEmptyException e) {
             //TODO: REST error code
@@ -365,7 +362,6 @@ public class VpcController {
     public VpcWebJson addSubnetIdToVpcState(@PathVariable String projectid, @PathVariable String vpcid, @PathVariable String subnetid) throws Exception {
 
         VpcEntity inVpcState = new VpcEntity();
-        CacheFactory catchFactory = vpcDatabaseService.getCacheFactory();
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
@@ -375,12 +371,8 @@ public class VpcController {
             if (inVpcState == null) {
                 throw new ResourceNotFoundException("Vpc not found : " + vpcid);
             }
+            this.vpcDatabaseService.addSubnetId(vpcid, subnetid);
 
-            CacheConfiguration cfg = new CacheConfiguration();
-            cfg.setName(inVpcState.getId());
-            cfg.setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL);
-            ICache<String, String> subnetCache = catchFactory.getCache(String.class, cfg);
-            subnetCache.put(subnetid, vpcid);
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
@@ -405,7 +397,6 @@ public class VpcController {
     public VpcWebJson deleteSubnetIdInVpcState(@PathVariable String projectid, @PathVariable String vpcid, @PathVariable String subnetid) throws Exception {
 
         VpcEntity inVpcState = new VpcEntity();
-        CacheFactory catchFactory = vpcDatabaseService.getCacheFactory();
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
@@ -415,13 +406,7 @@ public class VpcController {
             if (inVpcState == null) {
                 throw new ResourceNotFoundException("Vpc not found : " + vpcid);
             }
-
-            CacheConfiguration cfg = new CacheConfiguration();
-            cfg.setName(inVpcState.getId());
-            cfg.setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL);
-            ICache<String, String> subnetCache = catchFactory.getCache(String.class, cfg);
-            subnetCache.remove(subnetid);
-            this.vpcDatabaseService.addVpc(inVpcState);
+            this.vpcDatabaseService.deleteSubnetId(vpcid, subnetid);
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);

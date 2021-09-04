@@ -18,17 +18,21 @@ package com.futurewei.alcor.vpcmanager.dao;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
+import org.apache.ignite.cache.CacheAtomicityMode;
+import org.apache.ignite.configuration.CacheConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -97,4 +101,36 @@ public class VpcRepository implements ICacheRepository<VpcEntity> {
         logger.log(Level.INFO, "Delete vpc, Vpc Id:" + id);
         cache.remove(id);
     }
+
+    @Override
+    @DurationStatistics
+    public Set<String> getSubnetIds(String vpcId) throws CacheException {
+        CacheConfiguration cfg = new CacheConfiguration();
+        cfg.setName(vpcId);
+        cfg.setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL);
+        ICache<String, String> subnetCache = cacheFactory.getCache(String.class, cfg);
+        return subnetCache.getAll().keySet();
+    }
+
+    @Override
+    @DurationStatistics
+    public void addSubnetId(String vpcId, String subnetId) throws CacheException {
+        CacheConfiguration cfg = new CacheConfiguration();
+        cfg.setName(vpcId);
+        cfg.setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL);
+        ICache<String, String> subnetCache = cacheFactory.getCache(String.class, cfg);
+        subnetCache.put(subnetId, vpcId);
+    }
+
+    @Override
+    @DurationStatistics
+    public void deleteSubnetId(String vpcId, String subnetId) throws CacheException {
+        CacheConfiguration cfg = new CacheConfiguration();
+        cfg.setName(vpcId);
+        cfg.setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL);
+        ICache<String, String> subnetCache = cacheFactory.getCache(String.class, cfg);
+        subnetCache.remove(subnetId);
+
+    }
+
 }
