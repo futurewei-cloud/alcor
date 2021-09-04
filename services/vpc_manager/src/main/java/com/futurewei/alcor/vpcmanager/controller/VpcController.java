@@ -372,11 +372,7 @@ public class VpcController {
                 if (!subnets.contains(subnetid)) {
                     subnets.add(subnetid);
                 }
-                inVpcState.setSubnets(subnets);
-
                 this.vpcDatabaseService.addVpc(inVpcState);
-
-                inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
                 tx.commit();
             }
 
@@ -420,12 +416,7 @@ public class VpcController {
                 return new VpcWebJson(inVpcState);
             }
             subnets.remove(subnetid);
-
-            inVpcState.setSubnets(subnets);
-
             this.vpcDatabaseService.addVpc(inVpcState);
-
-            inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
             tx.commit();
 
         } catch (ParameterNullOrEmptyException e) {
