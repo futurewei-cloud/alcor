@@ -318,6 +318,12 @@ public class VpcController {
             RestPreconditionsUtil.verifyResourceFound(projectId);
 
             vpcStates = this.vpcDatabaseService.getAllVpcs(queryParams);
+            for (VpcEntity vpcEntity : vpcStates.values()) {
+                Set<String> subnetIds = this.vpcDatabaseService.getSubnetIds(vpcEntity.getId());
+                if (vpcEntity != null) {
+                    vpcEntity.setSubnets(subnetIds);
+                }
+            }
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
