@@ -40,11 +40,16 @@ public class VpcRepository implements ICacheRepository<VpcEntity> {
     public ICache<String, VpcEntity> getCache() {
         return cache;
     }
+    public CacheFactory getCacheFactory() {
+        return cacheFactory;
+    }
 
     private ICache<String, VpcEntity> cache;
+    private CacheFactory cacheFactory;
 
     @Autowired
     public VpcRepository(CacheFactory cacheFactory) {
+        this.cacheFactory = cacheFactory;
         cache = cacheFactory.getCache(VpcEntity.class);
     }
 

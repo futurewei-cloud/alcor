@@ -16,6 +16,7 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.vpcmanager.service;
 
 import com.futurewei.alcor.common.db.CacheException;
+import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
@@ -32,5 +33,6 @@ public interface VpcDatabaseService {
     public void addVpc (VpcEntity vpcState) throws DatabasePersistenceException;
     public void deleteVpc (String id) throws CacheException;
     public ICache<String, VpcEntity> getCache ();
+    public CacheFactory getCacheFactory();
 
 }

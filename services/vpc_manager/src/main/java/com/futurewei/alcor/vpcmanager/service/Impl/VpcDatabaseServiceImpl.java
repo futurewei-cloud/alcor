@@ -16,6 +16,7 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.vpcmanager.service.Impl;
 
 import com.futurewei.alcor.common.db.CacheException;
+import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
@@ -80,5 +81,11 @@ public class VpcDatabaseServiceImpl implements VpcDatabaseService {
     @DurationStatistics
     public ICache<String, VpcEntity> getCache() {
         return this.vpcRepository.getCache();
+    }
+
+    @Override
+    @DurationStatistics
+    public CacheFactory getCacheFactory() {
+        return this.vpcRepository.getCacheFactory();
     }
 }

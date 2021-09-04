@@ -17,6 +17,8 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.vpcmanager.controller;
 
 import com.futurewei.alcor.common.db.CacheException;
+import com.futurewei.alcor.common.db.CacheFactory;
+import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
@@ -30,11 +32,14 @@ import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
 import com.futurewei.alcor.vpcmanager.service.VpcService;
 import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.vpcmanager.utils.VpcManagementUtil;
+import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.vpc.*;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
 import com.futurewei.alcor.web.rbac.aspect.Rbac;
+import org.apache.ignite.cache.CacheAtomicityMode;
+import org.apache.ignite.configuration.CacheConfiguration;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -78,13 +83,20 @@ public class VpcController {
     public VpcWebJson getVpcStateByVpcId(@PathVariable String projectid, @PathVariable String vpcid) throws Exception {
 
         VpcEntity vpcState = null;
+        CacheFactory catchFactory = vpcDatabaseService.getCacheFactory();
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditionsUtil.verifyResourceFound(projectid);
-
             vpcState = this.vpcDatabaseService.getByVpcId(vpcid);
+
+            CacheConfiguration cfg = new CacheConfiguration();
+            cfg.setName(vpcid);
+            cfg.setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL);
+            ICache<String, String> subnetCache = catchFactory.getCache(String.class, cfg);
+            vpcState.setSubnets(subnetCache.getAll().keySet());
+
         } catch (ParameterNullOrEmptyException e) {
             //TODO: REST error code
             throw new Exception(e);
@@ -353,29 +365,22 @@ public class VpcController {
     public VpcWebJson addSubnetIdToVpcState(@PathVariable String projectid, @PathVariable String vpcid, @PathVariable String subnetid) throws Exception {
 
         VpcEntity inVpcState = new VpcEntity();
+        CacheFactory catchFactory = vpcDatabaseService.getCacheFactory();
 
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetid);
-
-            try (Transaction tx = vpcDatabaseService.getCache().getTransaction().start()) {
-                inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
-                if (inVpcState == null) {
-                    throw new ResourceNotFoundException("Vpc not found : " + vpcid);
-                }
-
-                Set<String> subnets = inVpcState.getSubnets();
-                if (subnets == null) {
-                    subnets = new HashSet<>();
-                }
-                if (!subnets.contains(subnetid)) {
-                    subnets.add(subnetid);
-                }
-                this.vpcDatabaseService.addVpc(inVpcState);
-                tx.commit();
+            inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
+            if (inVpcState == null) {
+                throw new ResourceNotFoundException("Vpc not found : " + vpcid);
             }
 
+            CacheConfiguration cfg = new CacheConfiguration();
+            cfg.setName(inVpcState.getId());
+            cfg.setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL);
+            ICache<String, String> subnetCache = catchFactory.getCache(String.class, cfg);
+            subnetCache.put(subnetid, vpcid);
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
@@ -400,8 +405,8 @@ public class VpcController {
     public VpcWebJson deleteSubnetIdInVpcState(@PathVariable String projectid, @PathVariable String vpcid, @PathVariable String subnetid) throws Exception {
 
         VpcEntity inVpcState = new VpcEntity();
-
-        try (Transaction tx = vpcDatabaseService.getCache().getTransaction().start()) {
+        CacheFactory catchFactory = vpcDatabaseService.getCacheFactory();
+        try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetid);
@@ -411,13 +416,12 @@ public class VpcController {
                 throw new ResourceNotFoundException("Vpc not found : " + vpcid);
             }
 
-            Set<String> subnets = inVpcState.getSubnets();
-            if (subnets == null || !subnets.contains(subnetid)) {
-                return new VpcWebJson(inVpcState);
-            }
-            subnets.remove(subnetid);
+            CacheConfiguration cfg = new CacheConfiguration();
+            cfg.setName(inVpcState.getId());
+            cfg.setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL);
+            ICache<String, String> subnetCache = catchFactory.getCache(String.class, cfg);
+            subnetCache.remove(subnetid);
             this.vpcDatabaseService.addVpc(inVpcState);
-            tx.commit();
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
