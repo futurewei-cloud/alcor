@@ -3,12 +3,37 @@
 
 GIT_REPO=""
 GIT_BRANCH=""
-GIT_COMMIT=""
+GIT_COMMIT=
+GIT_URL=
+REMOTE_COMMIT=
+LOCAL_COMMIT=
+DO_FORCE=0
+DO_BUILD=0
 
 git_check_current() {
     # get commit details from the remote and local branches
     # if remote is not latest and FORCE is not specified, skip
     # building aca
+
+    # local info
+    LOCAL_INFO=`git log orgin/$GIT_BRANCH | head -3`
+    LOCAL_COMMIT=`echo $LOCAL_INFO | awk '/^commit/ {print $2}'`
+    LOCAL_DATE=`echo $LOCAL_INFO |  awk '/^Date/ {print $2, $3, $4, $5, $6}'`
+}
+
+
+git_check_remote() {
+    REMOTE_INFO=`git log orgin/$GIT_BRANCH | head -3`
+    REMOTE_COMMIT=`echo $LOCAL_INFO | awk '/^commit/ {print $2}'`
+    REMOTE_DATE=`echo $LOCAL_INFO |  awk '/^Date/ {print $2, $3, $4, $5, $6}'`
+
+    RSEC=`date --date="{REMOTE_DATE}" +%s`
+    LSEC=`date --date="{LOCAL_DATE}" +%s`
+
+    DIFF=`echo $RSEC - $LSEC | bc`
+    if [ $DIFF -gt 0 ]; then
+        DO_BUILD=1
+    fi
 }
 
 
@@ -21,10 +46,12 @@ git_reset() {
 }
 
 git_fetch() {
-    git fetch || {
+    git fetch --force --tags $GIT_URL || {
         echo "ERROR: git fetch failed"
         exit 1
     }
+
+    git config remote.origin.url $GIT_URL
 }
 
 
@@ -58,22 +85,42 @@ do_build() {
     fi
 }
 
-if [ $# -lt 2 ]; then
-    echo "$0 repo branch [commit]"
+if [ $# -lt 4 ]; then
+    echo "$0 repo branch commit force {0|1}"
     echo "Failure: ACA machine init"
     exit 1
 fi
 
 GIT_REPO=$1
 GIT_BRANCH=$2
-if [ $# -eq 3 ]; then
-    GIT_COMMIT=$3
-else
-    GIT_COMMIT=""
+
+if [ $GIT_COMMIT = "HEAD" ]; then
+    GIT_COMMIT=
 fi
 
+DO_FORCE=$4
+
+if [ $GIT_REPO != "futurewei-cloud" ]; then
+    echo "Can't check status of remote repository other than"
+    echo "futurewei-cloud, forcing a build"
+    DO_FORCE=1
+fi
+
+GIT_URL="https://github.com/$GIT_REPO/alcor-control-agent.git"
+
 git_check_current
-git_reset
-git_fetch
-git_checkout
-do_build
+
+if [ $DO_FORCE -eq 1 ]; then
+    git_checkout
+    git_reset
+    git_fetch
+fi
+
+git_check_remote
+
+if [ $DO_BUILD -eq 1 ]; then
+    echo "Skipping the build"
+    echo "Success: ACA machine init"
+    exit 0
+    do_build
+fi

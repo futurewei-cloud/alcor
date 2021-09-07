@@ -11,7 +11,7 @@ ACA_NODES=""
 
 ACA_REPO="futurewei-cloud"
 ACA_BRANCH="master"
-ACA_COMMIT=""
+ACA_COMMIT="HEAD"
 USER_REPO=0
 USER_BRANCH=0
 
@@ -61,7 +61,7 @@ NC=0
 for node in `echo ${ACA_NODES}`; do
     NC=`expr $NC + 1`
     scp ./build_aca.sh ubuntu@${node}:${ACA_DIR}/
-    ssh ubuntu@$node "cd $ACA_DIR && sudo ./build_aca.sh $ACA_REPO $ACA_BRANCH" > /tmp/aca_${node}_build.log 2>&1 &
+    ssh ubuntu@$node "cd $ACA_DIR && sudo ./build_aca.sh $ACA_REPO $ACA_BRANCH $ACA_COMMIT $DO_FORCE" > /tmp/aca_${node}_build.log 2>&1 &
 done
 
 # check the status
