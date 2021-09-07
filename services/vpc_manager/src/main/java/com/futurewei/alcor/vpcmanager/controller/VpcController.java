@@ -373,11 +373,13 @@ public class VpcController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetid);
-            inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
+
             if (inVpcState == null) {
                 throw new ResourceNotFoundException("Vpc not found : " + vpcid);
             }
             this.vpcDatabaseService.addSubnetId(vpcid, subnetid);
+            inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
+            inVpcState.setSubnets(this.vpcDatabaseService.getSubnetIds(vpcid));
 
 
         } catch (ParameterNullOrEmptyException e) {
@@ -408,11 +410,12 @@ public class VpcController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetid);
 
-            inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
             if (inVpcState == null) {
                 throw new ResourceNotFoundException("Vpc not found : " + vpcid);
             }
             this.vpcDatabaseService.deleteSubnetId(vpcid, subnetid);
+            inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
+            inVpcState.setSubnets(this.vpcDatabaseService.getSubnetIds(vpcid));
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
