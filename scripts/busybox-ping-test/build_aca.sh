@@ -100,7 +100,7 @@ fi
 
 DO_FORCE=$4
 
-if [ $GIT_REPO != "futurewei-cloud" ]; then
+if [ $GIT_REPO != "futurewei-cloud" -o $BIT_BRANCH != "master" -o -n "$GIT_COMMIT" ]; then
     echo "Can't check status of remote repository other than"
     echo "futurewei-cloud, forcing a build"
     DO_FORCE=1
