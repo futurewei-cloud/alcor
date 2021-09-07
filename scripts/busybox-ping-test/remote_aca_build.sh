@@ -11,6 +11,7 @@ ACA_NODES=""
 
 ACA_REPO="futurewei-cloud"
 ACA_BRANCH="master"
+ACA_COMMIT=""
 USER_REPO=0
 USER_BRANCH=0
 
@@ -30,17 +31,26 @@ fi
 
 while getopts "rb" opt; do
     case "$opt" in
-        r)
-            ACA_REPO=$OPTARG
+        r) ACA_REPO=$OPTARG
             USER_REPO=1
             ;;
 
-        b)
-            ACA_BRANCH=$OPTARG
+        b) ACA_BRANCH=$OPTARG
             USER_BRANCH=1
             ;;
+
+        c) ACA_COMMIT=$OPTARG
+            ;;
+
+        f)  DO_FORCE=1
+            ;;
         ?)
-            echo "Usage: $0 [-r repo] [-b branch]"
+            echo "Usage: $0 [-r repo] [-b branch] [-c commit] [-f]
+-r repo     : repository, if using a personal fork.
+-b branch   : branch, if using a personal branch.
+-c commit   : commit, if not using the HEAD.
+-f          : to force a build even if there are no changes in remote.
+"
             exit 1
             ;;
     esac
@@ -61,8 +71,11 @@ for node in `echo ${ACA_NODES}`; do
         if fgrep 'Success: ACA machine init' /tmp/aca_${node}_build.log > /dev/null 2>&1; then
             SC=`expr $SC + 1`
             break
-        elif fgrep ' Failure: ACA machine init' /tmp/aca_${node}_build.log > /dev/null 2>&1; then
-           exit 1 
+        elif fgrep 'Failure: ACA machine init' /tmp/aca_${node}_build.log > /dev/null 2>&1; then
+            echo "ACA Build failed on $node"
+            exit 1
+        else
+            sleep 60
         fi
     done
     if [ $SC -eq $NC ]; then
