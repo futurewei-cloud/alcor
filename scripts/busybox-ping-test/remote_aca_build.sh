@@ -29,7 +29,7 @@ else
     exit 1
 fi
 
-while getopts "rb" opt; do
+while getopts "r:b:c:f" opt; do
     case "$opt" in
         r) ACA_REPO=$OPTARG
             USER_REPO=1
@@ -59,6 +59,7 @@ done
 get_aca_node_info
 NC=0
 for node in `echo ${ACA_NODES}`; do
+    rm -f /tmp/aca_${node}_build.log > /dev/null 2>&1
     NC=`expr $NC + 1`
     scp ./build_aca.sh ubuntu@${node}:${ACA_DIR}/
     ssh ubuntu@$node "cd $ACA_DIR && sudo ./build_aca.sh $ACA_REPO $ACA_BRANCH $ACA_COMMIT $DO_FORCE" > /tmp/aca_${node}_build.log 2>&1 &
