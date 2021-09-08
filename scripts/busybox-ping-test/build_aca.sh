@@ -33,7 +33,7 @@ git_check_remote() {
     DIFF=`echo $RSEC - $LSEC | bc`
     if [ $DO_FORCE -eq 1 ]; then
         DO_BUILD=1
-    elif if [ $DIFF -gt 0 ]; then
+    elif [ $DIFF -gt 0 ]; then
         DO_BUILD=1
     fi
 }
