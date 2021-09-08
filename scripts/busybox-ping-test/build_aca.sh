@@ -69,14 +69,22 @@ git_checkout() {
 
 do_build() {
     cd build
+    # TEMP: If this line hasn't been changed in the branch, do it now.
+    #       Get rid of it once this change is in the branch. 
     sed -e 's/"$1" == "delete-bridges"/ -n "$1" -a "$1" = "delete-bridges"/' \
         -e '/^[\t ]*nohup[\t ][\t ]*$BUILD\/bin\/AlcorControlAgent /d' \
         -e '1i \
 #! /bin/bash
 ' ./aca-machine-init.sh > ./aca-machine-init-jenkins.sh
     chmod +x ./aca-machine-init-jenkins.sh
+    # TEMP: If this line hasn't been changed in the branch, do it now.
+    #       Get rid of it once this change is in the branch. 
+    # uncomment include of ofp-switch.h
+    sed -i 's:^[\t ]*//#[\t ]*include[\t ][\t ]*<openvswitch/ofp-switch.h>:#include <openvswitch/ofp-switch.h>:' ../include/ovs_control.h
     D1=`date +%s`
     echo "Started build in `pwd`..."
+    # TEMP: If this line hasn't been changed in the branch, do it now.
+    #       Get rid of it once this change is in the branch. 
     sed -i -- 's/[\t ]*-Werror*//g' ../CMakeLists.txt
     rm -f ../CMakeCache.txt ../cmake_install.cmake > /dev/null 2>&1
     sudo ./aca-machine-init-jenkins.sh > /tmp/amij.log 2>&1
