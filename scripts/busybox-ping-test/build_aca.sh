@@ -48,7 +48,7 @@ git_reset() {
 }
 
 git_fetch() {
-    git fetch --force --tags --all $GIT_URL || {
+    git fetch --force --tags $GIT_URL || {
         echo "ERROR: git fetch failed"
         exit 1
     }
