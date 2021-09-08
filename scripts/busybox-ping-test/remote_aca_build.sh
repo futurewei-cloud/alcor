@@ -63,6 +63,7 @@ for node in `echo ${ACA_NODES}`; do
     NC=`expr $NC + 1`
     scp ./build_aca.sh ubuntu@${node}:${ACA_DIR}/
     ssh ubuntu@$node "cd $ACA_DIR && sudo ./build_aca.sh $ACA_REPO $ACA_BRANCH $ACA_COMMIT $DO_FORCE" > /tmp/aca_${node}_build.log 2>&1 &
+    echo "Scheduled build on $node"
 done
 
 # check the status

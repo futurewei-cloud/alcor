@@ -112,7 +112,7 @@ if [ "$GIT_REPO" != "futurewei-cloud" -o "$BIT_BRANCH" != "master" -o -n "$GIT_C
     DO_FORCE=1
 fi
 
-GIT_URL="https://github.com/$GIT_REPO/alcor-control-agent.git"
+GIT_URL="https://github.com/$GIT_REP/alcor-control-agent"
 
 echo "build_aca using:
 GIT_URL         = $GIT_URL
