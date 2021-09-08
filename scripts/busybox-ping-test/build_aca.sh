@@ -31,7 +31,9 @@ git_check_remote() {
     LSEC=`date --date="${LOCAL_DATE}" +%s`
 
     DIFF=`echo $RSEC - $LSEC | bc`
-    if [ $DIFF -gt 0 ]; then
+    if [ $DO_FORCE -eq 1 ]; then
+        DO_BUILD=1
+    elif if [ $DIFF -gt 0 ]; then
         DO_BUILD=1
     fi
 }
@@ -118,7 +120,7 @@ echo "build_aca using:
 GIT_URL         = $GIT_URL
 GIT_BRANCH      = $GIT_BRANCH
 GIT_COMMIT      = $GIT_COMMIT
-FORCED_BUIL     = $DO_FORCE
+FORCED_BUILD    = $DO_FORCE
 "
 
 git_check_current
@@ -131,9 +133,10 @@ fi
 
 git_check_remote
 
-if [ $DO_BUILD -eq 1 ]; then
+if [ $DO_BUILD -eq 0 ]; then
     echo "Skipping the build"
     echo "Success: ACA machine init"
     exit 0
+else
     do_build
 fi
