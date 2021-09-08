@@ -78,6 +78,9 @@ do_build() {
 ' \
     -e '/6---/a \
     apt-get install -y python2.7 && \\
+    wget https://bootstrap.pypa.io/pip/2.7/get-pip.py -O /tmp/get-pip.py && \\
+    python2.7 /tmp/get-pip.py && \\
+     pip2 install six && \\
 ' ./aca-machine-init.sh > ./aca-machine-init-jenkins.sh
     chmod +x ./aca-machine-init-jenkins.sh
     D1=`date +%s`
