@@ -18,14 +18,14 @@ git_check_current() {
     # local info
     LOCAL_INFO=`git log origin/$GIT_BRANCH | head -3`
     LOCAL_COMMIT=`echo $LOCAL_INFO | awk '/^commit/ {print $2}'`
-    LOCAL_DATE=`echo $LOCAL_INFO |  awk '/^Date/ {print $2, $3, $4, $5, $6}'`
+    LOCAL_DATE=`echo $LOCAL_INFO | sed 's/^.*Date://' | awk '{print $1, $2, $3, $4, $5}'`
 }
 
 
 git_check_remote() {
     REMOTE_INFO=`git log origin/$GIT_BRANCH | head -3`
-    REMOTE_COMMIT=`echo $LOCAL_INFO | awk '/^commit/ {print $2}'`
-    REMOTE_DATE=`echo $LOCAL_INFO |  sed 's/^.*Date://' | awk '{print $1, $2, $3, $4, $5}'`
+    REMOTE_COMMIT=`echo $REMOTE_INFO | awk '/^commit/ {print $2}'`
+    REMOTE_DATE=`echo $REMOTE_INFO |  sed 's/^.*Date://' | awk '{print $1, $2, $3, $4, $5}'`
 
     RSEC=`date --date="{REMOTE_DATE}" +%s`
     LSEC=`date --date="{LOCAL_DATE}" +%s`
