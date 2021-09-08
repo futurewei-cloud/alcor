@@ -77,21 +77,30 @@ do_build() {
 #! /bin/bash
 ' \
     -e '/6---/a \
-    apt-get install -y python2.7 && \\\
+    sudo rm -f /tmp/get-pip.py > /dev/null 2>&1 && \\\
+    sudo apt-get install -y python2.7 && \\\
     sudo wget https://bootstrap.pypa.io/pip/2.7/get-pip.py -O /tmp/get-pip.py && \\\
     sudo python2.7 /tmp/get-pip.py && \\\
-    sudo pip2 install six && \\\
+    sudo pip2 install six && \\
 ' ./aca-machine-init.sh > ./aca-machine-init-jenkins.sh
     chmod +x ./aca-machine-init-jenkins.sh
     D1=`date +%s`
     echo "Started build in `pwd`..."
-    # TEMP: If this line hasn't been changed in the branch, do it now.
-    #       Get rid of it once this change is in the branch. 
-    sed -i -- 's/[\t ]*-Werror*//g' ../CMakeLists.txt
     rm -f ../CMakeCache.txt ../cmake_install.cmake > /dev/null 2>&1
     sudo ./aca-machine-init-jenkins.sh > /tmp/amij.log 2>&1
     D2=`date +%s`
-    echo "Build finished in `expr $D2 - $D1` seconds, waiting for 60 seconds..."
+    echo "Build finished in `expr $D2 - $D1` seconds, waiting a little..."
+    OSZ=0
+    while :; do
+        NSZ=`ls -l /tmp/amij.log | awk '{print $5}'`
+        if [ $NSZ -eq $OSZ ]; then
+            break
+        else
+            OSZ=$NSZ
+            sleep 5
+        fi
+    done
+
     if fgrep "Built target AlcorControlAgent" /tmp/amij.log > /dev/null 2>&1; then
         echo "Success: ACA machine init"
         exit 0
