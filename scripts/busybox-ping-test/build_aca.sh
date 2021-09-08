@@ -27,8 +27,8 @@ git_check_remote() {
     REMOTE_COMMIT=`echo $REMOTE_INFO | awk '/^commit/ {print $2}'`
     REMOTE_DATE=`echo $REMOTE_INFO |  sed 's/^.*Date://' | awk '{print $1, $2, $3, $4, $5}'`
 
-    RSEC=`date --date="{REMOTE_DATE}" +%s`
-    LSEC=`date --date="{LOCAL_DATE}" +%s`
+    RSEC=`date --date="${REMOTE_DATE}" +%s`
+    LSEC=`date --date="${LOCAL_DATE}" +%s`
 
     DIFF=`echo $RSEC - $LSEC | bc`
     if [ $DIFF -gt 0 ]; then
