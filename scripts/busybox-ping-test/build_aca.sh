@@ -25,7 +25,7 @@ git_check_current() {
 git_check_remote() {
     REMOTE_INFO=`git log origin/$GIT_BRANCH | head -3`
     REMOTE_COMMIT=`echo $LOCAL_INFO | awk '/^commit/ {print $2}'`
-    REMOTE_DATE=`echo $LOCAL_INFO |  awk '/^Date/ {print $2, $3, $4, $5, $6}'`
+    REMOTE_DATE=`echo $LOCAL_INFO |  sed 's/^.*Date://' | awk '{print $1, $2, $3, $4, $5}'`
 
     RSEC=`date --date="{REMOTE_DATE}" +%s`
     LSEC=`date --date="{LOCAL_DATE}" +%s`
