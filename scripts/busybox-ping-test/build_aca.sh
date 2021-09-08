@@ -76,7 +76,7 @@ do_build() {
     chmod +x ./aca-machine-init-jenkins.sh
     D1=`date +%s`
     echo "Started build in `pwd`..."
-    sed -i -- 's/[\t ]*-Werror*//g' CMakeLists.txt
+    sed -i -- 's/[\t ]*-Werror*//g' ../CMakeLists.txt
     rm -f ../CMakeCache.txt ../cmake_install.cmake > /dev/null 2>&1
     sudo ./aca-machine-init-jenkins.sh > /tmp/amij.log 2>&1
     D2=`date +%s`
