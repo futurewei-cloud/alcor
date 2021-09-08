@@ -75,12 +75,11 @@ do_build() {
         -e '/^[\t ]*nohup[\t ][\t ]*$BUILD\/bin\/AlcorControlAgent /d' \
         -e '1i \
 #! /bin/bash
+' \
+    -e '/6---/a \
+    apt-get install -y python2.7 && \\
 ' ./aca-machine-init.sh > ./aca-machine-init-jenkins.sh
     chmod +x ./aca-machine-init-jenkins.sh
-    # TEMP: If this line hasn't been changed in the branch, do it now.
-    #       Get rid of it once this change is in the branch. 
-    # uncomment include of ofp-switch.h
-    sed -i 's:^[\t ]*//#[\t ]*include[\t ][\t ]*<openvswitch/ofp-switch.h>:#include <openvswitch/ofp-switch.h>:' ../include/ovs_control.h
     D1=`date +%s`
     echo "Started build in `pwd`..."
     # TEMP: If this line hasn't been changed in the branch, do it now.
