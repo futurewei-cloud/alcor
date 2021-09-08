@@ -67,7 +67,10 @@ git_checkout() {
 do_build() {
     cd build
     sed -e 's/"$1" == "delete-bridges"/ -n "$1" -a "$1" = "delete-bridges"/' \
-        -e '/^[\t ]*nohup[\t ][\t ]*$BUILD\/bin\/AlcorControlAgent /d' ./aca-machine-init.sh > ./aca-machine-init-jenkins.sh
+        -e '/^[\t ]*nohup[\t ][\t ]*$BUILD\/bin\/AlcorControlAgent /d' \
+        -e '1i \
+#! /bin/bash
+' ./aca-machine-init.sh > ./aca-machine-init-jenkins.sh
     chmod +x ./aca-machine-init-jenkins.sh
     D1=`date +%s`
     echo "Started build in `pwd`..."
@@ -91,6 +94,8 @@ if [ $# -lt 4 ]; then
     exit 1
 fi
 
+echo "build_aca started on `uname`"
+
 GIT_REPO=$1
 GIT_BRANCH=$2
 
@@ -107,6 +112,13 @@ if [ $GIT_REPO != "futurewei-cloud" -o $BIT_BRANCH != "master" -o -n "$GIT_COMMI
 fi
 
 GIT_URL="https://github.com/$GIT_REPO/alcor-control-agent.git"
+
+echo "build_aca using:
+GIT_URL         = $GIT_URL
+GIT_BRANCH      = $GIT_BRANCH
+GIT_COMMIT      = $GIT_COMMIT
+FORCED_BUIL     = $DO_FORCE
+"
 
 git_check_current
 
