@@ -48,22 +48,23 @@ git_reset() {
 }
 
 git_fetch() {
-    git fetch --force --tags $GIT_URL || {
+    git fetch --force --tags --all $GIT_URL || {
         echo "ERROR: git fetch failed"
         exit 1
     }
 
     git config remote.origin.url $GIT_URL
+    git pull
 }
 
 
 git_checkout() {
-    git checkout $ACA_BRANCH || {
-        echo "git checkout $ACA_BRANCH failed"
+    git checkout $GIT_BRANCH || {
+        echo "git checkout $GIT_BRANCH failed"
         exit 1
     }
 
-    echo "Success: git checkout $ACA_BRANCH"
+    echo "Success: git checkout $GIT_BRANCH"
 }
 
 do_build() {
