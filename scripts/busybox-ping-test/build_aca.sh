@@ -98,6 +98,7 @@ echo "build_aca started on `uname`"
 
 GIT_REPO=$1
 GIT_BRANCH=$2
+GIT_COMMIT=$3
 
 if [ $GIT_COMMIT = "HEAD" ]; then
     GIT_COMMIT=
