@@ -19,7 +19,7 @@ get_aca_node_info() {
      ACA_NODES=`sed -n '/^\[AlcorControlAgents\]/,/^\[/p' ${ALCOR_INI} | grep -v '^\[' | grep -v '^[\t ]*$' |  awk -F= '{print $2}' | tr -d '[\t ]'`
 
     # TEMP: Until merge
-    ACA_NODES="172.31.25.39 172.31.17.252"
+    # ACA_NODES="172.31.25.39 172.31.17.252"
 }
 
 if [ -d "${SCRIPT_DIR}" -a -s ${SCRIPT_DIR}/${ALCOR_INI} ]; then
