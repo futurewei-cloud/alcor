@@ -1,4 +1,9 @@
-#! /bin/sh -x
+#! /bin/sh
+
+# Pull latest ACA code from specified repository, branch and commit
+# and call aca_machine_init.sh to do the actual build.
+# Emit success or failure so that the remote script learn about the status
+# of the build.
 
 
 GIT_REPO=""
@@ -10,18 +15,16 @@ LOCAL_COMMIT=
 DO_FORCE=0
 DO_BUILD=0
 
+# Get local repo/branch/commit info
 git_check_current() {
-    # get commit details from the remote and local branches
-    # if remote is not latest and FORCE is not specified, skip
-    # building aca
-
-    # local info
     LOCAL_INFO=`git log origin/$GIT_BRANCH | head -3`
     LOCAL_COMMIT=`echo $LOCAL_INFO | awk '/^commit/ {print $2}'`
     LOCAL_DATE=`echo $LOCAL_INFO | sed 's/^.*Date://' | awk '{print $1, $2, $3, $4, $5}'`
 }
 
 
+# Get remote repo/branch/commit info
+# May need git fetch -all to be robust
 git_check_remote() {
     REMOTE_INFO=`git log origin/$GIT_BRANCH | head -3`
     REMOTE_COMMIT=`echo $REMOTE_INFO | awk '/^commit/ {print $2}'`
@@ -39,6 +42,7 @@ git_check_remote() {
 }
 
 
+# Need to avoid getting stuck on stale modifications
 git_reset() {
     git reset --hard || {
         echo "ERROR: git reset failed"
@@ -47,6 +51,8 @@ git_reset() {
     echo "Success: git reset"
 }
 
+
+# Fetch the specified repo
 git_fetch() {
     git fetch --force --tags $GIT_URL || {
         echo "ERROR: git fetch failed"
@@ -58,6 +64,7 @@ git_fetch() {
 }
 
 
+# checkout the specified branch (add commit later).
 git_checkout() {
     git checkout $GIT_BRANCH || {
         echo "git checkout $GIT_BRANCH failed"
@@ -67,22 +74,13 @@ git_checkout() {
     echo "Success: git checkout $GIT_BRANCH"
 }
 
+
+# Start the build on the node.
+# Waits for remote builds to finish.
 do_build() {
     cd build
-    # TEMP: If this line hasn't been changed in the branch, do it now.
-    #       Get rid of it once this change is in the branch. 
-    sed -e 's/"$1" == "delete-bridges"/ -n "$1" -a "$1" = "delete-bridges"/' \
-        -e '/^[\t ]*nohup[\t ][\t ]*$BUILD\/bin\/AlcorControlAgent /d' \
-        -e '1i \
-#! /bin/bash
-' \
-    -e '/6---/a \
-    sudo rm -f /tmp/get-pip.py > /dev/null 2>&1 && \\\
-    sudo apt-get install -y python2.7 && \\\
-    sudo wget https://bootstrap.pypa.io/pip/2.7/get-pip.py -O /tmp/get-pip.py && \\\
-    sudo python2.7 /tmp/get-pip.py && \\\
-    sudo pip2 install six && \\
-' ./aca-machine-init.sh > ./aca-machine-init-jenkins.sh
+    sed -e '/^[\t ]*nohup[\t ][\t ]*$BUILD\/bin\/AlcorControlAgent /d' \
+        ./aca-machine-init.sh > ./aca-machine-init-jenkins.sh
     chmod +x ./aca-machine-init-jenkins.sh
     D1=`date +%s`
     echo "Started build in `pwd`..."
