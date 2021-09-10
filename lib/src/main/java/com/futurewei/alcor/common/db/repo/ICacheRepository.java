@@ -15,11 +15,11 @@ Copyright(c) 2020 Futurewei Cloud
 */
 
 package com.futurewei.alcor.common.db.repo;
-
 import com.futurewei.alcor.common.db.CacheException;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface ICacheRepository<T> {
 

@@ -31,6 +31,7 @@ import org.apache.ignite.cache.CachePeekMode;
 import org.apache.ignite.cache.query.Query;
 import org.apache.ignite.cache.query.QueryCursor;
 import org.apache.ignite.cache.query.ScanQuery;
+import org.apache.ignite.configuration.CacheConfiguration;
 import org.apache.ignite.lang.IgniteBiPredicate;
 import org.apache.ignite.transactions.TransactionException;
 import org.springframework.util.Assert;
@@ -64,6 +65,21 @@ public class IgniteDbCache<K, V> implements IgniteICache<K, V> {
         }
 
         Assert.notNull(cache, "Create cache for client " + name + "failed");
+        this.transaction = new IgniteTransaction(ignite);
+    }
+
+    public IgniteDbCache(Ignite ignite, CacheConfiguration cfg) {
+
+        try {
+            this.cache = ignite.getOrCreateCache(cfg);
+        } catch (javax.cache.CacheException e) {
+            this.cache = ignite.getOrCreateCache(cfg);
+            logger.log(Level.WARNING, "Create cache for client " + cfg + " failed:" + e.getMessage());
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Unexpected failure:" + e.getMessage());
+        }
+
+        Assert.notNull(cache, "Create cache for client " + cfg + "failed");
         this.transaction = new IgniteTransaction(ignite);
     }
 
