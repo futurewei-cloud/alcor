@@ -19,6 +19,7 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.portmanager.entity.PortNeighbors;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.port.PortEntity;
@@ -55,9 +56,7 @@ public class NeighborRepository {
                         .stream()
                         .collect(Collectors.toMap(NeighborInfo::getPortIp, Function.identity()));
 
-                CacheConfiguration cfg = new CacheConfiguration();
-                cfg.setName(getNeighborCacheName(entry.getKey()));
-                cfg.setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL);
+                CacheConfiguration cfg = CommonUtil.getCacheConfiguration(getNeighborCacheName(entry.getKey()));
                 ICache<String, NeighborInfo> neighborCache = cacheFactory.getCache(NeighborInfo.class, cfg);
                 neighborCache.putAll(neighborMap);
             }
@@ -65,9 +64,7 @@ public class NeighborRepository {
     }
 
     public void updateNeighbors(PortEntity oldPortEntity, List<NeighborInfo> newNeighbors) throws Exception {
-        CacheConfiguration cfg = new CacheConfiguration();
-        cfg.setName(getNeighborCacheName(oldPortEntity.getVpcId()));
-        cfg.setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL);
+        CacheConfiguration cfg = CommonUtil.getCacheConfiguration(getNeighborCacheName(oldPortEntity.getVpcId()));
         ICache<String, NeighborInfo> neighborCache = this.cacheFactory.getCache(
                 NeighborInfo.class, cfg);
 
@@ -112,9 +109,7 @@ public class NeighborRepository {
 
     @DurationStatistics
     public Map<String, NeighborInfo> getNeighbors(String vpcId) throws CacheException {
-        CacheConfiguration cfg = new CacheConfiguration();
-        cfg.setName(getNeighborCacheName(vpcId));
-        cfg.setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL);
+        CacheConfiguration cfg = CommonUtil.getCacheConfiguration(getNeighborCacheName(vpcId));
         ICache<String, NeighborInfo> neighborCache = this.cacheFactory.getCache(
                 NeighborInfo.class, cfg);
         return neighborCache.getAll();

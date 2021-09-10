@@ -23,6 +23,7 @@ import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 import org.apache.ignite.cache.CacheAtomicityMode;
 import org.apache.ignite.configuration.CacheConfiguration;
@@ -105,8 +106,7 @@ public class VpcRepository implements IVpcRepository<VpcEntity> {
     @Override
     @DurationStatistics
     public Set<String> getSubnetIds(String vpcId) throws CacheException {
-        CacheConfiguration cfg = new CacheConfiguration();
-        cfg.setName(vpcId);
+        CacheConfiguration cfg = CommonUtil.getCacheConfiguration(vpcId);
         cfg.setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL);
         ICache<String, String> subnetCache = cacheFactory.getCache(String.class, cfg);
         return subnetCache.getAll().keySet();
@@ -115,9 +115,7 @@ public class VpcRepository implements IVpcRepository<VpcEntity> {
     @Override
     @DurationStatistics
     public void addSubnetId(String vpcId, String subnetId) throws CacheException {
-        CacheConfiguration cfg = new CacheConfiguration();
-        cfg.setName(vpcId);
-        cfg.setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL);
+        CacheConfiguration cfg = CommonUtil.getCacheConfiguration(vpcId);
         ICache<String, String> subnetCache = cacheFactory.getCache(String.class, cfg);
         subnetCache.put(subnetId, vpcId);
     }
@@ -125,9 +123,7 @@ public class VpcRepository implements IVpcRepository<VpcEntity> {
     @Override
     @DurationStatistics
     public void deleteSubnetId(String vpcId, String subnetId) throws CacheException {
-        CacheConfiguration cfg = new CacheConfiguration();
-        cfg.setName(vpcId);
-        cfg.setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL);
+        CacheConfiguration cfg = CommonUtil.getCacheConfiguration(vpcId);
         ICache<String, String> subnetCache = cacheFactory.getCache(String.class, cfg);
         subnetCache.remove(subnetId);
 
