@@ -27,12 +27,8 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public interface DataPlaneClient {
-    List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates) throws Exception;
-    List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates,
-                                MulticastGoalState multicastGoalState) throws Exception;
-
-//    List<String> sendGoalStates(List<UnicastGoalStateV2> unicastGoalStates) throws Exception;
-    List<String> sendGoalStates(List<UnicastGoalStateV2> unicastGoalStates,
-                                MulticastGoalStateV2 multicastGoalState) throws Exception;
+public interface DataPlaneClient <U, T> {
+    List<String> sendGoalStates(List<U> unicastGoalStates) throws Exception;
+    List<String> sendGoalStates(List<U> unicastGoalStates,
+                                T multicastGoalState) throws Exception;
 }

@@ -26,7 +26,7 @@ import com.futurewei.alcor.schema.Goalstateprovisioner;
 import java.util.List;
 import java.util.Map;
 
-public class DataPlaneClientImpl implements DataPlaneClient {
+public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, MulticastGoalState> {
 
     @Override
     public List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates) throws Exception {
@@ -35,11 +35,6 @@ public class DataPlaneClientImpl implements DataPlaneClient {
 
     @Override
     public List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates, MulticastGoalState multicastGoalState) throws Exception {
-        return null;
-    }
-
-    @Override
-    public List<String> sendGoalStates(List<UnicastGoalStateV2> unicastGoalStates, MulticastGoalStateV2 multicastGoalState) throws Exception {
         return null;
     }
 }

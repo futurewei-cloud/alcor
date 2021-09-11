@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -49,6 +50,7 @@ import static com.futurewei.alcor.dataplane.service.impl.ResourceService.FORMAT_
 import static com.futurewei.alcor.dataplane.service.impl.ResourceService.HOST_DVR_MAC;
 
 @Service
+@ConditionalOnProperty(prefix = "protobuf.goal-state-message", name = "version", havingValue = "102")
 public class DpmServiceImplV2 implements DpmService {
     private static final Logger LOG = LoggerFactory.getLogger(DpmServiceImplV2.class);
     private static final boolean USE_PULSAR_CLIENT = false;
@@ -110,9 +112,6 @@ public class DpmServiceImplV2 implements DpmService {
                                                    List<InternalPortEntity> portEntities,
                                                    MulticastGoalStateV2 multicastGoalState) throws Exception {
         UnicastGoalStateV2 unicastGoalState = new UnicastGoalStateV2();
-
-
-        //TODO:
         unicastGoalState.setHostIp(hostIp);
         unicastGoalState.getGoalStateBuilder().setFormatVersion(this.goalStateMessageVersion);
 
@@ -134,84 +133,6 @@ public class DpmServiceImplV2 implements DpmService {
         multicastGoalState.setGoalStateBuilder(null);
 
         return unicastGoalState;
-    }
-
-    private void patchGoalstateForNeighbor(NetworkConfiguration networkConfig, UnicastGoalState unicastGoalState) throws CacheException {
-        List<Neighbor.NeighborState.Builder> neighborStates = unicastGoalState.getGoalStateBuilder().getNeighborStatesBuilderList();
-        for (Neighbor.NeighborState.Builder neighborState : neighborStates) {
-            List<Neighbor.NeighborConfiguration.FixedIp> fixedIps = neighborState.build().getConfiguration().getFixedIpsList();
-            for (Neighbor.NeighborConfiguration.FixedIp fixedIp : fixedIps) {
-                if (fixedIp != null && fixedIp.getNeighborType().equals(Neighbor.NeighborType.L3)) {
-                    String subnetId = fixedIp.getSubnetId();
-                    InternalSubnetPorts subnetEntity = subnetPortsCache.getSubnetPorts(subnetId);
-                    if (subnetEntity != null) {
-                        if (unicastGoalState.getGoalStateBuilder().getSubnetStatesList().stream()
-                                .filter(e -> e.getConfiguration().getId().equals(subnetEntity.getSubnetId()))
-                                .findFirst().orElse(null) == null) {
-                            Subnet.SubnetConfiguration.Builder subnetConfigBuilder = Subnet.SubnetConfiguration.newBuilder();
-                            subnetConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
-                            subnetConfigBuilder.setId(subnetEntity.getSubnetId());
-                            subnetConfigBuilder.setVpcId(subnetEntity.getVpcId());
-                            subnetConfigBuilder.setName(subnetEntity.getName());
-                            subnetConfigBuilder.setCidr(subnetEntity.getCidr());
-                            subnetConfigBuilder.setTunnelId(subnetEntity.getTunnelId());
-
-                            Subnet.SubnetConfiguration.Gateway.Builder gatewayBuilder = Subnet.SubnetConfiguration.Gateway.newBuilder();
-                            gatewayBuilder.setIpAddress(subnetEntity.getGatewayPortIp());
-                            gatewayBuilder.setMacAddress(subnetEntity.getGatewayPortMac());
-                            subnetConfigBuilder.setGateway(gatewayBuilder.build());
-
-                            if (subnetEntity.getDhcpEnable() != null) {
-                                subnetConfigBuilder.setDhcpEnable(subnetEntity.getDhcpEnable());
-                            }
-
-                            // TODO: need to set DNS based on latest contract
-
-                            Subnet.SubnetState.Builder subnetStateBuilder = Subnet.SubnetState.newBuilder();
-                            subnetStateBuilder.setOperationType(Common.OperationType.INFO);
-                            subnetStateBuilder.setConfiguration(subnetConfigBuilder.build());
-                            unicastGoalState.getGoalStateBuilder().addSubnetStates(subnetStateBuilder.build());
-
-                            // Add subnet to router_state
-                            Router.RouterConfiguration.SubnetRoutingTable.Builder subnetRoutingTableBuilder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
-                            subnetRoutingTableBuilder.setSubnetId(subnetEntity.getSubnetId());
-
-                            List<Router.RouterConfiguration.SubnetRoutingTable> subnetRoutingTablesList = new ArrayList<>();
-                            subnetRoutingTablesList.add(subnetRoutingTableBuilder.build());
-
-                            Goalstate.GoalState.Builder goalStateBuilder = unicastGoalState.getGoalStateBuilder();
-                            List<Router.RouterState.Builder> routerStatesBuilders = goalStateBuilder.getRouterStatesBuilderList();
-                            if (routerStatesBuilders != null && routerStatesBuilders.size() > 0) {
-                                subnetRoutingTablesList.addAll(goalStateBuilder.
-                                        getRouterStatesBuilder(0).
-                                        getConfiguration().
-                                        getSubnetRoutingTablesList());
-                                goalStateBuilder.removeRouterStates(0);
-                            }
-
-                            String routerId = subnetEntity.getRouterId();
-                            // If subnet has attached to a router (test scenario #4), we just use the routerId in the subnet.
-                            // Otherwise, we need to get router_state in the networkConfig for test scenario #5.
-                            if (routerId == null) {
-                                List<InternalRouterInfo> internalRouterInfos = networkConfig.getInternalRouterInfos();
-                                for (InternalRouterInfo internalRouterInfo : internalRouterInfos) {
-                                    routerId = internalRouterInfo.getRouterConfiguration().getId();
-                                    if (routerId != null) break;
-                                }
-                            }
-                            Router.RouterConfiguration.Builder routerConfigBuilder = Router.RouterConfiguration.newBuilder();
-                            routerConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
-                            routerConfigBuilder.setHostDvrMacAddress(HOST_DVR_MAC);
-                            routerConfigBuilder.setId(routerId);
-                            routerConfigBuilder.addAllSubnetRoutingTables(subnetRoutingTablesList);
-                            Router.RouterState.Builder routerStateBuilder = Router.RouterState.newBuilder();
-                            routerStateBuilder.setConfiguration(routerConfigBuilder.build());
-                            unicastGoalState.getGoalStateBuilder().addRouterStates(routerStateBuilder.build());
-                        }
-                    }
-                }
-            }
-        }
     }
 
     private void patchGoalstateForNeighbor(UnicastGoalStateV2 unicastGoalState) throws CacheException {

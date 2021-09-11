@@ -42,7 +42,7 @@ import java.util.Map;
 
 //@Component
 @Service("pulsarDataPlaneClient")
-public class DataPlaneClientImpl implements DataPlaneClient {
+public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, MulticastGoalState> {
     private static final Logger LOG = LoggerFactory.getLogger(DataPlaneClientImpl.class);
 
     @Autowired
@@ -155,10 +155,5 @@ public class DataPlaneClientImpl implements DataPlaneClient {
         failedHosts.addAll(createGoalState(multicastGoalState));
 
         return failedHosts;
-    }
-
-    @Override
-    public List<String> sendGoalStates(List<UnicastGoalStateV2> unicastGoalStates, MulticastGoalStateV2 multicastGoalState) throws Exception {
-        return null;
     }
 }
