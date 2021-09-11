@@ -16,6 +16,8 @@ Copyright(c) 2020 Futurewei Cloud
 
 package com.futurewei.alcor.common.db;
 
+import org.apache.ignite.configuration.CacheConfiguration;
+
 import java.util.concurrent.TimeUnit;
 
 public interface ICacheFactory {
@@ -39,7 +41,7 @@ public interface ICacheFactory {
      * @return
      */
     <K, V> ICache<K, V> getExpireCache(Class<V> v, long timeout, TimeUnit timeUnit);
-
+    <K, V> ICache<K, V> getCache(Class<V> v, CacheConfiguration cacheConfig);
     /**
      * get a spin lock
      * @param t class type
