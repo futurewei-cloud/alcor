@@ -1,4 +1,4 @@
-apiVersion: autoscaling/v2beta1
+apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
   name: vpcmanager-hpa
@@ -36,7 +36,7 @@ spec:
       resource:
         name: cpu
         target:
-          type: AverageUtilization
+          type: Utilization
           averageUtilization: 50
 #    The average data volume per second reaches 1000 for scaling up
 #    - type: Pods
@@ -62,17 +62,11 @@ spec:
 
 # HPA's current status data
 status:
-  observedGeneration: 1
-  lastScaleTime: <some-time>
   currentReplicas: 1
   desiredReplicas: 1
-  currentMetrics:
-    - type: Resource
-      resource:
-        name: cpu
-      current:
-        averageUtilization: 0
-        averageValue: 0
+  conditions:
+    - status: "True"
+      type: "True"
 #    - type: Object
 #      object:
 #        metric:

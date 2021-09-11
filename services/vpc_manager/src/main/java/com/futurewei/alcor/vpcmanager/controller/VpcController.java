@@ -424,20 +424,4 @@ public class VpcController {
         return new VpcWebJson(inVpcState);
 
     }
-
-    @RequestMapping(
-            method = GET,
-            value = {"/hpatest"})
-    @DurationStatistics
-    public double hpaTest() throws Exception {
-
-        double res = 0.001;
-
-        for (int i = 0; i < 100000; i ++) {
-            res += res * res;
-        }
-
-        return res;
-
-    }
 }

@@ -80,6 +80,12 @@ spec:
         #- image: fwnetworking/controller:dpm_manager-v0.3.0
           name: dataplanemanager-web
           imagePullPolicy: IfNotPresent
+          # The value is determined according to the actual situation, the following value is for the deployment on AWS
+          resources:
+            limits:
+              cpu: 500m
+            requests:
+              cpu: 200m
           command: ["java", "-jar", "/app/AlcorDataPlaneManager-0.1.0.jar", "--spring.config.location=/etc/dpm/application.properties"]
           ports:
             - containerPort: 8080
