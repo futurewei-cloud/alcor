@@ -33,7 +33,6 @@ import com.futurewei.alcor.subnet.service.SubnetDatabaseService;
 import com.futurewei.alcor.subnet.service.SubnetService;
 import com.futurewei.alcor.subnet.utils.SubnetManagementUtil;
 import com.futurewei.alcor.web.entity.ip.IpAddrRangeRequest;
-import com.futurewei.alcor.web.entity.ip.IpAddrRequest;
 import com.futurewei.alcor.web.entity.mac.MacStateJson;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.route.*;
@@ -45,15 +44,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.data.util.Pair;
 import org.springframework.http.HttpEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
@@ -548,13 +545,15 @@ public class SubnetServiceImp implements SubnetService {
     }
 
     @Override
-    public void deleteIPRangeInPIM(String rangeId) {
+    public void deleteIPRangeInPIM(String rangeId, String vpcId) {
         if (rangeId == null) {
             return;
         }
 
         String ipManagerCreateRangeUrl = ipUrl + "range/"+ rangeId;
-        restTemplate.delete(ipManagerCreateRangeUrl);
+        Map<String, String> vpcIdRangeId = new HashMap<>();
+        vpcIdRangeId.put(rangeId, vpcId);
+        restTemplate.delete(ipManagerCreateRangeUrl, vpcIdRangeId);
     }
 
 }

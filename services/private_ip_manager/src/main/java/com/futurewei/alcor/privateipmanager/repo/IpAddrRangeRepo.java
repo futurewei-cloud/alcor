@@ -406,12 +406,12 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
     }
 
     @DurationStatistics
-    public synchronized IpAddrRange deleteIpAddrRange(String rangeId) throws Exception {
+    public synchronized IpAddrRange deleteIpAddrRange(String rangeId, String vpcId) throws Exception {
         IpAddrRange ipAddrRange = null;
         try (Transaction tx = ipAddrRangeCache.getTransaction().start()) {
-            VpcIpRange vpcIpRange = vpcIpRangeCache.get(ipAddrRange.getVpcId());
+            VpcIpRange vpcIpRange = vpcIpRangeCache.get(vpcId);
             if (vpcIpRange != null) {
-                vpcIpRange.getRanges().remove(ipAddrRange.getId());
+                vpcIpRange.getRanges().remove(rangeId);
 
                 if (vpcIpRange.getRanges().size() == 0) {
                     vpcIpRangeCache.remove(vpcIpRange.getVpcId());
@@ -419,7 +419,7 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
                     vpcIpRangeCache.put(vpcIpRange.getVpcId(), vpcIpRange);
                 }
             } else {
-                LOG.warn("Can not find VpcIpRange by vpcId: {}", ipAddrRange.getVpcId());
+                LOG.warn("Can not find VpcIpRange by vpcId: {}", vpcId);
             }
 
             ipAddrRange = ipAddrRangeCache.get(rangeId);

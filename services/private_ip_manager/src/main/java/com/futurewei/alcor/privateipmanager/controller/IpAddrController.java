@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -218,8 +219,8 @@ public class IpAddrController {
     @DeleteMapping("/ips/range/{range_id}")
     @ResponseBody
     @DurationStatistics
-    public void deleteIpAddrRange(@PathVariable("range_id") String rangeId) throws Exception {
-        ipAddrService.deleteIpAddrRange(rangeId);
+    public void deleteIpAddrRange(@PathVariable("range_id") String rangeId, @RequestBody Map<String, String> rangeIdVpcId) throws Exception {
+        ipAddrService.deleteIpAddrRange(rangeId, rangeIdVpcId.get(rangeId));
     }
 
     @GetMapping("/ips/range/{range_id}")
