@@ -501,7 +501,7 @@ public class SubnetController {
                     this.subnetToPortManagerService.deleteGatewayPort(projectId, gatewayPortDetail.getGatewayPortId());
                 } catch (HttpClientErrorException.NotFound e) {
                     logger.warn(e.getMessage());
-                }    
+                }
             }
 
             // delete subnet id in vpc

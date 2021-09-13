@@ -16,6 +16,7 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.vpcmanager.service;
 
 import com.futurewei.alcor.common.db.CacheException;
+import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
@@ -23,6 +24,7 @@ import com.futurewei.alcor.common.exception.ResourcePersistenceException;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 
 import java.util.Map;
+import java.util.Set;
 
 public interface VpcDatabaseService {
 
@@ -32,5 +34,8 @@ public interface VpcDatabaseService {
     public void addVpc (VpcEntity vpcState) throws DatabasePersistenceException;
     public void deleteVpc (String id) throws CacheException;
     public ICache<String, VpcEntity> getCache ();
+    public Set<String> getSubnetIds(String vpcId) throws CacheException;
+    public void addSubnetId(String vpcId, String subnetId) throws CacheException;
+    public void deleteSubnetId(String vpcId, String subnetId) throws CacheException;
 
 }
