@@ -17,6 +17,9 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.vpcmanager.controller;
 
 import com.futurewei.alcor.common.db.CacheException;
+import com.futurewei.alcor.common.db.CacheFactory;
+import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.entity.ResponseId;
 import com.futurewei.alcor.common.exception.ParameterNullOrEmptyException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
@@ -29,11 +32,14 @@ import com.futurewei.alcor.vpcmanager.service.VpcDatabaseService;
 import com.futurewei.alcor.vpcmanager.service.VpcService;
 import com.futurewei.alcor.vpcmanager.utils.RestPreconditionsUtil;
 import com.futurewei.alcor.vpcmanager.utils.VpcManagementUtil;
+import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.route.RouteEntity;
 import com.futurewei.alcor.web.entity.route.RouteWebJson;
 import com.futurewei.alcor.web.entity.vpc.*;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
 import com.futurewei.alcor.web.rbac.aspect.Rbac;
+import org.apache.ignite.cache.CacheAtomicityMode;
+import org.apache.ignite.configuration.CacheConfiguration;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -82,8 +88,12 @@ public class VpcController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditionsUtil.verifyResourceFound(projectid);
-
+            Set<String> subnetIds = this.vpcDatabaseService.getSubnetIds(vpcid);
             vpcState = this.vpcDatabaseService.getByVpcId(vpcid);
+            if (vpcState != null) {
+                vpcState.setSubnets(subnetIds);
+            }
+
         } catch (ParameterNullOrEmptyException e) {
             //TODO: REST error code
             throw new Exception(e);
@@ -308,6 +318,12 @@ public class VpcController {
             RestPreconditionsUtil.verifyResourceFound(projectId);
 
             vpcStates = this.vpcDatabaseService.getAllVpcs(queryParams);
+            for (VpcEntity vpcEntity : vpcStates.values()) {
+                Set<String> subnetIds = this.vpcDatabaseService.getSubnetIds(vpcEntity.getId());
+                if (vpcEntity != null) {
+                    vpcEntity.setSubnets(subnetIds);
+                }
+            }
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
@@ -358,23 +374,13 @@ public class VpcController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetid);
 
-            inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
             if (inVpcState == null) {
                 throw new ResourceNotFoundException("Vpc not found : " + vpcid);
             }
-
-            List<String> subnets = inVpcState.getSubnets();
-            if (subnets == null) {
-                subnets = new ArrayList<>();
-            }
-            if (!subnets.contains(subnetid)) {
-                subnets.add(subnetid);
-            }
-            inVpcState.setSubnets(subnets);
-
-            this.vpcDatabaseService.addVpc(inVpcState);
-
+            this.vpcDatabaseService.addSubnetId(vpcid, subnetid);
             inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
+            inVpcState.setSubnets(this.vpcDatabaseService.getSubnetIds(vpcid));
+
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);
@@ -399,28 +405,17 @@ public class VpcController {
     public VpcWebJson deleteSubnetIdInVpcState(@PathVariable String projectid, @PathVariable String vpcid, @PathVariable String subnetid) throws Exception {
 
         VpcEntity inVpcState = new VpcEntity();
-
         try {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(subnetid);
 
-            inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
             if (inVpcState == null) {
                 throw new ResourceNotFoundException("Vpc not found : " + vpcid);
             }
-
-            List<String> subnets = inVpcState.getSubnets();
-            if (subnets == null || !subnets.contains(subnetid)) {
-                return new VpcWebJson(inVpcState);
-            }
-            subnets.remove(subnetid);
-
-            inVpcState.setSubnets(subnets);
-
-            this.vpcDatabaseService.addVpc(inVpcState);
-
+            this.vpcDatabaseService.deleteSubnetId(vpcid, subnetid);
             inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
+            inVpcState.setSubnets(this.vpcDatabaseService.getSubnetIds(vpcid));
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);

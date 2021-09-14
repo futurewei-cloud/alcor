@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 
 //@Component
 @Service("grpcDataPlaneClient")
-public class DataPlaneClientImpl implements DataPlaneClient {
+public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, MulticastGoalState> {
     private static final Logger LOG = LoggerFactory.getLogger(DataPlaneClientImpl.class);
 
     private int grpcPort;
@@ -87,11 +87,6 @@ public class DataPlaneClientImpl implements DataPlaneClient {
             return sendGoalStates(unicastGoalStates);
         }
 
-        return null;
-    }
-
-    @Override
-    public List<String> sendGoalStates(List<UnicastGoalStateV2> unicastGoalStates, MulticastGoalStateV2 multicastGoalState) throws Exception {
         return null;
     }
 

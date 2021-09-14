@@ -38,7 +38,11 @@ import java.util.*;
 
 @Service
 public class NeighborService extends ResourceService {
-    public Neighbor.NeighborState buildNeighborState(NeighborEntry.NeighborType type, NeighborInfo neighborInfo, Common.OperationType operationType) {
+
+    @Autowired
+    private NeighborCache neighborCache;
+
+    public Neighbor.NeighborState buildNeighborState(NeighborEntry.NeighborType type, NeighborInfo neighborInfo, Common.OperationType operationType) throws Exception {
         Neighbor.NeighborConfiguration.Builder neighborConfigBuilder = Neighbor.NeighborConfiguration.newBuilder();
         neighborConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
         neighborConfigBuilder.setId(neighborInfo.getPortId()); // TODO: We are going to need this per latest ACA change
@@ -61,7 +65,7 @@ public class NeighborService extends ResourceService {
         Neighbor.NeighborState.Builder neighborStateBuilder = Neighbor.NeighborState.newBuilder();
         neighborStateBuilder.setOperationType(operationType);
         neighborStateBuilder.setConfiguration(neighborConfigBuilder.build());
-
+        neighborCache.setNeighborState(neighborStateBuilder.build());
         return neighborStateBuilder.build();
     }
 
@@ -285,6 +289,8 @@ public class NeighborService extends ResourceService {
                 neighborInfoSet.add(neighborInfo1);
             }
         }
+        }
+
     public List<Neighbor.NeighborState> getAllNeighbors (Set<String> ips) throws Exception
     {
         List<Neighbor.NeighborState> neighbors = new ArrayList<>();
