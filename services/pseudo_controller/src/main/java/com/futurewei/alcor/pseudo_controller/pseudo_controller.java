@@ -332,7 +332,7 @@ public class pseudo_controller {
             String pinger_ip = node_one_port_ips.get(i);
             String pinger_container_name = port_ip_to_container_name.get(pinger_ip);
 //            String pingee_ip = node_two_port_ips.get(i);
-            String pingee_ip = node_one_port_ips.get(i % node_one_port_ips.size());
+            String pingee_ip = node_two_port_ips.get(i % node_one_port_ips.size());
             String ping_cmd = "docker exec " + pinger_container_name + " ping -I " + pinger_ip + " -c1 " + pingee_ip;
             concurrent_ping_cmds.add(new concurrent_run_cmd(ping_cmd, aca_node_one_ip, user_name, password));
             System.out.println("Ping command is added: [" + ping_cmd + "]");
