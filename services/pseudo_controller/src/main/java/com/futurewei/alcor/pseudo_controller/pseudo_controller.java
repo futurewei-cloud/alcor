@@ -415,8 +415,8 @@ public class pseudo_controller {
             create_one_container_and_assign_IP_vlax_commands.add(ovs_docker_add_port_cmd);
             create_one_container_and_assign_IP_vlax_commands.add(ovs_set_vlan_cmd);
 
-            int ip_last_octet = Integer.parseInt(port_ip.split("\\.")[3]);
-            if (ip_last_octet % 2 != 0) {
+//            int ip_last_octet = Integer.parseInt(port_ip.split("\\.")[3]);
+            if (i % 2 != 0) {
                 System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + aca_node_one_ip + "]");
                 node_one_port_ips.add(port_ip);
                 port_ip_to_host_ip_map.put(port_ip, aca_node_one_ip);
@@ -451,7 +451,7 @@ public class pseudo_controller {
             backgroundPingExecutor.execute(c);
         }
 
-        System.out.println("DONE creating containers on both hosts");
+        System.out.println("DONE creating containers on both hosts, host 1 has "+node_one_port_ips.size()+" ports, host 2 has "+node_two_port_ips.size()+" ports");
     }
 
 
