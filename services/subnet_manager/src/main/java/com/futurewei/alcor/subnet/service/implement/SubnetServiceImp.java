@@ -550,10 +550,8 @@ public class SubnetServiceImp implements SubnetService {
             return;
         }
 
-        String ipManagerCreateRangeUrl = ipUrl + "range/"+ rangeId;
-        Map<String, String> vpcIdRangeId = new HashMap<>();
-        vpcIdRangeId.put(rangeId, vpcId);
-        restTemplate.delete(ipManagerCreateRangeUrl, vpcIdRangeId);
+        String ipManagerCreateRangeUrl = ipUrl + "range/"+ rangeId + "?vpcId=" + vpcId;
+        restTemplate.delete(ipManagerCreateRangeUrl);
     }
 
 }

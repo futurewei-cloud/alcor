@@ -219,8 +219,8 @@ public class IpAddrController {
     @DeleteMapping("/ips/range/{range_id}")
     @ResponseBody
     @DurationStatistics
-    public void deleteIpAddrRange(@PathVariable("range_id") String rangeId, @RequestBody Map<String, String> rangeIdVpcId) throws Exception {
-        ipAddrService.deleteIpAddrRange(rangeId, rangeIdVpcId.get(rangeId));
+    public void deleteIpAddrRange(@PathVariable("range_id") String rangeId, @RequestParam String  vpcId) throws Exception {
+        ipAddrService.deleteIpAddrRange(rangeId, vpcId);
     }
 
     @GetMapping("/ips/range/{range_id}")
