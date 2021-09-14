@@ -450,12 +450,14 @@ public class DpmServiceImpl implements DpmService {
             }
         }
 
+        boolean patchRouterSubnetStates = false;
         for (Map.Entry<String, List<NeighborInfo>> entry: hostNeighbors.entrySet()) {
             String hostIp = entry.getKey();
             List<NeighborInfo> hostNeighborInfos = entry.getValue();
 
             if (hostNeighborInfos.size() <= 0) {
                 multicastGoalState.getHostIps().add(hostIp);
+                patchRouterSubnetStates = true;
             }
 
             /**
@@ -489,7 +491,9 @@ public class DpmServiceImpl implements DpmService {
             }
         }
 
-        patchGoalstateForRouterSubnet(networkConfig, hostsSubnets, multicastGoalState);
+        if (patchRouterSubnetStates) {
+            patchGoalstateForRouterSubnet(networkConfig, hostsSubnets, multicastGoalState);
+        }
 
         multicastGoalState.setGoalState(multicastGoalState.getGoalStateBuilder().build());
         multicastGoalState.setGoalStateBuilder(null);
