@@ -17,7 +17,8 @@ This is the code for the test controller, for testing the reactions between the 
 the ACA.
 
 Params:
-1. Number of ports to generate to each aca node
+1. Number of ports to generate on aca node one
+2. Number of ports to generate on aca node two
 2. IP of aca_node_one
 3. IP of aca_node_two
 4. IP of the GRPC call
@@ -58,7 +59,8 @@ public class pseudo_controller {
     static int ncm_port = 123;
     static String user_name = "root";
     static String password = "abcdefg";
-    static int ports_to_generate_on_each_aca_node = 1;
+    static int ports_to_generate_on_aca_node_one = 1;
+    static int ports_to_generate_on_aca_node_two = 1;
     static String docker_ps_cmd = "docker ps";
     static String vpc_id_1 = "2b08a5bc-b718-11ea-b3de-111111111112";
     static String port_ip_template = "11111111-b718-11ea-b3de-";
@@ -87,24 +89,25 @@ public class pseudo_controller {
         System.out.println("Start of the test controller");
         if (args.length == 9) {
             System.out.println("User passed in params and we need to read them.");
-            ports_to_generate_on_each_aca_node = Integer.parseInt(args[0]);
-            aca_node_one_ip = args[1];
-            aca_node_two_ip = args[2];
-            ncm_ip = args[3];
-            ncm_port = Integer.parseInt(args[4]);
-            user_name = args[5];
-            password = args[6];
-            user_chosen_ping_method = Integer.parseInt(args[7]);
-            user_chosen_execute_background_ping = Integer.parseInt(args[8]);
+            ports_to_generate_on_aca_node_one = Integer.parseInt(args[0]);
+            ports_to_generate_on_aca_node_two = Integer.parseInt(args[1]);
+            aca_node_one_ip = args[2];
+            aca_node_two_ip = args[3];
+            ncm_ip = args[4];
+            ncm_port = Integer.parseInt(args[5]);
+            user_name = args[6];
+            password = args[7];
+            user_chosen_ping_method = Integer.parseInt(args[8]);
+            user_chosen_execute_background_ping = Integer.parseInt(args[9]);
         }
-
-        generate_ip_macs(ports_to_generate_on_each_aca_node * 2);
+        System.out.println("ACA node one has "+ ports_to_generate_on_aca_node_one + " ports;\nACA node two has "+ports_to_generate_on_aca_node_two+" ports. \nTotal ports: "+(ports_to_generate_on_aca_node_one + ports_to_generate_on_aca_node_two));
+        generate_ip_macs(ports_to_generate_on_aca_node_one + ports_to_generate_on_aca_node_two);
         create_containers_on_both_hosts_concurrently();
         System.out.println("aca_node_one_ip: " + aca_node_one_ip + "\naca_node_two_ip: " + aca_node_two_ip + "\nuser name: " + user_name + "\npassword: " + password);
 
         System.out.println("Containers setup done, now we gotta construct the GoalStateV2");
 
-        System.out.println("Trying to build the GoalStateV2 for " + ports_to_generate_on_each_aca_node + " Ports");
+        System.out.println("Trying to build the GoalStateV2 for " + ports_to_generate_on_aca_node_one + ports_to_generate_on_aca_node_two + " Ports");
 
 
         Goalstate.GoalStateV2.Builder GoalState_builder_one = Goalstate.GoalStateV2.newBuilder();
@@ -321,13 +324,15 @@ public class pseudo_controller {
 
         }
         List<concurrent_run_cmd> concurrent_ping_cmds = new ArrayList<>();
+
         for (int i = 0; i < node_one_port_ips.size(); i++) {
             if (i >= node_two_port_ips.size()) {
                 break;
             }
             String pinger_ip = node_one_port_ips.get(i);
             String pinger_container_name = port_ip_to_container_name.get(pinger_ip);
-            String pingee_ip = node_two_port_ips.get(i);
+//            String pingee_ip = node_two_port_ips.get(i);
+            String pingee_ip = node_one_port_ips.get(i % node_one_port_ips.size());
             String ping_cmd = "docker exec " + pinger_container_name + " ping -I " + pinger_ip + " -c1 " + pingee_ip;
             concurrent_ping_cmds.add(new concurrent_run_cmd(ping_cmd, aca_node_one_ip, user_name, password));
             System.out.println("Ping command is added: [" + ping_cmd + "]");
@@ -416,7 +421,7 @@ public class pseudo_controller {
             create_one_container_and_assign_IP_vlax_commands.add(ovs_set_vlan_cmd);
 
 //            int ip_last_octet = Integer.parseInt(port_ip.split("\\.")[3]);
-            if (i % 2 != 0) {
+            if (node_one_port_ips.size() != ports_to_generate_on_aca_node_one) {
                 System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + aca_node_one_ip + "]");
                 node_one_port_ips.add(port_ip);
                 port_ip_to_host_ip_map.put(port_ip, aca_node_one_ip);
@@ -432,7 +437,7 @@ public class pseudo_controller {
             i++;
         }
 
-//        concurrent_create_containers_thread_pool.shutdown();
+        concurrent_create_containers_thread_pool.shutdown();
         try {
             if (!concurrent_create_containers_thread_pool.awaitTermination(60, TimeUnit.SECONDS)) {
                 concurrent_create_containers_thread_pool.shutdownNow();
