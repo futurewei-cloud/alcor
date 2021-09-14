@@ -250,6 +250,8 @@ public class pseudo_controller {
 
         System.out.println("Built GoalState successfully, GoalStateV2 content for PORT1: \n" + message_one.toString() + "\n");
         System.out.println("Built GoalState successfully, GoalStateV2 content for PORT2: \n" + message_two.toString() + "\n");
+        System.out.println("GoalStateV2 size in bytes for host1: \n" + message_one.getSerializedSize() + "\n");
+        System.out.println("GoalStateV2 size in bytes for host2: \n" + message_two.getSerializedSize() + "\n");
 
         System.out.println("Time to call the GRPC functions");
 
@@ -334,16 +336,16 @@ public class pseudo_controller {
         System.out.println("Time to execute these ping commands concurrently");
 
         // Execute the pings.
-        for (concurrent_run_cmd cmd : concurrent_ping_cmds) {
-            if (user_chosen_ping_method == CONCURRENT_PING_MODE) {
-                //concurrent
-                Thread t = new Thread(cmd);
-                t.start();
-            } else {
-                // sequential
-                cmd.run();
-            }
-        }
+//        for (concurrent_run_cmd cmd : concurrent_ping_cmds) {
+//            if (user_chosen_ping_method == CONCURRENT_PING_MODE) {
+//                //concurrent
+//                Thread t = new Thread(cmd);
+//                t.start();
+//            } else {
+//                // sequential
+//                cmd.run();
+//            }
+//        }
 
         System.out.println("End of the test controller");
         channel.shutdown();
@@ -397,7 +399,7 @@ public class pseudo_controller {
     }
 
     private static void create_containers_on_both_hosts_concurrently() {
-        System.out.println("Creating containers on both hosts");
+        System.out.println("Creating containers on both hosts, ip_mac_map has " + ip_mac_map.keySet().size() + "keys");
         int i = 1;
         String background_pinger = "";
         String background_pingee = "";
@@ -418,19 +420,19 @@ public class pseudo_controller {
                 System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + aca_node_one_ip + "]");
                 node_one_port_ips.add(port_ip);
                 port_ip_to_host_ip_map.put(port_ip, aca_node_one_ip);
-                concurrent_create_containers_thread_pool.execute(() -> execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands, aca_node_one_ip, user_name, password));
+//                concurrent_create_containers_thread_pool.execute(() -> execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands, aca_node_one_ip, user_name, password));
                 background_pinger = port_ip;
             } else {
                 System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + aca_node_two_ip + "]");
                 node_two_port_ips.add(port_ip);
                 port_ip_to_host_ip_map.put(port_ip, aca_node_two_ip);
-                concurrent_create_containers_thread_pool.execute(() -> execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands, aca_node_two_ip, user_name, password));
+//                concurrent_create_containers_thread_pool.execute(() -> execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands, aca_node_two_ip, user_name, password));
                 background_pingee = port_ip;
             }
             i++;
         }
 
-        concurrent_create_containers_thread_pool.shutdown();
+//        concurrent_create_containers_thread_pool.shutdown();
         try {
             if (!concurrent_create_containers_thread_pool.awaitTermination(60, TimeUnit.SECONDS)) {
                 concurrent_create_containers_thread_pool.shutdownNow();
@@ -455,6 +457,7 @@ public class pseudo_controller {
 
     // Generates IP/MAC for host_many_per_host, and inserts them into the hashmap
     public static void generate_ip_macs(int amount_of_ports_to_generate) {
+        System.out.println("Need to generate " + amount_of_ports_to_generate + " ports");
         int i = 2;
         while (ip_mac_map.size() != amount_of_ports_to_generate) {
             if (i % 100 != 0) {
@@ -470,6 +473,7 @@ public class pseudo_controller {
             }
             i++;
         }
+        System.out.println("Finished generating " + amount_of_ports_to_generate + " ports, ip->mac map has "+ ip_mac_map.size() +" entries, ip->id map has "+port_ip_to_id_map.size()+" entries");
     }
 
 
