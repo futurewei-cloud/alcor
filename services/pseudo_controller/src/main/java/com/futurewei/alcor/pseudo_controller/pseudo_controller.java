@@ -341,16 +341,16 @@ public class pseudo_controller {
         System.out.println("Time to execute these ping commands concurrently");
 
         // Execute the pings.
-//        for (concurrent_run_cmd cmd : concurrent_ping_cmds) {
-//            if (user_chosen_ping_method == CONCURRENT_PING_MODE) {
-//                //concurrent
-//                Thread t = new Thread(cmd);
-//                t.start();
-//            } else {
-//                // sequential
-//                cmd.run();
-//            }
-//        }
+        for (concurrent_run_cmd cmd : concurrent_ping_cmds) {
+            if (user_chosen_ping_method == CONCURRENT_PING_MODE) {
+                //concurrent
+                Thread t = new Thread(cmd);
+                t.start();
+            } else {
+                // sequential
+                cmd.run();
+            }
+        }
 
         System.out.println("End of the test controller");
         channel.shutdown();
@@ -425,13 +425,13 @@ public class pseudo_controller {
                 System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + aca_node_one_ip + "]");
                 node_one_port_ips.add(port_ip);
                 port_ip_to_host_ip_map.put(port_ip, aca_node_one_ip);
-//                concurrent_create_containers_thread_pool.execute(() -> execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands, aca_node_one_ip, user_name, password));
+                concurrent_create_containers_thread_pool.execute(() -> execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands, aca_node_one_ip, user_name, password));
                 background_pinger = port_ip;
             } else {
                 System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + aca_node_two_ip + "]");
                 node_two_port_ips.add(port_ip);
                 port_ip_to_host_ip_map.put(port_ip, aca_node_two_ip);
-//                concurrent_create_containers_thread_pool.execute(() -> execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands, aca_node_two_ip, user_name, password));
+                concurrent_create_containers_thread_pool.execute(() -> execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands, aca_node_two_ip, user_name, password));
                 background_pingee = port_ip;
             }
             i++;
