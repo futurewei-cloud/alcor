@@ -94,7 +94,8 @@ public class IgniteConfiguration {
     private IgniteClient getThinIgniteClient() {
         ClientConfiguration cfg = new ClientConfiguration();
 
-        cfg.setAddresses(host + ":" + port);
+        cfg.setAddresses(host + ":" + port)
+                .setPartitionAwarenessEnabled(true);
 
         if (keyStorePath != null && keyStorePassword != null &&
                 trustStorePath != null && trustStorePassword != null) {
