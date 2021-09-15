@@ -15,13 +15,10 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.dataplane.client.pulsar;
 
-import com.futurewei.alcor.dataplane.cache.LocalCache;
 import com.futurewei.alcor.dataplane.cache.NodeTopicCache;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
-import com.futurewei.alcor.dataplane.entity.MulticastGoalStateV2;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
-import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
 import com.futurewei.alcor.dataplane.exception.GroupTopicNotFound;
 import com.futurewei.alcor.dataplane.exception.MulticastTopicNotFound;
 import com.futurewei.alcor.web.entity.dataplane.MulticastGoalStateByte;
@@ -40,7 +37,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//@Component
 @Service("pulsarDataPlaneClient")
 public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, MulticastGoalState> {
     private static final Logger LOG = LoggerFactory.getLogger(DataPlaneClientImpl.class);

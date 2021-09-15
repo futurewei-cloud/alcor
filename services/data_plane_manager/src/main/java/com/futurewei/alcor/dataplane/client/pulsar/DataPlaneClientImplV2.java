@@ -21,9 +21,11 @@ package com.futurewei.alcor.dataplane.client.pulsar;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalStateV2;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service("pulsarDataPlaneClient")
 public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2, MulticastGoalStateV2> {
     @Override
     public List<String> sendGoalStates(List<UnicastGoalStateV2> unicastGoalStates) throws Exception {

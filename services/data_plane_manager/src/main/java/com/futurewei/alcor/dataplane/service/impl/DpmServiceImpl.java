@@ -23,9 +23,7 @@ import com.futurewei.alcor.dataplane.cache.VpcGatewayInfoCache;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.client.ZetaGatewayClient;
 import com.futurewei.alcor.dataplane.config.Config;
-import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
-import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
-import com.futurewei.alcor.dataplane.entity.ZetaPortGoalState;
+import com.futurewei.alcor.dataplane.entity.*;
 import com.futurewei.alcor.dataplane.exception.NeighborInfoNotFound;
 import com.futurewei.alcor.dataplane.exception.PortBindingHostIpNotFound;
 import com.futurewei.alcor.dataplane.exception.UnknownResourceType;
@@ -77,10 +75,10 @@ public class DpmServiceImpl implements DpmService {
     private SubnetPortsCache subnetPortsCache;
 
     @Autowired
-    private DataPlaneClient grpcDataPlaneClient;
+    private DataPlaneClient<UnicastGoalState, MulticastGoalState> grpcDataPlaneClient;
 
     @Autowired
-    private DataPlaneClient pulsarDataPlaneClient;;
+    private DataPlaneClient<UnicastGoalState, MulticastGoalState> pulsarDataPlaneClient;;
 
     @Autowired
     private VpcService vpcService;
