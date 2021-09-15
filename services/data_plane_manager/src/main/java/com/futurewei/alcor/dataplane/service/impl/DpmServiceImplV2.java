@@ -74,10 +74,10 @@ public class DpmServiceImplV2 implements DpmService {
     private SubnetPortsCache subnetPortsCache;
 
     @Autowired
-    private DataPlaneClient grpcDataPlaneClient;
+    private DataPlaneClient<UnicastGoalStateV2, MulticastGoalStateV2> grpcDataPlaneClient;
 
     @Autowired
-    private DataPlaneClient pulsarDataPlaneClient;;
+    private DataPlaneClient<UnicastGoalStateV2, MulticastGoalStateV2> pulsarDataPlaneClient;;
 
     @Autowired
     private VpcService vpcService;
@@ -464,7 +464,8 @@ public class DpmServiceImplV2 implements DpmService {
 
         //TODO: Merge UnicastGoalState with the same content, build MulticastGoalState
 
-        return grpcDataPlaneClient.sendGoalStates(unicastGoalStates);
+//        return grpcDataPlaneClient.sendGoalStates(unicastGoalStates);
+        return grpcDataPlaneClient.sendGoalStates(null);
     }
 
     private InternalDPMResultList buildResult(NetworkConfiguration networkConfig, List<String> failedHosts, long startTime) {

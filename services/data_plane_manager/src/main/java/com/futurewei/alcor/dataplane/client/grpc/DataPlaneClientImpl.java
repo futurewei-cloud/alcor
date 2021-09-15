@@ -18,9 +18,7 @@ package com.futurewei.alcor.dataplane.client.grpc;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.config.Config;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
-import com.futurewei.alcor.dataplane.entity.MulticastGoalStateV2;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
-import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
 import com.futurewei.alcor.schema.GoalStateProvisionerGrpc;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus;
@@ -38,7 +36,6 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
-//@Component
 @Service("grpcDataPlaneClient")
 public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, MulticastGoalState> {
     private static final Logger LOG = LoggerFactory.getLogger(DataPlaneClientImpl.class);
