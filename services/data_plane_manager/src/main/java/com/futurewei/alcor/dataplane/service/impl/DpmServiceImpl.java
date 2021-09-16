@@ -453,6 +453,9 @@ public class DpmServiceImpl implements DpmService {
             }
         }
 
+        /**
+         * The flag patchRouterSubnetStates is to fix issue #686 (issue from test scenario 4.5)
+         */
         if (patchRouterSubnetStates) {
             patchGoalstateForRouterSubnet(networkConfig, hostsSubnets, multicastGoalState);
         }
