@@ -302,4 +302,9 @@ public class PortRepository {
     public int getSubnetPortCount(String subnetId) throws CacheException {
         return subnetPortsRepository.getSubnetPortNumber(subnetId);
     }
+
+    @DurationStatistics
+    public void createSubnetCache(String subnetId) throws CacheException {
+        subnetPortsRepository.createSubnetCache(subnetId);
+    }
 }
