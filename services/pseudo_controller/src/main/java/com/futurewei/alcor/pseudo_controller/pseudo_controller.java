@@ -251,8 +251,8 @@ public class pseudo_controller {
         Goalstate.GoalStateV2 message_one = GoalState_builder_one.build();
         Goalstate.GoalStateV2 message_two = GoalState_builder_two.build();
 
-        System.out.println("Built GoalState successfully, GoalStateV2 content for PORT1: \n" + message_one.toString() + "\n");
-        System.out.println("Built GoalState successfully, GoalStateV2 content for PORT2: \n" + message_two.toString() + "\n");
+//        System.out.println("Built GoalState successfully, GoalStateV2 content for PORT1: \n" + message_one.toString() + "\n");
+//        System.out.println("Built GoalState successfully, GoalStateV2 content for PORT2: \n" + message_two.toString() + "\n");
         System.out.println("GoalStateV2 size in bytes for host1: \n" + message_one.getSerializedSize() + "\n");
         System.out.println("GoalStateV2 size in bytes for host2: \n" + message_two.getSerializedSize() + "\n");
 
@@ -289,8 +289,8 @@ public class pseudo_controller {
         System.out.println("After calling onNext");
         response_observer.onCompleted();
 
-        System.out.println("Wait no longer than 60 seconds until both goalstates are sent to both hosts.");
-        Awaitility.await().atMost(60, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == NUMBER_OF_NODES);
+        System.out.println("Wait no longer than 600 seconds until both goalstates are sent to both hosts.");
+        Awaitility.await().atMost(600, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == NUMBER_OF_NODES);
 
 
 //        System.out.println("Try to send gsv1 to the host!");
