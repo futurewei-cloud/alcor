@@ -202,14 +202,14 @@ public class pseudo_controller {
                 Router.RouterConfiguration.SubnetRoutingTable.Builder subnet_routing_table_builder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
                 subnet_routing_table_builder
                         .setSubnetId(subnet_id_1)
-                        .setRoutingRules(0, router_rule_builder.build());
+                        .addRoutingRules(router_rule_builder.build());
 
                 router_configuration_builder
                         .setRequestId(port_id+"_rs")
                         .setId(port_id+"_r")
                         .setUpdateType(Common.UpdateType.FULL)
                         .setHostDvrMacAddress(port_mac)
-                        .setSubnetRoutingTables(0, subnet_routing_table_builder.build());
+                        .addSubnetRoutingTables(subnet_routing_table_builder.build());
 
                 router_state_builder
                         .setOperationType(Common.OperationType.INFO)
