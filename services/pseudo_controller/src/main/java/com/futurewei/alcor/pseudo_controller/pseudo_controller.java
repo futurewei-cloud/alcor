@@ -172,13 +172,56 @@ public class pseudo_controller {
             new_neighborState_builder.setConfiguration(NeighborConfiguration_builder.build());
             Neighbor.NeighborState neighborState_node_one = new_neighborState_builder.build();
 
-
             if (host_ip.equals(aca_node_one_ip)) {
 
                 GoalState_builder_one.putPortStates(port_state_one.getConfiguration().getId(), port_state_one);
 
                 host_resource_builder_node_one.addResources(port_one_resource_id);
                 // if this port is on host_one, then it is a neighbor for ports on host_two
+
+                Router.RouterState.Builder router_state_builder = Router.RouterState.newBuilder();
+
+                Router.RouterConfiguration.Builder router_configuration_builder = Router.RouterConfiguration.newBuilder();
+
+                Router.RouterConfiguration.RoutingRule.Builder router_rule_builder = Router.RouterConfiguration.RoutingRule.newBuilder();
+
+                Router.RouterConfiguration.RoutingRuleExtraInfo.Builder routing_rule_extra_info_builder = Router.RouterConfiguration.RoutingRuleExtraInfo.newBuilder();
+
+                routing_rule_extra_info_builder
+                        .setDestinationType(Router.DestinationType.VPC_GW)
+                        .setNextHopMac(port_mac);
+
+                router_rule_builder
+                        .setId(port_id)
+                        .setName(port_id)
+                        .setDestination(port_ip+"/24")
+                        .setNextHopIp(aca_node_one_ip)
+                        .setPriority(999)
+                        .setRoutingRuleExtraInfo(routing_rule_extra_info_builder.build());
+
+                Router.RouterConfiguration.SubnetRoutingTable.Builder subnet_routing_table_builder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
+                subnet_routing_table_builder
+                        .setSubnetId(subnet_id_1)
+                        .setRoutingRules(0, router_rule_builder.build());
+
+                router_configuration_builder
+                        .setRequestId(port_id+"_rs")
+                        .setId(port_id+"_r")
+                        .setUpdateType(Common.UpdateType.FULL)
+                        .setHostDvrMacAddress(port_mac)
+                        .setSubnetRoutingTables(0, subnet_routing_table_builder.build());
+
+                router_state_builder
+                        .setOperationType(Common.OperationType.INFO)
+                        .setConfiguration(router_configuration_builder.build());
+                Router.RouterState router_state = router_state_builder.build();
+
+                GoalState_builder_two.putRouterStates(router_state.getConfiguration().getId(), router_state);
+                Goalstate.ResourceIdType resource_id_type_router_node_two = Goalstate.ResourceIdType.newBuilder().
+                        setType(Common.ResourceType.ROUTER)
+                        .setId(router_state.getConfiguration().getId())
+                        .build();
+                host_resource_builder_node_two.addResources(resource_id_type_router_node_two);
                 GoalState_builder_two.putNeighborStates(neighborState_node_one.getConfiguration().getId(), neighborState_node_one);
                 Goalstate.ResourceIdType resource_id_type_neighbor_node_one = Goalstate.ResourceIdType.newBuilder().
                         setType(Common.ResourceType.NEIGHBOR).setId(neighborState_node_one.getConfiguration().getId()).build();
@@ -289,8 +332,8 @@ public class pseudo_controller {
         System.out.println("After calling onNext");
         response_observer.onCompleted();
 
-        System.out.println("Wait no longer than 600 seconds until both goalstates are sent to both hosts.");
-        Awaitility.await().atMost(600, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == NUMBER_OF_NODES);
+        System.out.println("Wait no longer than 6000 seconds until both goalstates are sent to both hosts.");
+        Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == NUMBER_OF_NODES);
 
 
 //        System.out.println("Try to send gsv1 to the host!");
