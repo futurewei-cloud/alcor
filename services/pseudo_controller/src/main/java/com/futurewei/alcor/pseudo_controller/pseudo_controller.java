@@ -205,6 +205,7 @@ public class pseudo_controller {
                         .addRoutingRules(router_rule_builder.build());
 
                 router_configuration_builder
+                        .setRevisionNumber(777)
                         .setRequestId(port_id+"_rs")
                         .setId(port_id+"_r")
                         .setUpdateType(Common.UpdateType.FULL)
