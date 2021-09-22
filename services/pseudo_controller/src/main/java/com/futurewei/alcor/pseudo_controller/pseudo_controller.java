@@ -252,6 +252,7 @@ public class pseudo_controller {
         subnet_configuration_builder.setId(subnet_id_1);
         subnet_configuration_builder.setCidr("10.0.0.0/24");
         subnet_configuration_builder.setTunnelId(21);
+        subnet_configuration_builder.setGateway(Subnet.SubnetConfiguration.Gateway.newBuilder().setIpAddress("0.0.0.0").setMacAddress("6c:dd:ee:0:0:40").build());
 
         new_subnet_states.setConfiguration(subnet_configuration_builder.build());
 
