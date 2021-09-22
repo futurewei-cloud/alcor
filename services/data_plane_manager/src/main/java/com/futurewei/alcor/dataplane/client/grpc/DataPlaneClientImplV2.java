@@ -32,15 +32,12 @@ import io.grpc.stub.StreamObserver;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.logging.Level;
 
 @Service("grpcDataPlaneClient")
-@Component
 public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2, MulticastGoalStateV2> {
 
     private static DataPlaneClientImplV2 instance = null;
