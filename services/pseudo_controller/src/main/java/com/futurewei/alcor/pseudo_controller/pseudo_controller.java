@@ -209,7 +209,7 @@ public class pseudo_controller {
                         .setRequestId(port_id+"_rs")
                         .setId(port_id+"_r")
                         .setUpdateType(Common.UpdateType.FULL)
-                        .setHostDvrMacAddress(port_mac)
+                        .setHostDvrMacAddress("6c:dd:ee:0:0:40")
                         .addSubnetRoutingTables(subnet_routing_table_builder.build());
 
                 router_state_builder
