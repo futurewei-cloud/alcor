@@ -19,6 +19,7 @@
 package com.futurewei.alcor.dataplane.client.grpc;
 
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
+import com.futurewei.alcor.dataplane.config.Config;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalStateV2;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
 import com.futurewei.alcor.schema.GoalStateProvisionerGrpc;
@@ -31,6 +32,7 @@ import io.grpc.stub.StreamObserver;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -38,6 +40,7 @@ import java.util.concurrent.*;
 import java.util.logging.Level;
 
 @Service("grpcDataPlaneClient")
+@Component
 public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2, MulticastGoalStateV2> {
 
     private static DataPlaneClientImplV2 instance = null;
@@ -71,14 +74,14 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         return results;
     }
 
-    public static DataPlaneClientImplV2 getInstance(int numberOfGrpcChannelPerHost, int numberOfWarmupsPerChannel, ArrayList<String> monitorHosts) {
+    public static DataPlaneClientImplV2 getInstance(Config globalConfig, ArrayList<String> monitorHosts) {
         if (instance == null) {
-            instance = new DataPlaneClientImplV2(numberOfGrpcChannelPerHost, numberOfWarmupsPerChannel, monitorHosts);
+            instance = new DataPlaneClientImplV2(globalConfig, monitorHosts);
         }
         return instance;
     }
 
-    public DataPlaneClientImplV2(int numberOfGrpcChannelPerHost, int numberOfWarmupsPerChannel, ArrayList<String> monitorHosts) {
+    public DataPlaneClientImplV2(Config globalConfig, ArrayList<String> monitorHosts) {
         // each host should have at least 1 gRPC channel
         if(numberOfGrpcChannelPerHost < 1) {
             numberOfGrpcChannelPerHost = 1;
@@ -95,8 +98,8 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
             LOG.info("Monitoring this host: " + host);
         }
         LOG.info("Done printing out all monitorHosts");
-        this.numberOfGrpcChannelPerHost = numberOfGrpcChannelPerHost;
-        this.numberOfWarmupsPerChannel = numberOfWarmupsPerChannel;
+        this.numberOfGrpcChannelPerHost = globalConfig.numberOfGrpcChannelPerHost;
+        this.numberOfWarmupsPerChannel = globalConfig.numberOfWarmupsPerChannel;
         this.hostAgentPort = 50001;
 
         this.executor = new ThreadPoolExecutor(100,
@@ -149,7 +152,7 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
     private GrpcChannelStub getOrCreateGrpcChannel(String hostIp) {
         if (!this.hostIpGrpcChannelStubMap.containsKey(hostIp)) {
             this.hostIpGrpcChannelStubMap.put(hostIp, createGrpcChannelStubArrayList(hostIp));
-            logger.log(Level.INFO, "[getOrCreateGrpcChannel] Created a channel and stub to host IP: " + hostIp);
+            LOG.info("[getOrCreateGrpcChannel] Created a channel and stub to host IP: " + hostIp);
         }
         int usingChannelWithThisIndex = ThreadLocalRandom.current().nextInt(0, numberOfGrpcChannelPerHost);
         ManagedChannel chan = this.hostIpGrpcChannelStubMap.get(hostIp).get(usingChannelWithThisIndex).channel;
@@ -159,9 +162,9 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         if (channelState != ConnectivityState.READY && channelState != ConnectivityState.CONNECTING && channelState != ConnectivityState.IDLE) {
             GrpcChannelStub newChannelStub = createGrpcChannelStub(hostIp);
             this.hostIpGrpcChannelStubMap.get(hostIp).set(usingChannelWithThisIndex, newChannelStub);
-            logger.log(Level.INFO, "[getOrCreateGrpcChannel] Replaced a channel and stub to host IP: " + hostIp);
+            LOG.info("[getOrCreateGrpcChannel] Replaced a channel and stub to host IP: " + hostIp);
         }
-        logger.log(Level.FINE, "[getOrCreateGrpcChannel] Using channel and stub index " + usingChannelWithThisIndex + " to host IP: " + hostIp);
+        LOG.info("[getOrCreateGrpcChannel] Using channel and stub index " + usingChannelWithThisIndex + " to host IP: " + hostIp);
         return this.hostIpGrpcChannelStubMap.get(hostIp).get(usingChannelWithThisIndex);
     }
 
@@ -174,7 +177,7 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
             arr.add(channelStub);
         }
         long end = System.currentTimeMillis();
-        logger.log(Level.FINE, "[createGrpcChannelStubArrayList] Created " + numberOfGrpcChannelPerHost + " gRPC channel stubs for host " + hostIp + ", elapsed Time in milli seconds: " + (end - start));
+        LOG.info("[createGrpcChannelStubArrayList] Created " + numberOfGrpcChannelPerHost + " gRPC channel stubs for host " + hostIp + ", elapsed Time in milli seconds: " + (end - start));
         return arr;
     }
 
@@ -185,35 +188,35 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver = new StreamObserver<>() {
             @Override
             public void onNext(Goalstateprovisioner.GoalStateOperationReply reply) {
-                logger.log(Level.INFO, "Receive warmup response from ACA@" + hostIp + " | " + reply.toString());
+                LOG.info("Receive warmup response from ACA@" + hostIp + " | " + reply.toString());
             }
 
             @Override
             public void onError(Throwable t) {
-                logger.log(Level.WARNING, "Receive warmup error from ACA@" + hostIp + " |  " + t.getMessage());
+                LOG.warn("Receive warmup error from ACA@" + hostIp + " |  " + t.getMessage());
             }
 
             @Override
             public void onCompleted() {
-                logger.log(Level.INFO, "Complete receiving warmup message from ACA@" + hostIp);
+                LOG.info("Complete receiving warmup message from ACA@" + hostIp);
             }
         };
 
         StreamObserver<Goalstate.GoalStateV2> requestObserver = asyncStub.pushGoalStatesStream(responseObserver);
         try {
             Goalstate.GoalStateV2 goalState = Goalstate.GoalStateV2.getDefaultInstance();
-            logger.log(Level.INFO, "Sending GS to Host " + hostIp + " as follows | " + goalState.toString());
+            LOG.info("Sending GS to Host " + hostIp + " as follows | " + goalState.toString());
             for (int i = 0; i < numberOfWarmupsPerChannel; i++) {
                 requestObserver.onNext(goalState);
             }
         } catch (RuntimeException e) {
             // Cancel RPC
-            logger.log(Level.WARNING, "[doSendGoalState] Sending GS, but error happened | " + e.getMessage());
+            LOG.warn("[doSendGoalState] Sending GS, but error happened | " + e.getMessage());
             requestObserver.onError(e);
             throw e;
         }
         // Mark the end of requests
-        logger.log(Level.INFO, "Sending warmup GS to Host " + hostIp + " is completed");
+        LOG.info("Sending warmup GS to Host " + hostIp + " is completed");
         return;
     }
 
@@ -251,15 +254,15 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
 
         StreamObserver<Goalstate.GoalStateV2> requestObserver = asyncStub.pushGoalStatesStream(responseObserver);
         try {
-            Goalstate.GoalStateV2 goalState = hostGoalState.getGoalState();
+            Goalstate.GoalStateV2 goalState = unicastGoalState.getGoalState();
             LOG.info("Sending GS to Host " + hostIp + " as follows | " + goalState.toString());
             requestObserver.onNext(goalState);
-            if (hostGoalState.getGoalState().getNeighborStatesCount() == 1 && monitorHosts.contains(hostIp)) {
+            if (unicastGoalState.getGoalState().getNeighborStatesCount() == 1 && monitorHosts.contains(hostIp)) {
                 long sent_gs_time = System.currentTimeMillis();
                 // If there's only one neighbor state and it is trying to send it to aca_node_one, the IP of which is now
                 // hardcoded) this send goalstate action is probably caused by on-demand workflow, need to record when it
                 // sends this goalState so what we can look into this and the ACA log to see how much time was spent.
-                String neighbor_id = hostGoalState.getGoalState().getNeighborStatesMap().keySet().iterator().next();
+                String neighbor_id = unicastGoalState.getGoalState().getNeighborStatesMap().keySet().iterator().next();
                 LOG.info("Sending neighbor ID: " + neighbor_id + " at: " + sent_gs_time);
             }
         } catch (RuntimeException e) {
