@@ -163,7 +163,7 @@ public class pseudo_controller {
             NeighborConfiguration_builder.setHostIpAddress(host_ip);
 
             Neighbor.NeighborConfiguration.FixedIp.Builder neighbor_fixed_ip_builder = Neighbor.NeighborConfiguration.FixedIp.newBuilder();
-            neighbor_fixed_ip_builder.setNeighborType(Neighbor.NeighborType.L2);
+            neighbor_fixed_ip_builder.setNeighborType(Neighbor.NeighborType.L3);
             neighbor_fixed_ip_builder.setSubnetId(subnet_id_1);
             neighbor_fixed_ip_builder.setIpAddress(port_ip);
 
@@ -179,50 +179,6 @@ public class pseudo_controller {
                 host_resource_builder_node_one.addResources(port_one_resource_id);
                 // if this port is on host_one, then it is a neighbor for ports on host_two
 
-                Router.RouterState.Builder router_state_builder = Router.RouterState.newBuilder();
-
-                Router.RouterConfiguration.Builder router_configuration_builder = Router.RouterConfiguration.newBuilder();
-
-                Router.RouterConfiguration.RoutingRule.Builder router_rule_builder = Router.RouterConfiguration.RoutingRule.newBuilder();
-
-                Router.RouterConfiguration.RoutingRuleExtraInfo.Builder routing_rule_extra_info_builder = Router.RouterConfiguration.RoutingRuleExtraInfo.newBuilder();
-
-                routing_rule_extra_info_builder
-                        .setDestinationType(Router.DestinationType.VPC_GW)
-                        .setNextHopMac(port_mac);
-
-                router_rule_builder
-                        .setId(port_id)
-                        .setName(port_id)
-                        .setDestination(port_ip+"/24")
-                        .setNextHopIp(aca_node_one_ip)
-                        .setPriority(999)
-                        .setRoutingRuleExtraInfo(routing_rule_extra_info_builder.build());
-
-                Router.RouterConfiguration.SubnetRoutingTable.Builder subnet_routing_table_builder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
-                subnet_routing_table_builder
-                        .setSubnetId(subnet_id_1)
-                        .addRoutingRules(router_rule_builder.build());
-
-                router_configuration_builder
-                        .setRevisionNumber(777)
-                        .setRequestId(port_id+"_rs")
-                        .setId(port_id+"_r")
-                        .setUpdateType(Common.UpdateType.FULL)
-                        .setHostDvrMacAddress("6c:dd:ee:0:0:40")
-                        .addSubnetRoutingTables(subnet_routing_table_builder.build());
-
-                router_state_builder
-                        .setOperationType(Common.OperationType.INFO)
-                        .setConfiguration(router_configuration_builder.build());
-                Router.RouterState router_state = router_state_builder.build();
-
-                GoalState_builder_two.putRouterStates(router_state.getConfiguration().getId(), router_state);
-                Goalstate.ResourceIdType resource_id_type_router_node_two = Goalstate.ResourceIdType.newBuilder().
-                        setType(Common.ResourceType.ROUTER)
-                        .setId(router_state.getConfiguration().getId())
-                        .build();
-                host_resource_builder_node_two.addResources(resource_id_type_router_node_two);
                 GoalState_builder_two.putNeighborStates(neighborState_node_one.getConfiguration().getId(), neighborState_node_one);
                 Goalstate.ResourceIdType resource_id_type_neighbor_node_one = Goalstate.ResourceIdType.newBuilder().
                         setType(Common.ResourceType.NEIGHBOR).setId(neighborState_node_one.getConfiguration().getId()).build();
@@ -239,7 +195,52 @@ public class pseudo_controller {
             }
             System.out.println("Finished port state for port [" + port_ip + "] on host: [" + host_ip + "]");
         }
+        Router.RouterState.Builder router_state_builder = Router.RouterState.newBuilder();
 
+        Router.RouterConfiguration.Builder router_configuration_builder = Router.RouterConfiguration.newBuilder();
+
+        Router.RouterConfiguration.RoutingRule.Builder router_rule_builder = Router.RouterConfiguration.RoutingRule.newBuilder();
+
+        Router.RouterConfiguration.RoutingRuleExtraInfo.Builder routing_rule_extra_info_builder = Router.RouterConfiguration.RoutingRuleExtraInfo.newBuilder();
+
+        routing_rule_extra_info_builder
+                .setDestinationType(Router.DestinationType.VPC_GW)
+                .setNextHopMac("6c:dd:ee:0:0:40");
+
+        router_rule_builder
+                .setId("tc_sample_routing_rule")
+                .setName("tc_sample_routing_rule")
+                .setDestination("10.0.0.0/24")
+                .setNextHopIp(aca_node_one_ip)
+                .setPriority(999)
+                .setRoutingRuleExtraInfo(routing_rule_extra_info_builder.build());
+
+        Router.RouterConfiguration.SubnetRoutingTable.Builder subnet_routing_table_builder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
+        subnet_routing_table_builder
+                .setSubnetId(subnet_id_1)
+                .addRoutingRules(router_rule_builder.build());
+
+        router_configuration_builder
+                .setRevisionNumber(777)
+                .setRequestId("tc_sample_routing_rule"+"_rs")
+                .setId("tc_sample_routing_rule"+"_r")
+                .setUpdateType(Common.UpdateType.FULL)
+                .setHostDvrMacAddress("6c:dd:ee:0:0:40")
+                .addSubnetRoutingTables(subnet_routing_table_builder.build());
+
+        router_state_builder
+                .setOperationType(Common.OperationType.INFO)
+                .setConfiguration(router_configuration_builder.build());
+        Router.RouterState router_state = router_state_builder.build();
+
+        GoalState_builder_two.putRouterStates(router_state.getConfiguration().getId(), router_state);
+        GoalState_builder_one.putRouterStates(router_state.getConfiguration().getId(), router_state);
+        Goalstate.ResourceIdType resource_id_type_router_node_two = Goalstate.ResourceIdType.newBuilder().
+                setType(Common.ResourceType.ROUTER)
+                .setId(router_state.getConfiguration().getId())
+                .build();
+        host_resource_builder_node_two.addResources(resource_id_type_router_node_two);
+        host_resource_builder_node_one.addResources(resource_id_type_router_node_two);
         // fill in subnet state structs
         Subnet.SubnetState.Builder new_subnet_states = Subnet.SubnetState.newBuilder();
 
