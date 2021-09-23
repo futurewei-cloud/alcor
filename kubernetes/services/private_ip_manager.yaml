@@ -47,6 +47,12 @@ spec:
         #- image: fwnetworking/controller:ip_manager-v0.3.0
           name: ipmanager-web
           imagePullPolicy: IfNotPresent
+          # The value is determined according to the actual situation, the following value is for the deployment on AWS
+          resources:
+            limits:
+              cpu: 500m
+            requests:
+              cpu: 200m
           command: ["java", "-jar", "/app/AlcorPrivateIpManager-0.1.0.jar", "--spring.config.location=/etc/ip/application.properties"]
           ports:
             - containerPort: 8080

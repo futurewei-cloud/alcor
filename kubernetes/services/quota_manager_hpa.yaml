@@ -1,0 +1,79 @@
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: quotamanager-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: quotamanager
+  # if minReplicas is less than Deployment replicas value, it may cause scale down
+  minReplicas: 5
+  maxReplicas: 10
+  behavior:
+    scaleDown:
+      # Indicates that the stability window considers the expected state of the past (here within 300 sec) to prevent expansion and contraction
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 15
+      # The autoscaler will choose the strategy that affects the minimum number of Pods
+      selectPolicy: Min
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 15
+        - type: Pods
+          value: 4
+          periodSeconds: 15
+      selectPolicy: Max
+  metrics:
+#   Set the average usage rate of the cpu, scale up if it exceeds 50
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50
+#    The average data volume per second reaches 1000 for scaling up
+#    - type: Pods
+#      pods:
+#        metric:
+#          name: packets-per-second
+#        target:
+#          type: AverageValue
+#          averageValue: 1k
+
+#    The value is derived from Ingress "main-route", scale up when the number of requests per second in Ingress reaches 2000
+#    - type: Object
+#      object:
+#        metric:
+#          name: requests-per-second
+#        describedObject:
+#          apiVersion: networking.k8s.io/v1beta1
+#          kind: Ingress
+#          name: main-route
+#        target:
+#          kind: Value
+#          value: 10k
+
+# HPA's current status data
+status:
+  currentReplicas: 1
+  desiredReplicas: 1
+  conditions:
+    - status: "True"
+      type: "True"
+#    - type: Object
+#      object:
+#        metric:
+#          name: requests-per-second
+#        describedObject:
+#          apiVersion: networking.k8s.io/v1beta1
+#          kind: Ingress
+#          name: main-route
+#        current:
+#          value: 10k

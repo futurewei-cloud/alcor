@@ -51,58 +51,72 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
   kubectl delete configmap sg-configmap
   kubectl delete services sgmanager-service
   kubectl delete deployment sgmanager
+  kubectl delete hpa sgmanager-hpa
 
   kubectl delete configmap vpc-configmap
   kubectl delete services vpcmanager-service
   kubectl delete deployment vpcmanager
+  kubectl delete hpa vpcmanager-hpa
 
   kubectl delete configmap subnet-configmap
   kubectl delete services subnetmanager-service
   kubectl delete deployment subnetmanager
+  kubectl delete hpa subnetmanager-hpa
 
   kubectl delete configmap route-configmap
   kubectl delete services routemanager-service
   kubectl delete deployment routemanager
+  kubectl delete hpa routemanager-hpa
 
   kubectl delete configmap mac-configmap
   kubectl delete services macmanager-service
   kubectl delete deployment macmanager
+  kubectl delete hpa macmanager-hpa
 
   kubectl delete configmap ip-configmap
   kubectl delete services ipmanager-service
   kubectl delete deployment ipmanager
+  kubectl delete hpa ipmanager-hpa
 
   kubectl delete configmap port-configmap
   kubectl delete services portmanager-service
   kubectl delete deployment portmanager
+  kubectl delete hpa portmanager-hpa
   
   kubectl delete configmap quota-configmap
   kubectl delete services quotamanager-service
   kubectl delete deployment quotamanager
+  kubectl delete hpa quotamanager-hpa
 
   kubectl delete configmap node-configmap
   kubectl delete services nodemanager-service
   kubectl delete deployment nodemanager
+  kubectl delete hpa nodemanager-hpa
 
   kubectl delete configmap api-configmap
   kubectl delete services apimanager-service
   kubectl delete deployment apimanager
+  kubectl delete hpa apimanager-hpa
 
   kubectl delete configmap dpm-configmap
   kubectl delete services dataplanemanager-service
   kubectl delete deployment dataplanemanager
+  kubectl delete hpa dataplanemanager-hpa
   
   kubectl delete configmap eip-configmap
   kubectl delete services eipmanager-service
   kubectl delete deployment eipmanager
+  kubectl delete hpa eipmanager-hpa
 
   kubectl delete configmap ncm-configmap
   kubectl delete services netwconfigmanager-service
   kubectl delete deployment netwconfigmanager
+  kubectl delete hpa netwconfigmanager-hpa
 
   kubectl delete configmap gateway-configmap
   kubectl delete services gatewaymanager-service
   kubectl delete deployment gatewaymanager
+  kubectl delete hpa gatewaymanager-hpa
 
 
 elif [[ "$OSTYPE" == "darwin"* ]]; then
