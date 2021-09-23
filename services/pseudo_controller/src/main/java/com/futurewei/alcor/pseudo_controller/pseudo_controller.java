@@ -65,6 +65,7 @@ public class pseudo_controller {
     static String vpc_id_1 = "2b08a5bc-b718-11ea-b3de-111111111112";
     static String port_ip_template = "11111111-b718-11ea-b3de-";
     static String subnet_id_1 = "27330ae4-b718-11ea-b3df-111111111113";
+    static String subnet_id_2 = "27330ae4-b718-11ea-b3df-111111111114";
     static String ips_ports_ip_prefix = "10";
     static String mac_port_prefix = "6c:dd:ee:";
     static String project_id = "alcor_testing_project";
@@ -220,13 +221,19 @@ public class pseudo_controller {
                 .setSubnetId(subnet_id_1)
                 .addRoutingRules(router_rule_builder.build());
 
+        Router.RouterConfiguration.SubnetRoutingTable.Builder subnet_routing_table_builder_two = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
+        subnet_routing_table_builder
+                .setSubnetId(subnet_id_2)
+                .addRoutingRules(router_rule_builder.build());
+
         router_configuration_builder
                 .setRevisionNumber(777)
                 .setRequestId("tc_sample_routing_rule"+"_rs")
                 .setId("tc_sample_routing_rule"+"_r")
                 .setUpdateType(Common.UpdateType.FULL)
                 .setHostDvrMacAddress("6c:dd:ee:0:0:40")
-                .addSubnetRoutingTables(subnet_routing_table_builder.build());
+                .addSubnetRoutingTables(subnet_routing_table_builder.build())
+                .addSubnetRoutingTables(subnet_routing_table_builder_two.build());
 
         router_state_builder
                 .setOperationType(Common.OperationType.INFO)
@@ -258,6 +265,25 @@ public class pseudo_controller {
         new_subnet_states.setConfiguration(subnet_configuration_builder.build());
 
         Subnet.SubnetState subnet_state_for_both_nodes = new_subnet_states.build();
+
+        // fill in subnet state structs
+        Subnet.SubnetState.Builder new_subnet_states_two = Subnet.SubnetState.newBuilder();
+
+        new_subnet_states_two.setOperationType(Common.OperationType.INFO);
+
+        Subnet.SubnetConfiguration.Builder subnet_configuration_builder_two = Subnet.SubnetConfiguration.newBuilder();
+
+        subnet_configuration_builder_two.setRevisionNumber(2);
+        subnet_configuration_builder_two.setVpcId(vpc_id_1);
+        subnet_configuration_builder_two.setId(subnet_id_2);
+        subnet_configuration_builder_two.setCidr("10.0.0.0/24");
+        subnet_configuration_builder_two.setTunnelId(22);
+        subnet_configuration_builder_two.setGateway(Subnet.SubnetConfiguration.Gateway.newBuilder().setIpAddress("0.0.0.1").setMacAddress("6c:dd:ee:0:0:41").build());
+
+        new_subnet_states_two.setConfiguration(subnet_configuration_builder.build());
+
+        Subnet.SubnetState subnet_state_for_both_nodes_two = new_subnet_states.build();
+
         // put the new subnet state of subnet 1 into the goalstatev2
 
         // fill in VPC state structs
@@ -276,17 +302,24 @@ public class pseudo_controller {
         Vpc.VpcState vpc_state_for_both_nodes = new_vpc_states.build();
 
         GoalState_builder_one.putSubnetStates(subnet_state_for_both_nodes.getConfiguration().getId(), subnet_state_for_both_nodes);
+        GoalState_builder_one.putSubnetStates(subnet_state_for_both_nodes_two.getConfiguration().getId(), subnet_state_for_both_nodes_two);
         GoalState_builder_two.putSubnetStates(subnet_state_for_both_nodes.getConfiguration().getId(), subnet_state_for_both_nodes);
+        GoalState_builder_two.putSubnetStates(subnet_state_for_both_nodes_two.getConfiguration().getId(), subnet_state_for_both_nodes_two);
         GoalState_builder_one.putVpcStates(vpc_state_for_both_nodes.getConfiguration().getId(), vpc_state_for_both_nodes);
         GoalState_builder_two.putVpcStates(vpc_state_for_both_nodes.getConfiguration().getId(), vpc_state_for_both_nodes);
 
         Goalstate.ResourceIdType subnet_resource_id_type = Goalstate.ResourceIdType.newBuilder()
                 .setType(Common.ResourceType.SUBNET).setId(subnet_state_for_both_nodes.getConfiguration().getId()).build();
+        Goalstate.ResourceIdType subnet_resource_id_type_two = Goalstate.ResourceIdType.newBuilder()
+                .setType(Common.ResourceType.SUBNET).setId(subnet_state_for_both_nodes_two.getConfiguration().getId()).build();
 
         Goalstate.ResourceIdType vpc_resource_id_type = Goalstate.ResourceIdType.newBuilder().setType(Common.ResourceType.VPC).setId(vpc_state_for_both_nodes.getConfiguration().getId()).build();
         host_resource_builder_node_one.addResources(subnet_resource_id_type);
         host_resource_builder_node_two.addResources(subnet_resource_id_type);
         host_resource_builder_node_one_port_one_neighbor.addResources(subnet_resource_id_type);
+        host_resource_builder_node_one.addResources(subnet_resource_id_type_two);
+        host_resource_builder_node_two.addResources(subnet_resource_id_type_two);
+        host_resource_builder_node_one_port_one_neighbor.addResources(subnet_resource_id_type_two);
         host_resource_builder_node_one.addResources(vpc_resource_id_type);
         host_resource_builder_node_two.addResources(vpc_resource_id_type);
         host_resource_builder_node_one_port_one_neighbor.addResources(vpc_resource_id_type);
