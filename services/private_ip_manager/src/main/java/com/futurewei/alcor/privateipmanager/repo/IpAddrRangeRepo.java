@@ -316,6 +316,10 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
         try (Transaction tx = ipAddrRangeCache.getTransaction().start()) {
             allocateIpAddrBulkMethod(rangeRequests,vpcIpv4Requests,vpcIpv6Requests,result);
             tx.commit();
+        } catch (Exception e) {
+            LOG.warn("Transaction exception: ");
+            LOG.warn(e.getMessage());
+            throw e;
         }
 
         return result;
