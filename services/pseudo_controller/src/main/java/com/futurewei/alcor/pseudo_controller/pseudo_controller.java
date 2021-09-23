@@ -222,7 +222,7 @@ public class pseudo_controller {
                 .addRoutingRules(router_rule_builder.build());
 
         Router.RouterConfiguration.SubnetRoutingTable.Builder subnet_routing_table_builder_two = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
-        subnet_routing_table_builder
+        subnet_routing_table_builder_two
                 .setSubnetId(subnet_id_2)
                 .addRoutingRules(router_rule_builder.build());
 
