@@ -280,9 +280,9 @@ public class pseudo_controller {
         subnet_configuration_builder_two.setTunnelId(22);
         subnet_configuration_builder_two.setGateway(Subnet.SubnetConfiguration.Gateway.newBuilder().setIpAddress("0.0.0.1").setMacAddress("6c:dd:ee:0:0:41").build());
 
-        new_subnet_states_two.setConfiguration(subnet_configuration_builder.build());
+        new_subnet_states_two.setConfiguration(subnet_configuration_builder_two.build());
 
-        Subnet.SubnetState subnet_state_for_both_nodes_two = new_subnet_states.build();
+        Subnet.SubnetState subnet_state_for_both_nodes_two = new_subnet_states_two.build();
 
         // put the new subnet state of subnet 1 into the goalstatev2
 
