@@ -164,7 +164,7 @@ public class pseudo_controller {
             NeighborConfiguration_builder.setHostIpAddress(host_ip);
 
             Neighbor.NeighborConfiguration.FixedIp.Builder neighbor_fixed_ip_builder = Neighbor.NeighborConfiguration.FixedIp.newBuilder();
-            neighbor_fixed_ip_builder.setNeighborType(Neighbor.NeighborType.L3);
+            neighbor_fixed_ip_builder.setNeighborType(Neighbor.NeighborType.L2);
             neighbor_fixed_ip_builder.setSubnetId(subnet_id_1);
             neighbor_fixed_ip_builder.setIpAddress(port_ip);
 
