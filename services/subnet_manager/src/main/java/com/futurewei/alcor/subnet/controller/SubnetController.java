@@ -508,7 +508,7 @@ public class SubnetController {
             this.subnetService.deleteSubnetIdInVpc(subnetId, projectId, subnetEntity.getVpcId());
 
             // delete ip range in Private IP Manager
-            this.subnetService.deleteIPRangeInPIM(rangeId);
+            this.subnetService.deleteIPRangeInPIM(rangeId, subnetEntity.getVpcId());
 
             this.subnetDatabaseService.deleteSubnet(subnetId);
 

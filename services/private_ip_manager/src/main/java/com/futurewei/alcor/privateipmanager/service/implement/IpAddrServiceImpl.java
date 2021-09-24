@@ -230,10 +230,10 @@ public class IpAddrServiceImpl implements IpAddrService {
 
     @Override
     @DurationStatistics
-    public void deleteIpAddrRange(String rangeId) throws Exception {
+    public void deleteIpAddrRange(String rangeId, String vpcId) throws Exception {
         LOG.debug("Delete ip address range, rangeId: {}", rangeId);
 
-        ipAddrRangeRepo.deleteIpAddrRange(rangeId);
+        ipAddrRangeRepo.deleteIpAddrRange(rangeId, vpcId);
 
         LOG.info("Delete ip address range success, rangeId: {}", rangeId);
     }
