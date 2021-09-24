@@ -77,16 +77,14 @@ public class NeutronRouterTests {
     @MockBean
     private RouterService routerService;
 
-
-
     private String getNeutronRouterByRouterIdUri = "/project/" + UnitTestConfig.projectId + "/routers/" + UnitTestConfig.routerId;
     private String createNeutronRoutersUri = "/project/" + UnitTestConfig.projectId + "/routers";
     private String updateNeutronRouterByRouterIdUri = "/project/" + UnitTestConfig.projectId + "/routers/" + UnitTestConfig.routerId;
     private String deleteNeutronRouterByRouterIdUri = "/project/" + UnitTestConfig.projectId + "/routers/" + UnitTestConfig.routerId;
     private String addInterfaceToNeutronRouterUri = "/project/" + UnitTestConfig.projectId + "/routers/" + UnitTestConfig.routerId + "/add_router_interface";
     private String removeInterfaceToNeutronRouterUri = "/project/" + UnitTestConfig.projectId + "/routers/" + UnitTestConfig.routerId + "/remove_router_interface";
-    private String addRoutesToNeutronRouterUri = "/project/" + UnitTestConfig.projectId + "/routers/" + UnitTestConfig.routerId + "/add_extra_routes";
-    private String removeRoutesToNeutronRouterUri = "/project/" + UnitTestConfig.projectId + "/routers/" + UnitTestConfig.routerId + "/remove_extra_routes";
+    private String addRoutesToNeutronRouterUri = "/project/" + UnitTestConfig.projectId + "/routers/" + UnitTestConfig.routerId + "/add_extraroutes";
+    private String removeRoutesToNeutronRouterUri = "/project/" + UnitTestConfig.projectId + "/routers/" + UnitTestConfig.routerId + "/remove_extraroutes";
     private String getConnectedSubnets = "/project/" + UnitTestConfig.projectId + "/vpcs/" + UnitTestConfig.vpcId + "/subnets/" + UnitTestConfig.subnetId + "/connected-subnets";
 
     @Test

@@ -22,6 +22,7 @@ import com.futurewei.alcor.common.utils.ControllerUtil;
 import com.futurewei.alcor.route.config.ConstantsConfig;
 import com.futurewei.alcor.route.exception.*;
 import com.futurewei.alcor.route.service.*;
+import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.route.*;
 import com.futurewei.alcor.web.entity.subnet.HostRoute;
@@ -29,11 +30,10 @@ import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
 import com.futurewei.alcor.web.entity.subnet.SubnetsWebJson;
 import com.futurewei.alcor.common.logging.*;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-
 import java.util.*;
 import java.util.logging.Level;
 
@@ -436,29 +436,12 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         }
         RouteTable routeTable = router.getNeutronRouteTable();
         List<RouteEntry> routeEntities = routeTable.getRouteEntities();
-
         List<NewRoutesRequest> requestRoutes = requestRouter.getRoutes();
+
         // TODO: time complexity O(n^2), check if it effect performance
-        for (NewRoutesRequest requestRoute : requestRoutes) {
-            String requestDestination = requestRoute.getDestination();
-            String requestNexthop = requestRoute.getNexthop();
-
-            if (requestDestination == null || requestNexthop == null) {
-                throw new DestinationOrNexthopCanNotBeNull();
-            }
-
-            for (int i = 0; i < routeEntities.size(); i++) {
-                RouteEntry routeEntry = routeEntities.get(i);
-                String destination = routeEntry.getDestination();
-                String nexthop = routeEntry.getNexthop();
-                if (destination.equals(requestDestination) && nexthop.equals(requestNexthop)) {
-                    routeEntities.remove(i);
-                    break;
-                }
-            }
-        }
-        routeTable.setRouteEntities(routeEntities);
-        router.setNeutronRouteTable(routeTable);
+        requestRoutes.forEach(item -> {
+            routeEntities.removeIf(routingRule -> routingRule.getDestination().equals(item.getDestination()) && routingRule.getNexthop().equals(item.getNexthop()));
+        });
         this.routerDatabaseService.addRouter(router);
 
         // Construct response
@@ -468,6 +451,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             NewRoutesRequest newRoutesRequest = new NewRoutesRequest(destination, nexthop);
             responseRoutes.add(newRoutesRequest);
         }
+
         responseRouter.setId(routerid);
         responseRouter.setName(router.getName());
         responseRouter.setRoutes(responseRoutes);
@@ -570,7 +554,6 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             RouteEntry existRoute = existRoutesMap.get(newNetworkIP);
             // can't find: Add Operation - Create (both); Remove Operation - Skip
             if (existRoute == null) {
-
                 if (!isAddOperation) { // Remove Operation - Skip
                     continue;
                 }
@@ -604,7 +587,6 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
                     String[] existDes = existRoute.getDestination().split("\\/");
                     String existBitmask = existDes[1];
                     int existBitmaskInt = Integer.parseInt(existBitmask);
-
                     if (isAddOperation) {
                         if (newBitmaskInt <= existBitmaskInt) { // new routing rule bitmask is smaller or equal than old one, drop it
                             continue;
@@ -628,7 +610,6 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
 
                         }
                     } else { // remove operation
-
                         if (newBitmaskInt == existBitmaskInt) { // remove default routes
 
                             InternalRoutingRule internalRoutingRule = constructNewInternalRoutingRule(OperationType.DELETE, RoutingRuleType.DEFAULT, existRoute, null);
@@ -703,10 +684,15 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
     }
 
     @Override
-    public List<InternalSubnetRoutingTable> constructInternalSubnetRoutingTables(Router router) throws DatabasePersistenceException, CanNotFindSubnet, OwnMultipleSubnetRouteTablesException, CacheException, ResourcePersistenceException, ResourceNotFoundException, OwnMultipleVpcRouterException, CanNotFindVpc, CanNotFindRouteTableByOwner {
+    public List<InternalSubnetRoutingTable> constructInternalSubnetRoutingTables(Router router) throws Exception {
         if (router == null) {
             return new ArrayList<>();
         }
+
+        //        List<RouteTable> neutronSubnetRouteTables = router.getNeutronSubnetRouteTables();
+        //        if (neutronSubnetRouteTables == null) {
+        //            return new ArrayList<>();
+        //        }
 
         List<String> subnetIds = router.getSubnetIds();
         List<RouteTable> neutronSubnetRouteTables = getRouteTablesBySubnetIds(subnetIds, router.getProjectId());
@@ -742,9 +728,9 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         }
         return internalSubnetRoutingTables;
     }
-
+    
     @Override
-    public List<RouteTable> getRouteTablesBySubnetIds(List<String> subnetIds, String projectid) throws DatabasePersistenceException, CanNotFindSubnet, OwnMultipleSubnetRouteTablesException, CacheException, ResourcePersistenceException, ResourceNotFoundException, OwnMultipleVpcRouterException, CanNotFindVpc, CanNotFindRouteTableByOwner {
+    public List<RouteTable> getRouteTablesBySubnetIds(List<String> subnetIds, String projectid) throws Exception {
         if (subnetIds == null) {
             return null;
         }
@@ -940,10 +926,14 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
                 return false;
             }
             int suffix = Integer.parseInt(cidrs[1]);
+            // if suffix verification is correcct, then verify prefix.
             if (suffix < 16 || suffix > 28) {
-                return false;
-            } else if (suffix == 0 && !"0.0.0.0".equals(cidrs[0])) {
-                return false;
+                if (suffix == 0 && "0.0.0.0".equals(cidrs[0]))
+                {
+                    return true;
+                } else {
+                    return false;
+                }
             }
         }
         // verify cidr prefix

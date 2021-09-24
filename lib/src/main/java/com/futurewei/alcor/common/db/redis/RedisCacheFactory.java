@@ -21,6 +21,7 @@ import com.futurewei.alcor.common.db.ICacheFactory;
 import com.futurewei.alcor.common.db.IDistributedLock;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.entity.TokenEntity;
+import org.apache.ignite.configuration.CacheConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -51,6 +52,11 @@ public class RedisCacheFactory implements ICacheFactory {
     public <K, V> ICache<K, V> getCache(Class<V> v, String cacheName) {
         RedisTemplate<String, Object> template = getRedisTemplate(v);
         return new RedisCache<>(template, cacheName);
+    }
+
+    @Override
+    public <K, V> ICache<K, V> getCache(Class<V> v, CacheConfiguration cacheConfig) {
+        return null;
     }
 
     @Override
