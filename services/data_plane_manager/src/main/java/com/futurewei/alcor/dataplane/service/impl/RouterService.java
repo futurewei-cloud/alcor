@@ -18,9 +18,7 @@ package com.futurewei.alcor.dataplane.service.impl;
 import com.futurewei.alcor.common.enumClass.VpcRouteTarget;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
-import com.futurewei.alcor.schema.Goalstate;
-import com.futurewei.alcor.schema.Port;
-import com.futurewei.alcor.schema.Router;
+import com.futurewei.alcor.schema.*;
 import com.futurewei.alcor.web.entity.dataplane.InternalSubnetEntity;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
@@ -56,33 +54,35 @@ public class RouterService extends ResourceService {
         String subnetId = subnetRoutingTable.getSubnetId();
         subnetRoutingTableBuilder.setSubnetId(subnetId);
         List<InternalRoutingRule> routingRules = subnetRoutingTable.getRoutingRules();
-        if (routingRules == null || routingRules.size() == 0) {
-            return;
-        }
 
-        for (InternalRoutingRule routingRule: routingRules) {
-            Router.RouterConfiguration.RoutingRule.Builder routingRuleBuilder = Router.RouterConfiguration.RoutingRule.newBuilder();
-            routingRuleBuilder.setOperationType(getOperationType(routingRule.getOperationType()));
-            routingRuleBuilder.setId(routingRule.getId());
-            routingRuleBuilder.setName(routingRule.getName());
-            routingRuleBuilder.setDestination(routingRule.getDestination());
-            routingRuleBuilder.setNextHopIp(routingRule.getNextHopIp());
-            routingRuleBuilder.setPriority(routingRule.getPriority());
+        if (routingRules != null && routingRules.size() > 0) {
+            for (InternalRoutingRule routingRule: routingRules) {
+                Router.RouterConfiguration.RoutingRule.Builder routingRuleBuilder = Router.RouterConfiguration.RoutingRule.newBuilder();
+                routingRuleBuilder.setOperationType(getOperationType(routingRule.getOperationType()));
+                routingRuleBuilder.setId(routingRule.getId());
+                if (routingRule.getName() != null)
+                {
+                    routingRuleBuilder.setName(routingRule.getName());
+                }
+                routingRuleBuilder.setDestination(routingRule.getDestination());
+                routingRuleBuilder.setNextHopIp(routingRule.getNextHopIp());
+                routingRuleBuilder.setPriority(routingRule.getPriority());
 
-            if (routingRule.getRoutingRuleExtraInfo() != null) {
-                Router.RouterConfiguration.RoutingRuleExtraInfo.Builder extraInfoBuilder = Router.RouterConfiguration.RoutingRuleExtraInfo.newBuilder();
-                extraInfoBuilder.setDestinationType(getDestinationType(
-                        routingRule.getRoutingRuleExtraInfo().getDestinationType()));
-                extraInfoBuilder.setNextHopMac(routingRule.getRoutingRuleExtraInfo().getNextHopMac());
-                routingRuleBuilder.setRoutingRuleExtraInfo(extraInfoBuilder.build());
+                if (routingRule.getRoutingRuleExtraInfo() != null) {
+                    Router.RouterConfiguration.RoutingRuleExtraInfo.Builder extraInfoBuilder = Router.RouterConfiguration.RoutingRuleExtraInfo.newBuilder();
+                    extraInfoBuilder.setDestinationType(getDestinationType(
+                            routingRule.getRoutingRuleExtraInfo().getDestinationType()));
+                    if (routingRule.getRoutingRuleExtraInfo().getNextHopMac() != null)
+                    {
+                        extraInfoBuilder.setNextHopMac(routingRule.getRoutingRuleExtraInfo().getNextHopMac());
+                    }
+                    routingRuleBuilder.setRoutingRuleExtraInfo(extraInfoBuilder.build());
+                }
+                subnetRoutingTableBuilder.addRoutingRules(routingRuleBuilder.build());
             }
-
-            subnetRoutingTableBuilder.addRoutingRules(routingRuleBuilder.build());
         }
-
         List<Router.RouterConfiguration.SubnetRoutingTable> subnetRoutingTablesList = new ArrayList<>();
         subnetRoutingTablesList.add(subnetRoutingTableBuilder.build());
-
         Goalstate.GoalState.Builder goalStateBuilder = unicastGoalState.getGoalStateBuilder();
         List<Router.RouterState.Builder> routerStatesBuilders = goalStateBuilder.getRouterStatesBuilderList();
         if (routerStatesBuilders != null && routerStatesBuilders.size() > 0) {
@@ -97,8 +97,11 @@ public class RouterService extends ResourceService {
         routerConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
 
         //TODO: where does the hostDvrMacAddress come from ?
-        routerConfigBuilder.setHostDvrMacAddress(routerInfo.getRouterConfiguration().getHostDvrMac());
-        routerConfigBuilder.setId(routerInfo.getRouterConfiguration().getId());
+        routerConfigBuilder.setHostDvrMacAddress(HOST_DVR_MAC);
+        if (routerInfo.getRouterConfiguration().getId() != null)
+        {
+            routerConfigBuilder.setId(routerInfo.getRouterConfiguration().getId());
+        }
         routerConfigBuilder.addAllSubnetRoutingTables(subnetRoutingTablesList);
         Router.RouterState.Builder routerStateBuilder = Router.RouterState.newBuilder();
         routerStateBuilder.setConfiguration(routerConfigBuilder.build());

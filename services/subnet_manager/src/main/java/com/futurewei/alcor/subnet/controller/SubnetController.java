@@ -497,14 +497,18 @@ public class SubnetController {
             // TODO: delete gateway port in port manager. Temporary solution, need PM fix issue
             GatewayPortDetail gatewayPortDetail = subnetEntity.getGatewayPortDetail();
             if (gatewayPortDetail != null) {
-                this.subnetToPortManagerService.deleteGatewayPort(projectId, gatewayPortDetail.getGatewayPortId());
+                try{
+                    this.subnetToPortManagerService.deleteGatewayPort(projectId, gatewayPortDetail.getGatewayPortId());
+                } catch (HttpClientErrorException.NotFound e) {
+                    logger.warn(e.getMessage());
+                }
             }
 
             // delete subnet id in vpc
             this.subnetService.deleteSubnetIdInVpc(subnetId, projectId, subnetEntity.getVpcId());
 
             // delete ip range in Private IP Manager
-            this.subnetService.deleteIPRangeInPIM(rangeId);
+            this.subnetService.deleteIPRangeInPIM(rangeId, subnetEntity.getVpcId());
 
             this.subnetDatabaseService.deleteSubnet(subnetId);
 

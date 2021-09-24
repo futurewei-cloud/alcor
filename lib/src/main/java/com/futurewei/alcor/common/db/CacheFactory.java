@@ -21,6 +21,7 @@ import com.futurewei.alcor.common.db.ignite.IgniteClientCacheFactory;
 import com.futurewei.alcor.common.db.redis.RedisCacheFactory;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.client.IgniteClient;
+import org.apache.ignite.configuration.CacheConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
@@ -40,6 +41,10 @@ public class CacheFactory {
 
     public <K, V> ICache<K, V> getCache(Class<V> v, String cacheName) {
         return iCacheFactory.getCache(v, cacheName);
+    }
+
+    public <K, V> ICache<K, V> getCache(Class<V> v, CacheConfiguration cacheConfig) {
+        return iCacheFactory.getCache(v, cacheConfig);
     }
 
     public <K, V> ICache<K, V> getExpireCache(Class<V> v, long timeout, TimeUnit timeUnit){

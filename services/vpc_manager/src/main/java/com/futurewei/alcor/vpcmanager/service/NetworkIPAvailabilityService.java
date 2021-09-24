@@ -24,6 +24,7 @@ import com.futurewei.alcor.web.entity.vpc.VpcEntity;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface NetworkIPAvailabilityService {
 
@@ -33,7 +34,7 @@ public interface NetworkIPAvailabilityService {
 
     public NetworkIPAvailabilityEntity setNetworkIPAvailability (VpcEntity vpcEntity) throws ResourceNotFoundException;
 
-    public List<SubnetEntity> getSubnets (List<String> subnets) throws ResourceNotFoundException;
+    public List<SubnetEntity> getSubnets (Set<String> subnets) throws ResourceNotFoundException;
 
     public Integer getUsedIps (String rangeId);
 }

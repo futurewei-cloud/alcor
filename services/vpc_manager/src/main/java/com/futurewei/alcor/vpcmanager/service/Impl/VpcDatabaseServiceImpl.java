@@ -16,7 +16,9 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.vpcmanager.service.Impl;
 
 import com.futurewei.alcor.common.db.CacheException;
+import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.vpcmanager.dao.VpcRepository;
@@ -28,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Set;
 
 @Service
 public class VpcDatabaseServiceImpl implements VpcDatabaseService {
@@ -79,5 +82,23 @@ public class VpcDatabaseServiceImpl implements VpcDatabaseService {
     @DurationStatistics
     public ICache<String, VpcEntity> getCache() {
         return this.vpcRepository.getCache();
+    }
+
+    @Override
+    @DurationStatistics
+    public Set<String> getSubnetIds(String vpcId) throws CacheException {
+        return this.vpcRepository.getSubnetIds(vpcId);
+    }
+
+    @Override
+    @DurationStatistics
+    public void addSubnetId(String vpcId, String subnetId) throws CacheException {
+        this.vpcRepository.addSubnetId(vpcId, subnetId);
+    }
+
+    @Override
+    @DurationStatistics
+    public void deleteSubnetId(String vpcId, String subnetId) throws CacheException {
+        this.vpcRepository.deleteSubnetId(vpcId, subnetId);
     }
 }
