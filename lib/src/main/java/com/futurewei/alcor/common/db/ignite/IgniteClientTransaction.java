@@ -28,8 +28,10 @@ import org.springframework.context.annotation.Description;
 
 import java.util.logging.Level;
 
+import static org.apache.ignite.transactions.TransactionConcurrency.OPTIMISTIC;
 import static org.apache.ignite.transactions.TransactionConcurrency.PESSIMISTIC;
 import static org.apache.ignite.transactions.TransactionIsolation.SERIALIZABLE;
+import static org.apache.ignite.transactions.TransactionIsolation.REPEATABLE_READ;
 
 public class IgniteClientTransaction implements Transaction {
     private static final Logger logger = LoggerFactory.getLogger();
@@ -44,9 +46,9 @@ public class IgniteClientTransaction implements Transaction {
     @Override
     public Transaction start() throws CacheException {
         try{
-            clientTransaction = igniteClient.transactions().txStart(PESSIMISTIC, SERIALIZABLE);
+            clientTransaction = igniteClient.transactions().txStart(OPTIMISTIC, REPEATABLE_READ);
         } catch (ClientServerError | ClientException e) {
-            logger.log(Level.WARNING, "IgniteTransaction start error:" + e.getMessage());
+            //*?// PERF_NO_LOG logger.log(Level.WARNING, "IgniteTransaction start error:" + e.getMessage());
             throw new CacheException("IgniteTransaction start error:" + e.getMessage());
         }
 
@@ -58,7 +60,7 @@ public class IgniteClientTransaction implements Transaction {
         try{
             clientTransaction.commit();
         } catch (ClientServerError | ClientException e) {
-            logger.log(Level.WARNING, "IgniteTransaction commit error:" + e.getMessage());
+            //*?// PERF_NO_LOG logger.log(Level.WARNING, "IgniteTransaction commit error:" + e.getMessage());
             throw new CacheException("IgniteTransaction commit error:" + e.getMessage());
         }
     }
@@ -68,7 +70,7 @@ public class IgniteClientTransaction implements Transaction {
         try{
             clientTransaction.rollback();
         } catch (ClientServerError | ClientException e) {
-            logger.log(Level.WARNING, "IgniteTransaction rollback error:" + e.getMessage());
+            //*?// PERF_NO_LOG logger.log(Level.WARNING, "IgniteTransaction rollback error:" + e.getMessage());
             throw new CacheException("IgniteTransaction rollback error:" + e.getMessage());
         }
     }

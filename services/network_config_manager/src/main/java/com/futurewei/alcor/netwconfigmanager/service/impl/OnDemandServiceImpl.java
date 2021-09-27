@@ -75,33 +75,33 @@ public class OnDemandServiceImpl implements OnDemandService {
         // 4. Bingo! this packet is allowed, collect port related resources (NEIGHBOR, SG etc. FULL GS) and send down
         //    to ACA by a separate gRPC client
 
-        logger.log(Level.INFO, "[retrieveGoalState] receiving request = " + resourceStateRequest.toString());
+        //*// PERF_NO_LOG logger.log(Level.INFO, "[retrieveGoalState] receiving request = " + resourceStateRequest.toString());
 
         String vni = String.valueOf(resourceStateRequest.getTunnelId());
         String sourceIp = resourceStateRequest.getSourceIp();
         String destinationIp = resourceStateRequest.getDestinationIp();
 
-        logger.log(Level.INFO, "[retrieveGoalState] vni = " + vni +
-                " | sourceIp = " + sourceIp +
-                " | destinationIp = " + destinationIp);
+        //*// PERF_NO_LOG logger.log(Level.INFO, "[retrieveGoalState] vni = " + vni + " | sourceIp = " + sourceIp + " | destinationIp = " + destinationIp);
         long start = System.currentTimeMillis();
 //        ResourceMeta resourceMetadata = retrieveResourceMeta(vni, sourceIp);
         VpcResourceMeta vpcResourceMetadata = retrieveResourceMeta(vni);
         if (vpcResourceMetadata == null) {
-            logger.log(Level.INFO, "[retrieveGoalState] retrieved vpc resource metadata is null | vni = " + vni);
+            //*// PERF_NO_LOG logger.log(Level.INFO, "[retrieveGoalState] retrieved vpc resource metadata is null | vni = " + vni);
             return null;
         }
 
         long end = System.currentTimeMillis();
-        logger.log(Level.FINE, "[retrieveGoalState] retrieved vpc resource metadata, elapsed Time in milli seconds: "+ (end-start));
+        //*// PERF_NO_LOG logger.log(Level.FINE, "[retrieveGoalState] retrieved vpc resource metadata, elapsed Time in milli seconds: "+ (end-start));
+        System.out.println("[retrieveGoalState] retrieved vpc resource metadata, elapsed Time in milli seconds: "+ (end-start));
         ResourceMeta portResourceMetadata = vpcResourceMetadata.getResourceMeta(sourceIp);
         if (portResourceMetadata == null) {
-            logger.log(Level.INFO, "[retrieveGoalState] retrieved port resource metadata is null | sourceIp = " + sourceIp);
+            //*// PERF_NO_LOG logger.log(Level.INFO, "[retrieveGoalState] retrieved port resource metadata is null | sourceIp = " + sourceIp);
             return null;
         }
 
         long end1 = System.currentTimeMillis();
-        logger.log(Level.FINE, "[retrieveGoalState] retrieved port resource metadata, elapsed Time in milli seconds: "+ (end1-end));
+        //*// PERF_NO_LOG logger.log(Level.FINE, "[retrieveGoalState] retrieved port resource metadata, elapsed Time in milli seconds: "+ (end1-end));
+        System.out.println("[retrieveGoalState] retrieved port resource metadata, elapsed Time in milli seconds: "+ (end1-end));
         //populate portResourceMetadata with existing neighbors in the same VPC
         Set<String> neighborIdSet = vpcResourceMetadata.getNeighborIds(sourceIp, destinationIp, defaultStateProvisionAlgorithm);
         for (String neighborId : neighborIdSet) {
@@ -109,7 +109,8 @@ public class OnDemandServiceImpl implements OnDemandService {
         }
 
         long end2 = System.currentTimeMillis();
-        logger.log(Level.FINE, "[retrieveGoalState] populated portResourceMetadata with existing neighbors in the same VPC, elapsed Time in milli seconds: "+ (end2-end1));
+        //*// PERF_NO_LOG logger.log(Level.FINE, "[retrieveGoalState] populated portResourceMetadata with existing neighbors in the same VPC, elapsed Time in milli seconds: "+ (end2-end1));
+        System.out.println("[retrieveGoalState] populated portResourceMetadata with existing neighbors in the same VPC, elapsed Time in milli seconds: "+ (end2-end1));
 
         List<ResourceMeta> resourceMetas = new ArrayList<>() {
             {
@@ -117,16 +118,18 @@ public class OnDemandServiceImpl implements OnDemandService {
             }
         };
         long end3 = System.currentTimeMillis();
-        logger.log(Level.FINE, "[retrieveGoalState] added portResourceMetadata in the arrayList, elapsed Time in milli seconds: "+ (end3-end2));
+        //*// PERF_NO_LOG logger.log(Level.FINE, "[retrieveGoalState] added portResourceMetadata in the arrayList, elapsed Time in milli seconds: "+ (end3-end2));
+        System.out.println("[retrieveGoalState] added portResourceMetadata in the arrayList, elapsed Time in milli seconds: "+ (end3-end2));
 
         Goalstate.GoalStateV2 goalState = retrieveResourceState(resourceMetas);
         if (goalState == null) {
-            logger.log(Level.INFO, "[retrieveGoalState] retrieved goal state is null");
+            //*// PERF_NO_LOG logger.log(Level.INFO, "[retrieveGoalState] retrieved goal state is null");
+            //*// PERF_NO_LOG logger.log(Level.INFO, "[retrieveGoalState] retrieved goal state is null");
             return null;
         }
 
         HostGoalState hostGoalState = new HostGoalState(hostIpAddress, goalState);
-        logger.log(Level.INFO, "[retrieveGoalState] retrieved goal state = " + hostGoalState.toString());
+        //*// PERF_NO_LOG logger.log(Level.INFO, "[retrieveGoalState] retrieved goal state = " + hostGoalState.toString());
         return hostGoalState;
     }
 
@@ -172,7 +175,8 @@ public class OnDemandServiceImpl implements OnDemandService {
         }
 
         long end = System.currentTimeMillis();
-        logger.log(Level.FINE, "[retrieveGoalState] Got GS from Ignite, elapsed Time in milli seconds: "+ (end-start));
+        //*// PERF_NO_LOG logger.log(Level.FINE, "[retrieveGoalState] Got GS from Ignite, elapsed Time in milli seconds: "+ (end-start));
+        System.out.println("[retrieveGoalState] Got GS from Ignite, elapsed Time in milli seconds: "+ (end-start));
         return builder.build();
     }
 }

@@ -144,7 +144,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 @Override
                 public void onNext(Goalstate.GoalStateV2 value) {
 
-                    logger.log(Level.INFO, "pushGoalStatesStream : receiving GS V2 message " + value.toString());
+                    //*?// PERF_NO_LOG logger.log(Level.INFO, "pushGoalStatesStream : receiving GS V2 message " + value.toString());
                     long start = System.currentTimeMillis();
 
                     //prepare GS message based on host
@@ -163,26 +163,27 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                         }
                     }
                     long end = System.currentTimeMillis();
-                    logger.log(Level.FINE, "pushGoalStatesStream : finished putting GS into cache, elapsed time in milliseconds: " + + (end-start));
+                    // PERF:: logger.log(Level.FINE, "pushGoalStatesStream : finished putting GS into cache, elapsed time in milliseconds: " + + (end-start));
+                    System.out.println("pushGoalStatesStream : finished putting GS into cache, elapsed time in milliseconds: " + (end-start));
                     // filter neighbor/SG update, and send them down to target ACA
-                    try {
-                        Map<String, HostGoalState> filteredGoalStates = NetworkConfigManagerUtil.filterNeighbors(hostGoalStates);
-
-                        GoalStateClient grpcGoalStateClient =  GoalStateClientImpl.getInstance(numberOfGrpcChannelPerHost, numberOfWarmupsPerChannel, monitorHosts);
-
-                        grpcGoalStateClient.sendGoalStates(filteredGoalStates);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    //consolidate response from ACA and send response to DPM
-                    Goalstateprovisioner.GoalStateOperationReply reply =
-                            Goalstateprovisioner.GoalStateOperationReply.newBuilder()
-                                    .setFormatVersion(100)
-                                    .build();
-                    responseObserver.onNext(reply);
-                    long end1 = System.currentTimeMillis();
-                    logger.log(Level.FINE, "pushGoalStatesStream : Replied to DPM, from received to replied, elapsed time in milliseconds: " + + (end1-end));
+//*// PERF_NO_ACA                    try {
+//*// PERF_NO_ACA                        Map<String, HostGoalState> filteredGoalStates = NetworkConfigManagerUtil.filterNeighbors(hostGoalStates);
+//*// PERF_NO_ACA
+//*// PERF_NO_ACA                        GoalStateClient grpcGoalStateClient =  GoalStateClientImpl.getInstance(numberOfGrpcChannelPerHost, numberOfWarmupsPerChannel, monitorHosts);
+//*// PERF_NO_ACA
+//*// PERF_NO_ACA                        grpcGoalStateClient.sendGoalStates(filteredGoalStates);
+//*// PERF_NO_ACA                    } catch (Exception e) {
+//*// PERF_NO_ACA                        e.printStackTrace();
+//*// PERF_NO_ACA                    }
+//*// PERF_NO_ACA
+//*// PERF_NO_ACA                    //consolidate response from ACA and send response to DPM
+//*// PERF_NO_ACA                    Goalstateprovisioner.GoalStateOperationReply reply =
+//*// PERF_NO_ACA                            Goalstateprovisioner.GoalStateOperationReply.newBuilder()
+//*// PERF_NO_ACA                                    .setFormatVersion(100)
+//*// PERF_NO_ACA                                    .build();
+//*// PERF_NO_ACA                    responseObserver.onNext(reply);
+//*// PERF_NO_ACA                    long end1 = System.currentTimeMillis();
+//*// PERF_NO_ACA                    logger.log(Level.FINE, "pushGoalStatesStream : Replied to DPM, from received to replied, elapsed time in milliseconds: " + + (end1-end));
                 }
 
                 @Override
@@ -208,11 +209,11 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             String state_request_uuid = "";
             if (request.getStateRequestsList().size() == 1){
                 state_request_uuid = request.getStateRequests(0).getRequestId();
-                logger.log(Level.FINE, "requestGoalStates : received HostRequest with UUID: " + state_request_uuid + " at: " + start);
+                //*?// PERF_NO_LOG logger.log(Level.FINE, "requestGoalStates : received HostRequest with UUID: " + state_request_uuid + " at: " + start);
             }
-            logger.log(Level.INFO, "requestGoalStates : receiving request " + request.toString());
-            logger.log(Level.INFO, "requestGoalStates : receiving request list " + request.getStateRequestsList());
-            logger.log(Level.INFO, "requestGoalStates : receiving request count" + request.getStateRequestsCount());
+            //*?// PERF_NO_LOG logger.log(Level.INFO, "requestGoalStates : receiving request " + request.toString());
+            //*?// PERF_NO_LOG logger.log(Level.INFO, "requestGoalStates : receiving request list " + request.getStateRequestsList());
+            //*?// PERF_NO_LOG logger.log(Level.INFO, "requestGoalStates : receiving request count" + request.getStateRequestsCount());
 
             /////////////////////////////////////////////////////////////////////////////////////////
             //                  On-Demand Algorithm
@@ -236,7 +237,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
             // Step 0: Prepare to retrieve client IP address from gRPC transport
             String clientIpAddress = this.ipInterceptor.getClientIpAddress();
-            logger.log(Level.INFO, "[requestGoalStates] Client IP address = " + clientIpAddress);
+            //*?// PERF_NO_LOG logger.log(Level.INFO, "[requestGoalStates] Client IP address = " + clientIpAddress);
 
             // Step 1: Retrieve GoalState from M2/M3 caches and send it down to target ACA
             HashSet<String> failedRequestIds = new HashSet<>();
@@ -246,8 +247,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     HostGoalState hostGoalState = onDemandService.retrieveGoalState(resourceStateRequest, clientIpAddress);
 
                     if (hostGoalState == null) {
-                        logger.log(Level.WARNING, "[requestGoalStates] No resource found for resource state request " +
-                                resourceStateRequest.toString());
+                        //*?// PERF_NO_LOG logger.log(Level.WARNING, "[requestGoalStates] No resource found for resource state request " + resourceStateRequest.toString());
                         failedRequestIds.add(resourceStateRequest.getRequestId());
                         continue;
                     }
@@ -258,24 +258,21 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                         HostGoalState existingHostGoalState = hostGoalStates.get(hostIp);
                         HostGoalState updatedHostGoalState = NetworkConfigManagerUtil.consolidateHostGoalState(existingHostGoalState, hostGoalState);
                         hostGoalStates.put(hostIp, updatedHostGoalState);
-                        logger.log(Level.INFO, "[requestGoalStates] Same Host IP detected: " + hostIp +
-                                " | existing GS: " + existingHostGoalState.toString() +
-                                " | updated GS: " + updatedHostGoalState.toString());
+                        //*// PERF_NO_LOG logger.log(Level.INFO, "[requestGoalStates] Same Host IP detected: " + hostIp + " | existing GS: " + existingHostGoalState.toString() + " | updated GS: " + updatedHostGoalState.toString());
                     } else {
                         //Case 2: new host
                         hostGoalStates.put(hostIp, hostGoalState);
-                        logger.log(Level.INFO, "[requestGoalStates] New Host IP: " + hostIp + " | GS: ",
-                                hostGoalState.toString());
+                        //*// PERF_NO_LOG logger.log(Level.INFO, "[requestGoalStates] New Host IP: " + hostIp + " | GS: ", hostGoalState.toString());
                     }
                 }
 
                 GoalStateClient grpcGoalStateClient = GoalStateClientImpl.getInstance(numberOfGrpcChannelPerHost, numberOfWarmupsPerChannel, monitorHosts);
                 long end = System.currentTimeMillis();
-                logger.log(Level.FINE, "requestGoalStates : Pushing GS with UUID: " + state_request_uuid + " at: " + end);
+                //*// PERF_NO_LOG logger.log(Level.FINE, "requestGoalStates : Pushing GS with UUID: " + state_request_uuid + " at: " + end);
                 grpcGoalStateClient.sendGoalStates(hostGoalStates);
-                logger.log(Level.FINE, "[requestGoalStates] From retrieving goalstate to sent goalstate to host, elapsed Time in milli seconds: "+ (end-start));
+                //*// PERF_NO_LOG logger.log(Level.FINE, "[requestGoalStates] From retrieving goalstate to sent goalstate to host, elapsed Time in milli seconds: "+ (end-start));
             } catch (Exception e) {
-                logger.log(Level.SEVERE, "[requestGoalStates] Retrieve from host fails. IP address = " + clientIpAddress);
+                //*// PERF_NO_LOG logger.log(Level.SEVERE, "[requestGoalStates] Retrieve from host fails. IP address = " + clientIpAddress);
                 e.printStackTrace();
             }
 
@@ -306,17 +303,16 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                         .buildPartial();
             }
             Goalstateprovisioner.HostRequestReply reply = replyBuilder.build();
-            logger.log(Level.INFO, "requestGoalStates : generate reply " + reply.toString());
+            //*// PERF_NO_LOG logger.log(Level.INFO, "requestGoalStates : generate reply " + reply.toString());
 
             // Step 3: Send response to target ACAs
             long end = System.currentTimeMillis();
-            logger.log(Level.FINE, "[requestGoalStates] From received hostOperation to before response, elapsed Time in milli seconds: "+ (end-start));
+            //*// PERF_NO_LOG logger.log(Level.FINE, "[requestGoalStates] From received hostOperation to before response, elapsed Time in milli seconds: "+ (end-start));
             responseObserver.onNext(reply);
-            logger.log(Level.FINE, "requestGoalStates : replying HostRequest with UUID: " + state_request_uuid + " at: " + end);
+            //*// PERF_NO_LOG logger.log(Level.FINE, "requestGoalStates : replying HostRequest with UUID: " + state_request_uuid + " at: " + end);
             responseObserver.onCompleted();
             long end1 = System.currentTimeMillis();
-            logger.log(Level.FINE, "requestGoalStates : sent on-demand response to ACA | ",
-                    reply.toString() + " took " + (end1-end) + " milliseconds");
+            //*// PERF_NO_LOG logger.log(Level.FINE, "requestGoalStates : sent on-demand response to ACA | ", reply.toString() + " took " + (end1-end) + " milliseconds");
         }
     }
 }

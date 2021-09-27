@@ -60,7 +60,8 @@ public class PortRepository {
 
     @PostConstruct
     private void init() {
-        LOG.info("PortRepository init done");
+        //*// PERF_NO_LOG LOG.info("PortRepository init done");
+        System.out.println("PortRepository init done");
     }
 
     @DurationStatistics
@@ -89,9 +90,6 @@ public class PortRepository {
     @DurationStatistics
     public synchronized void createPortAndNeighbor(PortEntity portEntity, NeighborInfo neighborInfo) throws Exception {
         try (Transaction tx = portCache.getTransaction().start()) {
-            //Add portEntity to portCache
-            portCache.put(portEntity.getId(), portEntity);
-
             //Add neighborInfo to neighborCache
             if (neighborInfo != null) {
                 PortNeighbors portNeighbors = neighborCache.get(portEntity.getVpcId());
@@ -105,6 +103,9 @@ public class PortRepository {
                 neighborCache.put(portEntity.getVpcId(), portNeighbors);
             }
 
+            //Add portEntity to portCache
+            portCache.put(portEntity.getId(), portEntity);
+
             tx.commit();
         }
     }
@@ -113,9 +114,6 @@ public class PortRepository {
     @Deprecated
     public synchronized void updatePortAndNeighbor(PortEntity portEntity, NeighborInfo neighborInfo) throws Exception {
         try (Transaction tx = portCache.getTransaction().start()) {
-            //Update portEntity to portCache
-            portCache.put(portEntity.getId(), portEntity);
-
             //Update neighborInfo to neighborCache
             PortNeighbors portNeighbors = neighborCache.get(portEntity.getVpcId());
             if (portNeighbors == null) {
@@ -137,6 +135,9 @@ public class PortRepository {
                 neighborCache.put(portEntity.getVpcId(), portNeighbors);
             }
 
+            //Update portEntity to portCache
+            portCache.put(portEntity.getId(), portEntity);
+
             tx.commit();
         }
     }
@@ -144,13 +145,10 @@ public class PortRepository {
     @DurationStatistics
     @Deprecated
     public synchronized void createPortAndNeighborBulk(List<PortEntity> portEntities, Map<String, List<NeighborInfo>> neighbors) throws Exception {
+        Map<String, PortEntity> portEntityMap = portEntities
+                .stream()
+                .collect(Collectors.toMap(PortEntity::getId, Function.identity()));
         try (Transaction tx = portCache.getTransaction().start()) {
-            //Add portEntities to portCache
-            Map<String, PortEntity> portEntityMap = portEntities
-                    .stream()
-                    .collect(Collectors.toMap(PortEntity::getId, Function.identity()));
-            portCache.putAll(portEntityMap);
-
             //Add neighborInfos to neighborCache
             if (neighbors != null) {
                 for (Map.Entry<String, List<NeighborInfo>> entry : neighbors.entrySet()) {
@@ -170,6 +168,9 @@ public class PortRepository {
                 }
             }
 
+            //Add portEntities to portCache
+            portCache.putAll(portEntityMap);
+
             tx.commit();
         }
     }
@@ -177,13 +178,10 @@ public class PortRepository {
     @DurationStatistics
     @Deprecated
     public synchronized void updatePortAndNeighborBulk(List<PortEntity> portEntities, Map<String, List<NeighborInfo>> neighbors) throws Exception {
+        Map<String, PortEntity> portEntityMap = portEntities
+                .stream()
+                .collect(Collectors.toMap(PortEntity::getId, Function.identity()));
         try (Transaction tx = portCache.getTransaction().start()) {
-            //Update portEntities to portCache
-            Map<String, PortEntity> portEntityMap = portEntities
-                    .stream()
-                    .collect(Collectors.toMap(PortEntity::getId, Function.identity()));
-            portCache.putAll(portEntityMap);
-
             Map<String, List<PortEntity>> vpcPorts = new HashMap<>();
             for (PortEntity portEntity : portEntities) {
                 if (!vpcPorts.containsKey(portEntity.getVpcId())) {
@@ -224,6 +222,9 @@ public class PortRepository {
                 }
             }
 
+            //Update portEntities to portCache
+            portCache.putAll(portEntityMap);
+
             tx.commit();
         }
 
@@ -233,9 +234,8 @@ public class PortRepository {
     @Deprecated
     public synchronized void deletePortAndNeighbor(PortEntity portEntity) throws Exception {
         try (Transaction tx = portCache.getTransaction().start()) {
-            //Delete portEntity from portCache
+
             String portId = portEntity.getId();
-            portCache.remove(portId);
 
             //Delete neighborInfo from neighborCache
             PortNeighbors portNeighbors = neighborCache.get(portEntity.getVpcId());
@@ -243,6 +243,9 @@ public class PortRepository {
                 portNeighbors.getNeighbors().remove(portId);
                 neighborCache.put(portNeighbors.getVpcId(), portNeighbors);
             }
+
+            //Delete portEntity from portCache
+            portCache.remove(portId);
 
             tx.commit();
         }
@@ -262,23 +265,32 @@ public class PortRepository {
 
     @DurationStatistics
     public synchronized void createPortBulk(List<PortEntity> portEntities, Map<String, List<NeighborInfo>> neighbors) throws Exception {
-        try (Transaction tx = portCache.getTransaction().start()) {
-            Map<String, PortEntity> portEntityMap = portEntities
-                    .stream()
-                    .collect(Collectors.toMap(PortEntity::getId, Function.identity()));
-            portCache.putAll(portEntityMap);
+        Map<String, PortEntity> portEntityMap = portEntities
+                .stream()
+                .collect(Collectors.toMap(PortEntity::getId, Function.identity()));
+        Transaction tx = null;
+        try {
+            long txTime1 = System.currentTimeMillis();
+            tx = portCache.getTransaction().start();
+            long txTime2 = System.currentTimeMillis();
+            System.out.println("createPortBulk TXWAIT " + Thread.currentThread().getId() + " " + (txTime2 - txTime1));
             neighborRepository.createNeighbors(neighbors);
             subnetPortsRepository.addSubnetPortIds(portEntities);
+            portCache.putAll(portEntityMap);
             tx.commit();
+        }
+        catch (Exception e) {
+		    System.out.println("createPortBulk TXFAIL " + Thread.currentThread().getId() + " : " + e.getMessage());
+            tx.rollback();
         }
     }
 
     @DurationStatistics
     public synchronized void updatePort(PortEntity oldPortEntity, PortEntity newPortEntity, List<NeighborInfo> neighborInfos) throws Exception {
         try (Transaction tx = portCache.getTransaction().start()) {
-            portCache.put(newPortEntity.getId(), newPortEntity);
             neighborRepository.updateNeighbors(oldPortEntity, neighborInfos);
             subnetPortsRepository.updateSubnetPortIds(oldPortEntity, newPortEntity);
+            portCache.put(newPortEntity.getId(), newPortEntity);
             tx.commit();
         }
     }
@@ -286,9 +298,9 @@ public class PortRepository {
     @DurationStatistics
     public synchronized void deletePort(PortEntity portEntity) throws Exception {
         try (Transaction tx = portCache.getTransaction().start()) {
-            portCache.remove(portEntity.getId());
             neighborRepository.deleteNeighbors(portEntity);
             subnetPortsRepository.deleteSubnetPortIds(portEntity);
+            portCache.remove(portEntity.getId());
             tx.commit();
         }
     }
