@@ -1,0 +1,1345 @@
+Summary statistics of NCM times from ncm-2021-07-13-pvrco-1000p-near-01.log
+Number of Ports      : 1000
+Optimizations        : PVRCO, NEAR
+
+Time Tag                   MIN          MAX          AVG          MED          STDDEV       P25          P75          P95          P99             MOD       VAR
+
+PGSS_FIN_PUT_GS         2507.0000    3814.0000    3160.5000    3160.5000     924.1886    2507.0000    2507.0000    2507.0000    2507.0000         2507  854124.5000         1000
+UGS_FIN_GRM                1.0000      63.0000      24.6667      10.0000      33.5012       1.0000       1.0000       1.0000       1.0000            1    1122.3333         1000
+UGS_ADD_NEW                3.0000      39.0000      21.0000      21.0000      25.4558       3.0000       3.0000       3.0000       3.0000            3     648.0000         1000
+UGS_UPD_OLD                2.0000       2.0000       2.0000       2.0000       0.0000       2.0000       2.0000       2.0000       2.0000            2       0.0000         1000
+UGS_FIN_GS_PROC         1139.0000    2195.0000    1681.3333    1710.0000     528.5833    1139.0000    1139.0000    1139.0000    1139.0000         1139  279400.3333         1000
+UGS_FIN_VPC_POP          122.0000     143.0000     132.5000     132.5000      14.8492     122.0000     122.0000     122.0000     122.0000          122     220.5000         1000
+UGS_TOT_ET              1151.0000    2321.0000    1809.0000    1955.0000     598.5081    1151.0000    1151.0000    1151.0000    1151.0000         1151  358212.0000         1000
+PVRC_LOOP_RS              20.0000      37.0000      28.5000      28.5000      12.0208      20.0000      20.0000      20.0000      20.0000           20     144.5000         1000
+PVRC_END                 120.0000     137.0000     128.5000     128.5000      12.0208     120.0000     120.0000     120.0000     120.0000          120     144.5000         1000
+GET_VNI                   10.0000      81.0000      12.8869      12.0000       3.5192      10.0000      10.0000      10.0000      10.0000           11      12.3850         1000
+
+
+Tag description
+PGSS_FIN_PUT_GS : Time to update GS by host in a loop (time spent in updateGoalstate method).
+                  [logline] pushGoalStatesStream : finished putting GS into cache.
+
+GRM_VNI         : Time to retrieve ResourceMeta from VpcResourceMeta cache for the VNI.
+                  [logline] getResourceMeta(vni) elapsed time.
+
+UGS_FIN_GRM     : Time to retrieve ResourceMeta from hostResourceMetadataCache for a given hostid (inside updateGoalState method).
+                  [logline] finished getting resource meta from cache.
+
+UGS_ADD_NEW     : Time to put a new ResourceMeta into hostResourceMetadataCache (inside updateGoalState method).
+                  [logline] existing is null, finished adding resource meta from cache.
+
+UGS_UPD_OLD     : Time to put an updated ResourceMeta into hostResourceMetadataCache.
+                  [logilne] existing is NOT null, finished adding resource meta from cache.
+
+UGS_FIN_GS_PROC : Time to populate ResourceState cache for vpc, subnets, ports etc., (inside updateGoalState).
+                  [logline] finished processing goalState.
+
+UGS_TOT_ET      : Total time spent in UGS_FIN_GRM, UGS_ADD_NEW or UGS_UPD_OLD and UGS_FIN_GS_PROC.
+                  [logline] total time.
+
+UGS_FIN_VPC_POP : finished populating vpc resource cache.
+
+PGSS_FIB_TO_DPM : Time to send GS to ACA and DPM (non ondemand)
+                  [logline] pushGoalStatesStream : Replied to DPM, from received to replied
+
+REQUEST_GS      : Time to to retrieve goalstate to sending GS to host. (on demand, includes time from onDemandService.retrieveGoalState)
+                  [logline] From retrieving goalstate to sent goalstate
+
+
+Description of Optimizations:
+NEAR		: Ignite Near cache maintained in the Microservice address space.
+HEAP            : On JVM heap, subject to GC but no serialization and deserialization.
+PVRCO		: NCM - Get the VNI only once.
+=========================================================================================================================================
+
+
+
+Summary statistics of NCM times from ncm-2021-07-13-pvrco-1000p-near-02.log
+Number of Ports      : 1000
+Optimizations        : PVRCO, NEAR
+
+Time Tag                   MIN          MAX          AVG          MED          STDDEV       P25          P75          P95          P99             MOD       VAR
+
+PGSS_FIN_PUT_GS         1449.0000    3021.0000    2235.0000    2235.0000    1111.5719    1449.0000    1449.0000    1449.0000    1449.0000         1449 1235592.0000         1000
+UGS_FIN_GRM                3.0000      10.0000       5.3333       3.0000       4.0415       3.0000       3.0000       3.0000       3.0000            3      16.3333         1000
+UGS_UPD_OLD                2.0000      19.0000       7.6667       2.0000       9.8150       2.0000       2.0000       2.0000       2.0000            2      96.3333         1000
+UGS_FIN_GS_PROC          880.0000    1780.0000    1252.0000    1096.0000     469.8425     880.0000     880.0000     880.0000     880.0000          880  220752.0000         1000
+UGS_FIN_VPC_POP          108.0000     179.0000     143.5000     143.5000      50.2046     108.0000     108.0000     108.0000     108.0000          108    2520.5000         1000
+UGS_TOT_ET               885.0000    1893.0000    1360.6667    1304.0000     506.3836     885.0000     885.0000     885.0000     885.0000          885  256424.3333         1000
+PVRC_LOOP_RS              19.0000      39.0000      29.0000      29.0000      14.1421      19.0000      19.0000      19.0000      19.0000           19     200.0000         1000
+PVRC_END                 108.0000     173.0000     140.5000     140.5000      45.9619     108.0000     108.0000     108.0000     108.0000          108    2112.5000         1000
+GET_VNI                   10.0000      37.0000      11.8448      11.0000       2.0032      10.0000      10.0000      10.0000      10.0000           11       4.0130         1000
+
+
+Tag description
+PGSS_FIN_PUT_GS : Time to update GS by host in a loop (time spent in updateGoalstate method).
+                  [logline] pushGoalStatesStream : finished putting GS into cache.
+
+GRM_VNI         : Time to retrieve ResourceMeta from VpcResourceMeta cache for the VNI.
+                  [logline] getResourceMeta(vni) elapsed time.
+
+UGS_FIN_GRM     : Time to retrieve ResourceMeta from hostResourceMetadataCache for a given hostid (inside updateGoalState method).
+                  [logline] finished getting resource meta from cache.
+
+UGS_ADD_NEW     : Time to put a new ResourceMeta into hostResourceMetadataCache (inside updateGoalState method).
+                  [logline] existing is null, finished adding resource meta from cache.
+
+UGS_UPD_OLD     : Time to put an updated ResourceMeta into hostResourceMetadataCache.
+                  [logilne] existing is NOT null, finished adding resource meta from cache.
+
+UGS_FIN_GS_PROC : Time to populate ResourceState cache for vpc, subnets, ports etc., (inside updateGoalState).
+                  [logline] finished processing goalState.
+
+UGS_TOT_ET      : Total time spent in UGS_FIN_GRM, UGS_ADD_NEW or UGS_UPD_OLD and UGS_FIN_GS_PROC.
+                  [logline] total time.
+
+UGS_FIN_VPC_POP : finished populating vpc resource cache.
+
+PGSS_FIB_TO_DPM : Time to send GS to ACA and DPM (non ondemand)
+                  [logline] pushGoalStatesStream : Replied to DPM, from received to replied
+
+REQUEST_GS      : Time to to retrieve goalstate to sending GS to host. (on demand, includes time from onDemandService.retrieveGoalState)
+                  [logline] From retrieving goalstate to sent goalstate
+
+
+Description of Optimizations:
+NEAR		: Ignite Near cache maintained in the Microservice address space.
+HEAP            : On JVM heap, subject to GC but no serialization and deserialization.
+PVRCO		: NCM - Get the VNI only once.
+=========================================================================================================================================
+
+
+
+Summary statistics of NCM times from ncm-2021-07-13-pvrco-1000p-near-03.log
+Number of Ports      : 1000
+Optimizations        : PVRCO, NEAR
+
+Time Tag                   MIN          MAX          AVG          MED          STDDEV       P25          P75          P95          P99             MOD       VAR
+
+PGSS_FIN_PUT_GS         1248.0000    2656.0000    1952.0000    1952.0000     995.6063    1248.0000    1248.0000    1248.0000    1248.0000         1248  991232.0000         1000
+UGS_FIN_GRM                3.0000       7.0000       4.3333       3.0000       2.3094       3.0000       3.0000       3.0000       3.0000            3       5.3333         1000
+UGS_UPD_OLD                2.0000      12.0000       5.3333       2.0000       5.7735       2.0000       2.0000       2.0000       2.0000            2      33.3333         1000
+UGS_FIN_GS_PROC          835.0000    1564.0000    1115.0000     946.0000     392.7862     835.0000     835.0000     835.0000     835.0000          835  154281.0000         1000
+UGS_FIN_VPC_POP           97.0000     171.0000     134.0000     134.0000      52.3259      97.0000      97.0000      97.0000      97.0000           97    2738.0000         1000
+UGS_TOT_ET               840.0000    1666.0000    1214.0000    1136.0000     418.4878     840.0000     840.0000     840.0000     840.0000          840  175132.0000         1000
+PVRC_LOOP_RS              19.0000      41.0000      30.0000      30.0000      15.5563      19.0000      19.0000      19.0000      19.0000           19     242.0000         1000
+PVRC_END                  96.0000     166.0000     131.0000     131.0000      49.4975      96.0000      96.0000      96.0000      96.0000           96    2450.0000         1000
+GET_VNI                   10.0000      61.0000      11.7247      11.0000       2.7801      10.0000      10.0000      10.0000      10.0000           11       7.7288         1000
+
+
+Tag description
+PGSS_FIN_PUT_GS : Time to update GS by host in a loop (time spent in updateGoalstate method).
+                  [logline] pushGoalStatesStream : finished putting GS into cache.
+
+GRM_VNI         : Time to retrieve ResourceMeta from VpcResourceMeta cache for the VNI.
+                  [logline] getResourceMeta(vni) elapsed time.
+
+UGS_FIN_GRM     : Time to retrieve ResourceMeta from hostResourceMetadataCache for a given hostid (inside updateGoalState method).
+                  [logline] finished getting resource meta from cache.
+
+UGS_ADD_NEW     : Time to put a new ResourceMeta into hostResourceMetadataCache (inside updateGoalState method).
+                  [logline] existing is null, finished adding resource meta from cache.
+
+UGS_UPD_OLD     : Time to put an updated ResourceMeta into hostResourceMetadataCache.
+                  [logilne] existing is NOT null, finished adding resource meta from cache.
+
+UGS_FIN_GS_PROC : Time to populate ResourceState cache for vpc, subnets, ports etc., (inside updateGoalState).
+                  [logline] finished processing goalState.
+
+UGS_TOT_ET      : Total time spent in UGS_FIN_GRM, UGS_ADD_NEW or UGS_UPD_OLD and UGS_FIN_GS_PROC.
+                  [logline] total time.
+
+UGS_FIN_VPC_POP : finished populating vpc resource cache.
+
+PGSS_FIB_TO_DPM : Time to send GS to ACA and DPM (non ondemand)
+                  [logline] pushGoalStatesStream : Replied to DPM, from received to replied
+
+REQUEST_GS      : Time to to retrieve goalstate to sending GS to host. (on demand, includes time from onDemandService.retrieveGoalState)
+                  [logline] From retrieving goalstate to sent goalstate
+
+
+Description of Optimizations:
+NEAR		: Ignite Near cache maintained in the Microservice address space.
+HEAP            : On JVM heap, subject to GC but no serialization and deserialization.
+PVRCO		: NCM - Get the VNI only once.
+=========================================================================================================================================
+
+
+
+Summary statistics of NCM times from ncm-2021-07-13-pvrco-1000p-near-04.log
+Number of Ports      : 1000
+Optimizations        : PVRCO, NEAR
+
+Time Tag                   MIN          MAX          AVG          MED          STDDEV       P25          P75          P95          P99             MOD       VAR
+
+PGSS_FIN_PUT_GS         1249.0000    2694.0000    1971.5000    1971.5000    1021.7693    1249.0000    1249.0000    1249.0000    1249.0000         1249 1044012.5000         1000
+UGS_FIN_GRM                3.0000       8.0000       4.6667       3.0000       2.8868       3.0000       3.0000       3.0000       3.0000            3       8.3333         1000
+UGS_UPD_OLD                2.0000      14.0000       6.3333       3.0000       6.6583       2.0000       2.0000       2.0000       2.0000            2      44.3333         1000
+UGS_FIN_GS_PROC          787.0000    1652.0000    1131.0000     954.0000     458.8605     787.0000     787.0000     787.0000     787.0000          787  210553.0000         1000
+UGS_FIN_VPC_POP          100.0000     175.0000     137.5000     137.5000      53.0330     100.0000     100.0000     100.0000     100.0000          100    2812.5000         1000
+UGS_TOT_ET               792.0000    1758.0000    1233.6667    1151.0000     488.2769     792.0000     792.0000     792.0000     792.0000          792  238414.3333         1000
+PVRC_LOOP_RS              19.0000      43.0000      31.0000      31.0000      16.9706      19.0000      19.0000      19.0000      19.0000           19     288.0000         1000
+PVRC_END                 100.0000     169.0000     134.5000     134.5000      48.7904     100.0000     100.0000     100.0000     100.0000          100    2380.5000         1000
+GET_VNI                   10.0000      36.0000      12.2102      11.0000       2.3027      10.0000      10.0000      10.0000      10.0000           11       5.3025         1000
+
+
+Tag description
+PGSS_FIN_PUT_GS : Time to update GS by host in a loop (time spent in updateGoalstate method).
+                  [logline] pushGoalStatesStream : finished putting GS into cache.
+
+GRM_VNI         : Time to retrieve ResourceMeta from VpcResourceMeta cache for the VNI.
+                  [logline] getResourceMeta(vni) elapsed time.
+
+UGS_FIN_GRM     : Time to retrieve ResourceMeta from hostResourceMetadataCache for a given hostid (inside updateGoalState method).
+                  [logline] finished getting resource meta from cache.
+
+UGS_ADD_NEW     : Time to put a new ResourceMeta into hostResourceMetadataCache (inside updateGoalState method).
+                  [logline] existing is null, finished adding resource meta from cache.
+
+UGS_UPD_OLD     : Time to put an updated ResourceMeta into hostResourceMetadataCache.
+                  [logilne] existing is NOT null, finished adding resource meta from cache.
+
+UGS_FIN_GS_PROC : Time to populate ResourceState cache for vpc, subnets, ports etc., (inside updateGoalState).
+                  [logline] finished processing goalState.
+
+UGS_TOT_ET      : Total time spent in UGS_FIN_GRM, UGS_ADD_NEW or UGS_UPD_OLD and UGS_FIN_GS_PROC.
+                  [logline] total time.
+
+UGS_FIN_VPC_POP : finished populating vpc resource cache.
+
+PGSS_FIB_TO_DPM : Time to send GS to ACA and DPM (non ondemand)
+                  [logline] pushGoalStatesStream : Replied to DPM, from received to replied
+
+REQUEST_GS      : Time to to retrieve goalstate to sending GS to host. (on demand, includes time from onDemandService.retrieveGoalState)
+                  [logline] From retrieving goalstate to sent goalstate
+
+
+Description of Optimizations:
+NEAR		: Ignite Near cache maintained in the Microservice address space.
+HEAP            : On JVM heap, subject to GC but no serialization and deserialization.
+PVRCO		: NCM - Get the VNI only once.
+=========================================================================================================================================
+
+
+
+Summary statistics of NCM times from ncm-2021-07-13-pvrco-2000p-near-01.log
+Number of Ports      : 2000
+Optimizations        : PVRCO, NEAR
+
+Time Tag                   MIN          MAX          AVG          MED          STDDEV       P25          P75          P95          P99             MOD       VAR
+
+PGSS_FIN_PUT_GS         2203.0000    5224.0000    3713.5000    3713.5000    2136.1696    2203.0000    2203.0000    2203.0000    2203.0000         2203 4563220.5000         2000
+UGS_FIN_GRM                3.0000       7.0000       4.3333       3.0000       2.3094       3.0000       3.0000       3.0000       3.0000            3       5.3333         2000
+UGS_UPD_OLD                4.0000      20.0000       9.3333       4.0000       9.2376       4.0000       4.0000       4.0000       4.0000            4      85.3333         2000
+UGS_FIN_GS_PROC         1574.0000    3183.0000    2176.6667    1773.0000     877.1718    1574.0000    1574.0000    1574.0000    1574.0000         1574  769430.3333         2000
+UGS_FIN_VPC_POP          176.0000     217.0000     196.5000     196.5000      28.9914     176.0000     176.0000     176.0000     176.0000          176     840.5000         2000
+UGS_TOT_ET              1581.0000    3366.0000    2321.3333    2017.0000     930.6021    1581.0000    1581.0000    1581.0000    1581.0000         1581  866020.3333         2000
+PVRC_LOOP_RS              34.0000      56.0000      45.0000      45.0000      15.5563      34.0000      34.0000      34.0000      34.0000           34     242.0000         2000
+PVRC_END                 175.0000     211.0000     193.0000     193.0000      25.4558     175.0000     175.0000     175.0000     175.0000          175     648.0000         2000
+GET_VNI                   22.0000      54.0000      24.4865      23.0000       3.6822      22.0000      22.0000      22.0000      22.0000           23      13.5587         2000
+
+
+Tag description
+PGSS_FIN_PUT_GS : Time to update GS by host in a loop (time spent in updateGoalstate method).
+                  [logline] pushGoalStatesStream : finished putting GS into cache.
+
+GRM_VNI         : Time to retrieve ResourceMeta from VpcResourceMeta cache for the VNI.
+                  [logline] getResourceMeta(vni) elapsed time.
+
+UGS_FIN_GRM     : Time to retrieve ResourceMeta from hostResourceMetadataCache for a given hostid (inside updateGoalState method).
+                  [logline] finished getting resource meta from cache.
+
+UGS_ADD_NEW     : Time to put a new ResourceMeta into hostResourceMetadataCache (inside updateGoalState method).
+                  [logline] existing is null, finished adding resource meta from cache.
+
+UGS_UPD_OLD     : Time to put an updated ResourceMeta into hostResourceMetadataCache.
+                  [logilne] existing is NOT null, finished adding resource meta from cache.
+
+UGS_FIN_GS_PROC : Time to populate ResourceState cache for vpc, subnets, ports etc., (inside updateGoalState).
+                  [logline] finished processing goalState.
+
+UGS_TOT_ET      : Total time spent in UGS_FIN_GRM, UGS_ADD_NEW or UGS_UPD_OLD and UGS_FIN_GS_PROC.
+                  [logline] total time.
+
+UGS_FIN_VPC_POP : finished populating vpc resource cache.
+
+PGSS_FIB_TO_DPM : Time to send GS to ACA and DPM (non ondemand)
+                  [logline] pushGoalStatesStream : Replied to DPM, from received to replied
+
+REQUEST_GS      : Time to to retrieve goalstate to sending GS to host. (on demand, includes time from onDemandService.retrieveGoalState)
+                  [logline] From retrieving goalstate to sent goalstate
+
+
+Description of Optimizations:
+NEAR		: Ignite Near cache maintained in the Microservice address space.
+HEAP            : On JVM heap, subject to GC but no serialization and deserialization.
+PVRCO		: NCM - Get the VNI only once.
+=========================================================================================================================================
+
+
+
+Summary statistics of NCM times from ncm-2021-07-13-pvrco-2000p-near-02.log
+Number of Ports      : 2000
+Optimizations        : PVRCO, NEAR
+
+Time Tag                   MIN          MAX          AVG          MED          STDDEV       P25          P75          P95          P99             MOD       VAR
+
+PGSS_FIN_PUT_GS         2219.0000    5187.0000    3703.0000    3703.0000    2098.6929    2219.0000    2219.0000    2219.0000    2219.0000         2219 4404512.0000         2000
+UGS_FIN_GRM                4.0000       8.0000       5.6667       5.0000       2.0817       4.0000       4.0000       4.0000       4.0000            4       4.3333         2000
+UGS_UPD_OLD                3.0000      15.0000       7.3333       4.0000       6.6583       3.0000       3.0000       3.0000       3.0000            3      44.3333         2000
+UGS_FIN_GS_PROC         1597.0000    3202.0000    2194.3333    1784.0000     877.6596    1597.0000    1597.0000    1597.0000    1597.0000         1597  770286.3333         2000
+UGS_FIN_VPC_POP            1.0000     262.0000     144.6667     171.0000     132.4777       1.0000       1.0000       1.0000       1.0000            1   17550.3333         2000
+UGS_TOT_ET              1605.0000    3382.0000    2352.0000    2069.0000     921.6827    1605.0000    1605.0000    1605.0000    1605.0000         1605  849499.0000         2000
+PVRC_LOOP_RS              32.0000      78.0000      55.0000      55.0000      32.5269      32.0000      32.0000      32.0000      32.0000           32    1058.0000         2000
+PVRC_END                 170.0000     256.0000     213.0000     213.0000      60.8112     170.0000     170.0000     170.0000     170.0000          170    3698.0000         2000
+GET_VNI                   22.0000      49.0000      23.4575      22.0000       3.1182      22.0000      22.0000      22.0000      22.0000           22       9.7234         2000
+
+
+Tag description
+PGSS_FIN_PUT_GS : Time to update GS by host in a loop (time spent in updateGoalstate method).
+                  [logline] pushGoalStatesStream : finished putting GS into cache.
+
+GRM_VNI         : Time to retrieve ResourceMeta from VpcResourceMeta cache for the VNI.
+                  [logline] getResourceMeta(vni) elapsed time.
+
+UGS_FIN_GRM     : Time to retrieve ResourceMeta from hostResourceMetadataCache for a given hostid (inside updateGoalState method).
+                  [logline] finished getting resource meta from cache.
+
+UGS_ADD_NEW     : Time to put a new ResourceMeta into hostResourceMetadataCache (inside updateGoalState method).
+                  [logline] existing is null, finished adding resource meta from cache.
+
+UGS_UPD_OLD     : Time to put an updated ResourceMeta into hostResourceMetadataCache.
+                  [logilne] existing is NOT null, finished adding resource meta from cache.
+
+UGS_FIN_GS_PROC : Time to populate ResourceState cache for vpc, subnets, ports etc., (inside updateGoalState).
+                  [logline] finished processing goalState.
+
+UGS_TOT_ET      : Total time spent in UGS_FIN_GRM, UGS_ADD_NEW or UGS_UPD_OLD and UGS_FIN_GS_PROC.
+                  [logline] total time.
+
+UGS_FIN_VPC_POP : finished populating vpc resource cache.
+
+PGSS_FIB_TO_DPM : Time to send GS to ACA and DPM (non ondemand)
+                  [logline] pushGoalStatesStream : Replied to DPM, from received to replied
+
+REQUEST_GS      : Time to to retrieve goalstate to sending GS to host. (on demand, includes time from onDemandService.retrieveGoalState)
+                  [logline] From retrieving goalstate to sent goalstate
+
+
+Description of Optimizations:
+NEAR		: Ignite Near cache maintained in the Microservice address space.
+HEAP            : On JVM heap, subject to GC but no serialization and deserialization.
+PVRCO		: NCM - Get the VNI only once.
+=========================================================================================================================================
+
+
+
+Summary statistics of NCM times from ncm-2021-07-13-pvrco-2000p-near-03.log
+Number of Ports      : 2000
+Optimizations        : PVRCO, NEAR
+
+Time Tag                   MIN          MAX          AVG          MED          STDDEV       P25          P75          P95          P99             MOD       VAR
+
+PGSS_FIN_PUT_GS         2058.0000    4942.0000    3500.0000    3500.0000    2039.2960    2058.0000    2058.0000    2058.0000    2058.0000         2058 4158728.0000         2000
+UGS_FIN_GRM                3.0000       8.0000       5.0000       4.0000       2.6458       3.0000       3.0000       3.0000       3.0000            3       7.0000         2000
+UGS_UPD_OLD                2.0000      14.0000       6.3333       3.0000       6.6583       2.0000       2.0000       2.0000       2.0000            2      44.3333         2000
+UGS_FIN_GS_PROC         1461.0000    3131.0000    2087.0000    1669.0000     910.0923    1461.0000    1461.0000    1461.0000    1461.0000         1461  828268.0000         2000
+UGS_FIN_VPC_POP          145.0000     249.0000     197.0000     197.0000      73.5391     145.0000     145.0000     145.0000     145.0000          145    5408.0000         2000
+UGS_TOT_ET              1466.0000    3283.0000    2229.6667    1940.0000     942.4979    1466.0000    1466.0000    1466.0000    1466.0000         1466  888302.3333         2000
+PVRC_LOOP_RS              27.0000      73.0000      50.0000      50.0000      32.5269      27.0000      27.0000      27.0000      27.0000           27    1058.0000         2000
+PVRC_END                 144.0000     243.0000     193.5000     193.5000      70.0036     144.0000     144.0000     144.0000     144.0000          144    4900.5000         2000
+GET_VNI                   22.0000      56.0000      24.6507      23.0000       4.1373      22.0000      22.0000      22.0000      22.0000           23      17.1173         2000
+
+
+Tag description
+PGSS_FIN_PUT_GS : Time to update GS by host in a loop (time spent in updateGoalstate method).
+                  [logline] pushGoalStatesStream : finished putting GS into cache.
+
+GRM_VNI         : Time to retrieve ResourceMeta from VpcResourceMeta cache for the VNI.
+                  [logline] getResourceMeta(vni) elapsed time.
+
+UGS_FIN_GRM     : Time to retrieve ResourceMeta from hostResourceMetadataCache for a given hostid (inside updateGoalState method).
+                  [logline] finished getting resource meta from cache.
+
+UGS_ADD_NEW     : Time to put a new ResourceMeta into hostResourceMetadataCache (inside updateGoalState method).
+                  [logline] existing is null, finished adding resource meta from cache.
+
+UGS_UPD_OLD     : Time to put an updated ResourceMeta into hostResourceMetadataCache.
+                  [logilne] existing is NOT null, finished adding resource meta from cache.
+
+UGS_FIN_GS_PROC : Time to populate ResourceState cache for vpc, subnets, ports etc., (inside updateGoalState).
+                  [logline] finished processing goalState.
+
+UGS_TOT_ET      : Total time spent in UGS_FIN_GRM, UGS_ADD_NEW or UGS_UPD_OLD and UGS_FIN_GS_PROC.
+                  [logline] total time.
+
+UGS_FIN_VPC_POP : finished populating vpc resource cache.
+
+PGSS_FIB_TO_DPM : Time to send GS to ACA and DPM (non ondemand)
+                  [logline] pushGoalStatesStream : Replied to DPM, from received to replied
+
+REQUEST_GS      : Time to to retrieve goalstate to sending GS to host. (on demand, includes time from onDemandService.retrieveGoalState)
+                  [logline] From retrieving goalstate to sent goalstate
+
+
+Description of Optimizations:
+NEAR		: Ignite Near cache maintained in the Microservice address space.
+HEAP            : On JVM heap, subject to GC but no serialization and deserialization.
+PVRCO		: NCM - Get the VNI only once.
+=========================================================================================================================================
+
+
+
+Summary statistics of NCM times from ncm-2021-07-13-pvrco-2000p-near-04.log
+Number of Ports      : 2000
+Optimizations        : PVRCO, NEAR
+
+Time Tag                   MIN          MAX          AVG          MED          STDDEV       P25          P75          P95          P99             MOD       VAR
+
+PGSS_FIN_PUT_GS         2100.0000    5074.0000    3587.0000    3587.0000    2102.9356    2100.0000    2100.0000    2100.0000    2100.0000         2100 4422338.0000         2000
+UGS_FIN_GRM                3.0000       7.0000       4.6667       4.0000       2.0817       3.0000       3.0000       3.0000       3.0000            3       4.3333         2000
+UGS_UPD_OLD                4.0000      16.0000       8.0000       4.0000       6.9282       4.0000       4.0000       4.0000       4.0000            4      48.0000         2000
+UGS_FIN_GS_PROC         1573.0000    3137.0000    2141.6667    1715.0000     864.9031    1573.0000    1573.0000    1573.0000    1573.0000         1573  748057.3333         2000
+UGS_FIN_VPC_POP          166.0000     256.0000     211.0000     211.0000      63.6396     166.0000     166.0000     166.0000     166.0000          166    4050.0000         2000
+UGS_TOT_ET              1580.0000    3311.0000    2295.0000    1994.0000     903.9032    1580.0000    1580.0000    1580.0000    1580.0000         1580  817041.0000         2000
+PVRC_LOOP_RS              31.0000      74.0000      52.5000      52.5000      30.4056      31.0000      31.0000      31.0000      31.0000           31     924.5000         2000
+PVRC_END                 164.0000     249.0000     206.5000     206.5000      60.1041     164.0000     164.0000     164.0000     164.0000          164    3612.5000         2000
+GET_VNI                   21.0000      89.0000      24.7858      23.0000       4.3775      21.0000      22.0000      22.0000      22.0000           23      19.1625         2000
+
+
+Tag description
+PGSS_FIN_PUT_GS : Time to update GS by host in a loop (time spent in updateGoalstate method).
+                  [logline] pushGoalStatesStream : finished putting GS into cache.
+
+GRM_VNI         : Time to retrieve ResourceMeta from VpcResourceMeta cache for the VNI.
+                  [logline] getResourceMeta(vni) elapsed time.
+
+UGS_FIN_GRM     : Time to retrieve ResourceMeta from hostResourceMetadataCache for a given hostid (inside updateGoalState method).
+                  [logline] finished getting resource meta from cache.
+
+UGS_ADD_NEW     : Time to put a new ResourceMeta into hostResourceMetadataCache (inside updateGoalState method).
+                  [logline] existing is null, finished adding resource meta from cache.
+
+UGS_UPD_OLD     : Time to put an updated ResourceMeta into hostResourceMetadataCache.
+                  [logilne] existing is NOT null, finished adding resource meta from cache.
+
+UGS_FIN_GS_PROC : Time to populate ResourceState cache for vpc, subnets, ports etc., (inside updateGoalState).
+                  [logline] finished processing goalState.
+
+UGS_TOT_ET      : Total time spent in UGS_FIN_GRM, UGS_ADD_NEW or UGS_UPD_OLD and UGS_FIN_GS_PROC.
+                  [logline] total time.
+
+UGS_FIN_VPC_POP : finished populating vpc resource cache.
+
+PGSS_FIB_TO_DPM : Time to send GS to ACA and DPM (non ondemand)
+                  [logline] pushGoalStatesStream : Replied to DPM, from received to replied
+
+REQUEST_GS      : Time to to retrieve goalstate to sending GS to host. (on demand, includes time from onDemandService.retrieveGoalState)
+                  [logline] From retrieving goalstate to sent goalstate
+
+
+Description of Optimizations:
+NEAR		: Ignite Near cache maintained in the Microservice address space.
+HEAP            : On JVM heap, subject to GC but no serialization and deserialization.
+PVRCO		: NCM - Get the VNI only once.
+=========================================================================================================================================
+
+
+
+Summary statistics of NCM times from ncm-2021-07-13-pvrco-2000p-near-05.log
+Number of Ports      : 2000
+Optimizations        : PVRCO, NEAR
+
+Time Tag                   MIN          MAX          AVG          MED          STDDEV       P25          P75          P95          P99             MOD       VAR
+
+PGSS_FIN_PUT_GS         2124.0000    4865.0000    3494.5000    3494.5000    1938.1797    2124.0000    2124.0000    2124.0000    2124.0000         2124 3756540.5000         2000
+UGS_FIN_GRM                3.0000       9.0000       6.0000       6.0000       3.0000       3.0000       3.0000       3.0000       3.0000            3       9.0000         2000
+UGS_UPD_OLD                3.0000      14.0000       7.0000       4.0000       6.0828       3.0000       3.0000       3.0000       3.0000            3      37.0000         2000
+UGS_FIN_GS_PROC         1406.0000    3088.0000    2076.3333    1735.0000     891.4384    1406.0000    1406.0000    1406.0000    1406.0000         1406  794662.3333         2000
+UGS_FIN_VPC_POP            1.0000     252.0000     140.0000     167.0000     127.6597       1.0000       1.0000       1.0000       1.0000            1   16297.0000         2000
+UGS_TOT_ET              1413.0000    3265.0000    2229.3333    2010.0000     945.2811    1413.0000    1413.0000    1413.0000    1413.0000         1413  893556.3333         2000
+PVRC_LOOP_RS              32.0000      75.0000      53.5000      53.5000      30.4056      32.0000      32.0000      32.0000      32.0000           32     924.5000         2000
+PVRC_END                 167.0000     247.0000     207.0000     207.0000      56.5685     167.0000     167.0000     167.0000     167.0000          167    3200.0000         2000
+GET_VNI                   21.0000      57.0000      23.7958      22.0000       3.8468      22.0000      22.0000      22.0000      22.0000           22      14.7979         2000
+
+
+Tag description
+PGSS_FIN_PUT_GS : Time to update GS by host in a loop (time spent in updateGoalstate method).
+                  [logline] pushGoalStatesStream : finished putting GS into cache.
+
+GRM_VNI         : Time to retrieve ResourceMeta from VpcResourceMeta cache for the VNI.
+                  [logline] getResourceMeta(vni) elapsed time.
+
+UGS_FIN_GRM     : Time to retrieve ResourceMeta from hostResourceMetadataCache for a given hostid (inside updateGoalState method).
+                  [logline] finished getting resource meta from cache.
+
+UGS_ADD_NEW     : Time to put a new ResourceMeta into hostResourceMetadataCache (inside updateGoalState method).
+                  [logline] existing is null, finished adding resource meta from cache.
+
+UGS_UPD_OLD     : Time to put an updated ResourceMeta into hostResourceMetadataCache.
+                  [logilne] existing is NOT null, finished adding resource meta from cache.
+
+UGS_FIN_GS_PROC : Time to populate ResourceState cache for vpc, subnets, ports etc., (inside updateGoalState).
+                  [logline] finished processing goalState.
+
+UGS_TOT_ET      : Total time spent in UGS_FIN_GRM, UGS_ADD_NEW or UGS_UPD_OLD and UGS_FIN_GS_PROC.
+                  [logline] total time.
+
+UGS_FIN_VPC_POP : finished populating vpc resource cache.
+
+PGSS_FIB_TO_DPM : Time to send GS to ACA and DPM (non ondemand)
+                  [logline] pushGoalStatesStream : Replied to DPM, from received to replied
+
+REQUEST_GS      : Time to to retrieve goalstate to sending GS to host. (on demand, includes time from onDemandService.retrieveGoalState)
+                  [logline] From retrieving goalstate to sent goalstate
+
+
+Description of Optimizations:
+NEAR		: Ignite Near cache maintained in the Microservice address space.
+HEAP            : On JVM heap, subject to GC but no serialization and deserialization.
+PVRCO		: NCM - Get the VNI only once.
+=========================================================================================================================================
+
+
+
+Summary statistics of NCM times from ncm-2021-07-13-pvrco-3000p-near-01.log
+Number of Ports      : 3000
+Optimizations        : PVRCO, NEAR
+
+Time Tag                   MIN          MAX          AVG          MED          STDDEV       P25          P75          P95          P99             MOD       VAR
+
+PGSS_FIN_PUT_GS         3082.0000    7529.0000    5305.5000    5305.5000    3144.5039    3082.0000    3082.0000    3082.0000    3082.0000         3082 9887904.5000         3000
+UGS_FIN_GRM                4.0000       9.0000       6.6667       7.0000       2.5166       4.0000       4.0000       4.0000       4.0000            4       6.3333         3000
+UGS_UPD_OLD                5.0000      17.0000       9.6667       7.0000       6.4291       5.0000       5.0000       5.0000       5.0000            5      41.3333         3000
+UGS_FIN_GS_PROC         2360.0000    4677.0000    3192.3333    2540.0000    1288.9051    2360.0000    2360.0000    2360.0000    2360.0000         2360 1661276.3333         3000
+UGS_FIN_VPC_POP            1.0000     369.0000     190.6667     202.0000     184.2616       1.0000       1.0000       1.0000       1.0000            1   33952.3333         3000
+UGS_TOT_ET              2370.0000    4893.0000    3399.3333    2935.0000    1324.0417    2370.0000    2370.0000    2370.0000    2370.0000         2370 1753086.3333         3000
+PVRC_LOOP_RS              51.0000     108.0000      79.5000      79.5000      40.3051      51.0000      51.0000      51.0000      51.0000           51    1624.5000         3000
+PVRC_END                 202.0000     361.0000     281.5000     281.5000     112.4300     202.0000     202.0000     202.0000     202.0000          202   12640.5000         3000
+GET_VNI                   31.0000      81.0000      34.1542      32.0000       4.1295      31.9975      32.0000      32.0000      32.0000           32      17.0524         3000
+
+
+Tag description
+PGSS_FIN_PUT_GS : Time to update GS by host in a loop (time spent in updateGoalstate method).
+                  [logline] pushGoalStatesStream : finished putting GS into cache.
+
+GRM_VNI         : Time to retrieve ResourceMeta from VpcResourceMeta cache for the VNI.
+                  [logline] getResourceMeta(vni) elapsed time.
+
+UGS_FIN_GRM     : Time to retrieve ResourceMeta from hostResourceMetadataCache for a given hostid (inside updateGoalState method).
+                  [logline] finished getting resource meta from cache.
+
+UGS_ADD_NEW     : Time to put a new ResourceMeta into hostResourceMetadataCache (inside updateGoalState method).
+                  [logline] existing is null, finished adding resource meta from cache.
+
+UGS_UPD_OLD     : Time to put an updated ResourceMeta into hostResourceMetadataCache.
+                  [logilne] existing is NOT null, finished adding resource meta from cache.
+
+UGS_FIN_GS_PROC : Time to populate ResourceState cache for vpc, subnets, ports etc., (inside updateGoalState).
+                  [logline] finished processing goalState.
+
+UGS_TOT_ET      : Total time spent in UGS_FIN_GRM, UGS_ADD_NEW or UGS_UPD_OLD and UGS_FIN_GS_PROC.
+                  [logline] total time.
+
+UGS_FIN_VPC_POP : finished populating vpc resource cache.
+
+PGSS_FIB_TO_DPM : Time to send GS to ACA and DPM (non ondemand)
+                  [logline] pushGoalStatesStream : Replied to DPM, from received to replied
+
+REQUEST_GS      : Time to to retrieve goalstate to sending GS to host. (on demand, includes time from onDemandService.retrieveGoalState)
+                  [logline] From retrieving goalstate to sent goalstate
+
+
+Description of Optimizations:
+NEAR		: Ignite Near cache maintained in the Microservice address space.
+HEAP            : On JVM heap, subject to GC but no serialization and deserialization.
+PVRCO		: NCM - Get the VNI only once.
+=========================================================================================================================================
+
+
+
+Summary statistics of NCM times from ncm-2021-07-13-pvrco-3000p-near-02.log
+Number of Ports      : 3000
+Optimizations        : PVRCO, NEAR
+
+Time Tag                   MIN          MAX          AVG          MED          STDDEV       P25          P75          P95          P99             MOD       VAR
+
+PGSS_FIN_PUT_GS         3032.0000    7230.0000    5131.0000    5131.0000    2968.4343    3032.0000    3032.0000    3032.0000    3032.0000         3032 8811602.0000         3000
+UGS_FIN_GRM                4.0000       9.0000       6.6667       7.0000       2.5166       4.0000       4.0000       4.0000       4.0000            4       6.3333         3000
+UGS_UPD_OLD                3.0000      18.0000       9.3333       7.0000       7.7675       3.0000       3.0000       3.0000       3.0000            3      60.3333         3000
+UGS_FIN_GS_PROC         2308.0000    4358.0000    3053.6667    2495.0000    1133.4489    2308.0000    2308.0000    2308.0000    2308.0000         2308 1284706.3333         3000
+UGS_FIN_VPC_POP            1.0000     354.0000     208.6667     271.0000     184.5707       1.0000       1.0000       1.0000       1.0000            1   34066.3333         3000
+UGS_TOT_ET              2316.0000    4643.0000    3278.3333    2876.0000    1214.5519    2316.0000    2316.0000    2316.0000    2316.0000         2316 1475136.3333         3000
+PVRC_LOOP_RS              55.0000     112.0000      83.5000      83.5000      40.3051      55.0000      55.0000      55.0000      55.0000           55    1624.5000         3000
+PVRC_END                 271.0000     348.0000     309.5000     309.5000      54.4472     271.0000     271.0000     271.0000     271.0000          271    2964.5000         3000
+GET_VNI                   32.0000      97.0000      34.7077      33.0000       4.7048      32.0000      32.0000      32.0000      32.0000           33      22.1349         3000
+
+
+Tag description
+PGSS_FIN_PUT_GS : Time to update GS by host in a loop (time spent in updateGoalstate method).
+                  [logline] pushGoalStatesStream : finished putting GS into cache.
+
+GRM_VNI         : Time to retrieve ResourceMeta from VpcResourceMeta cache for the VNI.
+                  [logline] getResourceMeta(vni) elapsed time.
+
+UGS_FIN_GRM     : Time to retrieve ResourceMeta from hostResourceMetadataCache for a given hostid (inside updateGoalState method).
+                  [logline] finished getting resource meta from cache.
+
+UGS_ADD_NEW     : Time to put a new ResourceMeta into hostResourceMetadataCache (inside updateGoalState method).
+                  [logline] existing is null, finished adding resource meta from cache.
+
+UGS_UPD_OLD     : Time to put an updated ResourceMeta into hostResourceMetadataCache.
+                  [logilne] existing is NOT null, finished adding resource meta from cache.
+
+UGS_FIN_GS_PROC : Time to populate ResourceState cache for vpc, subnets, ports etc., (inside updateGoalState).
+                  [logline] finished processing goalState.
+
+UGS_TOT_ET      : Total time spent in UGS_FIN_GRM, UGS_ADD_NEW or UGS_UPD_OLD and UGS_FIN_GS_PROC.
+                  [logline] total time.
+
+UGS_FIN_VPC_POP : finished populating vpc resource cache.
+
+PGSS_FIB_TO_DPM : Time to send GS to ACA and DPM (non ondemand)
+                  [logline] pushGoalStatesStream : Replied to DPM, from received to replied
+
+REQUEST_GS      : Time to to retrieve goalstate to sending GS to host. (on demand, includes time from onDemandService.retrieveGoalState)
+                  [logline] From retrieving goalstate to sent goalstate
+
+
+Description of Optimizations:
+NEAR		: Ignite Near cache maintained in the Microservice address space.
+HEAP            : On JVM heap, subject to GC but no serialization and deserialization.
+PVRCO		: NCM - Get the VNI only once.
+=========================================================================================================================================
+
+
+
+Summary statistics of NCM times from ncm-2021-07-13-pvrco-3000p-near-03.log
+Number of Ports      : 3000
+Optimizations        : PVRCO, NEAR
+
+Time Tag                   MIN          MAX          AVG          MED          STDDEV       P25          P75          P95          P99             MOD       VAR
+
+PGSS_FIN_PUT_GS         3098.0000    8009.0000    5553.5000    5553.5000    3472.6014    3098.0000    3098.0000    3098.0000    3098.0000         3098 12058960.5000         3000
+UGS_FIN_GRM                4.0000       9.0000       6.6667       7.0000       2.5166       4.0000       4.0000       4.0000       4.0000            4       6.3333         3000
+UGS_UPD_OLD                5.0000      17.0000       9.6667       7.0000       6.4291       5.0000       5.0000       5.0000       5.0000            5      41.3333         3000
+UGS_FIN_GS_PROC         2387.0000    5106.0000    3341.3333    2531.0000    1529.9413    2387.0000    2387.0000    2387.0000    2387.0000         2387 2340720.3333         3000
+UGS_FIN_VPC_POP          256.0000     396.0000     326.0000     326.0000      98.9949     256.0000     256.0000     256.0000     256.0000          256    9800.0000         3000
+UGS_TOT_ET              2396.0000    5376.0000    3575.0000    2953.0000    1584.3810    2396.0000    2396.0000    2396.0000    2396.0000         2396 2510263.0000         3000
+PVRC_LOOP_RS              59.0000     123.0000      91.0000      91.0000      45.2548      59.0000      59.0000      59.0000      59.0000           59    2048.0000         3000
+PVRC_END                 256.0000     388.0000     322.0000     322.0000      93.3381     256.0000     256.0000     256.0000     256.0000          256    8712.0000         3000
+GET_VNI                   32.0000      79.0000      35.3754      33.0000       4.5329      32.0000      32.0000      32.0000      32.0000           33      20.5473         3000
+
+
+Tag description
+PGSS_FIN_PUT_GS : Time to update GS by host in a loop (time spent in updateGoalstate method).
+                  [logline] pushGoalStatesStream : finished putting GS into cache.
+
+GRM_VNI         : Time to retrieve ResourceMeta from VpcResourceMeta cache for the VNI.
+                  [logline] getResourceMeta(vni) elapsed time.
+
+UGS_FIN_GRM     : Time to retrieve ResourceMeta from hostResourceMetadataCache for a given hostid (inside updateGoalState method).
+                  [logline] finished getting resource meta from cache.
+
+UGS_ADD_NEW     : Time to put a new ResourceMeta into hostResourceMetadataCache (inside updateGoalState method).
+                  [logline] existing is null, finished adding resource meta from cache.
+
+UGS_UPD_OLD     : Time to put an updated ResourceMeta into hostResourceMetadataCache.
+                  [logilne] existing is NOT null, finished adding resource meta from cache.
+
+UGS_FIN_GS_PROC : Time to populate ResourceState cache for vpc, subnets, ports etc., (inside updateGoalState).
+                  [logline] finished processing goalState.
+
+UGS_TOT_ET      : Total time spent in UGS_FIN_GRM, UGS_ADD_NEW or UGS_UPD_OLD and UGS_FIN_GS_PROC.
+                  [logline] total time.
+
+UGS_FIN_VPC_POP : finished populating vpc resource cache.
+
+PGSS_FIB_TO_DPM : Time to send GS to ACA and DPM (non ondemand)
+                  [logline] pushGoalStatesStream : Replied to DPM, from received to replied
+
+REQUEST_GS      : Time to to retrieve goalstate to sending GS to host. (on demand, includes time from onDemandService.retrieveGoalState)
+                  [logline] From retrieving goalstate to sent goalstate
+
+
+Description of Optimizations:
+NEAR		: Ignite Near cache maintained in the Microservice address space.
+HEAP            : On JVM heap, subject to GC but no serialization and deserialization.
+PVRCO		: NCM - Get the VNI only once.
+=========================================================================================================================================
+
+
+
+Summary statistics of NCM times from ncm-2021-07-13-pvrco-3000p-near-04.log
+Number of Ports      : 3000
+Optimizations        : PVRCO, NEAR
+
+Time Tag                   MIN          MAX          AVG          MED          STDDEV       P25          P75          P95          P99             MOD       VAR
+
+PGSS_FIN_PUT_GS         3077.0000    7430.0000    5253.5000    5253.5000    3078.0358    3077.0000    3077.0000    3077.0000    3077.0000         3077 9474304.5000         3000
+UGS_FIN_GRM                4.0000      10.0000       7.0000       7.0000       3.0000       4.0000       4.0000       4.0000       4.0000            4       9.0000         3000
+UGS_UPD_OLD                4.0000      17.0000       9.0000       6.0000       7.0000       4.0000       4.0000       4.0000       4.0000            4      49.0000         3000
+UGS_FIN_GS_PROC         2246.0000    4738.0000    3168.0000    2520.0000    1366.5445    2246.0000    2246.0000    2246.0000    2246.0000         2246 1867444.0000         3000
+UGS_FIN_VPC_POP          198.0000     377.0000     287.5000     287.5000     126.5721     198.0000     198.0000     198.0000     198.0000          198   16020.5000         3000
+UGS_TOT_ET              2254.0000    4949.0000    3375.6667    2924.0000    1403.1245    2254.0000    2254.0000    2254.0000    2254.0000         2254 1968758.3333         3000
+PVRC_LOOP_RS              45.0000     122.0000      83.5000      83.5000      54.4472      45.0000      45.0000      45.0000      45.0000           45    2964.5000         3000
+PVRC_END                 197.0000     372.0000     284.5000     284.5000     123.7437     197.0000     197.0000     197.0000     197.0000          197   15312.5000         3000
+GET_VNI                   31.0000      58.0000      33.4555      32.0000       3.4507      31.0000      32.0000      32.0000      32.0000           32      11.9076         3000
+
+
+Tag description
+PGSS_FIN_PUT_GS : Time to update GS by host in a loop (time spent in updateGoalstate method).
+                  [logline] pushGoalStatesStream : finished putting GS into cache.
+
+GRM_VNI         : Time to retrieve ResourceMeta from VpcResourceMeta cache for the VNI.
+                  [logline] getResourceMeta(vni) elapsed time.
+
+UGS_FIN_GRM     : Time to retrieve ResourceMeta from hostResourceMetadataCache for a given hostid (inside updateGoalState method).
+                  [logline] finished getting resource meta from cache.
+
+UGS_ADD_NEW     : Time to put a new ResourceMeta into hostResourceMetadataCache (inside updateGoalState method).
+                  [logline] existing is null, finished adding resource meta from cache.
+
+UGS_UPD_OLD     : Time to put an updated ResourceMeta into hostResourceMetadataCache.
+                  [logilne] existing is NOT null, finished adding resource meta from cache.
+
+UGS_FIN_GS_PROC : Time to populate ResourceState cache for vpc, subnets, ports etc., (inside updateGoalState).
+                  [logline] finished processing goalState.
+
+UGS_TOT_ET      : Total time spent in UGS_FIN_GRM, UGS_ADD_NEW or UGS_UPD_OLD and UGS_FIN_GS_PROC.
+                  [logline] total time.
+
+UGS_FIN_VPC_POP : finished populating vpc resource cache.
+
+PGSS_FIB_TO_DPM : Time to send GS to ACA and DPM (non ondemand)
+                  [logline] pushGoalStatesStream : Replied to DPM, from received to replied
+
+REQUEST_GS      : Time to to retrieve goalstate to sending GS to host. (on demand, includes time from onDemandService.retrieveGoalState)
+                  [logline] From retrieving goalstate to sent goalstate
+
+
+Description of Optimizations:
+NEAR		: Ignite Near cache maintained in the Microservice address space.
+HEAP            : On JVM heap, subject to GC but no serialization and deserialization.
+PVRCO		: NCM - Get the VNI only once.
+=========================================================================================================================================
+
+
+
+Summary statistics of NCM times from ncm-2021-07-13-pvrco-3000p-near-05.log
+Number of Ports      : 3000
+Optimizations        : PVRCO, NEAR
+
+Time Tag                   MIN          MAX          AVG          MED          STDDEV       P25          P75          P95          P99             MOD       VAR
+
+PGSS_FIN_PUT_GS         2780.0000    6749.0000    4764.5000    4764.5000    2806.5068    2780.0000    2780.0000    2780.0000    2780.0000         2780 7876480.5000         3000
+UGS_FIN_GRM                5.0000      10.0000       7.3333       7.0000       2.5166       5.0000       5.0000       5.0000       5.0000            5       6.3333         3000
+UGS_UPD_OLD                5.0000      20.0000      10.3333       6.0000       8.3865       5.0000       5.0000       5.0000       5.0000            5      70.3333         3000
+UGS_FIN_GS_PROC         1994.0000    4181.0000    2790.0000    2195.0000    1208.8263    1994.0000    1994.0000    1994.0000    1994.0000         1994 1461261.0000         3000
+UGS_FIN_VPC_POP            1.0000     413.0000     223.0000     255.0000     207.8557       1.0000       1.0000       1.0000       1.0000            1   43204.0000         3000
+UGS_TOT_ET              2005.0000    4449.0000    3030.6667    2638.0000    1268.4338    2005.0000    2005.0000    2005.0000    2005.0000         2005 1608924.3333         3000
+PVRC_LOOP_RS              55.0000     120.0000      87.5000      87.5000      45.9619      55.0000      55.0000      55.0000      55.0000           55    2112.5000         3000
+PVRC_END                 254.0000     405.0000     329.5000     329.5000     106.7731     254.0000     254.0000     254.0000     254.0000          254   11400.5000         3000
+GET_VNI                   32.0000      80.0000      34.5145      33.0000       4.7799      32.0000      32.0000      32.0000      32.0000           33      22.8472         3000
+
+
+Tag description
+PGSS_FIN_PUT_GS : Time to update GS by host in a loop (time spent in updateGoalstate method).
+                  [logline] pushGoalStatesStream : finished putting GS into cache.
+
+GRM_VNI         : Time to retrieve ResourceMeta from VpcResourceMeta cache for the VNI.
+                  [logline] getResourceMeta(vni) elapsed time.
+
+UGS_FIN_GRM     : Time to retrieve ResourceMeta from hostResourceMetadataCache for a given hostid (inside updateGoalState method).
+                  [logline] finished getting resource meta from cache.
+
+UGS_ADD_NEW     : Time to put a new ResourceMeta into hostResourceMetadataCache (inside updateGoalState method).
+                  [logline] existing is null, finished adding resource meta from cache.
+
+UGS_UPD_OLD     : Time to put an updated ResourceMeta into hostResourceMetadataCache.
+                  [logilne] existing is NOT null, finished adding resource meta from cache.
+
+UGS_FIN_GS_PROC : Time to populate ResourceState cache for vpc, subnets, ports etc., (inside updateGoalState).
+                  [logline] finished processing goalState.
+
+UGS_TOT_ET      : Total time spent in UGS_FIN_GRM, UGS_ADD_NEW or UGS_UPD_OLD and UGS_FIN_GS_PROC.
+                  [logline] total time.
+
+UGS_FIN_VPC_POP : finished populating vpc resource cache.
+
+PGSS_FIB_TO_DPM : Time to send GS to ACA and DPM (non ondemand)
+                  [logline] pushGoalStatesStream : Replied to DPM, from received to replied
+
+REQUEST_GS      : Time to to retrieve goalstate to sending GS to host. (on demand, includes time from onDemandService.retrieveGoalState)
+                  [logline] From retrieving goalstate to sent goalstate
+
+
+Description of Optimizations:
+NEAR		: Ignite Near cache maintained in the Microservice address space.
+HEAP            : On JVM heap, subject to GC but no serialization and deserialization.
+PVRCO		: NCM - Get the VNI only once.
+=========================================================================================================================================
+
+
+
+Summary statistics of NCM times from ncm-2021-07-13-pvrco-4000p-near-01.log
+Number of Ports      : 4000
+Optimizations        : PVRCO, NEAR
+
+Time Tag                   MIN          MAX          AVG          MED          STDDEV       P25          P75          P95          P99             MOD       VAR
+
+PGSS_FIN_PUT_GS         4191.0000   10202.0000    7196.5000    7196.5000    4250.4189    4191.0000    4191.0000    4191.0000    4191.0000         4191 18066060.5000         4000
+UGS_FIN_GRM                6.0000      11.0000       8.0000       7.0000       2.6458       6.0000       6.0000       6.0000       6.0000            6       7.0000         4000
+UGS_UPD_OLD                6.0000      19.0000      11.6667      10.0000       6.6583       6.0000       6.0000       6.0000       6.0000            6      44.3333         4000
+UGS_FIN_GS_PROC         3220.0000    6297.0000    4352.0000    3539.0000    1691.9542    3220.0000    3220.0000    3220.0000    3220.0000         3220 2862709.0000         4000
+UGS_FIN_VPC_POP            1.0000     453.0000     260.3333     327.0000     233.2581       1.0000       1.0000       1.0000       1.0000            1   54409.3333         4000
+UGS_TOT_ET              3233.0000    6641.0000    4632.0000    4022.0000    1784.0098    3233.0000    3233.0000    3233.0000    3233.0000         3233 3182691.0000         4000
+PVRC_LOOP_RS              69.0000     125.0000      97.0000      97.0000      39.5980      69.0000      69.0000      69.0000      69.0000           69    1568.0000         4000
+PVRC_END                 327.0000     443.0000     385.0000     385.0000      82.0244     327.0000     327.0000     327.0000     327.0000          327    6728.0000         4000
+GET_VNI                   41.0000      89.0000      46.8458      45.0000       5.1249      41.0000      41.0000      42.0000      42.0000           45      26.2648         4000
+
+
+Tag description
+PGSS_FIN_PUT_GS : Time to update GS by host in a loop (time spent in updateGoalstate method).
+                  [logline] pushGoalStatesStream : finished putting GS into cache.
+
+GRM_VNI         : Time to retrieve ResourceMeta from VpcResourceMeta cache for the VNI.
+                  [logline] getResourceMeta(vni) elapsed time.
+
+UGS_FIN_GRM     : Time to retrieve ResourceMeta from hostResourceMetadataCache for a given hostid (inside updateGoalState method).
+                  [logline] finished getting resource meta from cache.
+
+UGS_ADD_NEW     : Time to put a new ResourceMeta into hostResourceMetadataCache (inside updateGoalState method).
+                  [logline] existing is null, finished adding resource meta from cache.
+
+UGS_UPD_OLD     : Time to put an updated ResourceMeta into hostResourceMetadataCache.
+                  [logilne] existing is NOT null, finished adding resource meta from cache.
+
+UGS_FIN_GS_PROC : Time to populate ResourceState cache for vpc, subnets, ports etc., (inside updateGoalState).
+                  [logline] finished processing goalState.
+
+UGS_TOT_ET      : Total time spent in UGS_FIN_GRM, UGS_ADD_NEW or UGS_UPD_OLD and UGS_FIN_GS_PROC.
+                  [logline] total time.
+
+UGS_FIN_VPC_POP : finished populating vpc resource cache.
+
+PGSS_FIB_TO_DPM : Time to send GS to ACA and DPM (non ondemand)
+                  [logline] pushGoalStatesStream : Replied to DPM, from received to replied
+
+REQUEST_GS      : Time to to retrieve goalstate to sending GS to host. (on demand, includes time from onDemandService.retrieveGoalState)
+                  [logline] From retrieving goalstate to sent goalstate
+
+
+Description of Optimizations:
+NEAR		: Ignite Near cache maintained in the Microservice address space.
+HEAP            : On JVM heap, subject to GC but no serialization and deserialization.
+PVRCO		: NCM - Get the VNI only once.
+=========================================================================================================================================
+
+
+
+Summary statistics of NCM times from ncm-2021-07-13-pvrco-4000p-near-02.log
+Number of Ports      : 4000
+Optimizations        : PVRCO, NEAR
+
+Time Tag                   MIN          MAX          AVG          MED          STDDEV       P25          P75          P95          P99             MOD       VAR
+
+PGSS_FIN_PUT_GS         3668.0000    9099.0000    6383.5000    6383.5000    3840.2969    3668.0000    3668.0000    3668.0000    3668.0000         3668 14747880.5000         4000
+UGS_FIN_GRM                5.0000      11.0000       8.6667      10.0000       3.2146       5.0000       5.0000       5.0000       5.0000            5      10.3333         4000
+UGS_UPD_OLD                6.0000      20.0000      11.6667       9.0000       7.3711       6.0000       6.0000       6.0000       6.0000            6      54.3333         4000
+UGS_FIN_GS_PROC         2784.0000    5713.0000    3821.3333    2967.0000    1640.7847    2784.0000    2784.0000    2784.0000    2784.0000         2784 2692174.3333         4000
+UGS_FIN_VPC_POP            1.0000     488.0000     253.0000     270.0000     243.9447       1.0000       1.0000       1.0000       1.0000            1   59509.0000         4000
+UGS_TOT_ET              2796.0000    6002.0000    4094.6667    3486.0000    1687.4434    2796.0000    2796.0000    2796.0000    2796.0000         2796 2847465.3333         4000
+PVRC_LOOP_RS              67.0000     124.0000      95.5000      95.5000      40.3051      67.0000      67.0000      67.0000      67.0000           67    1624.5000         4000
+PVRC_END                 270.0000     481.0000     375.5000     375.5000     149.1995     270.0000     270.0000     270.0000     270.0000          270   22260.5000         4000
+GET_VNI                   45.0000      97.0000      49.1241      47.0000       5.4374      46.0000      46.0000      46.0000      46.0000           46      29.5657         4000
+
+
+Tag description
+PGSS_FIN_PUT_GS : Time to update GS by host in a loop (time spent in updateGoalstate method).
+                  [logline] pushGoalStatesStream : finished putting GS into cache.
+
+GRM_VNI         : Time to retrieve ResourceMeta from VpcResourceMeta cache for the VNI.
+                  [logline] getResourceMeta(vni) elapsed time.
+
+UGS_FIN_GRM     : Time to retrieve ResourceMeta from hostResourceMetadataCache for a given hostid (inside updateGoalState method).
+                  [logline] finished getting resource meta from cache.
+
+UGS_ADD_NEW     : Time to put a new ResourceMeta into hostResourceMetadataCache (inside updateGoalState method).
+                  [logline] existing is null, finished adding resource meta from cache.
+
+UGS_UPD_OLD     : Time to put an updated ResourceMeta into hostResourceMetadataCache.
+                  [logilne] existing is NOT null, finished adding resource meta from cache.
+
+UGS_FIN_GS_PROC : Time to populate ResourceState cache for vpc, subnets, ports etc., (inside updateGoalState).
+                  [logline] finished processing goalState.
+
+UGS_TOT_ET      : Total time spent in UGS_FIN_GRM, UGS_ADD_NEW or UGS_UPD_OLD and UGS_FIN_GS_PROC.
+                  [logline] total time.
+
+UGS_FIN_VPC_POP : finished populating vpc resource cache.
+
+PGSS_FIB_TO_DPM : Time to send GS to ACA and DPM (non ondemand)
+                  [logline] pushGoalStatesStream : Replied to DPM, from received to replied
+
+REQUEST_GS      : Time to to retrieve goalstate to sending GS to host. (on demand, includes time from onDemandService.retrieveGoalState)
+                  [logline] From retrieving goalstate to sent goalstate
+
+
+Description of Optimizations:
+NEAR		: Ignite Near cache maintained in the Microservice address space.
+HEAP            : On JVM heap, subject to GC but no serialization and deserialization.
+PVRCO		: NCM - Get the VNI only once.
+=========================================================================================================================================
+
+
+
+Summary statistics of NCM times from ncm-2021-07-13-pvrco-4000p-near-03.log
+Number of Ports      : 4000
+Optimizations        : PVRCO, NEAR
+
+Time Tag                   MIN          MAX          AVG          MED          STDDEV       P25          P75          P95          P99             MOD       VAR
+
+PGSS_FIN_PUT_GS         3892.0000    9703.0000    6797.5000    6797.5000    4108.9975    3892.0000    3892.0000    3892.0000    3892.0000         3892 16883860.5000         4000
+UGS_FIN_GRM                3.0000      10.0000       7.3333       9.0000       3.7859       3.0000       3.0000       3.0000       3.0000            3      14.3333         4000
+UGS_UPD_OLD                5.0000      17.0000      10.6667      10.0000       6.0277       5.0000       5.0000       5.0000       5.0000            5      36.3333         4000
+UGS_FIN_GS_PROC         2975.0000    6167.0000    4153.6667    3319.0000    1752.0609    2975.0000    2975.0000    2975.0000    2975.0000         2975 3069717.3333         4000
+UGS_FIN_VPC_POP            1.0000     404.0000     226.3333     274.0000     205.6850       1.0000       1.0000       1.0000       1.0000            1   42306.3333         4000
+UGS_TOT_ET              2984.0000    6461.0000    4398.0000    3749.0000    1827.0969    2984.0000    2984.0000    2984.0000    2984.0000         2984 3338283.0000         4000
+PVRC_LOOP_RS              62.0000     114.0000      88.0000      88.0000      36.7696      62.0000      62.0000      62.0000      62.0000           62    1352.0000         4000
+PVRC_END                 272.0000     398.0000     335.0000     335.0000      89.0955     272.0000     272.0000     272.0000     272.0000          272    7938.0000         4000
+GET_VNI                   42.0000      96.0000      48.1512      46.0000       6.8827      42.0000      42.0000      42.0000      42.0000           46      47.3709         4000
+
+
+Tag description
+PGSS_FIN_PUT_GS : Time to update GS by host in a loop (time spent in updateGoalstate method).
+                  [logline] pushGoalStatesStream : finished putting GS into cache.
+
+GRM_VNI         : Time to retrieve ResourceMeta from VpcResourceMeta cache for the VNI.
+                  [logline] getResourceMeta(vni) elapsed time.
+
+UGS_FIN_GRM     : Time to retrieve ResourceMeta from hostResourceMetadataCache for a given hostid (inside updateGoalState method).
+                  [logline] finished getting resource meta from cache.
+
+UGS_ADD_NEW     : Time to put a new ResourceMeta into hostResourceMetadataCache (inside updateGoalState method).
+                  [logline] existing is null, finished adding resource meta from cache.
+
+UGS_UPD_OLD     : Time to put an updated ResourceMeta into hostResourceMetadataCache.
+                  [logilne] existing is NOT null, finished adding resource meta from cache.
+
+UGS_FIN_GS_PROC : Time to populate ResourceState cache for vpc, subnets, ports etc., (inside updateGoalState).
+                  [logline] finished processing goalState.
+
+UGS_TOT_ET      : Total time spent in UGS_FIN_GRM, UGS_ADD_NEW or UGS_UPD_OLD and UGS_FIN_GS_PROC.
+                  [logline] total time.
+
+UGS_FIN_VPC_POP : finished populating vpc resource cache.
+
+PGSS_FIB_TO_DPM : Time to send GS to ACA and DPM (non ondemand)
+                  [logline] pushGoalStatesStream : Replied to DPM, from received to replied
+
+REQUEST_GS      : Time to to retrieve goalstate to sending GS to host. (on demand, includes time from onDemandService.retrieveGoalState)
+                  [logline] From retrieving goalstate to sent goalstate
+
+
+Description of Optimizations:
+NEAR		: Ignite Near cache maintained in the Microservice address space.
+HEAP            : On JVM heap, subject to GC but no serialization and deserialization.
+PVRCO		: NCM - Get the VNI only once.
+=========================================================================================================================================
+
+
+
+Summary statistics of NCM times from ncm-2021-07-13-pvrco-4000p-near-04.log
+Number of Ports      : 4000
+Optimizations        : PVRCO, NEAR
+
+Time Tag                   MIN          MAX          AVG          MED          STDDEV       P25          P75          P95          P99             MOD       VAR
+
+PGSS_FIN_PUT_GS         3991.0000   10240.0000    7115.5000    7115.5000    4418.7103    3991.0000    3991.0000    3991.0000    3991.0000         3991 19525000.5000         4000
+UGS_FIN_GRM                5.0000      10.0000       8.0000       9.0000       2.6458       5.0000       5.0000       5.0000       5.0000            5       7.0000         4000
+UGS_UPD_OLD                8.0000      19.0000      12.6667      11.0000       5.6862       8.0000       8.0000       8.0000       8.0000            8      32.3333         4000
+UGS_FIN_GS_PROC         3210.0000    6425.0000    4342.6667    3393.0000    1805.6734    3210.0000    3210.0000    3210.0000    3210.0000         3210 3260456.3333         4000
+UGS_FIN_VPC_POP          309.0000     431.0000     370.0000     370.0000      86.2670     309.0000     309.0000     309.0000     309.0000          309    7442.0000         4000
+UGS_TOT_ET              3223.0000    6754.0000    4610.0000    3853.0000    1883.2889    3223.0000    3223.0000    3223.0000    3223.0000         3223 3546777.0000         4000
+PVRC_LOOP_RS              63.0000     113.0000      88.0000      88.0000      35.3553      63.0000      63.0000      63.0000      63.0000           63    1250.0000         4000
+PVRC_END                 309.0000     425.0000     367.0000     367.0000      82.0244     309.0000     309.0000     309.0000     309.0000          309    6728.0000         4000
+GET_VNI                   45.0000      86.0000      47.3013      46.0000       4.4323      45.0000      45.0000      45.0000      45.0000           46      19.6456         4000
+
+
+Tag description
+PGSS_FIN_PUT_GS : Time to update GS by host in a loop (time spent in updateGoalstate method).
+                  [logline] pushGoalStatesStream : finished putting GS into cache.
+
+GRM_VNI         : Time to retrieve ResourceMeta from VpcResourceMeta cache for the VNI.
+                  [logline] getResourceMeta(vni) elapsed time.
+
+UGS_FIN_GRM     : Time to retrieve ResourceMeta from hostResourceMetadataCache for a given hostid (inside updateGoalState method).
+                  [logline] finished getting resource meta from cache.
+
+UGS_ADD_NEW     : Time to put a new ResourceMeta into hostResourceMetadataCache (inside updateGoalState method).
+                  [logline] existing is null, finished adding resource meta from cache.
+
+UGS_UPD_OLD     : Time to put an updated ResourceMeta into hostResourceMetadataCache.
+                  [logilne] existing is NOT null, finished adding resource meta from cache.
+
+UGS_FIN_GS_PROC : Time to populate ResourceState cache for vpc, subnets, ports etc., (inside updateGoalState).
+                  [logline] finished processing goalState.
+
+UGS_TOT_ET      : Total time spent in UGS_FIN_GRM, UGS_ADD_NEW or UGS_UPD_OLD and UGS_FIN_GS_PROC.
+                  [logline] total time.
+
+UGS_FIN_VPC_POP : finished populating vpc resource cache.
+
+PGSS_FIB_TO_DPM : Time to send GS to ACA and DPM (non ondemand)
+                  [logline] pushGoalStatesStream : Replied to DPM, from received to replied
+
+REQUEST_GS      : Time to to retrieve goalstate to sending GS to host. (on demand, includes time from onDemandService.retrieveGoalState)
+                  [logline] From retrieving goalstate to sent goalstate
+
+
+Description of Optimizations:
+NEAR		: Ignite Near cache maintained in the Microservice address space.
+HEAP            : On JVM heap, subject to GC but no serialization and deserialization.
+PVRCO		: NCM - Get the VNI only once.
+=========================================================================================================================================
+
+
+
+Summary statistics of NCM times from ncm-2021-07-13-pvrco-4000p-near-05.log
+Number of Ports      : 4000
+Optimizations        : PVRCO, NEAR
+
+Time Tag                   MIN          MAX          AVG          MED          STDDEV       P25          P75          P95          P99             MOD       VAR
+
+PGSS_FIN_PUT_GS         3845.0000    9587.0000    6716.0000    6716.0000    4060.2071    3845.0000    3845.0000    3845.0000    3845.0000         3845 16485282.0000         4000
+UGS_FIN_GRM                5.0000      12.0000       9.0000      10.0000       3.6056       5.0000       5.0000       5.0000       5.0000            5      13.0000         4000
+UGS_UPD_OLD                6.0000      25.0000      13.0000       8.0000      10.4403       6.0000       6.0000       6.0000       6.0000            6     109.0000         4000
+UGS_FIN_GS_PROC         3049.0000    5966.0000    4061.3333    3169.0000    1650.5806    3049.0000    3049.0000    3049.0000    3049.0000         3049 2724416.3333         4000
+UGS_FIN_VPC_POP            1.0000     485.0000     253.3333     274.0000     242.6609       1.0000       1.0000       1.0000       1.0000            1   58884.3333         4000
+UGS_TOT_ET              3061.0000    6258.0000    4336.6667    3691.0000    1693.4776    3061.0000    3061.0000    3061.0000    3061.0000         3061 2867866.3333         4000
+PVRC_LOOP_RS              71.0000     127.0000      99.0000      99.0000      39.5980      71.0000      71.0000      71.0000      71.0000           71    1568.0000         4000
+PVRC_END                 273.0000     477.0000     375.0000     375.0000     144.2498     273.0000     273.0000     273.0000     273.0000          273   20808.0000         4000
+GET_VNI                   45.0000      99.0000      48.7137      46.0000       6.0656      45.0000      45.0000      45.0000      45.0000           46      36.7917         4000
+
+
+Tag description
+PGSS_FIN_PUT_GS : Time to update GS by host in a loop (time spent in updateGoalstate method).
+                  [logline] pushGoalStatesStream : finished putting GS into cache.
+
+GRM_VNI         : Time to retrieve ResourceMeta from VpcResourceMeta cache for the VNI.
+                  [logline] getResourceMeta(vni) elapsed time.
+
+UGS_FIN_GRM     : Time to retrieve ResourceMeta from hostResourceMetadataCache for a given hostid (inside updateGoalState method).
+                  [logline] finished getting resource meta from cache.
+
+UGS_ADD_NEW     : Time to put a new ResourceMeta into hostResourceMetadataCache (inside updateGoalState method).
+                  [logline] existing is null, finished adding resource meta from cache.
+
+UGS_UPD_OLD     : Time to put an updated ResourceMeta into hostResourceMetadataCache.
+                  [logilne] existing is NOT null, finished adding resource meta from cache.
+
+UGS_FIN_GS_PROC : Time to populate ResourceState cache for vpc, subnets, ports etc., (inside updateGoalState).
+                  [logline] finished processing goalState.
+
+UGS_TOT_ET      : Total time spent in UGS_FIN_GRM, UGS_ADD_NEW or UGS_UPD_OLD and UGS_FIN_GS_PROC.
+                  [logline] total time.
+
+UGS_FIN_VPC_POP : finished populating vpc resource cache.
+
+PGSS_FIB_TO_DPM : Time to send GS to ACA and DPM (non ondemand)
+                  [logline] pushGoalStatesStream : Replied to DPM, from received to replied
+
+REQUEST_GS      : Time to to retrieve goalstate to sending GS to host. (on demand, includes time from onDemandService.retrieveGoalState)
+                  [logline] From retrieving goalstate to sent goalstate
+
+
+Description of Optimizations:
+NEAR		: Ignite Near cache maintained in the Microservice address space.
+HEAP            : On JVM heap, subject to GC but no serialization and deserialization.
+PVRCO		: NCM - Get the VNI only once.
+=========================================================================================================================================
+
+
+
+Summary statistics of NCM times from ncm-2021-07-13-pvrco-5000p-near-01.log
+Number of Ports      : 5000
+Optimizations        : PVRCO, NEAR
+
+Time Tag                   MIN          MAX          AVG          MED          STDDEV       P25          P75          P95          P99             MOD       VAR
+
+PGSS_FIN_PUT_GS         4871.0000   12333.0000    8602.0000    8602.0000    5276.4308    4871.0000    4871.0000    4871.0000    4871.0000         4871 27840722.0000         5000
+UGS_FIN_GRM                4.0000      12.0000       8.0000       8.0000       4.0000       4.0000       4.0000       4.0000       4.0000            4      16.0000         5000
+UGS_UPD_OLD                6.0000      19.0000      11.3333       9.0000       6.8069       6.0000       6.0000       6.0000       6.0000            6      46.3333         5000
+UGS_FIN_GS_PROC         3829.0000    7857.0000    5291.3333    4188.0000    2229.1712    3829.0000    3829.0000    3829.0000    3829.0000         3829 4969204.3333         5000
+UGS_FIN_VPC_POP            1.0000     465.0000     254.6667     298.0000     235.0156       1.0000       1.0000       1.0000       1.0000            1   55232.3333         5000
+UGS_TOT_ET              3840.0000    8172.0000    5565.3333    4684.0000    2296.5447    3840.0000    3840.0000    3840.0000    3840.0000         3840 5274117.3333         5000
+PVRC_LOOP_RS              82.0000     132.0000     107.0000     107.0000      35.3553      82.0000      82.0000      82.0000      82.0000           82    1250.0000         5000
+PVRC_END                 298.0000     459.0000     378.5000     378.5000     113.8442     298.0000     298.0000     298.0000     298.0000          298   12960.5000         5000
+GET_VNI                   52.0000     114.0000      57.7888      56.0000       5.3988      52.0000      52.0000      52.0000      52.0000           56      29.1467         5000
+
+
+Tag description
+PGSS_FIN_PUT_GS : Time to update GS by host in a loop (time spent in updateGoalstate method).
+                  [logline] pushGoalStatesStream : finished putting GS into cache.
+
+GRM_VNI         : Time to retrieve ResourceMeta from VpcResourceMeta cache for the VNI.
+                  [logline] getResourceMeta(vni) elapsed time.
+
+UGS_FIN_GRM     : Time to retrieve ResourceMeta from hostResourceMetadataCache for a given hostid (inside updateGoalState method).
+                  [logline] finished getting resource meta from cache.
+
+UGS_ADD_NEW     : Time to put a new ResourceMeta into hostResourceMetadataCache (inside updateGoalState method).
+                  [logline] existing is null, finished adding resource meta from cache.
+
+UGS_UPD_OLD     : Time to put an updated ResourceMeta into hostResourceMetadataCache.
+                  [logilne] existing is NOT null, finished adding resource meta from cache.
+
+UGS_FIN_GS_PROC : Time to populate ResourceState cache for vpc, subnets, ports etc., (inside updateGoalState).
+                  [logline] finished processing goalState.
+
+UGS_TOT_ET      : Total time spent in UGS_FIN_GRM, UGS_ADD_NEW or UGS_UPD_OLD and UGS_FIN_GS_PROC.
+                  [logline] total time.
+
+UGS_FIN_VPC_POP : finished populating vpc resource cache.
+
+PGSS_FIB_TO_DPM : Time to send GS to ACA and DPM (non ondemand)
+                  [logline] pushGoalStatesStream : Replied to DPM, from received to replied
+
+REQUEST_GS      : Time to to retrieve goalstate to sending GS to host. (on demand, includes time from onDemandService.retrieveGoalState)
+                  [logline] From retrieving goalstate to sent goalstate
+
+
+Description of Optimizations:
+NEAR		: Ignite Near cache maintained in the Microservice address space.
+HEAP            : On JVM heap, subject to GC but no serialization and deserialization.
+PVRCO		: NCM - Get the VNI only once.
+=========================================================================================================================================
+
+
+
+Summary statistics of NCM times from ncm-2021-07-13-pvrco-5000p-near-02.log
+Number of Ports      : 5000
+Optimizations        : PVRCO, NEAR
+
+Time Tag                   MIN          MAX          AVG          MED          STDDEV       P25          P75          P95          P99             MOD       VAR
+
+PGSS_FIN_PUT_GS         4534.0000   11837.0000    8185.5000    8185.5000    5164.0008    4534.0000    4534.0000    4534.0000    4534.0000         4534 26666904.5000         5000
+UGS_FIN_GRM                5.0000      14.0000      10.0000      11.0000       4.5826       5.0000       5.0000       5.0000       5.0000            5      21.0000         5000
+UGS_UPD_OLD                7.0000      22.0000      13.3333      11.0000       7.7675       7.0000       7.0000       7.0000       7.0000            7      60.3333         5000
+UGS_FIN_GS_PROC         3591.0000    7523.0000    4945.6667    3723.0000    2233.0117    3591.0000    3591.0000    3591.0000    3591.0000         3591 4986341.3333         5000
+UGS_FIN_VPC_POP            1.0000     578.0000     309.6667     350.0000     290.6068       1.0000       1.0000       1.0000       1.0000            1   84452.3333         5000
+UGS_TOT_ET              3604.0000    7895.0000    5278.6667    4337.0000    2295.2608    3604.0000    3604.0000    3604.0000    3604.0000         3604 5268222.3333         5000
+PVRC_LOOP_RS              89.0000     155.0000     122.0000     122.0000      46.6690      89.0000      89.0000      89.0000      89.0000           89    2178.0000         5000
+PVRC_END                 350.0000     570.0000     460.0000     460.0000     155.5635     350.0000     350.0000     350.0000     350.0000          350   24200.0000         5000
+GET_VNI                   54.0000     143.0000      60.4234      57.0000       7.7787      54.9975      55.0000      55.0000      55.0000           56      60.5089         5000
+
+
+Tag description
+PGSS_FIN_PUT_GS : Time to update GS by host in a loop (time spent in updateGoalstate method).
+                  [logline] pushGoalStatesStream : finished putting GS into cache.
+
+GRM_VNI         : Time to retrieve ResourceMeta from VpcResourceMeta cache for the VNI.
+                  [logline] getResourceMeta(vni) elapsed time.
+
+UGS_FIN_GRM     : Time to retrieve ResourceMeta from hostResourceMetadataCache for a given hostid (inside updateGoalState method).
+                  [logline] finished getting resource meta from cache.
+
+UGS_ADD_NEW     : Time to put a new ResourceMeta into hostResourceMetadataCache (inside updateGoalState method).
+                  [logline] existing is null, finished adding resource meta from cache.
+
+UGS_UPD_OLD     : Time to put an updated ResourceMeta into hostResourceMetadataCache.
+                  [logilne] existing is NOT null, finished adding resource meta from cache.
+
+UGS_FIN_GS_PROC : Time to populate ResourceState cache for vpc, subnets, ports etc., (inside updateGoalState).
+                  [logline] finished processing goalState.
+
+UGS_TOT_ET      : Total time spent in UGS_FIN_GRM, UGS_ADD_NEW or UGS_UPD_OLD and UGS_FIN_GS_PROC.
+                  [logline] total time.
+
+UGS_FIN_VPC_POP : finished populating vpc resource cache.
+
+PGSS_FIB_TO_DPM : Time to send GS to ACA and DPM (non ondemand)
+                  [logline] pushGoalStatesStream : Replied to DPM, from received to replied
+
+REQUEST_GS      : Time to to retrieve goalstate to sending GS to host. (on demand, includes time from onDemandService.retrieveGoalState)
+                  [logline] From retrieving goalstate to sent goalstate
+
+
+Description of Optimizations:
+NEAR		: Ignite Near cache maintained in the Microservice address space.
+HEAP            : On JVM heap, subject to GC but no serialization and deserialization.
+PVRCO		: NCM - Get the VNI only once.
+=========================================================================================================================================
+
+
+
+Summary statistics of NCM times from ncm-2021-07-13-pvrco-5000p-near-03.log
+Number of Ports      : 5000
+Optimizations        : PVRCO, NEAR
+
+Time Tag                   MIN          MAX          AVG          MED          STDDEV       P25          P75          P95          P99             MOD       VAR
+
+PGSS_FIN_PUT_GS         4543.0000   12019.0000    8281.0000    8281.0000    5286.3303    4543.0000    4543.0000    4543.0000    4543.0000         4543 27945288.0000         5000
+UGS_FIN_GRM                5.0000      14.0000       9.6667      10.0000       4.5092       5.0000       5.0000       5.0000       5.0000            5      20.3333         5000
+UGS_UPD_OLD                9.0000      20.0000      13.6667      12.0000       5.6862       9.0000       9.0000       9.0000       9.0000            9      32.3333         5000
+UGS_FIN_GS_PROC         3807.0000    7529.0000    5053.3333    3824.0000    2144.0071    3807.0000    3807.0000    3807.0000    3807.0000         3807 4596766.3333         5000
+UGS_FIN_VPC_POP          305.0000     508.0000     406.5000     406.5000     143.5427     305.0000     305.0000     305.0000     305.0000          305   20604.5000         5000
+UGS_TOT_ET              3821.0000    7860.0000    5347.6667    4362.0000    2192.4950    3821.0000    3821.0000    3821.0000    3821.0000         3821 4807034.3333         5000
+PVRC_LOOP_RS              83.0000     134.0000     108.5000     108.5000      36.0624      83.0000      83.0000      83.0000      83.0000           83    1300.5000         5000
+PVRC_END                 303.0000     502.0000     402.5000     402.5000     140.7142     303.0000     303.0000     303.0000     303.0000          303   19800.5000         5000
+GET_VNI                   52.0000     123.0000      56.5345      56.0000       5.7389      52.0000      52.0000      52.0000      52.0000           56      32.9344         5000
+
+
+Tag description
+PGSS_FIN_PUT_GS : Time to update GS by host in a loop (time spent in updateGoalstate method).
+                  [logline] pushGoalStatesStream : finished putting GS into cache.
+
+GRM_VNI         : Time to retrieve ResourceMeta from VpcResourceMeta cache for the VNI.
+                  [logline] getResourceMeta(vni) elapsed time.
+
+UGS_FIN_GRM     : Time to retrieve ResourceMeta from hostResourceMetadataCache for a given hostid (inside updateGoalState method).
+                  [logline] finished getting resource meta from cache.
+
+UGS_ADD_NEW     : Time to put a new ResourceMeta into hostResourceMetadataCache (inside updateGoalState method).
+                  [logline] existing is null, finished adding resource meta from cache.
+
+UGS_UPD_OLD     : Time to put an updated ResourceMeta into hostResourceMetadataCache.
+                  [logilne] existing is NOT null, finished adding resource meta from cache.
+
+UGS_FIN_GS_PROC : Time to populate ResourceState cache for vpc, subnets, ports etc., (inside updateGoalState).
+                  [logline] finished processing goalState.
+
+UGS_TOT_ET      : Total time spent in UGS_FIN_GRM, UGS_ADD_NEW or UGS_UPD_OLD and UGS_FIN_GS_PROC.
+                  [logline] total time.
+
+UGS_FIN_VPC_POP : finished populating vpc resource cache.
+
+PGSS_FIB_TO_DPM : Time to send GS to ACA and DPM (non ondemand)
+                  [logline] pushGoalStatesStream : Replied to DPM, from received to replied
+
+REQUEST_GS      : Time to to retrieve goalstate to sending GS to host. (on demand, includes time from onDemandService.retrieveGoalState)
+                  [logline] From retrieving goalstate to sent goalstate
+
+
+Description of Optimizations:
+NEAR		: Ignite Near cache maintained in the Microservice address space.
+HEAP            : On JVM heap, subject to GC but no serialization and deserialization.
+PVRCO		: NCM - Get the VNI only once.
+=========================================================================================================================================
+
+
+
+Summary statistics of NCM times from ncm-2021-07-13-pvrco-5000p-near-04.log
+Number of Ports      : 5000
+Optimizations        : PVRCO, NEAR
+
+Time Tag                   MIN          MAX          AVG          MED          STDDEV       P25          P75          P95          P99             MOD       VAR
+
+PGSS_FIN_PUT_GS         4920.0000   12717.0000    8818.5000    8818.5000    5513.3116    4920.0000    4920.0000    4920.0000    4920.0000         4920 30396604.5000         5000
+UGS_FIN_GRM                4.0000      11.0000       8.6667      11.0000       4.0415       4.0000       4.0000       4.0000       4.0000           11      16.3333         5000
+UGS_UPD_OLD                7.0000      20.0000      12.3333      10.0000       6.8069       7.0000       7.0000       7.0000       7.0000            7      46.3333         5000
+UGS_FIN_GS_PROC         4080.0000    7938.0000    5386.0000    4140.0000    2210.3004    4080.0000    4080.0000    4080.0000    4080.0000         4080 4885428.0000         5000
+UGS_FIN_VPC_POP          340.0000     570.0000     455.0000     455.0000     162.6346     340.0000     340.0000     340.0000     340.0000          340   26450.0000         5000
+UGS_TOT_ET              4091.0000    8299.0000    5710.3333    4741.0000    2265.2861    4091.0000    4091.0000    4091.0000    4091.0000         4091 5131521.3333         5000
+PVRC_LOOP_RS              84.0000     161.0000     122.5000     122.5000      54.4472      84.0000      84.0000      84.0000      84.0000           84    2964.5000         5000
+PVRC_END                 340.0000     564.0000     452.0000     452.0000     158.3919     340.0000     340.0000     340.0000     340.0000          340   25088.0000         5000
+GET_VNI                   53.0000     102.0000      58.2452      56.0000       4.9278      54.0000      55.0000      55.0000      55.0000           56      24.2835         5000
+
+
+Tag description
+PGSS_FIN_PUT_GS : Time to update GS by host in a loop (time spent in updateGoalstate method).
+                  [logline] pushGoalStatesStream : finished putting GS into cache.
+
+GRM_VNI         : Time to retrieve ResourceMeta from VpcResourceMeta cache for the VNI.
+                  [logline] getResourceMeta(vni) elapsed time.
+
+UGS_FIN_GRM     : Time to retrieve ResourceMeta from hostResourceMetadataCache for a given hostid (inside updateGoalState method).
+                  [logline] finished getting resource meta from cache.
+
+UGS_ADD_NEW     : Time to put a new ResourceMeta into hostResourceMetadataCache (inside updateGoalState method).
+                  [logline] existing is null, finished adding resource meta from cache.
+
+UGS_UPD_OLD     : Time to put an updated ResourceMeta into hostResourceMetadataCache.
+                  [logilne] existing is NOT null, finished adding resource meta from cache.
+
+UGS_FIN_GS_PROC : Time to populate ResourceState cache for vpc, subnets, ports etc., (inside updateGoalState).
+                  [logline] finished processing goalState.
+
+UGS_TOT_ET      : Total time spent in UGS_FIN_GRM, UGS_ADD_NEW or UGS_UPD_OLD and UGS_FIN_GS_PROC.
+                  [logline] total time.
+
+UGS_FIN_VPC_POP : finished populating vpc resource cache.
+
+PGSS_FIB_TO_DPM : Time to send GS to ACA and DPM (non ondemand)
+                  [logline] pushGoalStatesStream : Replied to DPM, from received to replied
+
+REQUEST_GS      : Time to to retrieve goalstate to sending GS to host. (on demand, includes time from onDemandService.retrieveGoalState)
+                  [logline] From retrieving goalstate to sent goalstate
+
+
+Description of Optimizations:
+NEAR		: Ignite Near cache maintained in the Microservice address space.
+HEAP            : On JVM heap, subject to GC but no serialization and deserialization.
+PVRCO		: NCM - Get the VNI only once.
+=========================================================================================================================================
+
+
+
+Summary statistics of NCM times from ncm-2021-07-13-pvrco-5000p-near-05.log
+Number of Ports      : 5000
+Optimizations        : PVRCO, NEAR
+
+Time Tag                   MIN          MAX          AVG          MED          STDDEV       P25          P75          P95          P99             MOD       VAR
+
+PGSS_FIN_PUT_GS         4985.0000   12602.0000    8793.5000    8793.5000    5386.0324    4985.0000    4985.0000    4985.0000    4985.0000         4985 29009344.5000         5000
+UGS_FIN_GRM                5.0000      14.0000      10.3333      12.0000       4.7258       5.0000       5.0000       5.0000       5.0000            5      22.3333         5000
+UGS_UPD_OLD                8.0000      29.0000      16.3333      12.0000      11.1505       8.0000       8.0000       8.0000       8.0000            8     124.3333         5000
+UGS_FIN_GS_PROC         4109.0000    7796.0000    5374.0000    4217.0000    2098.2085    4109.0000    4109.0000    4109.0000    4109.0000         4109 4402479.0000         5000
+UGS_FIN_VPC_POP          315.0000     551.0000     433.0000     433.0000     166.8772     315.0000     315.0000     315.0000     315.0000          315   27848.0000         5000
+UGS_TOT_ET              4122.0000    8137.0000    5689.3333    4809.0000    2147.3929    4122.0000    4122.0000    4122.0000    4122.0000         4122 4611296.3333         5000
+PVRC_LOOP_RS              85.0000     160.0000     122.5000     122.5000      53.0330      85.0000      85.0000      85.0000      85.0000           85    2812.5000         5000
+PVRC_END                 314.0000     543.0000     428.5000     428.5000     161.9275     314.0000     314.0000     314.0000     314.0000          314   26220.5000         5000
+GET_VNI                   52.0000     112.0000      56.1712      56.0000       5.5089      52.0000      52.0000      52.0000      52.0000           56      30.3484         5000
+
+
+Tag description
+PGSS_FIN_PUT_GS : Time to update GS by host in a loop (time spent in updateGoalstate method).
+                  [logline] pushGoalStatesStream : finished putting GS into cache.
+
+GRM_VNI         : Time to retrieve ResourceMeta from VpcResourceMeta cache for the VNI.
+                  [logline] getResourceMeta(vni) elapsed time.
+
+UGS_FIN_GRM     : Time to retrieve ResourceMeta from hostResourceMetadataCache for a given hostid (inside updateGoalState method).
+                  [logline] finished getting resource meta from cache.
+
+UGS_ADD_NEW     : Time to put a new ResourceMeta into hostResourceMetadataCache (inside updateGoalState method).
+                  [logline] existing is null, finished adding resource meta from cache.
+
+UGS_UPD_OLD     : Time to put an updated ResourceMeta into hostResourceMetadataCache.
+                  [logilne] existing is NOT null, finished adding resource meta from cache.
+
+UGS_FIN_GS_PROC : Time to populate ResourceState cache for vpc, subnets, ports etc., (inside updateGoalState).
+                  [logline] finished processing goalState.
+
+UGS_TOT_ET      : Total time spent in UGS_FIN_GRM, UGS_ADD_NEW or UGS_UPD_OLD and UGS_FIN_GS_PROC.
+                  [logline] total time.
+
+UGS_FIN_VPC_POP : finished populating vpc resource cache.
+
+PGSS_FIB_TO_DPM : Time to send GS to ACA and DPM (non ondemand)
+                  [logline] pushGoalStatesStream : Replied to DPM, from received to replied
+
+REQUEST_GS      : Time to to retrieve goalstate to sending GS to host. (on demand, includes time from onDemandService.retrieveGoalState)
+                  [logline] From retrieving goalstate to sent goalstate
+
+
+Description of Optimizations:
+NEAR		: Ignite Near cache maintained in the Microservice address space.
+HEAP            : On JVM heap, subject to GC but no serialization and deserialization.
+PVRCO		: NCM - Get the VNI only once.
+=========================================================================================================================================
+
+
+

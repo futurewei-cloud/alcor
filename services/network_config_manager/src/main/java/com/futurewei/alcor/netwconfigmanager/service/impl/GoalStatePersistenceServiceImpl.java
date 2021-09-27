@@ -64,7 +64,8 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
         long t2 = System.currentTimeMillis();
         ResourceMeta latest = NetworkConfigManagerUtil.convertGoalStateToHostResourceMeta(
                 hostId, hostGoalState.getGoalState().getHostResourcesMap().get(hostId));
-        logger.log(Level.FINE, "updateGoalstate : hostId: "+hostId+", finished getting resource meta from cache, elapsed time in milliseconds: " + (t2-t1));
+        //*// PERF_NO_LOG "updateGoalstate : hostId: "+hostId+", finished getting resource meta from cache, elapsed time in milliseconds: " + (t2-t1));
+        System.out.println("updateGoalstate : hostId: "+hostId+", finished getting resource meta from cache, elapsed time in milliseconds: " + (t2-t1));
 
         long t3 = 0l;
         long t4 = 0l;
@@ -72,13 +73,14 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
             t3 = System.currentTimeMillis();
             hostResourceMetadataCache.addResourceMeta(latest);
             t4 = System.currentTimeMillis();
-            logger.log(Level.FINE, "updateGoalstate : hostId: "+hostId+", existing is null, finished adding resource meta from cache, elapsed time in milliseconds: " + (t4-t3));
+            //*// PERF_NO_LOG "updateGoalstate : hostId: "+hostId+", existing is null, finished adding resource meta from cache, elapsed time in milliseconds: " + (t4-t3));
+            System.out.println("updateGoalstate : hostId: "+hostId+", existing is null, finished adding resource meta from cache, elapsed time in milliseconds: " + (t4-t3));
         } else {
             ResourceMeta updated = NetworkConfigManagerUtil.consolidateResourceMeta(existing, latest);
             t3 = System.currentTimeMillis();
             hostResourceMetadataCache.addResourceMeta(updated);
             t4 = System.currentTimeMillis();
-            logger.log(Level.FINE, "updateGoalstate : hostId: "+hostId+", existing is NOT null, finished adding resource meta from cache, elapsed time in milliseconds: " + (t4-t3));
+            System.out.println("updateGoalstate : hostId: "+hostId+", existing is NOT null, finished adding resource meta from cache, elapsed time in milliseconds: " + (t4-t3));
         }
         long t5 = System.currentTimeMillis();
 
@@ -92,14 +94,17 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
         processRouterStates(hostGoalState);
         processGatewayStates(hostGoalState);
         long t5_plus = System.currentTimeMillis();
-        logger.log(Level.FINE, "updateGoalstate : hostId: "+hostId+", finished processing goalState, elapsed time in milliseconds: " + (t5_plus-t5));
+        //*// PERF_NO_LOG "updateGoalstate : hostId: "+hostId+", finished processing goalState, elapsed time in milliseconds: " + (t5_plus-t5));
+        System.out.println("updateGoalstate : hostId: "+hostId+", finished processing goalState, elapsed time in milliseconds: " + (t5_plus-t5));
 
         // Step 3
         populateVpcResourceCache(hostGoalState, vpcIdToVniMap);
         long t6 = System.currentTimeMillis();
         long t_total = (t6 - t5) + (t4 - t3) + (t2 - t1);
-        logger.log(Level.FINE, "updateGoalstate : hostId: "+hostId+", finished populating vpc resource cache, elapsed time in milliseconds: " + (t6-t5_plus));
-        logger.log(Level.FINE, "updateGoalstate : hostId: "+hostId+", total time, elapsed time in milliseconds: " + t_total);
+        //*// PERF_NO_LOG "updateGoalstate : hostId: "+hostId+", finished populating vpc resource cache, elapsed time in milliseconds: " + (t6-t5_plus));
+        System.out.println("updateGoalstate : hostId: "+hostId+", finished populating vpc resource cache, elapsed time in milliseconds: " + (t6-t5_plus));
+        //*// PERF_NO_LOG "updateGoalstate : hostId: "+hostId+", total time, elapsed time in milliseconds: " + t_total);
+        System.out.println("updateGoalstate : hostId: "+hostId+", total time, elapsed time in milliseconds: " + t_total);
 
         hostResourceMetadataCache.commit();
         return false;
@@ -176,7 +181,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
     private void populateVpcResourceCache(HostGoalState hostGoalState, Map<String, Integer> vpcIdToVniMap) throws Exception {
         long start = System.currentTimeMillis();
 
-        logger.log(Level.FINE, "populateVpcResourceCache : beginning");
+        //*// PERF_NO_LOG "populateVpcResourceCache : beginning");
 
         Map<String, Port.PortState> portStatesMap = hostGoalState.getGoalState().getPortStatesMap();
         HashMap<String, VpcResourceMeta> vniToVpcReourceMetaDataMap = new HashMap<>();
@@ -233,11 +238,13 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
                 vpcResourceMeta.setResourceMeta(portPrivateIp, portResourceMeta);
             }
             long t4 = System.currentTimeMillis();
-            logger.log(Level.FINE, "populateVpcResourceCache : looped throught the port states for vpc with vni: "+vni+",  elapsed time in milliseconds: " + (t4 - t3));
+            //*// PERF_NO_LOG "populateVpcResourceCache : looped throught the port states for vpc with vni: "+vni+",  elapsed time in milliseconds: " + (t4 - t3));
+            System.out.println("populateVpcResourceCache : looped throught the port states for vpc with vni: "+vni+",  elapsed time in milliseconds: " + (t4 - t3));
             long t5 = System.currentTimeMillis();
 //            vpcResourceCache.addResourceMeta(vpcResourceMeta);
             long t6 = System.currentTimeMillis();
-            logger.log(Level.FINE, "populateVpcResourceCache : added resource metadata for vpc with vni: "+vni+",  elapsed time in milliseconds: " + (t6 - t5));
+            //*// PERF_NO_LOG "populateVpcResourceCache : added resource metadata for vpc with vni: "+vni+",  elapsed time in milliseconds: " + (t6 - t5));
+            System.out.println("populateVpcResourceCache : added resource metadata for vpc with vni: "+vni+",  elapsed time in milliseconds: " + (t6 - t5));
         }
 
 
@@ -246,7 +253,8 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
             vpcResourceCache.addResourceMeta(vniToVpcReourceMetaDataMap.get(vni));
         }
         long end = System.currentTimeMillis();
-        logger.log(Level.FINE, "populateVpcResourceCache : end,  elapsed time in milliseconds: " + (end-start));
+        //*// PERF_NO_LOG "populateVpcResourceCache : end,  elapsed time in milliseconds: " + (end-start));
+        System.out.println("populateVpcResourceCache : end,  elapsed time in milliseconds: " + (end-start));
     }
 
 }

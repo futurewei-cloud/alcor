@@ -25,8 +25,10 @@ import org.apache.ignite.IgniteException;
 
 import java.util.logging.Level;
 
+import static org.apache.ignite.transactions.TransactionConcurrency.OPTIMISTIC;
 import static org.apache.ignite.transactions.TransactionConcurrency.PESSIMISTIC;
 import static org.apache.ignite.transactions.TransactionIsolation.SERIALIZABLE;
+import static org.apache.ignite.transactions.TransactionIsolation.REPEATABLE_READ;
 
 public class IgniteTransaction implements Transaction {
     private static final Logger logger = LoggerFactory.getLogger();
@@ -40,7 +42,7 @@ public class IgniteTransaction implements Transaction {
 
     @Override
     public Transaction start() throws CacheException {
-        transaction = client.transactions().txStart(PESSIMISTIC, SERIALIZABLE);
+        transaction = client.transactions().txStart(OPTIMISTIC, REPEATABLE_READ);
         return this;
     }
 
@@ -49,7 +51,7 @@ public class IgniteTransaction implements Transaction {
         try {
             transaction.commit();
         } catch (IgniteException e) {
-            logger.log(Level.WARNING, "IgniteTransaction commit error:" + e.getMessage());
+            //*?// PERF_NO_LOG logger.log(Level.WARNING, "IgniteTransaction commit error:" + e.getMessage());
             throw new CacheException("IgniteTransaction commit error:" + e.getMessage());
         }
     }
@@ -59,7 +61,7 @@ public class IgniteTransaction implements Transaction {
         try {
             transaction.rollback();
         } catch (IgniteException e) {
-            logger.log(Level.WARNING, "IgniteTransaction rollback error:" + e.getMessage());
+            //*?// PERF_NO_LOG logger.log(Level.WARNING, "IgniteTransaction rollback error:" + e.getMessage());
             throw new CacheException("IgniteTransaction rollback error:" + e.getMessage());
         }
     }
@@ -70,7 +72,7 @@ public class IgniteTransaction implements Transaction {
             try {
                 transaction.close();
             } catch (IgniteException e) {
-                logger.log(Level.WARNING, "IgniteTransaction close error: " + e.getMessage());
+                //*?// PERF_NO_LOG logger.log(Level.WARNING, "IgniteTransaction close error: " + e.getMessage());
                 throw new CacheException("IgniteTransaction close error: " + e.getMessage());
             }
         }

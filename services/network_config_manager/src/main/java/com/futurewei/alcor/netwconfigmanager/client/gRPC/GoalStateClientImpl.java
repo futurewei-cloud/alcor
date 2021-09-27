@@ -79,11 +79,11 @@ public class GoalStateClientImpl implements GoalStateClient {
         }
 
         this.monitorHosts = monitorHosts;
-        logger.log(Level.FINE, "Printing out all monitorHosts");
+        //*// PERF_NO_LOG logger.log(Level.FINE, "Printing out all monitorHosts");
         for(String host : this.monitorHosts){
-            logger.log(Level.FINE, "Monitoring this host: "+ host);
+            //*// PERF_NO_LOG logger.log(Level.FINE, "Monitoring this host: "+ host);
         }
-        logger.log(Level.FINE, "Done printing out all monitorHosts");
+        //*// PERF_NO_LOG logger.log(Level.FINE, "Done printing out all monitorHosts");
         this.numberOfGrpcChannelPerHost = numberOfGrpcChannelPerHost;
         this.numberOfWarmupsPerChannel = numberOfWarmupsPerChannel;
         this.hostAgentPort = 50001;
@@ -96,7 +96,7 @@ public class GoalStateClientImpl implements GoalStateClient {
                 new DefaultThreadFactory("grpc-thread-pool"));
         //TODO: Setup a connection pool. one ACA, one client.
         this.hostIpGrpcChannelStubMap = new ConcurrentHashMap();
-        logger.log(Level.FINE, "This instance has "+ numberOfGrpcChannelPerHost+" channels, and "+ numberOfWarmupsPerChannel+" warmups");
+        //*// PERF_NO_LOG logger.log(Level.FINE, "This instance has "+ numberOfGrpcChannelPerHost+" channels, and "+ numberOfWarmupsPerChannel+" warmups");
     }
 
     @Override
@@ -136,7 +136,7 @@ public class GoalStateClientImpl implements GoalStateClient {
     private GrpcChannelStub getOrCreateGrpcChannel(String hostIp) {
         if (!this.hostIpGrpcChannelStubMap.containsKey(hostIp)) {
             this.hostIpGrpcChannelStubMap.put(hostIp, createGrpcChannelStubArrayList(hostIp));
-            logger.log(Level.INFO, "[getOrCreateGrpcChannel] Created a channel and stub to host IP: " + hostIp);
+            //*// PERF_NO_LOG logger.log(Level.INFO, "[getOrCreateGrpcChannel] Created a channel and stub to host IP: " + hostIp);
         }
         int usingChannelWithThisIndex = ThreadLocalRandom.current().nextInt(0, numberOfGrpcChannelPerHost);
         ManagedChannel chan = this.hostIpGrpcChannelStubMap.get(hostIp).get(usingChannelWithThisIndex).channel;
@@ -146,9 +146,9 @@ public class GoalStateClientImpl implements GoalStateClient {
         if (channelState != ConnectivityState.READY && channelState != ConnectivityState.CONNECTING && channelState != ConnectivityState.IDLE) {
             GrpcChannelStub newChannelStub = createGrpcChannelStub(hostIp);
             this.hostIpGrpcChannelStubMap.get(hostIp).set(usingChannelWithThisIndex, newChannelStub);
-            logger.log(Level.INFO, "[getOrCreateGrpcChannel] Replaced a channel and stub to host IP: " + hostIp);
+            //*// PERF_NO_LOG logger.log(Level.INFO, "[getOrCreateGrpcChannel] Replaced a channel and stub to host IP: " + hostIp);
         }
-        logger.log(Level.FINE, "[getOrCreateGrpcChannel] Using channel and stub index " + usingChannelWithThisIndex + " to host IP: " + hostIp);
+        //*// PERF_NO_LOG logger.log(Level.FINE, "[getOrCreateGrpcChannel] Using channel and stub index " + usingChannelWithThisIndex + " to host IP: " + hostIp);
         return this.hostIpGrpcChannelStubMap.get(hostIp).get(usingChannelWithThisIndex);
     }
 
@@ -161,7 +161,7 @@ public class GoalStateClientImpl implements GoalStateClient {
             arr.add(channelStub);
         }
         long end = System.currentTimeMillis();
-        logger.log(Level.FINE, "[createGrpcChannelStubArrayList] Created " + numberOfGrpcChannelPerHost + " gRPC channel stubs for host " + hostIp + ", elapsed Time in milli seconds: " + (end - start));
+        //*// PERF_NO_LOG logger.log(Level.FINE, "[createGrpcChannelStubArrayList] Created " + numberOfGrpcChannelPerHost + " gRPC channel stubs for host " + hostIp + ", elapsed Time in milli seconds: " + (end - start));
         return arr;
     }
 
@@ -172,35 +172,35 @@ public class GoalStateClientImpl implements GoalStateClient {
         StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver = new StreamObserver<>() {
             @Override
             public void onNext(Goalstateprovisioner.GoalStateOperationReply reply) {
-                logger.log(Level.INFO, "Receive warmup response from ACA@" + hostIp + " | " + reply.toString());
+                //*// PERF_NO_LOG logger.log(Level.INFO, "Receive warmup response from ACA@" + hostIp + " | " + reply.toString());
             }
 
             @Override
             public void onError(Throwable t) {
-                logger.log(Level.WARNING, "Receive warmup error from ACA@" + hostIp + " |  " + t.getMessage());
+                //*// PERF_NO_LOG logger.log(Level.WARNING, "Receive warmup error from ACA@" + hostIp + " |  " + t.getMessage());
             }
 
             @Override
             public void onCompleted() {
-                logger.log(Level.INFO, "Complete receiving warmup message from ACA@" + hostIp);
+                //*// PERF_NO_LOG logger.log(Level.INFO, "Complete receiving warmup message from ACA@" + hostIp);
             }
         };
 
         StreamObserver<Goalstate.GoalStateV2> requestObserver = asyncStub.pushGoalStatesStream(responseObserver);
         try {
             Goalstate.GoalStateV2 goalState = Goalstate.GoalStateV2.getDefaultInstance();
-            logger.log(Level.INFO, "Sending GS to Host " + hostIp + " as follows | " + goalState.toString());
+            //*// PERF_NO_LOG logger.log(Level.INFO, "Sending GS to Host " + hostIp + " as follows | " + goalState.toString());
             for (int i = 0; i < numberOfWarmupsPerChannel; i++) {
                 requestObserver.onNext(goalState);
             }
         } catch (RuntimeException e) {
             // Cancel RPC
-            logger.log(Level.WARNING, "[doSendGoalState] Sending GS, but error happened | " + e.getMessage());
+            //*// PERF_NO_LOG logger.log(Level.WARNING, "[doSendGoalState] Sending GS, but error happened | " + e.getMessage());
             requestObserver.onError(e);
             throw e;
         }
         // Mark the end of requests
-        logger.log(Level.INFO, "Sending warmup GS to Host " + hostIp + " is completed");
+        //*// PERF_NO_LOG logger.log(Level.INFO, "Sending warmup GS to Host " + hostIp + " is completed");
         return;
     }
 
@@ -218,40 +218,40 @@ public class GoalStateClientImpl implements GoalStateClient {
     private void doSendGoalState(HostGoalState hostGoalState) throws InterruptedException {
 
         String hostIp = hostGoalState.getHostIp();
-        logger.log(Level.FINE, "Setting up a channel to ACA on: " + hostIp);
+        //*// PERF_NO_LOG logger.log(Level.FINE, "Setting up a channel to ACA on: " + hostIp);
         long start = System.currentTimeMillis();
 
         GrpcChannelStub channelStub = getOrCreateGrpcChannel(hostIp);
         long chan_established = System.currentTimeMillis();
-        logger.log(Level.FINE, "[doSendGoalState] Established channel, elapsed Time in milli seconds: " + (chan_established - start));
+        //*// PERF_NO_LOG logger.log(Level.FINE, "[doSendGoalState] Established channel, elapsed Time in milli seconds: " + (chan_established - start));
         GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub = channelStub.stub;
 
         long stub_established = System.currentTimeMillis();
-        logger.log(Level.FINE, "[doSendGoalState] Established stub, elapsed Time after channel established in milli seconds: " + (stub_established - chan_established));
+        //*// PERF_NO_LOG logger.log(Level.FINE, "[doSendGoalState] Established stub, elapsed Time after channel established in milli seconds: " + (stub_established - chan_established));
 
         Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>> result = new HashMap<>();
         StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver = new StreamObserver<>() {
             @Override
             public void onNext(Goalstateprovisioner.GoalStateOperationReply reply) {
-                logger.log(Level.INFO, "Receive response from ACA@" + hostIp + " | " + reply.toString());
+                //*// PERF_NO_LOG logger.log(Level.INFO, "Receive response from ACA@" + hostIp + " | " + reply.toString());
                 result.put(hostIp, reply.getOperationStatusesList());
             }
 
             @Override
             public void onError(Throwable t) {
-                logger.log(Level.WARNING, "Receive error from ACA@" + hostIp + " |  " + t.getMessage());
+                //*// PERF_NO_LOG logger.log(Level.WARNING, "Receive error from ACA@" + hostIp + " |  " + t.getMessage());
             }
 
             @Override
             public void onCompleted() {
-                logger.log(Level.INFO, "Complete receiving message from ACA@" + hostIp);
+                //*// PERF_NO_LOG logger.log(Level.INFO, "Complete receiving message from ACA@" + hostIp);
             }
         };
 
         StreamObserver<Goalstate.GoalStateV2> requestObserver = asyncStub.pushGoalStatesStream(responseObserver);
         try {
             Goalstate.GoalStateV2 goalState = hostGoalState.getGoalState();
-            logger.log(Level.INFO, "Sending GS to Host " + hostIp + " as follows | " + goalState.toString());
+            //*// PERF_NO_LOG logger.log(Level.INFO, "Sending GS to Host " + hostIp + " as follows | " + goalState.toString());
             requestObserver.onNext(goalState);
             if (hostGoalState.getGoalState().getNeighborStatesCount() == 1 && monitorHosts.contains(hostIp)) {
                 long sent_gs_time = System.currentTimeMillis();
@@ -259,16 +259,16 @@ public class GoalStateClientImpl implements GoalStateClient {
                 // hardcoded) this send goalstate action is probably caused by on-demand workflow, need to record when it
                 // sends this goalState so what we can look into this and the ACA log to see how much time was spent.
                 String neighbor_id = hostGoalState.getGoalState().getNeighborStatesMap().keySet().iterator().next();
-                logger.log(Level.INFO, "Sending neighbor ID: " + neighbor_id + " at: " + sent_gs_time);
+                //*// PERF_NO_LOG logger.log(Level.INFO, "Sending neighbor ID: " + neighbor_id + " at: " + sent_gs_time);
             }
         } catch (RuntimeException e) {
             // Cancel RPC
-            logger.log(Level.WARNING, "[doSendGoalState] Sending GS, but error happened | " + e.getMessage());
+            //*// PERF_NO_LOG logger.log(Level.WARNING, "[doSendGoalState] Sending GS, but error happened | " + e.getMessage());
             requestObserver.onError(e);
             throw e;
         }
         // Mark the end of requests
-        logger.log(Level.INFO, "Sending GS to Host " + hostIp + " is completed");
+        //*// PERF_NO_LOG logger.log(Level.INFO, "Sending GS to Host " + hostIp + " is completed");
 
         // comment out onCompleted so that the same channel/stub and keep sending next time.
         //        requestObserver.onCompleted();
@@ -280,7 +280,7 @@ public class GoalStateClientImpl implements GoalStateClient {
         try {
             channel.shutdown().awaitTermination(Config.SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            logger.log(Level.WARNING, "Timed out forcefully shutting down connection: {}", e.getMessage());
+            //*?// PERF_NO_LOG logger.log(Level.WARNING, "Timed out forcefully shutting down connection: {}", e.getMessage());
         }
     }
 

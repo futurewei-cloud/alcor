@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>CPU hot spots</title>
+    <STYLE type="text/css">
+      body{
+        margin-top: 20px;
+        margin-left: 50px;
+        margin-right: 50px;
+        background: white;
+      }
+
+      table{
+        border: 0px;
+        border-spacing: 0px;
+      }
+
+      td{
+        padding-left: 3px;
+        padding-right: 3px;
+        white-space: nowrap;
+      }
+
+      td div {
+        vertical-align:middle;
+        display:inline-block;
+      }
+
+      td.header{
+        white-space:normal;
+        vertical-align:middle;
+      }
+
+      .header{
+        text-align: center;
+        padding-top: 3px;
+        padding-left: 10px;
+        padding-bottom: 3px;
+        padding-right: 10px;
+        font-weight: bold;
+        background-color: #DDDDDD;
+      }
+
+      /*value*/
+      .va{
+        text-align: right;
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
+      /*percents*/
+      .pc{
+        font-size: 80%;
+        color: gray;
+        text-align: right;
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
+      .footer{
+        font-size: 80%;
+        text-align: right;
+        padding-top: 20px;
+      }
+
+      tbody tr:nth-child(odd) {
+        background-color: #F2F2F2;
+      }
+
+      .a::after{
+  display: block;
+  float: left;
+  background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMyIgaGVpZ2h0PSIyMyI+PHBhdGggZD0iTTExLjUgMHY3IiBmaWxsPSJub25lIiBzdHJva2U9IiNhY2E4OTkiIHN0cm9rZS1kYXNoYXJyYXk9IjEsMSIvPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iZ3JheSIgc3Ryb2tlLXdpZHRoPSIxLjAxMyIgZD0iTTcuNTA3IDcuNTA3aDcuOTg3djcuOTg3SDcuNTA3eiIvPjxwYXRoIGQ9Ik0xMSA5aDF2NWgtMXoiLz48cGF0aCBkPSJNOSAxMWg1djFIOXoiLz48cGF0aCBkPSJNMjMgMTEuNWgtNyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjYWNhODk5IiBzdHJva2UtZGFzaGFycmF5PSIxLDEiLz48L3N2Zz4=) repeat;
+  width: 23px;
+  height: 23px;
+  vertical-align: middle;
+  content: '';
+  font-size: '0';
+}
+.b::before{
+  display: block;
+  float: left;
+  background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMyIgaGVpZ2h0PSIyMyI+PHBhdGggZD0iTTExLjUgMHY3IiBmaWxsPSJub25lIiBzdHJva2U9IiNhY2E4OTkiIHN0cm9rZS1kYXNoYXJyYXk9IjEsMSIvPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iZ3JheSIgc3Ryb2tlLXdpZHRoPSIxLjAxMyIgZD0iTTcuNTA3IDcuNTA3aDcuOTg3djcuOTg3SDcuNTA3eiIvPjxwYXRoIGQ9Ik0xMSA5aDF2NWgtMXoiLz48cGF0aCBkPSJNOSAxMWg1djFIOXoiLz48cGF0aCBkPSJNMjMgMTEuNWgtN00xMS41IDE2djciIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2FjYTg5OSIgc3Ryb2tlLWRhc2hhcnJheT0iMSwxIi8+PC9zdmc+) repeat;
+  width: 23px;
+  height: 23px;
+  vertical-align: middle;
+  content: '';
+  font-size: '0';
+}
+.c::after{
+  display: block;
+  float: left;
+  background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjMiIHdpZHRoPSIyMyI+PHBhdGggZD0iTTExLjUgMHY3IiBmaWxsPSJub25lIiBzdHJva2U9IiNhY2E4OTkiIHN0cm9rZS1kYXNoYXJyYXk9IjEsMSIvPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iZ3JheSIgc3Ryb2tlLXdpZHRoPSIxLjAxMyIgZD0iTTcuNTA3IDcuNTA3aDcuOTg3djcuOTg3SDcuNTA3eiIvPjxwYXRoIGQ9Ik05IDExaDV2MUg5eiIvPjxwYXRoIGQ9Ik0yMyAxMS41aC03IiBmaWxsPSJub25lIiBzdHJva2U9IiNhY2E4OTkiIHN0cm9rZS1kYXNoYXJyYXk9IjEsMSIvPjwvc3ZnPg==) repeat;
+  width: 23px;
+  height: 23px;
+  vertical-align: middle;
+  content: '';
+  font-size: '0';
+}
+.d::after{
+  display: block;
+  float: left;
+  background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMyIgaGVpZ2h0PSIyMyI+PHBhdGggZD0iTTExLjUgMHY3IiBmaWxsPSJub25lIiBzdHJva2U9IiNhY2E4OTkiIHN0cm9rZS1kYXNoYXJyYXk9IjEsMSIvPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iZ3JheSIgc3Ryb2tlLXdpZHRoPSIxLjAxMyIgZD0iTTcuNTA3IDcuNTA3aDcuOTg3djcuOTg3SDcuNTA3eiIvPjxwYXRoIGQ9Ik05IDExaDV2MUg5eiIvPjxwYXRoIGQ9Ik0yMyAxMS41aC03TTExLjUgMTZ2NyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjYWNhODk5IiBzdHJva2UtZGFzaGFycmF5PSIxLDEiLz48L3N2Zz4=) repeat;
+  width: 23px;
+  height: 23px;
+  vertical-align: middle;
+  content: '';
+  font-size: '0';
+}
+.e::before{
+  display: block;
+  float: left;
+  background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjMiIHdpZHRoPSIyMyI+PHBhdGggZD0iTTExLjUgMHYxMU0yMyAxMS41SDEyIiBmaWxsPSJub25lIiBzdHJva2U9IiNhY2E4OTkiIHN0cm9rZS1kYXNoYXJyYXk9IjEsMSIvPjwvc3ZnPg==) repeat;
+  width: 23px;
+  height: 23px;
+  vertical-align: middle;
+  content: '';
+  font-size: '0';
+}
+.f::before{
+  display: block;
+  float: left;
+  background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjMiIHdpZHRoPSIyMyI+PHBhdGggZD0iTTExLjUgMHYyM00yMyAxMS41SDEyIiBmaWxsPSJub25lIiBzdHJva2U9IiNhY2E4OTkiIHN0cm9rZS1kYXNoYXJyYXk9IjEsMSIvPjwvc3ZnPg==) repeat;
+  width: 23px;
+  height: 23px;
+  vertical-align: middle;
+  content: '';
+  font-size: '0';
+}
+.g::after{
+  display: block;
+  float: left;
+  background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjMiIHdpZHRoPSIyMyI+PHBhdGggZD0iTTExLjUgMHYyMyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjYWNhODk5IiBzdHJva2UtZGFzaGFycmF5PSIxLDEiLz48L3N2Zz4=) repeat;
+  width: 23px;
+  height: 23px;
+  vertical-align: middle;
+  content: '';
+  font-size: '0';
+}
+.h::before{
+  display: block;
+  float: left;
+  width: 23px;
+  height: 23px;
+  vertical-align: middle;
+  content: '';
+  font-size: '0';
+}
+.i::after{
+  display: block;
+  float: left;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAFCAYAAACXU8ZrAAAANElEQVR4XmNgQAKbNm2y37x580sQjSwOByCJLVu2/AdhrAqRFWBViE0BhkIg5wu6JBr+AgD83F/SkbCBVQAAAABJRU5ErkJggg==) repeat;
+  width: 9px;
+  height: 5px;
+  vertical-align: middle;
+  content: '';
+  font-size: '0';
+}
+.j::after{
+  display: block;
+  float: left;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAFCAYAAACXU8ZrAAAAMklEQVR4XmPYsmXLfwL4C8OmTZvssUiA8ebNm1+C5BlAAJtCFAUwgKwQqwIYAElgUwAASR9f3XfjWQ4AAAAASUVORK5CYII=) repeat;
+  width: 9px;
+  height: 5px;
+  vertical-align: middle;
+  content: '';
+  font-size: '0';
+}
+.k::after{
+  display: block;
+  float: left;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAYklEQVR4XmNgGDkguOXYzLSZZ1jRxYkGwc3H/wPx7qj2w4LockQBqAH/g1uO3w5sPq6JKUEafgfELpQYAMJ/gptP5A+YAQgvEAvgmtEDkVgANYD8aAxqOT7VoWE/C7r4MAAAH8LHBEruafAAAAAASUVORK5CYII=) repeat;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  content: '';
+  font-size: '0';
+}
+.l{
+  font-weight: bold;
+  color:#3E3E3E;
+}
+.m{
+  color:#787878;
+}
+.n::after{
+  display: block;
+  float: left;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAiElEQVR4XmNgGDkguOXYzLSZZ1jRxYkGwc3H/wPx7qj2w4LockQBsAFNJ9KCm45fD2w+rokqQSQGq2885g5kPwBiF7gBcNOIBKFNx3SB+u4FN5/IJ8uA4NYTeigGEIvBmtG9QCwAGRDUfDwXSF8LbDuphi5PEEBdQX40BrUcn+rQsJ8FXXwYAACgan6I8ZX/9gAAAABJRU5ErkJggg==) repeat;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  content: '';
+  font-size: '0';
+}
+.w0::before, .v0::after{
+  width: 46px;
+}
+.w1::before, .v1::after{
+  width: 69px;
+}
+.w2::before, .v2::after{
+  width: 92px;
+}
+.w3::before, .v3::after{
+  width: 115px;
+}
+.w4::before, .v4::after{
+  width: 138px;
+}
+.w5::before, .v5::after{
+  width: 161px;
+}
+.w6::before, .v6::after{
+  width: 184px;
+}
+.w7::before, .v7::after{
+  width: 207px;
+}
+.w8::before, .v8::after{
+  width: 230px;
+}
+.w9::before, .v9::after{
+  width: 253px;
+}
+.w10::before, .v10::after{
+  width: 276px;
+}
+.w11::before, .v11::after{
+  width: 299px;
+}
+.w12::before, .v12::after{
+  width: 322px;
+}
+.w13::before, .v13::after{
+  width: 345px;
+}
+.w14::before, .v14::after{
+  width: 368px;
+}
+.w15::before, .v15::after{
+  width: 391px;
+}
+.w16::before, .v16::after{
+  width: 414px;
+}
+.w17::before, .v17::after{
+  width: 437px;
+}
+.w18::before, .v18::after{
+  width: 460px;
+}
+.w19::before, .v19::after{
+  width: 483px;
+}
+.w20::before, .v20::after{
+  width: 506px;
+}
+.w21::before, .v21::after{
+  width: 529px;
+}
+.w22::before, .v22::after{
+  width: 552px;
+}
+.w23::before, .v23::after{
+  width: 575px;
+}
+.w24::before, .v24::after{
+  width: 598px;
+}
+.w25::before, .v25::after{
+  width: 621px;
+}
+.w26::before, .v26::after{
+  width: 644px;
+}
+.w27::before, .v27::after{
+  width: 667px;
+}
+.w28::before, .v28::after{
+  width: 690px;
+}
+.w29::before, .v29::after{
+  width: 713px;
+}
+.w30::before, .v30::after{
+  width: 736px;
+}
+.w31::before, .v31::after{
+  width: 759px;
+}
+
+    </STYLE>
+    <script type="text/javascript">
+      var tooltips = {
+        "k":"Non-filtered method",
+"n":"Filtered method",
+
+        null: null
+      };
+      window.onmouseover = function(e) {
+        var tooltip = tooltips[e.target.className];
+        if (tooltip != null) {
+          e.target.setAttribute('title', tooltip);
+        }
+      };
+    </script>
+ </head>
+  <body>
+  <div><h2>CPU hot spots</h2></div>
+    <table width="100%">
+<tr><td class='header' width='100%'> Method </td><td class='header' colspan='2'><div class='j'></div> Time (ms) </td></tr>
+<tr><td><div class="f"></div><div class="k"></div> <div>org.apache.ignite.internal.binary.</div><div class="l">BinaryReaderExImpl.deserialize</div><div>()</div> <div class="m">BinaryReaderExImpl.java</div></td><td class='va'>22,736</td><td class='pc'>72 %</td></tr>
+<tr><td><div class="f"></div><div class="k"></div> <div>org.apache.ignite.internal.binary.</div><div class="l">BinaryReaderExImpl.deserialize0</div><div>()</div> <div class="m">BinaryReaderExImpl.java</div></td><td class='va'>22,736</td><td class='pc'>72 %</td></tr>
+<tr><td><div class="f"></div><div class="k"></div> <div>org.apache.ignite.internal.binary.</div><div class="l">BinaryClassDescriptor.read</div><div>(BinaryReaderExImpl)</div> <div class="m">BinaryClassDescriptor.java</div></td><td class='va'>22,481</td><td class='pc'>71 %</td></tr>
+<tr><td><div class="f"></div><div class="k"></div> <div>org.apache.ignite.internal.binary.</div><div class="l">BinaryFieldAccessor.read</div><div>(Object, BinaryReaderExImpl)</div> <div class="m">BinaryFieldAccessor.java</div></td><td class='va'>22,481</td><td class='pc'>71 %</td></tr>
+<tr><td><div class="f"></div><div class="k"></div> <div>org.apache.ignite.internal.binary.</div><div class="l">BinaryFieldAccessor$DefaultFinalClassAccessor.read0</div><div>(Object, BinaryReaderExImpl)</div> <div class="m">BinaryFieldAccessor.java</div></td><td class='va'>22,481</td><td class='pc'>71 %</td></tr>
+<tr><td><div class="f"></div><div class="k"></div> <div>org.apache.ignite.internal.binary.</div><div class="l">BinaryReaderExImpl.readField</div><div>(int)</div> <div class="m">BinaryReaderExImpl.java</div></td><td class='va'>22,481</td><td class='pc'>71 %</td></tr>
+<tr><td><div class="f"></div><div class="k"></div> <div>org.apache.ignite.internal.binary.</div><div class="l">BinaryUtils.doReadMap</div><div>(BinaryInputStream, BinaryContext, ClassLoader, BinaryReaderHandlesHolder, boolean, boolean, BinaryMapFactory)</div> <div class="m">BinaryUtils.java</div></td><td class='va'>22,274</td><td class='pc'>70 %</td></tr>
+<tr><td><div class="f"></div><div class="k"></div> <div>org.apache.ignite.internal.binary.</div><div class="l">BinaryUtils.doReadObject</div><div>(BinaryInputStream, BinaryContext, ClassLoader, BinaryReaderHandlesHolder)</div> <div class="m">BinaryUtils.java</div></td><td class='va'>21,717</td><td class='pc'>69 %</td></tr>
+<tr><td><div class="f"></div><div class="k"></div> <div>org.apache.ignite.internal.binary.</div><div class="l">BinaryUtils.doReadCollection</div><div>(BinaryInputStream, BinaryContext, ClassLoader, BinaryReaderHandlesHolder, boolean, boolean, BinaryCollectionFactory)</div> <div class="m">BinaryUtils.java</div></td><td class='va'>6,555</td><td class='pc'>21 %</td></tr>
+<tr><td><div class="f"></div><div class="k"></div> <div>org.apache.ignite.internal.binary.</div><div class="l">BinaryReaderHandles.put</div><div>(int, Object)</div> <div class="m">BinaryReaderHandles.java</div></td><td class='va'>6,246</td><td class='pc'>20 %</td></tr>
+<tr><td><div class="f"></div><div class="n"></div> <div>java.net.</div><div class="l">SocketInputStream.read</div><div>(byte[], int, int)</div> <div class="m">SocketInputStream.java</div></td><td class='va'>6,215</td><td class='pc'>20 %</td></tr>
+<tr><td><div class="f"></div><div class="k"></div> <div>org.apache.ignite.internal.binary.</div><div class="l">BinaryReaderExImpl.&lt;init&gt;</div><div>(BinaryContext, BinaryInputStream, ClassLoader, BinaryReaderHandles, boolean)</div> <div class="m">BinaryReaderExImpl.java</div></td><td class='va'>3,297</td><td class='pc'>10 %</td></tr>
+<tr><td><div class="f"></div><div class="n"></div> <div>java.util.</div><div class="l">HashMap.resize</div><div>()</div> <div class="m">HashMap.java</div></td><td class='va'>2,909</td><td class='pc'>9 %</td></tr>
+<tr><td><div class="f"></div><div class="k"></div> <div>org.apache.ignite.internal.binary.</div><div class="l">BinaryContext.descriptorForTypeId</div><div>(boolean, int, ClassLoader, boolean)</div> <div class="m">BinaryContext.java</div></td><td class='va'>2,645</td><td class='pc'>8 %</td></tr>
+<tr><td><div class="f"></div><div class="k"></div> <div>org.apache.ignite.internal.binary.</div><div class="l">BinaryReaderExImpl.&lt;init&gt;</div><div>(BinaryContext, BinaryInputStream, ClassLoader, BinaryReaderHandles, boolean, boolean)</div> <div class="m">BinaryReaderExImpl.java</div></td><td class='va'>2,415</td><td class='pc'>8 %</td></tr>
+<tr><td><div class="f"></div><div class="k"></div> <div>org.apache.ignite.internal.binary.</div><div class="l">BinaryUtils.doReadString</div><div>(BinaryInputStream)</div> <div class="m">BinaryUtils.java</div></td><td class='va'>1,912</td><td class='pc'>6 %</td></tr>
+<tr><td><div class="f"></div><div class="n"></div> <div>java.lang.</div><div class="l">String.&lt;init&gt;</div><div>(byte[], int, int, Charset)</div> <div class="m">String.java</div></td><td class='va'>1,852</td><td class='pc'>6 %</td></tr>
+<tr><td><div class="f"></div><div class="n"></div> <div>java.util.</div><div class="l">HashSet.add</div><div>(Object)</div> <div class="m">HashSet.java</div></td><td class='va'>1,515</td><td class='pc'>5 %</td></tr>
+<tr><td><div class="f"></div><div class="n"></div> <div>java.lang.</div><div class="l">String.hashCode</div><div>()</div> <div class="m">String.java</div></td><td class='va'>1,410</td><td class='pc'>4 %</td></tr>
+<tr><td><div class="f"></div><div class="n"></div> <div>java.lang.</div><div class="l">Integer.valueOf</div><div>(int)</div> <div class="m">Integer.java</div></td><td class='va'>1,285</td><td class='pc'>4 %</td></tr>
+<tr><td><div class="e"></div><div class="n"></div> <div>java.lang.</div><div class="l">ClassLoader.loadClass</div><div>(String)</div> <div class="m">ClassLoader.java</div></td><td class='va'>1,260</td><td class='pc'>4 %</td></tr>
+</table>
+
+  <div class="footer">Generated by <a href="https://www.yourkit.com">YourKit Java Profiler 2021.3-b230</a> &nbsp;&nbsp;&nbsp;July 6, 2021 09:44:49 AM</div>
+  </body>
+</html>

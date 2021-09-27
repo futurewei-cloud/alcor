@@ -1,0 +1,153 @@
+= NCM Jitter investigation
+
+Prasad Kommoju <pkommoju@futurewei.com>, Zhaoxi Zhu <zzhu@futurewei.com>
+2021-05-21
+
+== Machine Configuration
+[source]
+|===
+| Machine| Process| CPUs | Total Memory
+
+|10.213.43.161| NCM|40| 192GB
+
+|10.213.43.92| Test Controller| 24|31GB
+
+|10.213.43.92| ACA node 1| 24| 31GB
+
+|10.213.43.93| ACA node 2|24| 64GB
+
+|10.213.43.163| Ignite node 1| 40|192GB
+
+|10.213.43.164| Ignite node 2| 40| 192GB
+
+|===
+
+
+== NCM and Ignite JVM options
+[source]
+ -Djava.net.preferIPv4Stack=true \
+            -Xms40G \
+            -XX:MaxMetaspaceSize=1G \
+            -Xmx40G \
+            -XX:NewSize=512m \
+            -XX:SurvivorRatio=6 \
+            -XX:+AlwaysPreTouch \
+            -XX:+UseG1GC \
+            -XX:MaxGCPauseMillis=2000 \
+            -XX:GCTimeRatio=4 \
+            -XX:InitiatingHeapOccupancyPercent=30 \
+            -XX:G1HeapRegionSize=33554432 \
+            -XX:ParallelGCThreads=8 \
+            -XX:ConcGCThreads=8 \
+            -XX:G1HeapWastePercent=10 \
+            -XX:+UseTLAB \
+            -XX:+ScavengeBeforeFullGC \
+            -XX:+DisableExplicitGC \
+            -XX:+PrintGCDetails
+
+== Ignite configuration
+[source]
+<property name="dataStorageConfiguration">
+            <bean class="org.apache.ignite.configuration.DataStorageConfiguration">
+                <property name="defaultDataRegionConfiguration">
+                    <bean class="org.apache.ignite.configuration.DataRegionConfiguration">
+                        <property name="persistenceEnabled" value="true"/>
+                        <property name="initialSize" value="#{40L * 1024 * 1024 * 1024}"/>
+                        <property name="maxSize" value="#{40L * 1024 * 1024 * 1024}"/>
+                    </bean>
+                </property>
+            </bean>
+</property>
+
+== Observations
+1. The ping speed was still around a few hundreds of milliseconds.
+2. As the number of ports increases, from 200, 250, all the way to 500, 1000, the time needed for NCM to finish sending the GoalStates to NCM increases. At one point, the GoalState for host_2, which includes port states and neighbor states, took more than 10 seconds to reach the ACA on host_2. More timers are needed in TC and NCM to see the exact time spent, and what is causing this latency.
+3. We saw, when testing with 500 and 1000 ports, when the ping starts, ACA on host_1, who requests the neighbor states, dies suddenly with a core dump. The reason of this needs to be investigated. However, I remember that when core dump happened, ACA’s last output was trying to set up an OVS rule for a neighbor.
+4. In today’s debug session, NCM and Ignite are running of different machine with sufficient RAM, we think that contributes to the much lower latency for NCM to access the cache (which was ~800ms before and ~50ms today, both refer to the max time needed).
+5. TC dumps core, some times, on exit. This combined with (3) above indicate that there a possibility of buffer overrun in TC code, and a memory management issue in the TC code. This needs to be investigated and fixed to run load tests.
+6. In NCM, it appears that there are more calls to getResourceMeta than expected. We have not looked into the reason.
+7. These runs hint the upcoming need for tuning JVM for Ignite and all of the micro-services, and utilizing any and all performance settings of Ignite as we increase the load.
+
+ 
+== NCM latency for 200 ports
+* NCM latency to get the ResourceMeta ranged from 2 to 67 ms.
+* NCM memory usage ranged from 27,964,312 to 481,301,352 bytes.
+
+=== Latency histogram (200 ports)
+|===
+| time (ms) | Frequency
+|    2    |60
+|    3   |185
+|    4   |163
+|    5    |72
+|    6    |33
+|    7    |12
+|    8    |10
+|    9     |5
+|   10     |5
+|   11     |2
+|   12     |5
+|   13     |3
+|   14     |3
+|   15     |2
+|   16     |4
+|   17     |1
+|   18     |3
+|   19     |1
+|   20     |1
+|   21     |3
+|   22     |2
+|   23     |6
+|   24     |2
+|   25     |2
+|   26     |1
+|   27     |1
+|   28     |1
+|   29     |3
+|   30     |2
+|   31     |1
+|   32     |1
+|   33     |1
+|   60     |1
+|   67     |1
+|===
+
+== NCM latency for 250 ports
+* NCM latency to get the ResourceMeta ranged from 2 to 52 ms.
+* NCM memory usage ranged from 27,115,224 to 547,819,192 bytes.
+
+=== Latency histogram (250 ports)
+|===
+| time (ms) | Frequency
+|    2    |96
+|    3   |179
+|    4   |129
+|    5   |112
+|    6    |85
+|    7    |40
+|    8    |25
+|    9    |12
+|   10    |16
+|   11     |5
+|   12     |6
+|   13     |4
+|   14     |4
+|   15     |7
+|   16     |4
+|   17     |4
+|   18     |4
+|   20     |3
+|   23     |1
+|   24     |1
+|   25     |1
+|   26     |2
+|   27     |2
+|   28     |1
+|   31     |1
+|   32     |1
+|   34     |1
+|   39     |1
+|   52     |1
+|===
+
+
