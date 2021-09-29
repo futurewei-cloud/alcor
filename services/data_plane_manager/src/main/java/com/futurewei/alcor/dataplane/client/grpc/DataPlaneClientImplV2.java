@@ -37,7 +37,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.concurrent.*;
 
-@Service("grpcDataPlaneClient")
+@Service("grpcDataPlaneClientV2")
 public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2, MulticastGoalStateV2> {
 
     private static DataPlaneClientImplV2 instance = null;

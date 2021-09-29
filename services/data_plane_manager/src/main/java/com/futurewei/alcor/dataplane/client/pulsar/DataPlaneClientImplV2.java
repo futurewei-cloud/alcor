@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service("pulsarDataPlaneClient")
+@Service("pulsarDataPlaneClientV2")
 public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2, MulticastGoalStateV2> {
     @Override
     public List<String> sendGoalStates(List<UnicastGoalStateV2> unicastGoalStates) throws Exception {
