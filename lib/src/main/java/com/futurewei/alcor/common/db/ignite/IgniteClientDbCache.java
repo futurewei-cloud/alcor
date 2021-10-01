@@ -49,7 +49,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
 
     private static final int RESULT_THRESHOLD_SIZE = 100000;
     private ClientCache<K, V> cache;
-    private final IgniteClientTransaction transaction;
+    private IgniteClient igniteClient;
 
     public IgniteClientDbCache(IgniteClient igniteClient, String name) {
         try {
@@ -60,7 +60,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
         }
 
         Assert.notNull(this.cache, "Create cache for client " + name + "failed");
-        this.transaction = new IgniteClientTransaction(igniteClient);
+        this.igniteClient = igniteClient;
     }
 
     public IgniteClientDbCache(IgniteClient igniteClient, CacheConfiguration cacheConfig) {
@@ -76,7 +76,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
         }
 
         Assert.notNull(this.cache, "Create cache for client " + cacheConfig.getName() + "failed");
-        this.transaction = new IgniteClientTransaction(igniteClient);
+        this.igniteClient = igniteClient;
     }
 
     public IgniteClientDbCache(IgniteClient igniteClient, String name, ExpiryPolicy ep) {
@@ -88,7 +88,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
         }
 
         Assert.notNull(this.cache, "Create cache for client " + name + "failed");
-        this.transaction = new IgniteClientTransaction(igniteClient);
+        this.igniteClient = igniteClient;
     }
 
     @Override
@@ -221,6 +221,6 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
 
     @Override
     public Transaction getTransaction() {
-        return transaction;
+        return new IgniteClientTransaction(igniteClient);
     }
 }
