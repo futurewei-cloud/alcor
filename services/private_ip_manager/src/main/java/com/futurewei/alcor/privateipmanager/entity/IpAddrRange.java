@@ -81,7 +81,7 @@ public class IpAddrRange {
         String ipAddr = allocator.allocate(ip);
         IpAddrAlloc ipAddrAlloc = new IpAddrAlloc(ipVersion, subnetId, id, ipAddr, IpAddrState.ACTIVATED.getState());
 
-        ips.put(allocator.getIpIndex(ip), (byte)IpAddrState.ACTIVATED.ordinal());
+        ips.put(allocator.getIpIndex(ipAddr), (byte)IpAddrState.ACTIVATED.ordinal());
         updateUsedIps();
 
         return ipAddrAlloc;
@@ -122,7 +122,7 @@ public class IpAddrRange {
                     ipAddr, IpAddrState.ACTIVATED.getState());
 
             ipAddrAllocList.add(ipAddrAlloc);
-            ipAddrAllocMap.put(allocator.getIpIndex(ip), (byte)IpAddrState.ACTIVATED.ordinal());
+            ipAddrAllocMap.put(allocator.getIpIndex(ipAddr), (byte)IpAddrState.ACTIVATED.ordinal());
         }
 
         if (ipAddrAllocMap.size() > 0) {
