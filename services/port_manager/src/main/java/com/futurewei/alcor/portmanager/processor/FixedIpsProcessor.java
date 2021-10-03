@@ -264,7 +264,6 @@ public class FixedIpsProcessor extends AbstractProcessor {
             for (PortEntity portEntity : context.getPortEntities()) {
                 for (PortEntity.FixedIp fixedIp : portEntity.getFixedIps()) {
                     for (SubnetEntity subnetEntity : subnetEntities) {
-                        context.getPortRepository().createSubnetCache(fixedIp.getSubnetId());
                         if(fixedIp.getSubnetId().equals(subnetEntity.getId())){
                             fixedIp.setIpV4RangeId(subnetEntity.getIpV4RangeId());
                         }

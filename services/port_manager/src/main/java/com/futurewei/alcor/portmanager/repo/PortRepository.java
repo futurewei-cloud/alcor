@@ -263,8 +263,7 @@ public class PortRepository {
     }
 
     @DurationStatistics
-    public void createPortBulk(List<PortEntity> portEntities, Map<String, List<NeighborInfo>> neighbors) throws Exception {
-        semaphore.acquire();
+    public synchronized void createPortBulk(List<PortEntity> portEntities, Map<String, List<NeighborInfo>> neighbors) throws Exception {
         try (Transaction tx = portCache.getTransaction().start()) {
             Map<String, PortEntity> portEntityMap = portEntities
                     .stream()
@@ -274,7 +273,6 @@ public class PortRepository {
             subnetPortsRepository.addSubnetPortIds(portEntities);
             tx.commit();
         }
-        semaphore.release();
     }
 
     @DurationStatistics
@@ -305,10 +303,5 @@ public class PortRepository {
     @DurationStatistics
     public int getSubnetPortCount(String subnetId) throws CacheException {
         return subnetPortsRepository.getSubnetPortNumber(subnetId);
-    }
-
-    @DurationStatistics
-    public void createSubnetCache(String subnetId) throws CacheException {
-        subnetPortsRepository.createSubnetCache(subnetId);
     }
 }

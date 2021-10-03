@@ -19,11 +19,9 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.stats.DurationStatistics;
-import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.portmanager.entity.SubnetPortIds;
 import com.futurewei.alcor.portmanager.exception.FixedIpsInvalid;
 import com.futurewei.alcor.web.entity.port.PortEntity;
-import org.apache.ignite.configuration.CacheConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +40,6 @@ public class SubnetPortsRepository {
         this.subnetPortIdsCache= cacheFactory.getCache(SubnetPortIds.class);
     }
 
-
     public void addSubnetPortIds(List<PortEntity> portEntities) throws Exception {
         //Store the mapping between subnet id and port id
         for (PortEntity portEntity: portEntities) {
@@ -57,10 +54,7 @@ public class SubnetPortsRepository {
             }
 
             for (PortEntity.FixedIp fixedIp: fixedIps) {
-                String subnetId = fixedIp.getSubnetId();
-                CacheConfiguration cfg = CommonUtil.getCacheConfiguration(subnetId);
-                ICache<String, String> cache = cacheFactory.getCache(String.class, cfg);
-                cache.put(portEntity.getId(), "1");
+                subnetPortIdsCache.put(fixedIp.getSubnetId() + "/" + portEntity.getId(), new SubnetPortIds(fixedIp.getSubnetId()));
             }
         }
     }
@@ -72,28 +66,29 @@ public class SubnetPortsRepository {
             throw new FixedIpsInvalid();
         }
 
-        if (GATEWAY_PORT_DEVICE_OWNER.equals(oldPortEntity.getDeviceOwner()) || GATEWAY_PORT_DEVICE_OWNER.equals(newPortEntity.getDeviceOwner())) {
+        if (GATEWAY_PORT_DEVICE_OWNER.equals(newPortEntity.getDeviceOwner())) {
             return;
         }
 
-        oldPortEntity.getFixedIps().forEach(item -> {
+        oldPortEntity.getFixedIps().forEach( item ->
+                {
                     try {
-                        CacheConfiguration cfg = CommonUtil.getCacheConfiguration(item.getSubnetId());
-                        ICache<String, String> cache = cacheFactory.getCache(String.class, cfg);
-                        cache.remove(oldPortEntity.getId());
+                        subnetPortIdsCache.remove(item.getSubnetId() + "/" + oldPortEntity.getId());
                     } catch (CacheException e) {
                         e.printStackTrace();
                     }
-                });
-        newPortEntity.getFixedIps().forEach(item -> {
-            try {
-                CacheConfiguration cfg = CommonUtil.getCacheConfiguration(item.getSubnetId());
-                ICache<String, String> cache = cacheFactory.getCache(String.class, cfg);
-                cache.put(newPortEntity.getId(), "1");
-            } catch (CacheException e) {
-                e.printStackTrace();
-            }
-        });
+                }
+        );
+
+        newPortEntity.getFixedIps().forEach( item ->
+                {
+                    try {
+                        subnetPortIdsCache.put(item.getSubnetId() + "/" + newPortEntity.getId(), new SubnetPortIds(item.getSubnetId()));
+                    } catch (CacheException e) {
+                        e.printStackTrace();
+                    }
+                }
+        );
     }
 
     public void deleteSubnetPortIds(PortEntity portEntity) throws Exception {
@@ -102,31 +97,25 @@ public class SubnetPortsRepository {
             throw new FixedIpsInvalid();
         }
 
-        List<String> subnetIds = portEntity.getFixedIps().stream()
-                .map(PortEntity.FixedIp::getSubnetId)
-                .collect(Collectors.toList());
+        portEntity.getFixedIps().forEach( item ->
+                {
+                    try {
+                        subnetPortIdsCache.remove(item.getSubnetId() + "/" + portEntity.getId());
+                    } catch (CacheException e) {
+                        e.printStackTrace();
+                    }
+                }
+        );
 
-        //Delete port ids from subnetPortIdsCache
-        portEntity.getFixedIps().forEach(item -> {
-            try {
-                CacheConfiguration cfg = CommonUtil.getCacheConfiguration(item.getSubnetId());
-                ICache<String, String> cache = cacheFactory.getCache(String.class, cfg);
-                cache.remove(portEntity.getId());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
     }
 
     @DurationStatistics
     public int getSubnetPortNumber(String subnetId) throws CacheException {
-        CacheConfiguration cfg = CommonUtil.getCacheConfiguration(subnetId);
-        return (int)cacheFactory.getCache(String.class, cfg).size();
-    }
+        Map<String, Object[]> queryParams = new HashMap<>();
+        Object[] values = new Object[1];
+        values[0] = subnetId;
+        queryParams.put("subnetId", values);
 
-    @DurationStatistics
-    public void createSubnetCache(String subnetId) throws CacheException {
-        CacheConfiguration cfg = CommonUtil.getCacheConfiguration(subnetId);
-        cacheFactory.getCache(String.class, cfg);
+        return subnetPortIdsCache.getAll(queryParams).size();
     }
 }

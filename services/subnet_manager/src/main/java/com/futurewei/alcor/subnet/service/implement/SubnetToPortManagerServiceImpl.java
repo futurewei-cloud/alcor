@@ -28,6 +28,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
+
 @Service
 public class SubnetToPortManagerServiceImpl implements SubnetToPortManagerService {
 
@@ -39,7 +41,7 @@ public class SubnetToPortManagerServiceImpl implements SubnetToPortManagerServic
     private final RestTemplate restTemplate;
 
     public SubnetToPortManagerServiceImpl(RestTemplateBuilder restTemplateBuilder) {
-        this.restTemplate = restTemplateBuilder.build();
+        this.restTemplate = restTemplateBuilder.setConnectTimeout(Duration.ofSeconds(500)).setReadTimeout(Duration.ofSeconds(500)).build();
     }
 
     @Override

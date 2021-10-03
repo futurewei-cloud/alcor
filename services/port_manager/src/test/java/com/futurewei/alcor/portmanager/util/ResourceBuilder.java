@@ -357,16 +357,4 @@ public class ResourceBuilder {
         ConnectedSubnetsWebResponse routerSubnets = new ConnectedSubnetsWebResponse(router, subnetEntities);
         return routerSubnets;
     }
-
-    public static int buildSubnetPorts() {
-        SubnetPortIds subnetPortIds = new SubnetPortIds();
-        subnetPortIds.setSubnetId(UnitTestConfig.subnetId);
-
-        Set<String> portIds = new HashSet<>();
-        portIds.add(UnitTestConfig.portId1);
-        portIds.add(UnitTestConfig.portId2);
-        subnetPortIds.setPortIds(portIds);
-
-        return subnetPortIds.getPortIds().size();
-    }
 }

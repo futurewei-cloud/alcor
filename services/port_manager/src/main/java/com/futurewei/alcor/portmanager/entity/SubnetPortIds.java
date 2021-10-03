@@ -23,16 +23,12 @@ public class SubnetPortIds {
     @JsonProperty("subnet_id")
     private String subnetId;
 
-    @JsonProperty("port_ids")
-    private Set<String> portIds;
-
     public SubnetPortIds() {
 
     }
 
-    public SubnetPortIds(String subnetId, Set<String> portIds) {
+    public SubnetPortIds(String subnetId) {
         this.subnetId = subnetId;
-        this.portIds = portIds;
     }
 
     public String getSubnetId() {
@@ -41,13 +37,5 @@ public class SubnetPortIds {
 
     public void setSubnetId(String subnetId) {
         this.subnetId = subnetId;
-    }
-
-    public Set<String> getPortIds() {
-        return portIds;
-    }
-
-    public void setPortIds(Set<String> portIds) {
-        this.portIds = portIds;
     }
 }
