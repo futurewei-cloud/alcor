@@ -151,7 +151,7 @@ public class IpAddrServiceImpl implements IpAddrService {
     public void releaseIpAddrBulk(IpAddrRequestBulk requestBulk) throws Exception {
         LOG.debug("Release ip address bulk, requestBulk: {}", requestBulk);
 
-        Map<String, List<String>> rangeToIpAddrList = new HashMap<>();
+        SortedMap<String, List<String>> rangeToIpAddrList = new TreeMap<>();
 
         for (IpAddrRequest request: requestBulk.getIpRequests()) {
             List<String> ipAddrList = rangeToIpAddrList.get(request.getRangeId());
@@ -293,7 +293,7 @@ public class IpAddrServiceImpl implements IpAddrService {
     @DurationStatistics
     public List<IpAddrRequest> updateIpAddr(IpAddrUpdateRequest request) throws Exception {
 
-        Map<String, List<String>> rangeToIpAddrList = null;
+        SortedMap<String, List<String>> rangeToIpAddrList = null;
 
         Map<String, List<IpAddrRequest>> rangeRequests = null;
         Map<String, List<IpAddrRequest>> vpcIpv4Requests = null;
@@ -302,7 +302,7 @@ public class IpAddrServiceImpl implements IpAddrService {
         if (request.getOldIpAddrRequests().size()>0){
             if (request.getOldIpAddrRequests().size()>1){
                 LOG.debug("Release ip address bulk, requestBulk: {}", request.getOldIpAddrRequests());
-                rangeToIpAddrList = new HashMap<>();
+                rangeToIpAddrList = new TreeMap<>();
                 for (IpAddrRequest ipAddrRequest: request.getOldIpAddrRequests()) {
                     List<String> ipAddrList = rangeToIpAddrList.computeIfAbsent(ipAddrRequest.getRangeId(), k -> new ArrayList<>());
                     ipAddrList.add(ipAddrRequest.getIp());

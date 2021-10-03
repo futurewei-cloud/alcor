@@ -338,7 +338,7 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
     }
 
     @DurationStatistics
-    public synchronized void releaseIpAddrBulk(Map<String, List<String>> requests) throws Exception {
+    public synchronized void releaseIpAddrBulk(SortedMap<String, List<String>> requests) throws Exception {
         try (Transaction tx = ipAddrRangeCache.getTransaction().start()) {
             releaseIpAddrBulkMethod(requests);
             tx.commit();
@@ -444,7 +444,7 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
     }
 
     @DurationStatistics
-    public synchronized List<IpAddrAlloc> updateIpAddr(IpAddrUpdateRequest request,Map<String, List<String>> rangeToIpAddrList,Map<String, List<IpAddrRequest>> rangeRequests,
+    public synchronized List<IpAddrAlloc> updateIpAddr(IpAddrUpdateRequest request,SortedMap<String, List<String>> rangeToIpAddrList,Map<String, List<IpAddrRequest>> rangeRequests,
                                                        Map<String, List<IpAddrRequest>> vpcIpv4Requests,Map<String, List<IpAddrRequest>> vpcIpv6Requests) throws Exception {
         List<IpAddrAlloc> result = null;
 
@@ -473,7 +473,7 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
         return result;
     }
 
-    private void releaseIpAddrBulkMethod(Map<String, List<String>> requests) throws Exception{
+    private void releaseIpAddrBulkMethod(SortedMap<String, List<String>> requests) throws Exception{
         for (Map.Entry<String, List<String>> entry: requests.entrySet()) {
             IpAddrRange ipAddrRange = ipAddrRangeCache.get(entry.getKey());
             if (ipAddrRange == null) {
