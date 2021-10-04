@@ -137,22 +137,8 @@ public class LocalCacheImpl implements LocalCache {
     }
 
     @Override
-    public void deleteSubnetPorts(NetworkConfiguration networkConfig) throws Exception {
-        List<InternalPortEntity> portEntities = networkConfig.getPortEntities();
-        if (portEntities == null) {
-            return;
-        }
-        for (InternalPortEntity portEntity: portEntities) {
-            List<PortEntity.FixedIp> fixedIps = portEntity.getFixedIps();
-            if (fixedIps == null) {
-                LOG.error("Fixed ip of port entity not found");
-                continue;
-            }
+    public void deleteSubnetPorts(NetworkConfiguration networkConfig) {
 
-            for (PortEntity.FixedIp fixedIp : fixedIps) {
-                subnetPortsCache.deleteSubnetPorts(fixedIp.getSubnetId());
-            }
-        }
     }
 
     @Override

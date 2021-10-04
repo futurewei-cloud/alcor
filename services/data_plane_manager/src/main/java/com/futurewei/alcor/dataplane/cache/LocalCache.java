@@ -25,7 +25,7 @@ import java.util.List;
 public interface LocalCache {
     void setSubnetPorts(NetworkConfiguration networkConfig) throws Exception;
     void updateSubnetPorts(NetworkConfiguration networkConfig) throws Exception;
-    void deleteSubnetPorts(NetworkConfiguration networkConfig) throws Exception;
+    void deleteSubnetPorts(NetworkConfiguration networkConfig);
     InternalSubnetPorts getSubnetPorts(String subnetId) throws Exception;
     void updateLocalCache(NetworkConfiguration networkConfig) throws Exception;
 
