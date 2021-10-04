@@ -84,6 +84,7 @@ public class SubnetRepository {
     public void addItem(SubnetEntity subnet) throws CacheException {
         logger.log(Level.INFO, "Add subnet, subnet Id:" + subnet.getId());
         String projectId = subnet.getProjectId();
+        subnetIdProjectIdCache.put(subnet.getId(), projectId);
         CacheConfiguration cfg = CommonUtil.getCacheConfiguration(projectId);
         ICache<String, SubnetEntity> cache = cacheFactory.getCache(SubnetEntity.class, cfg);
         cache.put(subnet.getId(), subnet);
@@ -92,6 +93,13 @@ public class SubnetRepository {
     @DurationStatistics
     public void addItems(List<SubnetEntity> items) throws CacheException {
         logger.log(Level.INFO, "Add subnet batch: {}",items);
+        items.forEach(item -> {
+            try {
+                subnetIdProjectIdCache.put(item.getId(), item.getProjectId());
+            } catch (CacheException e) {
+                e.printStackTrace();
+            }
+        });
         CacheConfiguration cfg = CommonUtil.getCacheConfiguration(items.get(0).getProjectId());
         ICache<String, SubnetEntity> cache = cacheFactory.getCache(SubnetEntity.class, cfg);
         Map<String, SubnetEntity> subnetEntityMap = items.stream().collect(Collectors.toMap(SubnetEntity::getId, Function.identity()));
