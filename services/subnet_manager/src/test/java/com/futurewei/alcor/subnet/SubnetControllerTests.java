@@ -308,7 +308,7 @@ public class SubnetControllerTests {
                 UnitTestConfig.subnetId,
                 UnitTestConfig.name,UnitTestConfig.cidr);
         subnetStates.put("SubnetState", subnetEntity);
-        Mockito.when(subnetDatabaseService.getAllSubnets()).thenReturn(subnetStates);
+        Mockito.when(subnetDatabaseService.getAllSubnets(UnitTestConfig.projectId)).thenReturn(subnetStates);
         this.mockMvc.perform(get(getByProjectIdAndVpcIdUri)).andDo(print())
                 .andExpect(status().isOk());
     }
@@ -316,7 +316,7 @@ public class SubnetControllerTests {
     @Test
     public void getSubnetStatesByProjectIdAndVpcId_getEmptyMap_pass () throws Exception {
         Map<String, SubnetEntity> subnetStates = new HashMap<>();
-        Mockito.when(subnetDatabaseService.getAllSubnets()).thenReturn(subnetStates);
+        Mockito.when(subnetDatabaseService.getAllSubnets(UnitTestConfig.projectId)).thenReturn(subnetStates);
         this.mockMvc.perform(get(getByProjectIdAndVpcIdUri)).andDo(print())
                 .andExpect(status().isOk());
     }

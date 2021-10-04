@@ -539,7 +539,7 @@ public class SubnetController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectId);
             RestPreconditionsUtil.verifyResourceFound(projectId);
 
-            subnetStates = this.subnetDatabaseService.getAllSubnets(queryParams);
+            subnetStates = this.subnetDatabaseService.getAllSubnets(projectId, queryParams);
 
         } catch (ParameterNullOrEmptyException | ResourceNotFoundException e) {
             logger.error(e.getMessage());

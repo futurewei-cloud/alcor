@@ -23,7 +23,10 @@ import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.common.utils.CommonUtil;
+import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
+import org.apache.ignite.configuration.CacheConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -41,15 +44,13 @@ public class SubnetRepository implements ICacheRepository<SubnetEntity> {
 
     private static final String KEY = "SubnetState";
 
-    public ICache<String, SubnetEntity> getCache() {
-        return cache;
-    }
-
-    private ICache<String, SubnetEntity> cache;
+    private ICache<String, String> subnetIdProjectIdCache;
+    private CacheFactory cacheFactory;
 
     @Autowired
     public SubnetRepository (CacheFactory cacheFactory) {
-        cache = cacheFactory.getCache(SubnetEntity.class);
+        this.cacheFactory = cacheFactory;
+        subnetIdProjectIdCache = cacheFactory.getCache(String.class);
     }
 
     @PostConstruct
@@ -60,25 +61,35 @@ public class SubnetRepository implements ICacheRepository<SubnetEntity> {
     @Override
     @DurationStatistics
     public SubnetEntity findItem(String id) throws CacheException {
+        String projectId = subnetIdProjectIdCache.get(id);
+        CacheConfiguration cfg = CommonUtil.getCacheConfiguration(projectId);
+        ICache<String, SubnetEntity> cache = cacheFactory.getCache(SubnetEntity.class, cfg);
         return cache.get(id);
     }
 
     @Override
     @DurationStatistics
-    public Map<String, SubnetEntity> findAllItems() throws CacheException {
+    public Map<String, SubnetEntity> findAllItems(String projectId) throws CacheException {
+        CacheConfiguration cfg = CommonUtil.getCacheConfiguration(projectId);
+        ICache<String, SubnetEntity> cache = cacheFactory.getCache(SubnetEntity.class, cfg);
         return cache.getAll();
     }
 
     @Override
     @DurationStatistics
-    public Map<String, SubnetEntity> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
-        return cache.getAll(queryParams);
+    public Map<String, SubnetEntity> findAllItems(String projectId, Map<String, Object[]> queryParams) throws CacheException {
+        CacheConfiguration cfg = CommonUtil.getCacheConfiguration(projectId);
+        ICache<String, SubnetEntity> cache = cacheFactory.getCache(SubnetEntity.class, cfg);
+        return cache.getAll();
     }
 
     @Override
     @DurationStatistics
     public void addItem(SubnetEntity subnet) throws CacheException {
         logger.log(Level.INFO, "Add subnet, subnet Id:" + subnet.getId());
+        String projectId = subnet.getProjectId();
+        CacheConfiguration cfg = CommonUtil.getCacheConfiguration(projectId);
+        ICache<String, SubnetEntity> cache = cacheFactory.getCache(SubnetEntity.class, cfg);
         cache.put(subnet.getId(), subnet);
     }
 
@@ -86,6 +97,8 @@ public class SubnetRepository implements ICacheRepository<SubnetEntity> {
     @DurationStatistics
     public void addItems(List<SubnetEntity> items) throws CacheException {
         logger.log(Level.INFO, "Add subnet batch: {}",items);
+        CacheConfiguration cfg = CommonUtil.getCacheConfiguration(items.get(0).getProjectId());
+        ICache<String, SubnetEntity> cache = cacheFactory.getCache(SubnetEntity.class, cfg);
         Map<String, SubnetEntity> subnetEntityMap = items.stream().collect(Collectors.toMap(SubnetEntity::getId, Function.identity()));
         cache.putAll(subnetEntityMap);
     }
@@ -94,6 +107,9 @@ public class SubnetRepository implements ICacheRepository<SubnetEntity> {
     @DurationStatistics
     public void deleteItem(String id) throws CacheException {
         logger.log(Level.INFO, "Delete subnet, subnet Id:" + id);
+        String projectId = subnetIdProjectIdCache.get(id);
+        CacheConfiguration cfg = CommonUtil.getCacheConfiguration(projectId);
+        ICache<String, SubnetEntity> cache = cacheFactory.getCache(SubnetEntity.class, cfg);
         cache.remove(id);
     }
 }

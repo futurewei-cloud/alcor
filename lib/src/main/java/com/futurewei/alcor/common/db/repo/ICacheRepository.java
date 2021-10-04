@@ -25,9 +25,9 @@ public interface ICacheRepository<T> {
 
     T findItem(String id) throws CacheException;
 
-    Map<String, T> findAllItems() throws CacheException;
+    Map<String, T> findAllItems(String projectId) throws CacheException;
 
-    Map<String, T> findAllItems(Map<String, Object[]> queryParams) throws CacheException;
+    Map<String, T> findAllItems(String projectId, Map<String, Object[]> queryParams) throws CacheException;
 
     void addItem(T newItem) throws CacheException;
 
