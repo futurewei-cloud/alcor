@@ -38,7 +38,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @Repository
-public class SubnetRepository implements ICacheRepository<SubnetEntity> {
+public class SubnetRepository {
 
     private static final Logger logger = LoggerFactory.getLogger();
 
@@ -58,7 +58,6 @@ public class SubnetRepository implements ICacheRepository<SubnetEntity> {
         logger.log(Level.INFO, "SubnetRepository init completed");
     }
 
-    @Override
     @DurationStatistics
     public SubnetEntity findItem(String id) throws CacheException {
         String projectId = subnetIdProjectIdCache.get(id);
@@ -67,7 +66,6 @@ public class SubnetRepository implements ICacheRepository<SubnetEntity> {
         return cache.get(id);
     }
 
-    @Override
     @DurationStatistics
     public Map<String, SubnetEntity> findAllItems(String projectId) throws CacheException {
         CacheConfiguration cfg = CommonUtil.getCacheConfiguration(projectId);
@@ -75,7 +73,6 @@ public class SubnetRepository implements ICacheRepository<SubnetEntity> {
         return cache.getAll();
     }
 
-    @Override
     @DurationStatistics
     public Map<String, SubnetEntity> findAllItems(String projectId, Map<String, Object[]> queryParams) throws CacheException {
         CacheConfiguration cfg = CommonUtil.getCacheConfiguration(projectId);
@@ -83,7 +80,6 @@ public class SubnetRepository implements ICacheRepository<SubnetEntity> {
         return cache.getAll();
     }
 
-    @Override
     @DurationStatistics
     public void addItem(SubnetEntity subnet) throws CacheException {
         logger.log(Level.INFO, "Add subnet, subnet Id:" + subnet.getId());
@@ -93,7 +89,6 @@ public class SubnetRepository implements ICacheRepository<SubnetEntity> {
         cache.put(subnet.getId(), subnet);
     }
 
-    @Override
     @DurationStatistics
     public void addItems(List<SubnetEntity> items) throws CacheException {
         logger.log(Level.INFO, "Add subnet batch: {}",items);
@@ -103,7 +98,6 @@ public class SubnetRepository implements ICacheRepository<SubnetEntity> {
         cache.putAll(subnetEntityMap);
     }
 
-    @Override
     @DurationStatistics
     public void deleteItem(String id) throws CacheException {
         logger.log(Level.INFO, "Delete subnet, subnet Id:" + id);
