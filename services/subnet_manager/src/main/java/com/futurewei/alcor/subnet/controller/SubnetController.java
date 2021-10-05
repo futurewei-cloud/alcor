@@ -39,6 +39,10 @@ import com.futurewei.alcor.web.entity.vpc.VpcWebJson;
 import com.futurewei.alcor.web.json.annotation.FieldFilter;
 import com.futurewei.alcor.web.rbac.aspect.Rbac;
 import com.google.common.base.Preconditions;
+import io.opentracing.Scope;
+import io.opentracing.Span;
+import io.opentracing.Tracer;
+import io.opentracing.contrib.tracerresolver.TracerResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -68,6 +72,8 @@ public class SubnetController {
     private HttpServletRequest request;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private static final Tracer tracer = TracerResolver.resolveTracer();
 
     @Autowired
     private SubnetDatabaseService subnetDatabaseService;
@@ -216,21 +222,33 @@ public class SubnetController {
             // check if cidr overlap
             this.subnetService.checkIfCidrOverlap(cidr, projectId, vpcId);
 
+            Span pSpan = tracer.activeSpan();
+            Span span;
+            if (pSpan != null) {
+                span = tracer.buildSpan("alcor-port-async").asChildOf(pSpan.context()).start();
+            } else {
+                span = tracer.buildSpan("alcor-port-async").start();
+            }
+
             // Verify VPC ID
             CompletableFuture<VpcWebJson> vpcFuture = CompletableFuture.supplyAsync(() -> {
-                try {
-                    return this.subnetService.verifyVpcId(projectId, vpcId);
-                } catch (Exception e) {
-                    throw new CompletionException(e);
+                try (Scope cscope = tracer.scopeManager().activate(span)) {
+                    try {
+                        return this.subnetService.verifyVpcId(projectId, vpcId);
+                    } catch (Exception e) {
+                        throw new CompletionException(e);
+                    }
                 }
             }, ThreadPoolExecutorUtils.SELECT_POOL_EXECUTOR);
 
             // Verify/Allocate Gateway IP
             CompletableFuture<String> ipFuture = CompletableFuture.supplyAsync(() -> {
-                try {
-                    return this.subnetService.allocateIpRange(subnetId, cidr, vpcId);
-                } catch (Exception e) {
-                    throw new CompletionException(e);
+                try (Scope cscope = tracer.scopeManager().activate(span)) {
+                    try {
+                        return this.subnetService.allocateIpRange(subnetId, cidr, vpcId);
+                    } catch (Exception e) {
+                        throw new CompletionException(e);
+                    }
                 }
             }, ThreadPoolExecutorUtils.SELECT_POOL_EXECUTOR).handle((s, e) -> {
                 ipResponseAtomic.set(s);
@@ -241,7 +259,7 @@ public class SubnetController {
             });
 
             // Synchronous blocking
-            CompletableFuture<Void> allFuture = CompletableFuture.allOf(vpcFuture, ipFuture);
+            CompletableFuture<Void> allFuture = CompletableFuture.allOf(vpcFuture, ipFuture).thenRun(span::finish);
             allFuture.join();
 
             logger.info("Total processing time:" + (System.currentTimeMillis() - start) + "ms");
