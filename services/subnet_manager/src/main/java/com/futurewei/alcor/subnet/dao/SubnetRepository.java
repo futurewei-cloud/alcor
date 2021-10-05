@@ -65,8 +65,7 @@ public class SubnetRepository {
     public SubnetEntity findItem(String id) throws CacheException {
         String projectId = subnetIdProjectIdCache.get(id);
         if (!subnetCache.containsKey(projectId)) {
-            CacheConfiguration cfg = CommonUtil.getCacheConfiguration(projectId);
-            ICache<String, SubnetEntity> cache = cacheFactory.getCache(SubnetEntity.class, cfg);
+            ICache<String, SubnetEntity> cache = cacheFactory.getCache(SubnetEntity.class, projectId);
             subnetCache.put(projectId, cache);
         }
 
@@ -76,8 +75,7 @@ public class SubnetRepository {
     @DurationStatistics
     public Map<String, SubnetEntity> findAllItems(String projectId) throws CacheException {
         if (!subnetCache.containsKey(projectId)) {
-            CacheConfiguration cfg = CommonUtil.getCacheConfiguration(projectId);
-            ICache<String, SubnetEntity> cache = cacheFactory.getCache(SubnetEntity.class, cfg);
+            ICache<String, SubnetEntity> cache = cacheFactory.getCache(SubnetEntity.class, projectId);
             subnetCache.put(projectId, cache);
         }
         return subnetCache.get(projectId).getAll();
@@ -86,8 +84,7 @@ public class SubnetRepository {
     @DurationStatistics
     public Map<String, SubnetEntity> findAllItems(String projectId, Map<String, Object[]> queryParams) throws CacheException {
         if (!subnetCache.containsKey(projectId)) {
-            CacheConfiguration cfg = CommonUtil.getCacheConfiguration(projectId);
-            ICache<String, SubnetEntity> cache = cacheFactory.getCache(SubnetEntity.class, cfg);
+            ICache<String, SubnetEntity> cache = cacheFactory.getCache(SubnetEntity.class, projectId);
             subnetCache.put(projectId, cache);
         }
         return subnetCache.get(projectId).getAll(queryParams);
@@ -99,8 +96,7 @@ public class SubnetRepository {
         String projectId = subnet.getProjectId();
         subnetIdProjectIdCache.put(subnet.getId(), projectId);
         if (!subnetCache.containsKey(projectId)) {
-            CacheConfiguration cfg = CommonUtil.getCacheConfiguration(projectId);
-            ICache<String, SubnetEntity> cache = cacheFactory.getCache(SubnetEntity.class, cfg);
+            ICache<String, SubnetEntity> cache = cacheFactory.getCache(SubnetEntity.class, projectId);
             subnetCache.put(projectId, cache);
         }
         subnetCache.get(projectId).put(subnet.getId(), subnet);
@@ -118,8 +114,7 @@ public class SubnetRepository {
         });
         String projectId = items.get(0).getProjectId();
         if (!subnetCache.containsKey(projectId)) {
-            CacheConfiguration cfg = CommonUtil.getCacheConfiguration(projectId);
-            ICache<String, SubnetEntity> cache = cacheFactory.getCache(SubnetEntity.class, cfg);
+            ICache<String, SubnetEntity> cache = cacheFactory.getCache(SubnetEntity.class, projectId);
             subnetCache.put(projectId, cache);
         }
         Map<String, SubnetEntity> subnetEntityMap = items.stream().collect(Collectors.toMap(SubnetEntity::getId, Function.identity()));
@@ -131,8 +126,7 @@ public class SubnetRepository {
         logger.log(Level.INFO, "Delete subnet, subnet Id:" + id);
         String projectId = subnetIdProjectIdCache.get(id);
         if (!subnetCache.containsKey(projectId)) {
-            CacheConfiguration cfg = CommonUtil.getCacheConfiguration(projectId);
-            ICache<String, SubnetEntity> cache = cacheFactory.getCache(SubnetEntity.class, cfg);
+            ICache<String, SubnetEntity> cache = cacheFactory.getCache(SubnetEntity.class, projectId);
             subnetCache.put(projectId, cache);
         }
         subnetCache.get(projectId).remove(id);
