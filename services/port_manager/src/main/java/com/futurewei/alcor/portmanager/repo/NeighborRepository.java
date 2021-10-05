@@ -109,12 +109,13 @@ public class NeighborRepository {
     @DurationStatistics
     public Map<String, NeighborInfo> getNeighbors(String vpcId) throws CacheException {
         Map<String, NeighborInfo> neighbors = new HashMap<>();
-
-        Set<String> neighborIps = vpcCache.get(vpcId);
-
-        for (String neighborIp : neighborIps) {
-            neighbors.put(neighborIp, neighborCache.get(neighborIp));
+        if (vpcCache.containsKey(vpcId)) {
+            Set<String> neighborIps = vpcCache.get(vpcId);
+            for (String neighborIp : neighborIps) {
+                neighbors.put(neighborIp, neighborCache.get(neighborIp));
+            }
         }
+
         return neighbors;
     }
 }

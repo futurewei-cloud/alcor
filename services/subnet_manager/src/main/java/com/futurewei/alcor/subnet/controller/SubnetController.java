@@ -43,6 +43,7 @@ import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.tracerresolver.TracerResolver;
+import io.opentracing.util.GlobalTracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -73,7 +74,7 @@ public class SubnetController {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static final Tracer tracer = TracerResolver.resolveTracer();
+    private static final Tracer tracer = GlobalTracer.get();
 
     @Autowired
     private SubnetDatabaseService subnetDatabaseService;
