@@ -105,25 +105,25 @@ public class VpcRepository implements IVpcRepository<VpcEntity> {
 
     @Override
     @DurationStatistics
-    public Set<String> getSubnetIds(String vpcId) throws CacheException {
-        CacheConfiguration cfg = CommonUtil.getCacheConfiguration(vpcId);
+    public Set<String> getSubnetIds(String projectId, String vpcId) throws CacheException {
+        CacheConfiguration cfg = CommonUtil.getCacheConfiguration(projectId);
         cfg.setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL);
         ICache<String, String> subnetCache = cacheFactory.getCache(String.class, cfg);
-        return subnetCache.getAll().keySet();
+        return subnetCache.getAll().entrySet().stream().filter(item -> item.getValue().equals(vpcId)).map(Map.Entry::getValue).collect(Collectors.toSet());
     }
 
     @Override
     @DurationStatistics
-    public void addSubnetId(String vpcId, String subnetId) throws CacheException {
-        CacheConfiguration cfg = CommonUtil.getCacheConfiguration(vpcId);
+    public void addSubnetId(String projectId, String vpcId, String subnetId) throws CacheException {
+        CacheConfiguration cfg = CommonUtil.getCacheConfiguration(projectId);
         ICache<String, String> subnetCache = cacheFactory.getCache(String.class, cfg);
         subnetCache.put(subnetId, vpcId);
     }
 
     @Override
     @DurationStatistics
-    public void deleteSubnetId(String vpcId, String subnetId) throws CacheException {
-        CacheConfiguration cfg = CommonUtil.getCacheConfiguration(vpcId);
+    public void deleteSubnetId(String projectId, String vpcId, String subnetId) throws CacheException {
+        CacheConfiguration cfg = CommonUtil.getCacheConfiguration(projectId);
         ICache<String, String> subnetCache = cacheFactory.getCache(String.class, cfg);
         subnetCache.remove(subnetId);
 

@@ -34,8 +34,8 @@ public interface VpcDatabaseService {
     public void addVpc (VpcEntity vpcState) throws DatabasePersistenceException;
     public void deleteVpc (String id) throws CacheException;
     public ICache<String, VpcEntity> getCache ();
-    public Set<String> getSubnetIds(String vpcId) throws CacheException;
-    public void addSubnetId(String vpcId, String subnetId) throws CacheException;
-    public void deleteSubnetId(String vpcId, String subnetId) throws CacheException;
+    public Set<String> getSubnetIds(String projectId, String vpcId) throws CacheException;
+    public void addSubnetId(String projectId, String vpcId, String subnetId) throws CacheException;
+    public void deleteSubnetId(String projectId, String vpcId, String subnetId) throws CacheException;
 
 }
