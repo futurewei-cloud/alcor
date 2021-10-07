@@ -111,7 +111,8 @@ public class VpcRepository implements IVpcRepository<VpcEntity> {
     @DurationStatistics
     public Set<String> getSubnetIds(String projectId, String vpcId) throws CacheException {
         ICache<String, String> subnetCache = cacheFactory.getCache(String.class, getVpcSubnetIdsCache(projectId));
-        return subnetCache.getAll().entrySet().stream().filter(item -> item.getValue().equals(vpcId)).map(Map.Entry::getValue).collect(Collectors.toSet());
+        Map<String, String> subnetIds = subnetCache.getAll();
+        return subnetIds.entrySet().stream().filter(item -> item.getValue().equals(vpcId)).map(Map.Entry::getKey).collect(Collectors.toSet());
     }
 
     @Override
