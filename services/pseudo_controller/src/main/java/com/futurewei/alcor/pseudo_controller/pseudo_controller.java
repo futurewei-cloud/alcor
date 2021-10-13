@@ -516,7 +516,7 @@ public class pseudo_controller {
 
         concurrent_create_containers_thread_pool.shutdown();
         try {
-            if (!concurrent_create_containers_thread_pool.awaitTermination(60, TimeUnit.SECONDS)) {
+            if (!concurrent_create_containers_thread_pool.awaitTermination(600, TimeUnit.SECONDS)) {
                 concurrent_create_containers_thread_pool.shutdownNow();
             }
         } catch (InterruptedException e) {
