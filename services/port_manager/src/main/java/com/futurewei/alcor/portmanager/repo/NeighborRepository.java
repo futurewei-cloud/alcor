@@ -55,8 +55,7 @@ public class NeighborRepository {
             for (Map.Entry<String, List<NeighborInfo>> entry : neighbors.entrySet()) {
                 Map<String, NeighborInfo> neighborMap = entry.getValue()
                         .stream()
-                        .collect(Collectors.toMap(NeighborInfo::getPortIp, Function.identity()));
-
+                        .collect(Collectors.toMap(neighbor -> neighbor.getVpcId() + "/" + neighbor.getPortIp(), Function.identity()));
                 neighborCache.putAll(neighborMap);
                 neighborMap.entrySet().forEach(item -> {
                     try {
@@ -74,13 +73,14 @@ public class NeighborRepository {
 
     public void updateNeighbors(PortEntity oldPortEntity, List<NeighborInfo> newNeighbors) throws Exception {
         //Delete old neighborInfos
+        String vpcId = oldPortEntity.getVpcId();
         if (oldPortEntity.getFixedIps() != null) {
             List<String> oldPortIps = oldPortEntity.getFixedIps().stream()
                     .map(PortEntity.FixedIp::getIpAddress)
                     .collect(Collectors.toList());
 
             for (String oldPortIp: oldPortIps) {
-                neighborCache.remove(oldPortIp);
+                neighborCache.remove(vpcId + "/" + oldPortIp);
             }
         }
 
@@ -88,19 +88,20 @@ public class NeighborRepository {
         if (newNeighbors != null) {
             Map<String, NeighborInfo> neighborMap = newNeighbors
                     .stream()
-                    .collect(Collectors.toMap(NeighborInfo::getPortIp, Function.identity()));
+                    .collect(Collectors.toMap(neighbor -> neighbor.getVpcId() + "/" + neighbor.getPortIp(), Function.identity()));
             neighborCache.putAll(neighborMap);
         }
     }
 
     public void deleteNeighbors(PortEntity portEntity) throws Exception {
+        String vpcId = portEntity.getVpcId();
         if (portEntity.getFixedIps() != null) {
             List<String> oldPortIps = portEntity.getFixedIps().stream()
                     .map(PortEntity.FixedIp::getIpAddress)
                     .collect(Collectors.toList());
             //Delete old neighborInfos
             for (String oldPortIp: oldPortIps) {
-                neighborCache.remove(oldPortIp);
+                neighborCache.remove(vpcId + "/" + oldPortIp);
             }
         }
     }
