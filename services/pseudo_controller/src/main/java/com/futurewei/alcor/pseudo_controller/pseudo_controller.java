@@ -196,58 +196,58 @@ public class pseudo_controller {
             }
             System.out.println("Finished port state for port [" + port_ip + "] on host: [" + host_ip + "]");
         }
-        Router.RouterState.Builder router_state_builder = Router.RouterState.newBuilder();
-
-        Router.RouterConfiguration.Builder router_configuration_builder = Router.RouterConfiguration.newBuilder();
-
-        Router.RouterConfiguration.RoutingRule.Builder router_rule_builder = Router.RouterConfiguration.RoutingRule.newBuilder();
-
-        Router.RouterConfiguration.RoutingRuleExtraInfo.Builder routing_rule_extra_info_builder = Router.RouterConfiguration.RoutingRuleExtraInfo.newBuilder();
-
-        routing_rule_extra_info_builder
-                .setDestinationType(Router.DestinationType.VPC_GW)
-                .setNextHopMac("6c:dd:ee:0:0:40");
-
-        router_rule_builder
-                .setId("tc_sample_routing_rule")
-                .setName("tc_sample_routing_rule")
-                .setDestination("10.0.0.0/24")
-                .setNextHopIp(aca_node_one_ip)
-                .setPriority(999)
-                .setRoutingRuleExtraInfo(routing_rule_extra_info_builder.build());
-
-        Router.RouterConfiguration.SubnetRoutingTable.Builder subnet_routing_table_builder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
-        subnet_routing_table_builder
-                .setSubnetId(subnet_id_1)
-                .addRoutingRules(router_rule_builder.build());
-
-        Router.RouterConfiguration.SubnetRoutingTable.Builder subnet_routing_table_builder_two = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
-        subnet_routing_table_builder_two
-                .setSubnetId(subnet_id_2)
-                .addRoutingRules(router_rule_builder.build());
-
-        router_configuration_builder
-                .setRevisionNumber(777)
-                .setRequestId("tc_sample_routing_rule"+"_rs")
-                .setId("tc_sample_routing_rule"+"_r")
-                .setUpdateType(Common.UpdateType.FULL)
-                .setHostDvrMacAddress("6c:dd:ee:0:0:40")
-                .addSubnetRoutingTables(subnet_routing_table_builder.build())
-                .addSubnetRoutingTables(subnet_routing_table_builder_two.build());
-
-        router_state_builder
-                .setOperationType(Common.OperationType.INFO)
-                .setConfiguration(router_configuration_builder.build());
-        Router.RouterState router_state = router_state_builder.build();
-
-        GoalState_builder_two.putRouterStates(router_state.getConfiguration().getId(), router_state);
-        GoalState_builder_one.putRouterStates(router_state.getConfiguration().getId(), router_state);
-        Goalstate.ResourceIdType resource_id_type_router_node_two = Goalstate.ResourceIdType.newBuilder().
-                setType(Common.ResourceType.ROUTER)
-                .setId(router_state.getConfiguration().getId())
-                .build();
-        host_resource_builder_node_two.addResources(resource_id_type_router_node_two);
-        host_resource_builder_node_one.addResources(resource_id_type_router_node_two);
+//        Router.RouterState.Builder router_state_builder = Router.RouterState.newBuilder();
+//
+//        Router.RouterConfiguration.Builder router_configuration_builder = Router.RouterConfiguration.newBuilder();
+//
+//        Router.RouterConfiguration.RoutingRule.Builder router_rule_builder = Router.RouterConfiguration.RoutingRule.newBuilder();
+//
+//        Router.RouterConfiguration.RoutingRuleExtraInfo.Builder routing_rule_extra_info_builder = Router.RouterConfiguration.RoutingRuleExtraInfo.newBuilder();
+//
+//        routing_rule_extra_info_builder
+//                .setDestinationType(Router.DestinationType.VPC_GW)
+//                .setNextHopMac("6c:dd:ee:0:0:40");
+//
+//        router_rule_builder
+//                .setId("tc_sample_routing_rule")
+//                .setName("tc_sample_routing_rule")
+//                .setDestination("10.0.0.0/24")
+//                .setNextHopIp(aca_node_one_ip)
+//                .setPriority(999)
+//                .setRoutingRuleExtraInfo(routing_rule_extra_info_builder.build());
+//
+//        Router.RouterConfiguration.SubnetRoutingTable.Builder subnet_routing_table_builder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
+//        subnet_routing_table_builder
+//                .setSubnetId(subnet_id_1)
+//                .addRoutingRules(router_rule_builder.build());
+//
+//        Router.RouterConfiguration.SubnetRoutingTable.Builder subnet_routing_table_builder_two = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
+//        subnet_routing_table_builder_two
+//                .setSubnetId(subnet_id_2)
+//                .addRoutingRules(router_rule_builder.build());
+//
+//        router_configuration_builder
+//                .setRevisionNumber(777)
+//                .setRequestId("tc_sample_routing_rule"+"_rs")
+//                .setId("tc_sample_routing_rule"+"_r")
+//                .setUpdateType(Common.UpdateType.FULL)
+//                .setHostDvrMacAddress("6c:dd:ee:0:0:40")
+//                .addSubnetRoutingTables(subnet_routing_table_builder.build())
+//                .addSubnetRoutingTables(subnet_routing_table_builder_two.build());
+//
+//        router_state_builder
+//                .setOperationType(Common.OperationType.INFO)
+//                .setConfiguration(router_configuration_builder.build());
+//        Router.RouterState router_state = router_state_builder.build();
+//
+//        GoalState_builder_two.putRouterStates(router_state.getConfiguration().getId(), router_state);
+//        GoalState_builder_one.putRouterStates(router_state.getConfiguration().getId(), router_state);
+//        Goalstate.ResourceIdType resource_id_type_router_node_two = Goalstate.ResourceIdType.newBuilder().
+//                setType(Common.ResourceType.ROUTER)
+//                .setId(router_state.getConfiguration().getId())
+//                .build();
+//        host_resource_builder_node_two.addResources(resource_id_type_router_node_two);
+//        host_resource_builder_node_one.addResources(resource_id_type_router_node_two);
         // fill in subnet state structs
         Subnet.SubnetState.Builder new_subnet_states = Subnet.SubnetState.newBuilder();
 
@@ -267,22 +267,22 @@ public class pseudo_controller {
         Subnet.SubnetState subnet_state_for_both_nodes = new_subnet_states.build();
 
         // fill in subnet state structs
-        Subnet.SubnetState.Builder new_subnet_states_two = Subnet.SubnetState.newBuilder();
-
-        new_subnet_states_two.setOperationType(Common.OperationType.INFO);
-
-        Subnet.SubnetConfiguration.Builder subnet_configuration_builder_two = Subnet.SubnetConfiguration.newBuilder();
-
-        subnet_configuration_builder_two.setRevisionNumber(2);
-        subnet_configuration_builder_two.setVpcId(vpc_id_1);
-        subnet_configuration_builder_two.setId(subnet_id_2);
-        subnet_configuration_builder_two.setCidr("10.0.0.0/24");
-        subnet_configuration_builder_two.setTunnelId(22);
-        subnet_configuration_builder_two.setGateway(Subnet.SubnetConfiguration.Gateway.newBuilder().setIpAddress("0.0.0.1").setMacAddress("6c:dd:ee:0:0:41").build());
-
-        new_subnet_states_two.setConfiguration(subnet_configuration_builder_two.build());
-
-        Subnet.SubnetState subnet_state_for_both_nodes_two = new_subnet_states_two.build();
+//        Subnet.SubnetState.Builder new_subnet_states_two = Subnet.SubnetState.newBuilder();
+//
+//        new_subnet_states_two.setOperationType(Common.OperationType.INFO);
+//
+//        Subnet.SubnetConfiguration.Builder subnet_configuration_builder_two = Subnet.SubnetConfiguration.newBuilder();
+//
+//        subnet_configuration_builder_two.setRevisionNumber(2);
+//        subnet_configuration_builder_two.setVpcId(vpc_id_1);
+//        subnet_configuration_builder_two.setId(subnet_id_2);
+//        subnet_configuration_builder_two.setCidr("10.0.0.0/24");
+//        subnet_configuration_builder_two.setTunnelId(22);
+//        subnet_configuration_builder_two.setGateway(Subnet.SubnetConfiguration.Gateway.newBuilder().setIpAddress("0.0.0.1").setMacAddress("6c:dd:ee:0:0:41").build());
+//
+//        new_subnet_states_two.setConfiguration(subnet_configuration_builder_two.build());
+//
+//        Subnet.SubnetState subnet_state_for_both_nodes_two = new_subnet_states_two.build();
 
         // put the new subnet state of subnet 1 into the goalstatev2
 
@@ -302,24 +302,24 @@ public class pseudo_controller {
         Vpc.VpcState vpc_state_for_both_nodes = new_vpc_states.build();
 
         GoalState_builder_one.putSubnetStates(subnet_state_for_both_nodes.getConfiguration().getId(), subnet_state_for_both_nodes);
-        GoalState_builder_one.putSubnetStates(subnet_state_for_both_nodes_two.getConfiguration().getId(), subnet_state_for_both_nodes_two);
+//        GoalState_builder_one.putSubnetStates(subnet_state_for_both_nodes_two.getConfiguration().getId(), subnet_state_for_both_nodes_two);
         GoalState_builder_two.putSubnetStates(subnet_state_for_both_nodes.getConfiguration().getId(), subnet_state_for_both_nodes);
-        GoalState_builder_two.putSubnetStates(subnet_state_for_both_nodes_two.getConfiguration().getId(), subnet_state_for_both_nodes_two);
+//        GoalState_builder_two.putSubnetStates(subnet_state_for_both_nodes_two.getConfiguration().getId(), subnet_state_for_both_nodes_two);
         GoalState_builder_one.putVpcStates(vpc_state_for_both_nodes.getConfiguration().getId(), vpc_state_for_both_nodes);
         GoalState_builder_two.putVpcStates(vpc_state_for_both_nodes.getConfiguration().getId(), vpc_state_for_both_nodes);
 
         Goalstate.ResourceIdType subnet_resource_id_type = Goalstate.ResourceIdType.newBuilder()
                 .setType(Common.ResourceType.SUBNET).setId(subnet_state_for_both_nodes.getConfiguration().getId()).build();
-        Goalstate.ResourceIdType subnet_resource_id_type_two = Goalstate.ResourceIdType.newBuilder()
-                .setType(Common.ResourceType.SUBNET).setId(subnet_state_for_both_nodes_two.getConfiguration().getId()).build();
+//        Goalstate.ResourceIdType subnet_resource_id_type_two = Goalstate.ResourceIdType.newBuilder()
+//                .setType(Common.ResourceType.SUBNET).setId(subnet_state_for_both_nodes_two.getConfiguration().getId()).build();
 
         Goalstate.ResourceIdType vpc_resource_id_type = Goalstate.ResourceIdType.newBuilder().setType(Common.ResourceType.VPC).setId(vpc_state_for_both_nodes.getConfiguration().getId()).build();
         host_resource_builder_node_one.addResources(subnet_resource_id_type);
         host_resource_builder_node_two.addResources(subnet_resource_id_type);
         host_resource_builder_node_one_port_one_neighbor.addResources(subnet_resource_id_type);
-        host_resource_builder_node_one.addResources(subnet_resource_id_type_two);
-        host_resource_builder_node_two.addResources(subnet_resource_id_type_two);
-        host_resource_builder_node_one_port_one_neighbor.addResources(subnet_resource_id_type_two);
+//        host_resource_builder_node_one.addResources(subnet_resource_id_type_two);
+//        host_resource_builder_node_two.addResources(subnet_resource_id_type_two);
+//        host_resource_builder_node_one_port_one_neighbor.addResources(subnet_resource_id_type_two);
         host_resource_builder_node_one.addResources(vpc_resource_id_type);
         host_resource_builder_node_two.addResources(vpc_resource_id_type);
         host_resource_builder_node_one_port_one_neighbor.addResources(vpc_resource_id_type);
@@ -512,6 +512,7 @@ public class pseudo_controller {
             }
             i++;
         }
+
 
         concurrent_create_containers_thread_pool.shutdown();
         try {
