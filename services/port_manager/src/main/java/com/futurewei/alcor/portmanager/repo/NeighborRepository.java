@@ -28,9 +28,7 @@ import org.apache.ignite.configuration.CacheConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -58,11 +56,12 @@ public class NeighborRepository {
                 Map<String, NeighborInfo> neighborMap = entry.getValue()
                         .stream()
                         .collect(Collectors.toMap(neighbor -> neighbor.getVpcId() + "/" + neighbor.getPortIp(), Function.identity()));
-
+                vpcIdProjectId.put(entry.getKey(), projectId);
+                SortedMap neighborsortMap = new TreeMap(neighborMap);
                 CacheConfiguration cfg = CommonUtil.getCacheConfiguration(getNeighborCacheName(projectId));
                 ICache<String, NeighborInfo> neighborCache = cacheFactory.getCache(NeighborInfo.class, cfg);
-                neighborCache.putAll(neighborMap);
-                vpcIdProjectId.put(entry.getKey(), projectId);
+                neighborCache.putAll(neighborsortMap);
+
             }
         }
     }
@@ -89,7 +88,8 @@ public class NeighborRepository {
             Map<String, NeighborInfo> neighborMap = newNeighbors
                     .stream()
                     .collect(Collectors.toMap(neighbor -> neighbor.getVpcId() + "/" + neighbor.getPortIp(), Function.identity()));
-            neighborCache.putAll(neighborMap);
+            SortedMap neighborsortMap = new TreeMap(neighborMap);
+            neighborCache.putAll(neighborsortMap);
         }
     }
 
