@@ -269,7 +269,7 @@ public class PortRepository {
                     .stream()
                     .collect(Collectors.toMap(PortEntity::getId, Function.identity()));
             portCache.putAll(portEntityMap);
-            neighborRepository.createNeighbors(neighbors);
+            neighborRepository.createNeighbors(portEntities.get(0).getProjectId(), neighbors);
             subnetPortsRepository.addSubnetPortIds(portEntities);
             tx.commit();
         }
