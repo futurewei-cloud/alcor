@@ -56,7 +56,6 @@ public class NeighborRepository {
                 Map<String, NeighborInfo> neighborMap = entry.getValue()
                         .stream()
                         .collect(Collectors.toMap(neighbor -> neighbor.getVpcId() + "/" + neighbor.getPortIp(), Function.identity()));
-                vpcIdProjectId.put(entry.getKey(), projectId);
                 SortedMap neighborsortMap = new TreeMap(neighborMap);
                 CacheConfiguration cfg = CommonUtil.getCacheConfiguration(getNeighborCacheName(projectId));
                 ICache<String, NeighborInfo> neighborCache = cacheFactory.getCache(NeighborInfo.class, cfg);
@@ -112,7 +111,15 @@ public class NeighborRepository {
     }
 
     @DurationStatistics
+    public void addProject(String projectId, String vpcId) throws CacheException {
+        vpcIdProjectId.put(vpcId, projectId);
+    }
+
+    @DurationStatistics
     public Map<String, NeighborInfo> getNeighbors(String vpcId) throws CacheException {
+        if (!vpcIdProjectId.containsKey(vpcId)) {
+            return new HashMap<>();
+        }
         String projectId = vpcIdProjectId.get(vpcId);
         CacheConfiguration cfg = CommonUtil.getCacheConfiguration(getNeighborCacheName(projectId));
         ICache<String, NeighborInfo> neighborCache = this.cacheFactory.getCache(
