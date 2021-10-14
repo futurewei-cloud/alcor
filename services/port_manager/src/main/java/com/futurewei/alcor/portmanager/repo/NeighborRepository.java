@@ -128,6 +128,6 @@ public class NeighborRepository {
         Object[] value = new Object[1];
         value[0] = vpcId;
         queryParams.put("vpcId", value);
-        return neighborCache.getAll(queryParams);
+        return neighborCache.getAll(queryParams).values().stream().collect(Collectors.toMap(neighbor -> neighbor.getPortIp(), Function.identity()));
     }
 }
