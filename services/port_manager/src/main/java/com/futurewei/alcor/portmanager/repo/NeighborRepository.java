@@ -51,15 +51,15 @@ public class NeighborRepository {
     }
 
     public void createNeighbors(String projectId, Map<String, List<NeighborInfo>> neighbors) throws Exception {
+        System.out.println("ProjectId: " + projectId);
         if (neighbors != null) {
             for (Map.Entry<String, List<NeighborInfo>> entry : neighbors.entrySet()) {
                 Map<String, NeighborInfo> neighborMap = entry.getValue()
                         .stream()
                         .collect(Collectors.toMap(neighbor -> neighbor.getVpcId() + "/" + neighbor.getPortIp(), Function.identity()));
-                SortedMap neighborsortMap = new TreeMap(neighborMap);
                 CacheConfiguration cfg = CommonUtil.getCacheConfiguration(getNeighborCacheName(projectId));
                 ICache<String, NeighborInfo> neighborCache = cacheFactory.getCache(NeighborInfo.class, cfg);
-                neighborCache.putAll(neighborsortMap);
+                neighborCache.putAll(neighborMap);
 
             }
         }
@@ -87,8 +87,7 @@ public class NeighborRepository {
             Map<String, NeighborInfo> neighborMap = newNeighbors
                     .stream()
                     .collect(Collectors.toMap(neighbor -> neighbor.getVpcId() + "/" + neighbor.getPortIp(), Function.identity()));
-            SortedMap neighborsortMap = new TreeMap(neighborMap);
-            neighborCache.putAll(neighborsortMap);
+            neighborCache.putAll(neighborMap);
         }
     }
 
@@ -128,6 +127,8 @@ public class NeighborRepository {
         Object[] value = new Object[1];
         value[0] = vpcId;
         queryParams.put("vpcId", value);
-        return neighborCache.getAll(queryParams).values().stream().collect(Collectors.toMap(neighbor -> neighbor.getPortIp(), Function.identity()));
+        Collection<NeighborInfo> neiborinfo = neighborCache.getAll(queryParams).values();
+        neiborinfo.forEach(item -> System.out.println("Neighbor info: " + item.getPortIp()));
+        return neiborinfo.stream().collect(Collectors.toMap(neighbor -> neighbor.getPortIp(), Function.identity()));
     }
 }
