@@ -51,7 +51,6 @@ public class NeighborRepository {
     }
 
     public void createNeighbors(String projectId, Map<String, List<NeighborInfo>> neighbors) throws Exception {
-        System.out.println("ProjectId: " + projectId);
         if (neighbors != null) {
             for (Map.Entry<String, List<NeighborInfo>> entry : neighbors.entrySet()) {
                 Map<String, NeighborInfo> neighborMap = entry.getValue()
@@ -128,7 +127,6 @@ public class NeighborRepository {
         value[0] = vpcId;
         queryParams.put("vpcId", value);
         Collection<NeighborInfo> neiborinfo = neighborCache.getAll(queryParams).values();
-        neiborinfo.forEach(item -> System.out.println("Neighbor info: " + item.getPortIp()));
         return neiborinfo.stream().collect(Collectors.toMap(neighbor -> neighbor.getPortIp(), Function.identity()));
     }
 }
