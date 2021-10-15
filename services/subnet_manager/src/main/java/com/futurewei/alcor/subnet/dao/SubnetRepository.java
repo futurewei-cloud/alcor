@@ -82,7 +82,7 @@ public class SubnetRepository {
     }
 
     @DurationStatistics
-    public Map<String, SubnetEntity> findAllItems(String projectId, Map<String, Object[]> queryParams) throws CacheException {
+    public Map<String, SubnetEntity> findAllItemsWithParameter(String projectId, Map<String, Object[]> queryParams) throws CacheException {
         if (!subnetCache.containsKey(projectId)) {
             ICache<String, SubnetEntity> cache = cacheFactory.getCache(SubnetEntity.class, projectId);
             subnetCache.put(projectId, cache);
