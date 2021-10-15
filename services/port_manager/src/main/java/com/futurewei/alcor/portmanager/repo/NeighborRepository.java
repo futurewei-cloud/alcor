@@ -28,8 +28,7 @@ import org.apache.ignite.configuration.CacheConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -38,10 +37,12 @@ public class NeighborRepository {
     private static final String NEIGHBOR_CACHE_NAME_PREFIX = "neighborCache-";
 
     private ICache<String, PortNeighbors> neighborCache;
+    private ICache<String, String> vpcIdProjectId;
     private CacheFactory cacheFactory;
 
     public NeighborRepository(CacheFactory cacheFactory) {
         this.cacheFactory = cacheFactory;
+        this.vpcIdProjectId = cacheFactory.getCache(String.class);
         this.neighborCache= cacheFactory.getCache(PortNeighbors.class);
     }
 
@@ -49,22 +50,24 @@ public class NeighborRepository {
         return NEIGHBOR_CACHE_NAME_PREFIX + suffix;
     }
 
-    public void createNeighbors(Map<String, List<NeighborInfo>> neighbors) throws Exception {
+    public void createNeighbors(String projectId, Map<String, List<NeighborInfo>> neighbors) throws Exception {
+        System.out.println("ProjectId: " + projectId);
         if (neighbors != null) {
             for (Map.Entry<String, List<NeighborInfo>> entry : neighbors.entrySet()) {
                 Map<String, NeighborInfo> neighborMap = entry.getValue()
                         .stream()
-                        .collect(Collectors.toMap(NeighborInfo::getPortIp, Function.identity()));
-
-                CacheConfiguration cfg = CommonUtil.getCacheConfiguration(getNeighborCacheName(entry.getKey()));
+                        .collect(Collectors.toMap(neighbor -> neighbor.getVpcId() + "/" + neighbor.getPortIp(), Function.identity()));
+                CacheConfiguration cfg = CommonUtil.getCacheConfiguration(getNeighborCacheName(projectId));
                 ICache<String, NeighborInfo> neighborCache = cacheFactory.getCache(NeighborInfo.class, cfg);
                 neighborCache.putAll(neighborMap);
+
             }
         }
     }
 
     public void updateNeighbors(PortEntity oldPortEntity, List<NeighborInfo> newNeighbors) throws Exception {
-        CacheConfiguration cfg = CommonUtil.getCacheConfiguration(getNeighborCacheName(oldPortEntity.getVpcId()));
+        String vpcId = oldPortEntity.getVpcId();
+        CacheConfiguration cfg = CommonUtil.getCacheConfiguration(getNeighborCacheName(oldPortEntity.getProjectId()));
         ICache<String, NeighborInfo> neighborCache = this.cacheFactory.getCache(
                 NeighborInfo.class, cfg);
 
@@ -75,7 +78,7 @@ public class NeighborRepository {
                     .collect(Collectors.toList());
 
             for (String oldPortIp: oldPortIps) {
-                neighborCache.remove(oldPortIp);
+                neighborCache.remove(vpcId + "/" + oldPortIp);
             }
         }
 
@@ -83,35 +86,49 @@ public class NeighborRepository {
         if (newNeighbors != null) {
             Map<String, NeighborInfo> neighborMap = newNeighbors
                     .stream()
-                    .collect(Collectors.toMap(NeighborInfo::getPortIp, Function.identity()));
+                    .collect(Collectors.toMap(neighbor -> neighbor.getVpcId() + "/" + neighbor.getPortIp(), Function.identity()));
             neighborCache.putAll(neighborMap);
         }
     }
 
     public void deleteNeighbors(PortEntity portEntity) throws Exception {
         if (portEntity.getFixedIps() != null) {
+            String vpcId = portEntity.getVpcId();
             List<String> oldPortIps = portEntity.getFixedIps().stream()
                     .map(PortEntity.FixedIp::getIpAddress)
                     .collect(Collectors.toList());
 
-            CacheConfiguration cfg = new CacheConfiguration();
-            cfg.setName(getNeighborCacheName(portEntity.getVpcId()));
-            cfg.setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL);
+            CacheConfiguration cfg = CommonUtil.getCacheConfiguration(getNeighborCacheName(portEntity.getProjectId()));
             ICache<String, NeighborInfo> neighborCache = this.cacheFactory.getCache(
                     NeighborInfo.class, cfg);
 
             //Delete old neighborInfos
             for (String oldPortIp: oldPortIps) {
-                neighborCache.remove(oldPortIp);
+                neighborCache.remove(vpcId + "/" + oldPortIp);
             }
         }
     }
 
     @DurationStatistics
+    public void addProject(String projectId, String vpcId) throws CacheException {
+        vpcIdProjectId.put(vpcId, projectId);
+    }
+
+    @DurationStatistics
     public Map<String, NeighborInfo> getNeighbors(String vpcId) throws CacheException {
-        CacheConfiguration cfg = CommonUtil.getCacheConfiguration(getNeighborCacheName(vpcId));
+        if (!vpcIdProjectId.containsKey(vpcId)) {
+            return new HashMap<>();
+        }
+        String projectId = vpcIdProjectId.get(vpcId);
+        CacheConfiguration cfg = CommonUtil.getCacheConfiguration(getNeighborCacheName(projectId));
         ICache<String, NeighborInfo> neighborCache = this.cacheFactory.getCache(
                 NeighborInfo.class, cfg);
-        return neighborCache.getAll();
+        Map<String, Object[]> queryParams =  new HashMap<>();
+        Object[] value = new Object[1];
+        value[0] = vpcId;
+        queryParams.put("vpcId", value);
+        Collection<NeighborInfo> neiborinfo = neighborCache.getAll(queryParams).values();
+        neiborinfo.forEach(item -> System.out.println("Neighbor info: " + item.getPortIp()));
+        return neiborinfo.stream().collect(Collectors.toMap(neighbor -> neighbor.getPortIp(), Function.identity()));
     }
 }
