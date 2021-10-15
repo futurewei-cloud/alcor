@@ -44,14 +44,14 @@ public class SubnetDatabaseServiceImpl implements SubnetDatabaseService {
 
     @Override
     @DurationStatistics
-    public Map<String, SubnetEntity> getAllSubnets(String projectId) throws CacheException {
-        return this.subnetRepository.findAllItems(projectId);
+    public Map<String, SubnetEntity> getAllSubnets() throws CacheException {
+        return this.subnetRepository.findAllItems();
     }
 
     @Override
     @DurationStatistics
-    public Map<String, SubnetEntity> getAllSubnets(String projectId, Map<String, Object[]> queryParams) throws CacheException {
-        return this.subnetRepository.findAllItemsWithParameter(projectId, queryParams);
+    public Map<String, SubnetEntity> getAllSubnets(Map<String, Object[]> queryParams) throws CacheException {
+        return this.subnetRepository.findAllItems(queryParams);
     }
 
     @Override
