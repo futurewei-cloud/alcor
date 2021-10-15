@@ -264,19 +264,12 @@ public class PortRepository {
 
     @DurationStatistics
     public synchronized void createPortBulk(List<PortEntity> portEntities, Map<String, List<NeighborInfo>> neighbors) throws Exception {
-        portEntities.forEach(item -> {
-            try {
-                neighborRepository.addProject(item.getProjectId(), item.getVpcId());
-            } catch (CacheException e) {
-                e.printStackTrace();
-            }
-        });
         try (Transaction tx = portCache.getTransaction().start()) {
             Map<String, PortEntity> portEntityMap = portEntities
                     .stream()
                     .collect(Collectors.toMap(PortEntity::getId, Function.identity()));
             portCache.putAll(portEntityMap);
-            neighborRepository.createNeighbors(portEntities.get(0).getProjectId(), neighbors);
+            neighborRepository.createNeighbors(neighbors);
             subnetPortsRepository.addSubnetPortIds(portEntities);
             tx.commit();
         }
