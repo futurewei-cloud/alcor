@@ -74,10 +74,10 @@ public class DpmServiceImplV2 implements DpmService {
     private SubnetPortsCache subnetPortsCache;
 
     @Autowired
-    private DataPlaneClient<UnicastGoalStateV2, MulticastGoalStateV2> grpcDataPlaneClientV2;
+    private DataPlaneClient<UnicastGoalStateV2, MulticastGoalStateV2> grpcDataPlaneClient;
 
     @Autowired
-    private DataPlaneClient<UnicastGoalStateV2, MulticastGoalStateV2> pulsarDataPlaneClientV2;
+    private DataPlaneClient<UnicastGoalStateV2, MulticastGoalStateV2> pulsarDataPlaneClient;
 
     @Autowired
     private VpcService vpcService;
@@ -281,12 +281,12 @@ public class DpmServiceImplV2 implements DpmService {
 
         if (grpcHostPortEntities.size() != 0) {
             statusList.addAll(doCreatePortConfiguration(
-                    networkConfig, grpcHostPortEntities, grpcDataPlaneClientV2));
+                    networkConfig, grpcHostPortEntities, grpcDataPlaneClient));
         }
 
         if (pulsarHostPortEntities.size() != 0) {
             statusList.addAll(doCreatePortConfiguration(
-                    networkConfig, pulsarHostPortEntities, pulsarDataPlaneClientV2));
+                    networkConfig, pulsarHostPortEntities, pulsarDataPlaneClient));
         }
 
         localCache.updateLocalCache(networkConfig);
@@ -390,10 +390,10 @@ public class DpmServiceImplV2 implements DpmService {
 
 
         if (USE_PULSAR_CLIENT) {
-            return pulsarDataPlaneClientV2.sendGoalStates(unicastGoalStates, multicastGoalState);
+            return pulsarDataPlaneClient.sendGoalStates(unicastGoalStates, multicastGoalState);
         }
 
-        return grpcDataPlaneClientV2.sendGoalStates(unicastGoalStates, multicastGoalState);
+        return grpcDataPlaneClient.sendGoalStates(unicastGoalStates, multicastGoalState);
     }
 
     private List<String> processSecurityGroupConfiguration(NetworkConfiguration networkConfig) throws Exception {
@@ -465,7 +465,7 @@ public class DpmServiceImplV2 implements DpmService {
         //TODO: Merge UnicastGoalState with the same content, build MulticastGoalState
 
 //        return grpcDataPlaneClient.sendGoalStates(unicastGoalStates);
-        return grpcDataPlaneClientV2.sendGoalStates(null);
+        return grpcDataPlaneClient.sendGoalStates(null);
     }
 
     private InternalDPMResultList buildResult(NetworkConfiguration networkConfig, List<String> failedHosts, long startTime) {

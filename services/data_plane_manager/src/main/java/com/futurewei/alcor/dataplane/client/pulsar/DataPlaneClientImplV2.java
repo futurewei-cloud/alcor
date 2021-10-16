@@ -21,11 +21,13 @@ package com.futurewei.alcor.dataplane.client.pulsar;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalStateV2;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service("pulsarDataPlaneClientV2")
+@Service("pulsarDataPlaneClient")
+@ConditionalOnProperty(prefix = "protobuf.goal-state-message", name = "version", havingValue = "102")
 public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2, MulticastGoalStateV2> {
     @Override
     public List<String> sendGoalStates(List<UnicastGoalStateV2> unicastGoalStates) throws Exception {

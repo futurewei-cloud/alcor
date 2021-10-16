@@ -32,12 +32,14 @@ import io.grpc.stub.StreamObserver;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.*;
 
-@Service("grpcDataPlaneClientV2")
+@Service("grpcDataPlaneClient")
+@ConditionalOnProperty(prefix = "protobuf.goal-state-message", name = "version", havingValue = "102")
 public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2, MulticastGoalStateV2> {
 
     private static DataPlaneClientImplV2 instance = null;

@@ -29,6 +29,7 @@ import org.apache.pulsar.client.impl.schema.JSONSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -38,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service("pulsarDataPlaneClient")
+@ConditionalOnProperty(prefix = "protobuf.goal-state-message", name = "version", havingValue = "101")
 public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, MulticastGoalState> {
     private static final Logger LOG = LoggerFactory.getLogger(DataPlaneClientImpl.class);
 

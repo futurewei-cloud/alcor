@@ -30,6 +30,7 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -37,6 +38,7 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 @Service("grpcDataPlaneClient")
+@ConditionalOnProperty(prefix = "protobuf.goal-state-message", name = "version", havingValue = "101")
 public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, MulticastGoalState> {
     private static final Logger LOG = LoggerFactory.getLogger(DataPlaneClientImpl.class);
 
