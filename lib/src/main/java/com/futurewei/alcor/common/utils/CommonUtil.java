@@ -17,6 +17,8 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.common.utils;
 
 import com.google.common.collect.Lists;
+import org.apache.ignite.cache.CacheAtomicityMode;
+import org.apache.ignite.configuration.CacheConfiguration;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.BeansException;
@@ -98,5 +100,18 @@ public class CommonUtil {
      */
     public static boolean isNullOrEmpty(String string) {
         return string == null || string.trim().isEmpty();
+    }
+
+    /**
+     *  Reture CacheConfiguration for transaction
+     * @param cacheName input String
+     * @return  return cache configuration
+     */
+
+    public static CacheConfiguration getCacheConfiguration(String cacheName) {
+        CacheConfiguration cfg = new CacheConfiguration();
+        cfg.setName(cacheName);
+        cfg.setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL);
+        return cfg;
     }
 }

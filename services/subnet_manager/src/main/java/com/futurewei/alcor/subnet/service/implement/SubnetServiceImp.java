@@ -52,6 +52,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -344,7 +345,7 @@ public class SubnetServiceImp implements SubnetService {
 
 
         // get subnet list and check with subnets cidr
-        List<String> subnetIds = vpcWebJson.getNetwork().getSubnets();
+        Set<String> subnetIds = vpcWebJson.getNetwork().getSubnets();
         for (String subnetId : subnetIds) {
             SubnetEntity subnet = this.subnetDatabaseService.getBySubnetId(subnetId);
             if (subnet == null) {

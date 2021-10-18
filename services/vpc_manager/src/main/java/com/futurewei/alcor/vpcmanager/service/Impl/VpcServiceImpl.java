@@ -36,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -122,8 +123,8 @@ public class VpcServiceImpl implements VpcService {
         if (vpcEntity == null) {
             return true;
         }
-        List<String> subnets = vpcEntity.getSubnets();
-        if (!(subnets == null || subnets.size() == 0)) {
+        Set<String> subnets = vpcEntity.getSubnets();
+        if (subnets != null && subnets.size() > 0) {
             throw new SubnetsNotEmptyException();
         }
         return true;

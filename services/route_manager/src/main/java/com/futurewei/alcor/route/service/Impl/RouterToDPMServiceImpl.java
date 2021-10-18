@@ -54,12 +54,16 @@ public class RouterToDPMServiceImpl implements RouterToDPMService {
         {
             case CREATE:
                 networkConfiguration.setOpType(Common.OperationType.CREATE);
+                break;
             case UPDATE:
                 networkConfiguration.setOpType(Common.OperationType.UPDATE);
+                break;
             case DELETE:
                 networkConfiguration.setOpType(Common.OperationType.DELETE);
+                break;
             case INFO:
                 networkConfiguration.setOpType(Common.OperationType.INFO);
+                break;
             default:
                 networkConfiguration.setOpType(Common.OperationType.UNRECOGNIZED);
         }
