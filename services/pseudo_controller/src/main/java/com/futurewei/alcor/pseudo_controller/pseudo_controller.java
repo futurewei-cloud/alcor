@@ -43,6 +43,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -484,6 +485,8 @@ public class pseudo_controller {
         int i = 1;
         String background_pinger = "";
         String background_pingee = "";
+        // use a countdown latch to wait for the threads to finish.
+        CountDownLatch latch = new CountDownLatch(ip_mac_map.size());
         for (String port_ip : ip_mac_map.keySet()) {
             String port_mac = ip_mac_map.get(port_ip);
             String container_name = "test" + Integer.toString(i);
@@ -501,28 +504,38 @@ public class pseudo_controller {
                 System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + aca_node_one_ip + "]");
                 node_one_port_ips.add(port_ip);
                 port_ip_to_host_ip_map.put(port_ip, aca_node_one_ip);
-                concurrent_create_containers_thread_pool.execute(() -> execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands, aca_node_one_ip, user_name, password));
+                concurrent_create_containers_thread_pool.execute(() -> {
+                    execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands, aca_node_one_ip, user_name, password);
+                    latch.countDown();
+                });
                 background_pinger = port_ip;
             } else {
                 System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + aca_node_two_ip + "]");
                 node_two_port_ips.add(port_ip);
                 port_ip_to_host_ip_map.put(port_ip, aca_node_two_ip);
-                concurrent_create_containers_thread_pool.execute(() -> execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands, aca_node_two_ip, user_name, password));
+                concurrent_create_containers_thread_pool.execute(() -> {
+                    execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands, aca_node_two_ip, user_name, password);
+                    latch.countDown();
+                });
                 background_pingee = port_ip;
             }
             i++;
         }
 
-
-        concurrent_create_containers_thread_pool.shutdown();
         try {
-            if (!concurrent_create_containers_thread_pool.awaitTermination(600, TimeUnit.SECONDS)) {
-                concurrent_create_containers_thread_pool.shutdownNow();
-            }
+            latch.wait();
         } catch (InterruptedException e) {
-            concurrent_create_containers_thread_pool.shutdownNow();
-            Thread.currentThread().interrupt();
+            e.printStackTrace();
         }
+//        concurrent_create_containers_thread_pool.shutdown();
+//        try {
+//            if (!concurrent_create_containers_thread_pool.awaitTermination(600, TimeUnit.SECONDS)) {
+//                concurrent_create_containers_thread_pool.shutdownNow();
+//            }
+//        } catch (InterruptedException e) {
+//            concurrent_create_containers_thread_pool.shutdownNow();
+//            Thread.currentThread().interrupt();
+//        }
 
         if (user_chosen_execute_background_ping == DO_EXECUTE_BACKGROUND_PING) {
             // start the background thread here doing the ping from 1 port to another, util the ping is successful.
