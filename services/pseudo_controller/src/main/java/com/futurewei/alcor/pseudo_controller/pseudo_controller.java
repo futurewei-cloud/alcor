@@ -27,6 +27,7 @@ Params:
 8. Password of aca_nodes
 9. Ping mode, either CONCURRENT_PING_MODE(0 and default), or SEQUENTIAL_PING_MODE(other numnbers)
 10. Whether execute background ping or not. If set to 1, execute background ping; otherwise, don't execute background ping
+11. Whether to create containers and execute ping.
 */
 package com.futurewei.alcor.pseudo_controller;
 
@@ -86,6 +87,8 @@ public class pseudo_controller {
     static int user_chosen_execute_background_ping = 0;
     static final int DO_EXECUTE_BACKGROUND_PING = 1;
     static int finished_sending_goalstate_hosts_count = 0;
+    static final int CREATE_CONTAINER_AND_PING = 0;
+    static int whether_to_create_containers_and_ping = CREATE_CONTAINER_AND_PING;
 
     public static void main(String[] args) throws InterruptedException {
         System.out.println("Start of the test controller");
@@ -101,6 +104,7 @@ public class pseudo_controller {
             password = args[7];
             user_chosen_ping_method = Integer.parseInt(args[8]);
             user_chosen_execute_background_ping = Integer.parseInt(args[9]);
+            whether_to_create_containers_and_ping = Integer.parseInt(args[10]);
         }
         System.out.println("ACA node one has "+ ports_to_generate_on_aca_node_one + " ports;\nACA node two has "+ports_to_generate_on_aca_node_two+" ports. \nTotal ports: "+(ports_to_generate_on_aca_node_one + ports_to_generate_on_aca_node_two));
         generate_ip_macs(ports_to_generate_on_aca_node_one + ports_to_generate_on_aca_node_two);
@@ -417,15 +421,17 @@ public class pseudo_controller {
 
         System.out.println("Time to execute these ping commands concurrently");
 
-        // Execute the pings.
-        for (concurrent_run_cmd cmd : concurrent_ping_cmds) {
-            if (user_chosen_ping_method == CONCURRENT_PING_MODE) {
-                //concurrent
-                Thread t = new Thread(cmd);
-                t.start();
-            } else {
-                // sequential
-                cmd.run();
+        if(whether_to_create_containers_and_ping == CREATE_CONTAINER_AND_PING){
+            // Execute the pings.
+            for (concurrent_run_cmd cmd : concurrent_ping_cmds) {
+                if (user_chosen_ping_method == CONCURRENT_PING_MODE) {
+                    //concurrent
+                    Thread t = new Thread(cmd);
+                    t.start();
+                } else {
+                    // sequential
+                    cmd.run();
+                }
             }
         }
 
@@ -504,38 +510,42 @@ public class pseudo_controller {
                 System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + aca_node_one_ip + "]");
                 node_one_port_ips.add(port_ip);
                 port_ip_to_host_ip_map.put(port_ip, aca_node_one_ip);
-                concurrent_create_containers_thread_pool.execute(() -> {
-                    execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands, aca_node_one_ip, user_name, password);
-                    latch.countDown();
-                });
+                if(whether_to_create_containers_and_ping == CREATE_CONTAINER_AND_PING){
+                    concurrent_create_containers_thread_pool.execute(() -> {
+                        execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands, aca_node_one_ip, user_name, password);
+                        latch.countDown();
+                    });
+                }
                 background_pinger = port_ip;
             } else {
                 System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + aca_node_two_ip + "]");
                 node_two_port_ips.add(port_ip);
                 port_ip_to_host_ip_map.put(port_ip, aca_node_two_ip);
-                concurrent_create_containers_thread_pool.execute(() -> {
-                    execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands, aca_node_two_ip, user_name, password);
-                    latch.countDown();
-                });
+                if(whether_to_create_containers_and_ping == CREATE_CONTAINER_AND_PING){
+                    concurrent_create_containers_thread_pool.execute(() -> {
+                        execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands, aca_node_two_ip, user_name, password);
+                        latch.countDown();
+                    });
+                }
                 background_pingee = port_ip;
             }
             i++;
         }
 
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-
-        if (user_chosen_execute_background_ping == DO_EXECUTE_BACKGROUND_PING) {
-            // start the background thread here doing the ping from 1 port to another, util the ping is successful.
-            // it pings every 0.001 second, or 1 millisecond, for 60 seconds
-            String background_ping_command = "docker exec " + port_ip_to_container_name.get(background_pinger) + " ping -I " + background_pinger + " -c 60000 -i  0.001 " + background_pingee + " > /home/user/background_ping_output.log";
-            System.out.println("Created background ping cmd: " + background_ping_command);
-            concurrent_run_cmd c = new concurrent_run_cmd(background_ping_command, aca_node_one_ip, user_name, password);
-            backgroundPingExecutor.execute(c);
+        if(whether_to_create_containers_and_ping == CREATE_CONTAINER_AND_PING){
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if (user_chosen_execute_background_ping == DO_EXECUTE_BACKGROUND_PING) {
+                // start the background thread here doing the ping from 1 port to another, util the ping is successful.
+                // it pings every 0.001 second, or 1 millisecond, for 60 seconds
+                String background_ping_command = "docker exec " + port_ip_to_container_name.get(background_pinger) + " ping -I " + background_pinger + " -c 60000 -i  0.001 " + background_pingee + " > /home/user/background_ping_output.log";
+                System.out.println("Created background ping cmd: " + background_ping_command);
+                concurrent_run_cmd c = new concurrent_run_cmd(background_ping_command, aca_node_one_ip, user_name, password);
+                backgroundPingExecutor.execute(c);
+            }
         }
 
         System.out.println("DONE creating containers on both hosts, host 1 has "+node_one_port_ips.size()+" ports, host 2 has "+node_two_port_ips.size()+" ports");
