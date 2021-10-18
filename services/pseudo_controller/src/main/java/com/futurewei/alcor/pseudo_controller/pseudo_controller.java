@@ -19,14 +19,14 @@ the ACA.
 Params:
 1. Number of ports to generate on aca node one
 2. Number of ports to generate on aca node two
-2. IP of aca_node_one
-3. IP of aca_node_two
-4. IP of the GRPC call
-5. Port of the GRPC call
-6. User name of aca_nodes
-7. Password of aca_nodes
-8. Ping mode, either CONCURRENT_PING_MODE(0 and default), or SEQUENTIAL_PING_MODE(other numnbers)
-9. Whether execute background ping or not. If set to 1, execute background ping; otherwise, don't execute background ping
+3. IP of aca_node_one
+4. IP of aca_node_two
+5. IP of the GRPC call
+6. Port of the GRPC call
+7. User name of aca_nodes
+8. Password of aca_nodes
+9. Ping mode, either CONCURRENT_PING_MODE(0 and default), or SEQUENTIAL_PING_MODE(other numnbers)
+10. Whether execute background ping or not. If set to 1, execute background ping; otherwise, don't execute background ping
 */
 package com.futurewei.alcor.pseudo_controller;
 
@@ -486,7 +486,7 @@ public class pseudo_controller {
         String background_pinger = "";
         String background_pingee = "";
         // use a countdown latch to wait for the threads to finish.
-        CountDownLatch latch = new CountDownLatch(ip_mac_map.size());
+        CountDownLatch latch = new CountDownLatch(ip_mac_map.keySet().size());
         for (String port_ip : ip_mac_map.keySet()) {
             String port_mac = ip_mac_map.get(port_ip);
             String container_name = "test" + Integer.toString(i);
@@ -523,19 +523,11 @@ public class pseudo_controller {
         }
 
         try {
-            latch.wait();
+            latch.await();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-//        concurrent_create_containers_thread_pool.shutdown();
-//        try {
-//            if (!concurrent_create_containers_thread_pool.awaitTermination(600, TimeUnit.SECONDS)) {
-//                concurrent_create_containers_thread_pool.shutdownNow();
-//            }
-//        } catch (InterruptedException e) {
-//            concurrent_create_containers_thread_pool.shutdownNow();
-//            Thread.currentThread().interrupt();
-//        }
+
 
         if (user_chosen_execute_background_ping == DO_EXECUTE_BACKGROUND_PING) {
             // start the background thread here doing the ping from 1 port to another, util the ping is successful.
