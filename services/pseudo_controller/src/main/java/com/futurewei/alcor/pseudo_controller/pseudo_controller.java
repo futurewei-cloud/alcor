@@ -92,7 +92,7 @@ public class pseudo_controller {
 
     public static void main(String[] args) throws InterruptedException {
         System.out.println("Start of the test controller");
-        if (args.length == 10) {
+        if (args.length == 11) {
             System.out.println("User passed in params and we need to read them.");
             ports_to_generate_on_aca_node_one = Integer.parseInt(args[0]);
             ports_to_generate_on_aca_node_two = Integer.parseInt(args[1]);
