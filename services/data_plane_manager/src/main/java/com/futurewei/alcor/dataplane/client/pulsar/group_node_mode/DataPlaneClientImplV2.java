@@ -16,8 +16,7 @@
  * /
  */
 
-package com.futurewei.alcor.dataplane.client.pulsar;
-
+package com.futurewei.alcor.dataplane.client.pulsar.group_node_mode;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalStateV2;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;

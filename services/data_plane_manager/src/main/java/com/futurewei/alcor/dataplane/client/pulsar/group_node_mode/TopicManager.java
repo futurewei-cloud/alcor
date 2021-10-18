@@ -13,7 +13,7 @@ Copyright(c) 2020 Futurewei Cloud
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-package com.futurewei.alcor.dataplane.client.pulsar;
+package com.futurewei.alcor.dataplane.client.pulsar.group_node_mode;
 
 import com.futurewei.alcor.dataplane.exception.TopicParseFailureException;
 import com.futurewei.alcor.web.entity.topic.NodeTopicInfo;

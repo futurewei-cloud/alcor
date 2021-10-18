@@ -8,53 +8,38 @@ Copyright(c) 2020 Futurewei Cloud
     to whom the Software is furnished to do so, subject to the following conditions:
 
     The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-    
+
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-package com.futurewei.alcor.dataplane.client.pulsar;
+package com.futurewei.alcor.dataplane.client.pulsar.vpc_mode;
 
-import org.apache.pulsar.client.api.PulsarClient;
-import org.apache.pulsar.client.api.PulsarClientException;
-import org.springframework.beans.factory.annotation.Value;
+import com.futurewei.alcor.dataplane.cache.LocalCache;
+import com.futurewei.alcor.dataplane.cache.VpcTopicCache;
+import com.futurewei.alcor.web.entity.port.PortEntity;
+import com.futurewei.alcor.web.entity.topic.VpcTopicInfo;
+import org.apache.pulsar.common.util.Murmur3_32Hash;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.nio.charset.StandardCharsets;
+
 @Configuration
-@ConditionalOnProperty(prefix = "mq", name = "type", havingValue = "pulsar")
-public class PulsarConfiguration {
-    @Value("${pulsar.url}")
-    private String pulsarUrl;
+@ConditionalOnProperty(prefix = "mq", name = "mode", havingValue = "vpc")
+public class TopicManager {
+    private static final Logger LOG = LoggerFactory.getLogger(TopicManager.class);
 
-    @Value("${pulsar.unicast.topic:#{null}}")
-    private String unicastTopic;
 
-    @Value("${host.ip.to.group.topic.map}")
-    private String hostIpToGroupTopicMap;
-
-    @Value("${group.topic.to.multicast.topic.map}")
-    private String groupTopicToMulticastTopicMap;
-
-    @Bean
-    public PulsarClient pulsarClientInstance() throws PulsarClientException {
-        return PulsarClient.builder().serviceUrl(pulsarUrl).build();
+    public static String generateTopicByVpcId(String vpcId) {
+        return vpcId;
     }
 
-    public String getPulsarUrl() {
-        return pulsarUrl;
-    }
-
-    public String getUnicastTopic() {
-        return unicastTopic;
-    }
-
-    public String getHostIpToGroupTopicMap() {
-        return hostIpToGroupTopicMap;
-    }
-
-    public String getGroupTopicToMulticastTopicMap() {
-        return groupTopicToMulticastTopicMap;
+    public static String generateKeyByNodeId(String nodeIp) {
+        int hashCode = Murmur3_32Hash.getInstance().makeHash(nodeIp.getBytes(StandardCharsets.UTF_8));
+        return Integer.toString(hashCode);
     }
 }
