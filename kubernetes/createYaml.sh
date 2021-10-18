@@ -20,7 +20,7 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
 
   echo "Create ignite yaml files"
 
-  for d in ignite/*.yaml;
+  for d in db/ignite/*.yaml;
   do
       kubectl create -f $d
       echo "Create ignite yaml -  $d completed"
@@ -46,9 +46,9 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
   #cd apache-ignite/bin/
   #./control.sh --activate
 
-  sleep 60s
+  # sleep 60s
 
-  for d in *.yaml;
+  for d in services/*.yaml;
   do
       kubectl create -f $d
       echo "Create ignite yaml -  $d completed"

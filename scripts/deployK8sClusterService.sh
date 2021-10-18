@@ -24,3 +24,5 @@ kubectl get deployments -o wide
 kubectl expose deployment alcor --type=LoadBalancer --name=alcor
 kubectl get svc -o wide
 kubectl get po -A
+
+# YYYMMM can change to our new k8s deploy script
