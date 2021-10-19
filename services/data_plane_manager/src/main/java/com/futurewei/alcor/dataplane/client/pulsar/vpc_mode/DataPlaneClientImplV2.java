@@ -1,28 +1,32 @@
 /*
-MIT License
-Copyright(c) 2020 Futurewei Cloud
+ *
+ * MIT License
+ * Copyright(c) 2020 Futurewei Cloud
+ *
+ *     Permission is hereby granted,
+ *     free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
+ *     including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
+ *     to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ *     The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * /
+ */
 
-    Permission is hereby granted,
-    free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
-    including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
-    to whom the Software is furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
 package com.futurewei.alcor.dataplane.client.pulsar.vpc_mode;
 
 import com.futurewei.alcor.dataplane.cache.VpcTopicCache;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
+import com.futurewei.alcor.dataplane.entity.MulticastGoalStateV2;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
+import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
 import com.futurewei.alcor.web.entity.dataplane.MulticastGoalStateByte;
 import com.futurewei.alcor.web.entity.dataplane.UnicastGoalStateByte;
 import com.futurewei.alcor.web.entity.topic.VpcTopicInfo;
-import org.apache.ignite.stream.StreamAdapter;
 import org.apache.pulsar.client.api.BatcherBuilder;
 import org.apache.pulsar.client.api.HashingScheme;
 import org.apache.pulsar.client.api.Producer;
@@ -31,19 +35,12 @@ import org.apache.pulsar.client.impl.schema.JSONSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-//@Component
-@Service("pulsarDataPlaneClient")
-@ConditionalOnProperty(prefix = "mq", name = "mode", havingValue = "vpc")
-public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, MulticastGoalState>  {
+public class DataPlaneClientImplV2  implements DataPlaneClient<UnicastGoalStateV2, MulticastGoalStateV2> {
     private static final Logger LOG = LoggerFactory.getLogger(DataPlaneClientImpl.class);
 
     @Autowired
@@ -52,16 +49,16 @@ public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, Mu
     @Autowired
     private VpcTopicCache vpcTopicCache;
 
-    private List<String> createGoalState(MulticastGoalState multicastGoalState) throws Exception {
+    private List<String> createGoalState(MulticastGoalStateV2 multicastGoalState) throws Exception {
         List<String> failedHosts = new ArrayList<>();
 
-        for (int multiGsIndex = 0; multiGsIndex < multicastGoalState.getHostIps().size(); multiGsIndex++) {
-            VpcTopicInfo vpcTopicInfo = vpcTopicCache.getTopicInfoByVpcId(multicastGoalState.getHostIps().get(multiGsIndex));
+        for (int multiGsIndex = 0; multiGsIndex < multicastGoalState.getVpcIds().size(); multiGsIndex++) {
+            VpcTopicInfo vpcTopicInfo = vpcTopicCache.getTopicInfoByVpcId(multicastGoalState.getVpcIds().get(multiGsIndex));
             if (vpcTopicInfo == null) {
-                vpcTopicInfo = new VpcTopicInfo(TopicManager.generateTopicByVpcId(multicastGoalState.getHostIps().get(multiGsIndex)));
+                vpcTopicInfo = new VpcTopicInfo(TopicManager.generateTopicByVpcId(multicastGoalState.getVpcIds().get(multiGsIndex)));
                 try {
                     vpcTopicCache.addTopicMapping(
-                            multicastGoalState.getHostIps().get(multiGsIndex),
+                            multicastGoalState.getVpcIds().get(multiGsIndex),
                             vpcTopicInfo
                     );
                 } catch (Exception e) {
@@ -78,7 +75,7 @@ public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, Mu
 
                 try {
                     vpcTopicCache.addSubscribedNodeForVpcId(
-                            multicastGoalState.getHostIps().get(multiGsIndex),
+                            multicastGoalState.getVpcIds().get(multiGsIndex),
                             multicastGoalState.getHostIps().get(multiGsIndex),
                             multicastKey
                     );
@@ -113,16 +110,16 @@ public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, Mu
     }
 
     @Override
-    public List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates) throws Exception {
+    public List<String> sendGoalStates(List<UnicastGoalStateV2> unicastGoalStates) throws Exception {
         List<String> failedHosts = new ArrayList<>();
 
-        for (UnicastGoalState unicastGoalState : unicastGoalStates) {
-            VpcTopicInfo vpcTopicInfo = vpcTopicCache.getTopicInfoByVpcId(unicastGoalState.getHostIp());
+        for (UnicastGoalStateV2 unicastGoalState : unicastGoalStates) {
+            VpcTopicInfo vpcTopicInfo = vpcTopicCache.getTopicInfoByVpcId(unicastGoalState.getVpcId());
             if (vpcTopicInfo == null) {
-                vpcTopicInfo = new VpcTopicInfo(TopicManager.generateTopicByVpcId(unicastGoalState.getHostIp()));
+                vpcTopicInfo = new VpcTopicInfo(TopicManager.generateTopicByVpcId(unicastGoalState.getVpcId()));
                 try {
                     vpcTopicCache.addTopicMapping(
-                            unicastGoalState.getHostIp(),
+                            unicastGoalState.getVpcId(),
                             vpcTopicInfo
                     );
                 } catch (Exception e) {
@@ -137,7 +134,7 @@ public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, Mu
 
                 try {
                     vpcTopicCache.addSubscribedNodeForVpcId(
-                            unicastGoalState.getHostIp(),
+                            unicastGoalState.getVpcId(),
                             unicastGoalState.getHostIp(),
                             unicastKey
                     );
@@ -171,7 +168,7 @@ public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, Mu
     }
 
     @Override
-    public List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates, MulticastGoalState multicastGoalState) throws Exception {
+    public List<String> sendGoalStates(List<UnicastGoalStateV2> unicastGoalStates, MulticastGoalStateV2 multicastGoalState) throws Exception {
         List<String> failedHosts = new ArrayList<>();
 
         failedHosts.addAll(sendGoalStates(unicastGoalStates));
