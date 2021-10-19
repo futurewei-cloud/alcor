@@ -46,7 +46,6 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
   #cd apache-ignite/bin/
   #./control.sh --activate
 
-  # sleep 60s
 
   for d in services/*.yaml;
   do
