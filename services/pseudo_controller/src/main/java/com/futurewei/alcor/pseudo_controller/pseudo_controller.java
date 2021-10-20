@@ -89,6 +89,7 @@ public class pseudo_controller {
     static int finished_sending_goalstate_hosts_count = 0;
     static final int CREATE_CONTAINER_AND_PING = 0;
     static int whether_to_create_containers_and_ping = CREATE_CONTAINER_AND_PING;
+    static final int DEFAULT_VLAN_ID = 1;
 
     public static void main(String[] args) throws InterruptedException {
         System.out.println("Start of the test controller");
@@ -456,7 +457,7 @@ public class pseudo_controller {
             port_ip_to_container_name.put(port_ip, container_name);
             String create_container_cmd = "docker run -itd --name " + container_name + " --net=none --label test=ACA busybox sh";
             String ovs_docker_add_port_cmd = "ovs-docker add-port br-int eth0 " + container_name + " --ipaddress=" + port_ip + "/16 --macaddress=" + port_mac;
-            String ovs_set_vlan_cmd = "ovs-docker set-vlan br-int eth0 " + container_name + " 1";
+            String ovs_set_vlan_cmd = "ovs-docker set-vlan br-int eth0 " + container_name + " " + String.valueOf(DEFAULT_VLAN_ID);
 
             int ip_last_octet = Integer.parseInt(port_ip.split("\\.")[3]);
             if (ip_last_octet % 2 != 0) {
