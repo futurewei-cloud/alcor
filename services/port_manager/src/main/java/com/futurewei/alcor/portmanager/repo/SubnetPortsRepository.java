@@ -19,7 +19,7 @@ import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.stats.DurationStatistics;
-import com.futurewei.alcor.portmanager.entity.SubnetPortIds;
+import com.futurewei.alcor.portmanager.entity.PortIdSubnet;
 import com.futurewei.alcor.portmanager.exception.FixedIpsInvalid;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import org.slf4j.Logger;
@@ -33,11 +33,11 @@ public class SubnetPortsRepository {
     private static final String GATEWAY_PORT_DEVICE_OWNER = "network:router_interface";
 
     private CacheFactory cacheFactory;
-    private ICache<String, SubnetPortIds> subnetPortIdsCache;
+    private ICache<String, PortIdSubnet> subnetPortIdsCache;
 
     public SubnetPortsRepository(CacheFactory cacheFactory) {
         this.cacheFactory = cacheFactory;
-        this.subnetPortIdsCache= cacheFactory.getCache(SubnetPortIds.class);
+        this.subnetPortIdsCache= cacheFactory.getCache(PortIdSubnet.class);
     }
 
     public void addSubnetPortIds(List<PortEntity> portEntities) throws Exception {
@@ -54,7 +54,7 @@ public class SubnetPortsRepository {
             }
 
             for (PortEntity.FixedIp fixedIp: fixedIps) {
-                subnetPortIdsCache.put(fixedIp.getSubnetId() + "/" + portEntity.getId(), new SubnetPortIds(fixedIp.getSubnetId()));
+                subnetPortIdsCache.put(fixedIp.getSubnetId() + "/" + portEntity.getId(), new PortIdSubnet(fixedIp.getSubnetId()));
             }
         }
     }
@@ -83,7 +83,7 @@ public class SubnetPortsRepository {
         newPortEntity.getFixedIps().forEach( item ->
                 {
                     try {
-                        subnetPortIdsCache.put(item.getSubnetId() + "/" + newPortEntity.getId(), new SubnetPortIds(item.getSubnetId()));
+                        subnetPortIdsCache.put(item.getSubnetId() + "/" + newPortEntity.getId(), new PortIdSubnet(item.getSubnetId()));
                     } catch (CacheException e) {
                         e.printStackTrace();
                     }

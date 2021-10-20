@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.common.enumClass.RouteTableType;
 import com.futurewei.alcor.portmanager.config.UnitTestConfig;
 import com.futurewei.alcor.portmanager.entity.PortNeighbors;
-import com.futurewei.alcor.portmanager.entity.SubnetPortIds;
 import com.futurewei.alcor.web.entity.ip.IpAddrUpdateRequest;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.node.NodeInfoJson;

@@ -19,15 +19,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Set;
 
-public class SubnetPortIds {
+public class PortIdSubnet {
     @JsonProperty("subnet_id")
     private String subnetId;
 
-    public SubnetPortIds() {
+    public PortIdSubnet() {
 
     }
 
-    public SubnetPortIds(String subnetId) {
+    public PortIdSubnet(String subnetId) {
         this.subnetId = subnetId;
     }
 

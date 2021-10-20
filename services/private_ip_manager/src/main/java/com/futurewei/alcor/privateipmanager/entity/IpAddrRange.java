@@ -41,7 +41,7 @@ public class IpAddrRange {
     private long usedIps;
     private long totalIps;
     private IpAddrAllocator allocator;
-    private Map<Integer, Byte> ips;
+    private Map<Integer, Byte> ips;    // Using Byte to represent the status of ip address, this can reduce IpAddRange size and improve cache performance.
 
     public IpAddrRange(String id, String vpcId, String subnetId, int ipVersion, String firstIp, String lastIp) {
         this.id = id;

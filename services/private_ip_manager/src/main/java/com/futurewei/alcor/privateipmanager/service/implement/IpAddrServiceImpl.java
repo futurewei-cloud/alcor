@@ -150,7 +150,7 @@ public class IpAddrServiceImpl implements IpAddrService {
     @DurationStatistics
     public void releaseIpAddrBulk(IpAddrRequestBulk requestBulk) throws Exception {
         LOG.debug("Release ip address bulk, requestBulk: {}", requestBulk);
-
+        // Using TreeMap make map key ordered in transaction.
         SortedMap<String, List<String>> rangeToIpAddrList = new TreeMap<>();
 
         for (IpAddrRequest request: requestBulk.getIpRequests()) {

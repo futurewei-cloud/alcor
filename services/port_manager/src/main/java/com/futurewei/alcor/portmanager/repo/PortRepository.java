@@ -43,7 +43,6 @@ public class PortRepository {
     private CacheFactory cacheFactory;
     private NeighborRepository neighborRepository;
     private SubnetPortsRepository subnetPortsRepository;
-    private Semaphore semaphore = new Semaphore(64);
 
     @Autowired
     public PortRepository(CacheFactory cacheFactory) {
