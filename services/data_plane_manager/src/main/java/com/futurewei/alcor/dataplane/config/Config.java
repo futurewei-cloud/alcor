@@ -23,6 +23,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 
 @Configuration
 public class Config {
@@ -30,6 +31,7 @@ public class Config {
   public static final int SHUTDOWN_TIMEOUT = 5;
   @Value("${dataplane.isovs}")
   private String ovs;
+
   @Value("${dataplane.grpc.port}")
   public int port ;
 
@@ -44,6 +46,17 @@ public class Config {
 
   @Value("${protobuf.goal-state-message.version}")
   public int goalStateMessageVersion;
+
+  // each host_ip should have this amount of gRPC channels.
+  @Value("${grpc.number-of-channels-per-host:1}")
+  public int numberOfGrpcChannelPerHost;
+
+  // when a channel is set up, send this amount of default GoalStates for warmup.
+  @Value("${grpc.number-of-warmups-per-channel:1}")
+  public int numberOfWarmupsPerChannel;
+
+  @Value("${grpc.monitor-hosts}")
+  public ArrayList<String> monitorHosts;
 
   public static FileWriter TIME_STAMP_FILE;
   public static BufferedWriter TIME_STAMP_WRITER;

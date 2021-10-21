@@ -16,7 +16,9 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.dataplane.service.impl;
 
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
+import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
 import com.futurewei.alcor.schema.Common;
+import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Port;
 import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
@@ -102,5 +104,76 @@ public class PortService extends ResourceService {
         }
 
         return operationTypeFromClient;
+    }
+
+    public void buildPortState(NetworkConfiguration networkConfig, List<InternalPortEntity> portEntities,
+                               UnicastGoalStateV2 unicastGoalState) {
+        for (InternalPortEntity portEntity : portEntities) {
+            Port.PortState.Builder portStateBuilder = Port.PortState.newBuilder();
+            Common.OperationType portOpTypeToACA = determinePortOperationType(portEntity, networkConfig.getOpType());
+            portStateBuilder.setOperationType(portOpTypeToACA);
+
+            Port.PortConfiguration.Builder portConfigBuilder = portStateBuilder.getConfigurationBuilder();
+            portConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER)
+                    .setId(portEntity.getId())
+                    .setUpdateType(Common.UpdateType.FULL)
+                    .setVpcId(portEntity.getVpcId())
+                    .setDeviceId(portEntity.getDeviceId())
+                    .setDeviceOwner(portEntity.getDeviceOwner())
+                    .setMacAddress(portEntity.getMacAddress());
+
+            if (portEntity.getName() != null) {
+                portConfigBuilder.setName(portEntity.getName());
+            }
+
+            boolean adminState = portEntity.getAdminStateUp() == null ? false : portEntity.getAdminStateUp();
+            portConfigBuilder.setAdminStateUp(adminState);
+
+            // TODO: Do we need still HostInfo here which is not exists in pseudo_controller
+            /*
+            Port.PortConfiguration.HostInfo.Builder hostInfoBuilder = Port.PortConfiguration.HostInfo.newBuilder();
+            hostInfoBuilder.setIpAddress(portEntity.getBindingHostIP());
+            //hostInfoBuilder.setMacAddress()
+            portConfigBuilder.setHostInfo(hostInfoBuilder.build());
+            */
+
+            if (portEntity.getFixedIps() != null) {
+                portEntity.getFixedIps().forEach(fixedIp -> {
+                    Port.PortConfiguration.FixedIp.Builder fixedIpBuilder = Port.PortConfiguration.FixedIp.newBuilder();
+                    fixedIpBuilder.setSubnetId(fixedIp.getSubnetId());
+                    fixedIpBuilder.setIpAddress(fixedIp.getIpAddress());
+                    portConfigBuilder.addFixedIps(fixedIpBuilder.build());
+                });
+            }
+
+            if (portEntity.getAllowedAddressPairs() != null) {
+                portEntity.getAllowedAddressPairs().forEach(pair -> {
+                    Port.PortConfiguration.AllowAddressPair.Builder allowAddressPairBuilder = Port.PortConfiguration.AllowAddressPair.newBuilder();
+                    allowAddressPairBuilder.setIpAddress(pair.getIpAddress());
+                    allowAddressPairBuilder.setMacAddress(pair.getMacAddress());
+                    portConfigBuilder.addAllowAddressPairs(allowAddressPairBuilder.build());
+                });
+            }
+
+            if (portEntity.getSecurityGroups() != null) {
+                portEntity.getSecurityGroups().forEach(securityGroupId -> {
+                    Port.PortConfiguration.SecurityGroupId.Builder securityGroupIdBuilder = Port.PortConfiguration.SecurityGroupId.newBuilder();
+                    securityGroupIdBuilder.setId(securityGroupId);
+                    portConfigBuilder.addSecurityGroupIds(securityGroupIdBuilder.build());
+                });
+            }
+
+            portStateBuilder.setConfiguration(portConfigBuilder.build());
+            Port.PortState portState = portStateBuilder.build();
+            unicastGoalState.getGoalStateBuilder().putPortStates(portState.getConfiguration().getId(), portState);
+
+            Goalstate.ResourceIdType portResourceIdType = Goalstate.ResourceIdType.newBuilder()
+                    .setType(Common.ResourceType.PORT)
+                    .setId(portState.getConfiguration().getId())
+                    .build();
+            Goalstate.HostResources.Builder hostResourceBuilder = Goalstate.HostResources.newBuilder();
+            hostResourceBuilder.addResources(portResourceIdType);
+            unicastGoalState.getGoalStateBuilder().putHostResources(unicastGoalState.getHostIp(), hostResourceBuilder.build());
+        }
     }
 }

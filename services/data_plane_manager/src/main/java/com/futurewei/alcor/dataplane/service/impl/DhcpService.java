@@ -16,11 +16,15 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.dataplane.service.impl;
 
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
+import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
+import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.schema.DHCP;
+import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Port;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -51,6 +55,46 @@ public class DhcpService extends ResourceService {
                 dhcpStateBuilder.setOperationType(portState.getOperationType());
                 dhcpStateBuilder.setConfiguration(dhcpConfigBuilder.build());
                 unicastGoalState.getGoalStateBuilder().addDhcpStates(dhcpStateBuilder.build());
+            }
+        }
+    }
+
+    public void buildDhcpStates(NetworkConfiguration networkConfig, UnicastGoalStateV2 unicastGoalState) throws Exception {
+        List<Port.PortState> portStates = new ArrayList<Port.PortState>(unicastGoalState.getGoalStateBuilder().getPortStatesMap().values());
+        if (portStates == null || portStates.size() == 0) {
+            return;
+        }
+
+        for (Port.PortState portState: portStates) {
+            String macAddress = portState.getConfiguration().getMacAddress();
+            List<Port.PortConfiguration.FixedIp> fixedIps = portState.getConfiguration().getFixedIpsList();
+            for (Port.PortConfiguration.FixedIp fixedIp: fixedIps) {
+                DHCP.DHCPConfiguration.Builder dhcpConfigBuilder = DHCP.DHCPConfiguration.newBuilder();
+                dhcpConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
+                dhcpConfigBuilder.setMacAddress(macAddress);
+                dhcpConfigBuilder.setIpv4Address(fixedIp.getIpAddress());
+                dhcpConfigBuilder.setSubnetId(fixedIp.getSubnetId());
+
+                //TODO: support ipv6
+                //dhcpConfigBuilder.setIpv6Address();
+                //dhcpConfigBuilder.setPortHostName();
+                //dhcpConfigBuilder.setExtraDhcpOptions();
+                //dhcpConfigBuilder.setDnsEntryList();
+
+                DHCP.DHCPState.Builder dhcpStateBuilder = DHCP.DHCPState.newBuilder();
+                dhcpStateBuilder.setOperationType(portState.getOperationType());
+                dhcpStateBuilder.setConfiguration(dhcpConfigBuilder.build());
+
+                DHCP.DHCPState dhcpState = dhcpStateBuilder.build();
+                unicastGoalState.getGoalStateBuilder().putDhcpStates(dhcpState.getConfiguration().getId(), dhcpState);
+
+                Goalstate.ResourceIdType dhcpResourceIdType = Goalstate.ResourceIdType.newBuilder()
+                        .setType(Common.ResourceType.DHCP)
+                        .setId(dhcpState.getConfiguration().getId())
+                        .build();
+                Goalstate.HostResources.Builder hostResourceBuilder = Goalstate.HostResources.newBuilder();
+                hostResourceBuilder.addResources(dhcpResourceIdType);
+                unicastGoalState.getGoalStateBuilder().putHostResources(unicastGoalState.getHostIp(), hostResourceBuilder.build());
             }
         }
     }
