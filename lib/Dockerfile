@@ -14,7 +14,7 @@
 
 # Dockerfile for Ignite
 
-FROM apacheignite/ignite:2.8.1
+FROM apacheignite/ignite:2.10.0
 
 MAINTAINER Liguang Xie <lxie@futurewei.com>
 

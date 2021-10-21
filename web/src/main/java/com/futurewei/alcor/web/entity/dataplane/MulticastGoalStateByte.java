@@ -19,6 +19,7 @@ import java.util.List;
 
 public class MulticastGoalStateByte {
     private List<String> nextTopics;
+    private List<String> nextSubTopics;
     private byte[] goalStateByte;
 
     public MulticastGoalStateByte() {
@@ -30,6 +31,12 @@ public class MulticastGoalStateByte {
         this.goalStateByte = goalStateByte;
     }
 
+    public MulticastGoalStateByte(List<String> nextTopics, List<String> nextSubTopics, byte[] goalStateByte) {
+        this.nextTopics = nextTopics;
+        this.nextSubTopics = nextSubTopics;
+        this.goalStateByte = goalStateByte;
+    }
+
     public List<String> getNextTopics() {
         return nextTopics;
     }
@@ -37,6 +44,10 @@ public class MulticastGoalStateByte {
     public void setNextTopics(List<String> nextTopics) {
         this.nextTopics = nextTopics;
     }
+
+    public List<String> getNextSubTopics() { return nextSubTopics; }
+
+    public void setNextSubTopics(List<String> nextSubTopics) { this.nextSubTopics = nextSubTopics; }
 
     public byte[] getGoalStateByte() {
         return goalStateByte;

@@ -8,7 +8,7 @@ Copyright(c) 2020 Futurewei Cloud
     to whom the Software is furnished to do so, subject to the following conditions:
 
     The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-    
+
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
@@ -30,7 +30,6 @@ import com.futurewei.alcor.dataplane.exception.UnknownResourceType;
 import com.futurewei.alcor.dataplane.service.DpmService;
 import com.futurewei.alcor.schema.*;
 import com.futurewei.alcor.web.entity.dataplane.*;
-import com.futurewei.alcor.web.entity.dataplane.NeighborEntry.NeighborType;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortHostInfo;
 import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
@@ -51,9 +50,9 @@ import static com.futurewei.alcor.dataplane.service.impl.ResourceService.FORMAT_
 import static com.futurewei.alcor.dataplane.service.impl.ResourceService.HOST_DVR_MAC;
 
 @Service
-@ConditionalOnProperty(prefix = "protobuf.goal-state-message", name = "version", havingValue = "101")
-public class DpmServiceImpl implements DpmService {
-    private static final Logger LOG = LoggerFactory.getLogger(DpmServiceImpl.class);
+@ConditionalOnProperty(prefix = "protobuf.goal-state-message", name = "version", havingValue = "102")
+public class DpmServiceImplV2 implements DpmService {
+    private static final Logger LOG = LoggerFactory.getLogger(DpmServiceImplV2.class);
     private static final boolean USE_PULSAR_CLIENT = false;
 
     private int goalStateMessageVersion;
@@ -75,10 +74,10 @@ public class DpmServiceImpl implements DpmService {
     private SubnetPortsCache subnetPortsCache;
 
     @Autowired
-    private DataPlaneClient<UnicastGoalState, MulticastGoalState> grpcDataPlaneClient;
+    private DataPlaneClient<UnicastGoalStateV2, MulticastGoalStateV2> grpcDataPlaneClient;
 
     @Autowired
-    private DataPlaneClient<UnicastGoalState, MulticastGoalState> pulsarDataPlaneClient;;
+    private DataPlaneClient<UnicastGoalStateV2, MulticastGoalStateV2> pulsarDataPlaneClient;
 
     @Autowired
     private VpcService vpcService;
@@ -105,17 +104,15 @@ public class DpmServiceImpl implements DpmService {
     private RouterService routerService;
 
     @Autowired
-    private DpmServiceImpl(Config globalConfig) {
+    private DpmServiceImplV2(Config globalConfig) {
         this.goalStateMessageVersion = globalConfig.goalStateMessageVersion;
     }
 
-    @Tracer
-    private UnicastGoalState buildUnicastGoalState(NetworkConfiguration networkConfig, String hostIp,
+    private UnicastGoalStateV2 buildUnicastGoalState(NetworkConfiguration networkConfig, String hostIp,
                                                    List<InternalPortEntity> portEntities,
-                                                   MulticastGoalState multicastGoalState) throws Exception {
-        UnicastGoalState unicastGoalState = new UnicastGoalState();
+                                                   MulticastGoalStateV2 multicastGoalState) throws Exception {
+        UnicastGoalStateV2 unicastGoalState = new UnicastGoalStateV2();
         unicastGoalState.setHostIp(hostIp);
-
         unicastGoalState.getGoalStateBuilder().setFormatVersion(this.goalStateMessageVersion);
 
         if (portEntities != null && portEntities.size() > 0) {
@@ -128,7 +125,7 @@ public class DpmServiceImpl implements DpmService {
         securityGroupService.buildSecurityGroupStates(networkConfig, unicastGoalState);
         dhcpService.buildDhcpStates(networkConfig, unicastGoalState);
         routerService.buildRouterStates(networkConfig, unicastGoalState, multicastGoalState);
-        patchGoalstateForNeighbor(networkConfig, unicastGoalState);
+        patchGoalstateForNeighbor(unicastGoalState);
 
         unicastGoalState.setGoalState(unicastGoalState.getGoalStateBuilder().build());
         unicastGoalState.setGoalStateBuilder(null);
@@ -138,92 +135,67 @@ public class DpmServiceImpl implements DpmService {
         return unicastGoalState;
     }
 
-    private Subnet.SubnetState.Builder constructSubnetState(InternalSubnetPorts subnetEntity) {
-        Subnet.SubnetState.Builder subnetStateBuilder = Subnet.SubnetState.newBuilder();
-
-        if (subnetEntity != null) {
-            Subnet.SubnetConfiguration.Builder subnetConfigBuilder = Subnet.SubnetConfiguration.newBuilder();
-            subnetConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
-            subnetConfigBuilder.setId(subnetEntity.getSubnetId());
-            subnetConfigBuilder.setVpcId(subnetEntity.getVpcId());
-            subnetConfigBuilder.setName(subnetEntity.getName());
-            subnetConfigBuilder.setCidr(subnetEntity.getCidr());
-            subnetConfigBuilder.setTunnelId(subnetEntity.getTunnelId());
-
-            Subnet.SubnetConfiguration.Gateway.Builder gatewayBuilder = Subnet.SubnetConfiguration.Gateway.newBuilder();
-            gatewayBuilder.setIpAddress(subnetEntity.getGatewayPortIp());
-            gatewayBuilder.setMacAddress(subnetEntity.getGatewayPortMac());
-            subnetConfigBuilder.setGateway(gatewayBuilder.build());
-
-            if (subnetEntity.getDhcpEnable() != null) {
-                subnetConfigBuilder.setDhcpEnable(subnetEntity.getDhcpEnable());
-            }
-
-            // TODO: need to set DNS based on latest contract
-            subnetStateBuilder.setOperationType(Common.OperationType.INFO);
-            subnetStateBuilder.setConfiguration(subnetConfigBuilder.build());
-        }
-
-        return subnetStateBuilder;
-    }
-
-    private Router.RouterState.Builder constructRouterState(NetworkConfiguration networkConfig, InternalSubnetPorts subnetEntity, Goalstate.GoalState.Builder goalStateBuilder) {
-        Router.RouterState.Builder routerStateBuilder = Router.RouterState.newBuilder();
-        if (subnetEntity != null) {
-            Router.RouterConfiguration.SubnetRoutingTable.Builder subnetRoutingTableBuilder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
-            subnetRoutingTableBuilder.setSubnetId(subnetEntity.getSubnetId());
-
-            List<Router.RouterConfiguration.SubnetRoutingTable> subnetRoutingTablesList = new ArrayList<>();
-            subnetRoutingTablesList.add(subnetRoutingTableBuilder.build());
-            List<Router.RouterState.Builder> routerStatesBuilders = goalStateBuilder.getRouterStatesBuilderList();
-            if (routerStatesBuilders != null && routerStatesBuilders.size() > 0) {
-                subnetRoutingTablesList.addAll(goalStateBuilder.
-                        getRouterStatesBuilder(0).
-                        getConfiguration().
-                        getSubnetRoutingTablesList());
-                goalStateBuilder.removeRouterStates(0);
-            }
-
-            String routerId = subnetEntity.getRouterId();
-            // If subnet has attached to a router (test scenario #4), we just use the routerId in the subnet.
-            // Otherwise, we need to get router_state in the networkConfig for test scenario #5.
-            if (routerId == null) {
-                List<InternalRouterInfo> internalRouterInfos = networkConfig.getInternalRouterInfos();
-                for (InternalRouterInfo internalRouterInfo : internalRouterInfos) {
-                    routerId = internalRouterInfo.getRouterConfiguration().getId();
-                    if (routerId != null) break;
-                }
-            }
-            Router.RouterConfiguration.Builder routerConfigBuilder = Router.RouterConfiguration.newBuilder();
-            routerConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
-            routerConfigBuilder.setHostDvrMacAddress(HOST_DVR_MAC);
-            routerConfigBuilder.setId(routerId);
-            routerConfigBuilder.addAllSubnetRoutingTables(subnetRoutingTablesList);
-            routerStateBuilder.setConfiguration(routerConfigBuilder.build());
-        }
-        return routerStateBuilder;
-    }
-
-    @Tracer
-    private void patchGoalstateForNeighbor(NetworkConfiguration networkConfig, UnicastGoalState unicastGoalState) throws CacheException {
-        List<Neighbor.NeighborState.Builder> neighborStates = unicastGoalState.getGoalStateBuilder().getNeighborStatesBuilderList();
-        for (Neighbor.NeighborState.Builder neighborState : neighborStates) {
-            List<Neighbor.NeighborConfiguration.FixedIp> fixedIps = neighborState.build().getConfiguration().getFixedIpsList();
+    private void patchGoalstateForNeighbor(UnicastGoalStateV2 unicastGoalState) throws CacheException {
+        Map<String, Neighbor.NeighborState> neighborStatesMap = unicastGoalState.getGoalStateBuilder().getNeighborStatesMap();
+        for (Map.Entry<String, Neighbor.NeighborState> neighborStateEntry : neighborStatesMap.entrySet()) {
+            List<Neighbor.NeighborConfiguration.FixedIp> fixedIps = neighborStateEntry.getValue().getConfiguration().getFixedIpsList();
             for (Neighbor.NeighborConfiguration.FixedIp fixedIp : fixedIps) {
                 if (fixedIp != null && fixedIp.getNeighborType().equals(Neighbor.NeighborType.L3)) {
                     String subnetId = fixedIp.getSubnetId();
                     InternalSubnetPorts subnetEntity = subnetPortsCache.getSubnetPorts(subnetId);
                     if (subnetEntity != null) {
-                        if (unicastGoalState.getGoalStateBuilder().getSubnetStatesList().stream()
-                                .filter(e -> e.getConfiguration().getId().equals(subnetEntity.getSubnetId()))
+                        if (unicastGoalState.getGoalStateBuilder().getSubnetStatesMap().entrySet().stream()
+                                .filter(e -> e.getValue().getConfiguration().getId().equals(subnetEntity.getSubnetId()))
                                 .findFirst().orElse(null) == null) {
-                            Subnet.SubnetState.Builder subnetStateBuilder = constructSubnetState(subnetEntity);
-                            unicastGoalState.getGoalStateBuilder().addSubnetStates(subnetStateBuilder.build());
+                            Subnet.SubnetConfiguration.Builder subnetConfigBuilder = Subnet.SubnetConfiguration.newBuilder();
+                            subnetConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
+                            subnetConfigBuilder.setId(subnetEntity.getSubnetId());
+                            subnetConfigBuilder.setVpcId(subnetEntity.getVpcId());
+                            subnetConfigBuilder.setName(subnetEntity.getName());
+                            subnetConfigBuilder.setCidr(subnetEntity.getCidr());
+                            subnetConfigBuilder.setTunnelId(subnetEntity.getTunnelId());
+
+                            Subnet.SubnetConfiguration.Gateway.Builder gatewayBuilder = Subnet.SubnetConfiguration.Gateway.newBuilder();
+                            gatewayBuilder.setIpAddress(subnetEntity.getGatewayPortIp());
+                            gatewayBuilder.setMacAddress(subnetEntity.getGatewayPortMac());
+                            subnetConfigBuilder.setGateway(gatewayBuilder.build());
+
+                            if (subnetEntity.getDhcpEnable() != null) {
+                                subnetConfigBuilder.setDhcpEnable(subnetEntity.getDhcpEnable());
+                            }
+
+                            // TODO: need to set DNS based on latest contract
+
+                            Subnet.SubnetState.Builder subnetStateBuilder = Subnet.SubnetState.newBuilder();
+                            subnetStateBuilder.setOperationType(Common.OperationType.INFO);
+                            subnetStateBuilder.setConfiguration(subnetConfigBuilder.build());
+                            unicastGoalState.getGoalStateBuilder().putSubnetStates(subnetEntity.getSubnetId(), subnetStateBuilder.build());
+
+                            Router.RouterConfiguration.SubnetRoutingTable.Builder subnetRoutingTableBuilder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
+                            subnetRoutingTableBuilder.setSubnetId(subnetEntity.getSubnetId());
+
+                            List<Router.RouterConfiguration.SubnetRoutingTable> subnetRoutingTablesList = new ArrayList<>();
+                            subnetRoutingTablesList.add(subnetRoutingTableBuilder.build());
+
+//                            Goalstate.GoalStateV2.Builder goalStateBuilder = unicastGoalState.getGoalStateBuilder();
+//                            List<Router.RouterState.Builder> routerStatesBuilders = new ArrayList<>(goalStateBuilder.getRouterStatesMap().values());
+//                            if (routerStatesBuilders != null && routerStatesBuilders.size() > 0) {
+//                                subnetRoutingTablesList.addAll(goalStateBuilder.
+//                                        getRouterStatesBuilder(0).
+//                                        getConfiguration().
+//                                        getSubnetRoutingTablesList());
+//                                goalStateBuilder.removeRouterStates(0);
+//                            }
 
                             // Add subnet to router_state
-                            Goalstate.GoalState.Builder goalStateBuilder = unicastGoalState.getGoalStateBuilder();
-                            Router.RouterState.Builder routerStateBuilder = constructRouterState(networkConfig, subnetEntity, goalStateBuilder);
-                            unicastGoalState.getGoalStateBuilder().addRouterStates(routerStateBuilder.build());
+                            Router.RouterConfiguration.Builder routerConfigBuilder = Router.RouterConfiguration.newBuilder();
+                            routerConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
+                            routerConfigBuilder.setHostDvrMacAddress(HOST_DVR_MAC);
+                            routerConfigBuilder.setId(subnetEntity.getRouterId());
+                            routerConfigBuilder.addAllSubnetRoutingTables(subnetRoutingTablesList);
+                            Router.RouterState.Builder routerStateBuilder = Router.RouterState.newBuilder();
+                            routerStateBuilder.setConfiguration(routerConfigBuilder.build());
+                            unicastGoalState.getGoalStateBuilder().putRouterStates(subnetEntity.getRouterId(), routerStateBuilder.build());
                         }
                     }
                 }
@@ -231,33 +203,11 @@ public class DpmServiceImpl implements DpmService {
         }
     }
 
-    private void patchGoalstateForRouterSubnet(NetworkConfiguration networkConfig, Map<String, List<String>> hostsSubnets, MulticastGoalState multicastGoalState) throws CacheException {
-        for (Map.Entry<String, List<String>> entry: hostsSubnets.entrySet()) {
-            for (String subnetId : entry.getValue()) {
-                InternalSubnetPorts subnetEntity = subnetPortsCache.getSubnetPorts(subnetId);
-                if (subnetEntity != null) {
-                    if (multicastGoalState.getGoalStateBuilder().getSubnetStatesList().stream()
-                            .filter(e -> e.getConfiguration().getId().equals(subnetEntity.getSubnetId()))
-                            .findFirst().orElse(null) == null) {
-                        Subnet.SubnetState.Builder subnetStateBuilder = constructSubnetState(subnetEntity);
-                        multicastGoalState.getGoalStateBuilder().addSubnetStates(subnetStateBuilder.build());
-
-                        // Add subnet to router_state
-                        Goalstate.GoalState.Builder goalStateBuilder = multicastGoalState.getGoalStateBuilder();
-                        Router.RouterState.Builder routerStateBuilder = constructRouterState(networkConfig, subnetEntity, goalStateBuilder);
-                        multicastGoalState.getGoalStateBuilder().addRouterStates(routerStateBuilder.build());
-                    }
-                }
-            }
-        }
-    }
-
-    @Tracer
     private List<String> doCreatePortConfiguration(NetworkConfiguration networkConfig,
                                                    Map<String, List<InternalPortEntity>> hostPortEntities,
                                                    DataPlaneClient dataPlaneClient) throws Exception {
-        List<UnicastGoalState> unicastGoalStates = new ArrayList<>();
-        MulticastGoalState multicastGoalState = new MulticastGoalState();
+        List<UnicastGoalStateV2> unicastGoalStates = new ArrayList<>();
+        MulticastGoalStateV2 multicastGoalState = new MulticastGoalStateV2();
 
         ZetaPortGoalState zetaPortsGoalState = new ZetaPortGoalState();
         List<String> failedZetaPorts = new ArrayList<>();
@@ -277,11 +227,14 @@ public class DpmServiceImpl implements DpmService {
         }
         // portEntities in the same unicastGoalStates should have the same opType
 
-        if (zetaGatwayEnabled && zetaPortsGoalState.getPortEntities().size() > 0) {
-            return zetaGatewayClient.sendGoalStateToZetaAcA(unicastGoalStates, multicastGoalState, dataPlaneClient, zetaPortsGoalState, failedZetaPorts);
-        } else {
-            return dataPlaneClient.sendGoalStates(unicastGoalStates, multicastGoalState);
-        }
+//        TODO: Enable zetaGatewayClient support GSV2
+//        if (zetaGatwayEnabled && zetaPortsGoalState.getPortEntities().size() > 0) {
+//            return zetaGatewayClient.sendGoalStateToZetaAcA(unicastGoalStates, multicastGoalState, dataPlaneClient, zetaPortsGoalState, failedZetaPorts);
+//        } else {
+//            return dataPlaneClient.sendGoalStates(unicastGoalStates, multicastGoalState);
+//        }
+
+        return dataPlaneClient.sendGoalStates(unicastGoalStates, multicastGoalState);
     }
 
     /**
@@ -297,7 +250,6 @@ public class DpmServiceImpl implements DpmService {
      * @return Hosts that failed to send GoalState
      * @throws Exception Process exceptions and send exceptions
      */
-    @Tracer
     private List<String> processPortConfiguration(NetworkConfiguration networkConfig) throws Exception {
         Map<String, List<InternalPortEntity>> grpcHostPortEntities = new HashMap<>();
         Map<String, List<InternalPortEntity>> pulsarHostPortEntities = new HashMap<>();
@@ -350,17 +302,15 @@ public class DpmServiceImpl implements DpmService {
      * @return Hosts that failed to send GoalState
      * @throws Exception Process exceptions and send exceptions
      */
-    @Tracer
     private List<String> processNeighborConfiguration(NetworkConfiguration networkConfig) throws Exception {
         Map<String, NeighborInfo> neighborInfos = networkConfig.getNeighborInfos();
         Map<String, List<NeighborEntry>> neighborTable = networkConfig.getNeighborTable();
-        List<UnicastGoalState> unicastGoalStates = new ArrayList<>();
-        MulticastGoalState multicastGoalState = new MulticastGoalState();
-        Map<String, List<String>> hostsSubnets = new HashMap<>();
+        List<UnicastGoalStateV2> unicastGoalStates = new ArrayList<>();
+        MulticastGoalStateV2 multicastGoalState = new MulticastGoalStateV2();
 
         if (neighborTable == null || neighborInfos == null) {
-            throw new NeighborInfoNotFound();
-            //return new ArrayList<>();
+            //throw new NeighborInfoNotFound();
+            return new ArrayList<>();
         }
 
         Map<String, List<NeighborInfo>> hostNeighbors = new HashMap<>();
@@ -374,9 +324,7 @@ public class DpmServiceImpl implements DpmService {
             String hostIp = localInfo.getHostIp();
             if (!hostNeighbors.containsKey(hostIp)) {
                 hostNeighbors.put(hostIp, new ArrayList<>());
-                hostsSubnets.put(hostIp, new ArrayList<>());
             }
-            hostsSubnets.get(hostIp).add(localInfo.getSubnetId());
 
             List<NeighborEntry> neighborEntries = entry.getValue();
             for (NeighborEntry neighborEntry: neighborEntries) {
@@ -392,35 +340,26 @@ public class DpmServiceImpl implements DpmService {
             }
 
             if (multicastGoalState.getHostIps().size() <= 0) {
-                // return new ArrayList<>();
-                continue;
+                return new ArrayList<>();
             }
             //Add neighborInfo to multicastGoalState
             Neighbor.NeighborState neighborState = neighborService.buildNeighborState(
-                    NeighborType.L3, localInfo, networkConfig.getOpType());
-            multicastGoalState.getGoalStateBuilder().addNeighborStates(neighborState);
-            UnicastGoalState unicastGoalStateTemp = new UnicastGoalState();
-            unicastGoalStateTemp.getGoalStateBuilder().addNeighborStates(neighborState);
-            patchGoalstateForNeighbor(networkConfig, unicastGoalStateTemp);
-            if (unicastGoalStateTemp.getGoalStateBuilder().getSubnetStatesList() != null &&
-                    unicastGoalStateTemp.getGoalStateBuilder().getSubnetStatesList().size() > 0 ) {
-                multicastGoalState.getGoalStateBuilder().addAllSubnetStates(unicastGoalStateTemp.getGoalStateBuilder().getSubnetStatesList());
-            }
-            if (unicastGoalStateTemp.getGoalStateBuilder().getRouterStatesList() != null &&
-                    unicastGoalStateTemp.getGoalStateBuilder().getRouterStatesList().size() > 0) {
-                multicastGoalState.getGoalStateBuilder().addAllRouterStates(unicastGoalStateTemp.getGoalStateBuilder().getRouterStatesList());
-            }
+                    NeighborEntry.NeighborType.L3, localInfo, networkConfig.getOpType());
+            multicastGoalState.getGoalStateBuilder().putNeighborStates(neighborState.getConfiguration().getId(), neighborState);
+            UnicastGoalStateV2 unicastGoalStateTemp = new UnicastGoalStateV2();
+            unicastGoalStateTemp.getGoalStateBuilder().putNeighborStates(neighborState.getConfiguration().getId(), neighborState);
+            patchGoalstateForNeighbor(unicastGoalStateTemp);
+            if (unicastGoalStateTemp.getGoalStateBuilder().getSubnetStatesMap() != null &&
+                    unicastGoalStateTemp.getGoalStateBuilder().getSubnetStatesMap().size() > 0 )
+                multicastGoalState.getGoalStateBuilder().putAllSubnetStates(unicastGoalStateTemp.getGoalStateBuilder().getSubnetStatesMap());
+            if (unicastGoalStateTemp.getGoalStateBuilder().getRouterStatesMap() != null &&
+                    unicastGoalStateTemp.getGoalStateBuilder().getRouterStatesMap().size() > 0)
+                multicastGoalState.getGoalStateBuilder().putAllRouterStates(unicastGoalStateTemp.getGoalStateBuilder().getRouterStatesMap());
         }
 
-        boolean patchRouterSubnetStates = false;
         for (Map.Entry<String, List<NeighborInfo>> entry: hostNeighbors.entrySet()) {
             String hostIp = entry.getKey();
             List<NeighborInfo> hostNeighborInfos = entry.getValue();
-
-            if (hostNeighborInfos.size() <= 0) {
-                multicastGoalState.getHostIps().add(hostIp);
-                patchRouterSubnetStates = true;
-            }
 
             /**
              * At present, there are only L3 neighbors in the neighbor table,
@@ -428,36 +367,17 @@ public class DpmServiceImpl implements DpmService {
              */
             for (NeighborInfo neighborInfo: hostNeighborInfos) {
                 Neighbor.NeighborState neighborState = neighborService.buildNeighborState(
-                        NeighborType.L3,
+                        NeighborEntry.NeighborType.L3,
                         neighborInfo,
                         networkConfig.getOpType());
 
-                UnicastGoalState unicastGoalState = new UnicastGoalState();
+                UnicastGoalStateV2 unicastGoalState = new UnicastGoalStateV2();
                 //unicastGoalState.setHostIp(neighborInfo.getHostIp());
                 unicastGoalState.setHostIp(hostIp);
-                unicastGoalState.getGoalStateBuilder().addNeighborStates(neighborState);
-
-                // use unicastGoalStateTemp object to get patchGoalStates for neighborState update
-                // unicasGoalStateTemp will include subnet_states and a consolidated router_state based on the current neighborState
-                UnicastGoalState unicastGoalStateTemp = new UnicastGoalState();
-                unicastGoalStateTemp.getGoalStateBuilder().addNeighborStates(neighborState);
-                patchGoalstateForNeighbor(networkConfig, unicastGoalStateTemp);
-
-                unicastGoalState.getGoalStateBuilder().addAllSubnetStates(unicastGoalStateTemp.getGoalStateBuilder().getSubnetStatesList());
-                unicastGoalState.getGoalStateBuilder().addAllRouterStates(unicastGoalStateTemp.getGoalStateBuilder().getRouterStatesList());
-                unicastGoalState.getGoalStateBuilder().addAllSubnetStates(multicastGoalState.getGoalStateBuilder().getSubnetStatesList());
-                rebuildRouterState(unicastGoalState.getGoalStateBuilder(), multicastGoalState.getGoalStateBuilder());
-                multicastGoalState.getGoalStateBuilder().addAllSubnetStates(unicastGoalStateTemp.getGoalStateBuilder().getSubnetStatesList());
-                rebuildRouterState(multicastGoalState.getGoalStateBuilder(), unicastGoalStateTemp.getGoalStateBuilder());
+                unicastGoalState.getGoalStateBuilder().putNeighborStates(neighborState.getConfiguration().getId(), neighborState);
+                patchGoalstateForNeighbor(unicastGoalState);
                 unicastGoalStates.add(unicastGoalState);
             }
-        }
-
-        /**
-         * The flag patchRouterSubnetStates is to fix issue #686 (issue from test scenario 4.5)
-         */
-        if (patchRouterSubnetStates) {
-            patchGoalstateForRouterSubnet(networkConfig, hostsSubnets, multicastGoalState);
         }
 
         multicastGoalState.setGoalState(multicastGoalState.getGoalStateBuilder().build());
@@ -467,44 +387,13 @@ public class DpmServiceImpl implements DpmService {
             u.setGoalStateBuilder(null);
         });
 
+
+
         if (USE_PULSAR_CLIENT) {
             return pulsarDataPlaneClient.sendGoalStates(unicastGoalStates, multicastGoalState);
         }
 
         return grpcDataPlaneClient.sendGoalStates(unicastGoalStates, multicastGoalState);
-    }
-
-    @Tracer
-    private void rebuildRouterState(Goalstate.GoalState.Builder goalStateBuilder, Goalstate.GoalState.Builder newGoalState) {
-        List<Router.RouterConfiguration.SubnetRoutingTable> subnetRoutingTables = new ArrayList<>();
-
-        for (Router.RouterConfiguration.SubnetRoutingTable subnetRoutingTable : newGoalState.getRouterStates(0).getConfiguration().getSubnetRoutingTablesList()) {
-            Router.RouterConfiguration.SubnetRoutingTable.Builder subnetRoutingTableBuilder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
-            subnetRoutingTableBuilder.setSubnetId(subnetRoutingTable.getSubnetId());
-            subnetRoutingTables.add(subnetRoutingTableBuilder.build());
-        }
-
-        List<Router.RouterState.Builder> routerStatesBuilders = goalStateBuilder.getRouterStatesBuilderList();
-        if (routerStatesBuilders != null && routerStatesBuilders.size() > 0) {
-            subnetRoutingTables.addAll(goalStateBuilder.
-                    getRouterStatesBuilder(0).
-                    getConfiguration().
-                    getSubnetRoutingTablesList());
-            String routerId = goalStateBuilder.getRouterStates(0).getConfiguration().getId();
-            String hostDvrMac = goalStateBuilder.getRouterStates(0).getConfiguration().getHostDvrMacAddress();
-            goalStateBuilder.removeRouterStates(0);
-
-            Router.RouterConfiguration.Builder routerConfigBuilder = Router.RouterConfiguration.newBuilder();
-            routerConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
-
-            //TODO: where does the hostDvrMacAddress come from ?
-            routerConfigBuilder.setHostDvrMacAddress(hostDvrMac);
-            routerConfigBuilder.setId(routerId);
-            routerConfigBuilder.addAllSubnetRoutingTables(subnetRoutingTables);
-            Router.RouterState.Builder routerStateBuilder = Router.RouterState.newBuilder();
-            routerStateBuilder.setConfiguration(routerConfigBuilder.build());
-            goalStateBuilder.addRouterStates(routerStateBuilder.build());
-        }
     }
 
     private List<String> processSecurityGroupConfiguration(NetworkConfiguration networkConfig) throws Exception {
@@ -521,7 +410,6 @@ public class DpmServiceImpl implements DpmService {
      * @return Hosts that failed to send GoalState
      * @throws Exception Process exceptions and send exceptions
      */
-    @Tracer
     private List<String> processRouterConfiguration(NetworkConfiguration networkConfig) throws Exception {
         List<InternalRouterInfo> internalRouterInfos = networkConfig.getInternalRouterInfos();
         MulticastGoalState multicastGoalState = new MulticastGoalState();
@@ -541,16 +429,12 @@ public class DpmServiceImpl implements DpmService {
             if (subnetRoutingTables != null) {
                 for (InternalSubnetRoutingTable subnetRoutingTable : subnetRoutingTables) {
                     String subnetId = subnetRoutingTable.getSubnetId();
-
                     InternalSubnetPorts subnetPorts = localCache.getSubnetPorts(subnetId);
                     if (subnetPorts == null) {
                         //throw new SubnetPortsNotFound();
                         //return new ArrayList<>();
                         continue;
                     }
-                    Set<String> ips = new HashSet<>();
-                    subnetRoutingTable.getRoutingRules().forEach(routingRule -> {ips.add(routingRule.getNextHopIp());});
-                    List<Neighbor.NeighborState> neighbors = neighborService.getAllNeighbors(ips) ;
 
                     for (PortHostInfo portHostInfo : subnetPorts.getPorts()) {
                         String hostIp = portHostInfo.getHostIp();
@@ -559,24 +443,9 @@ public class DpmServiceImpl implements DpmService {
                             unicastGoalState = new UnicastGoalState();
                             unicastGoalState.setHostIp(hostIp);
                             unicastGoalStateMap.put(hostIp, unicastGoalState);
-                            for (Neighbor.NeighborState neighbor : neighbors)
-                            {
-                                // neighbor can be NULL, at least in S5, so skip it
-                                if (neighbor == null)
-                                    continue;
-                                unicastGoalState.getGoalStateBuilder().addNeighborStates(neighbor);
-                                for (Neighbor.NeighborConfiguration.FixedIp fixIp : neighbor.getConfiguration().getFixedIpsList())
-                                {
-                                    if (ips.contains(fixIp.getIpAddress()))
-                                    {
-                                        subnetService.buildSubnetState(fixIp.getSubnetId(), unicastGoalState, multicastGoalState);
-                                    }
-                                }
-                            }
                         }
 
                         routerService.buildRouterState(routerInfo, subnetRoutingTable, unicastGoalState, multicastGoalState);
-                        subnetService.buildSubnetState(subnetId, unicastGoalState, multicastGoalState);
                     }
                 }
             }
@@ -595,7 +464,8 @@ public class DpmServiceImpl implements DpmService {
 
         //TODO: Merge UnicastGoalState with the same content, build MulticastGoalState
 
-        return grpcDataPlaneClient.sendGoalStates(unicastGoalStates);
+//        return grpcDataPlaneClient.sendGoalStates(unicastGoalStates);
+        return grpcDataPlaneClient.sendGoalStates(null);
     }
 
     private InternalDPMResultList buildResult(NetworkConfiguration networkConfig, List<String> failedHosts, long startTime) {
@@ -623,7 +493,6 @@ public class DpmServiceImpl implements DpmService {
         return result;
     }
 
-    @Tracer
     private InternalDPMResultList processNetworkConfiguration(NetworkConfiguration networkConfig) throws Exception {
         long startTime = System.currentTimeMillis();
         List<String> failedHosts = new ArrayList<>();
