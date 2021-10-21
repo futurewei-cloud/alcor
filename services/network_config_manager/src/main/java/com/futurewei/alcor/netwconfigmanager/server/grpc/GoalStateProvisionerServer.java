@@ -79,6 +79,8 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         IpInterceptor clientIpInterceptor = new IpInterceptor();
         this.server = ServerBuilder.forPort(this.port)
                 .addService(new GoalStateProvisionerImpl(clientIpInterceptor))
+                .maxInboundMessageSize(Integer.MAX_VALUE)
+                .maxInboundMetadataSize(Integer.MAX_VALUE)
                 .intercept(clientIpInterceptor)
                 .build();
     }
