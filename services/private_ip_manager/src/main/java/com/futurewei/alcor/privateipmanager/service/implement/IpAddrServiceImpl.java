@@ -151,6 +151,7 @@ public class IpAddrServiceImpl implements IpAddrService {
     public void releaseIpAddrBulk(IpAddrRequestBulk requestBulk) throws Exception {
         LOG.debug("Release ip address bulk, requestBulk: {}", requestBulk);
         // Using TreeMap make map key ordered in transaction.
+        // Not sorted key could lock db cache.
         SortedMap<String, List<String>> rangeToIpAddrList = new TreeMap<>();
 
         for (IpAddrRequest request: requestBulk.getIpRequests()) {

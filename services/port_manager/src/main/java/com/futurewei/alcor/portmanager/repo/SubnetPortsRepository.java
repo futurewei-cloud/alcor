@@ -54,7 +54,7 @@ public class SubnetPortsRepository {
             }
 
             for (PortEntity.FixedIp fixedIp: fixedIps) {
-                subnetPortIdsCache.put(fixedIp.getSubnetId() + "/" + portEntity.getId(), new PortIdSubnet(fixedIp.getSubnetId()));
+                subnetPortIdsCache.put(fixedIp.getSubnetId() + cacheFactory.KEY_DELIMITER + portEntity.getId(), new PortIdSubnet(fixedIp.getSubnetId()));
             }
         }
     }
@@ -73,7 +73,7 @@ public class SubnetPortsRepository {
         oldPortEntity.getFixedIps().forEach( item ->
                 {
                     try {
-                        subnetPortIdsCache.remove(item.getSubnetId() + "/" + oldPortEntity.getId());
+                        subnetPortIdsCache.remove(item.getSubnetId() + cacheFactory.KEY_DELIMITER + oldPortEntity.getId());
                     } catch (CacheException e) {
                         e.printStackTrace();
                     }
@@ -83,7 +83,7 @@ public class SubnetPortsRepository {
         newPortEntity.getFixedIps().forEach( item ->
                 {
                     try {
-                        subnetPortIdsCache.put(item.getSubnetId() + "/" + newPortEntity.getId(), new PortIdSubnet(item.getSubnetId()));
+                        subnetPortIdsCache.put(item.getSubnetId() + cacheFactory.KEY_DELIMITER + newPortEntity.getId(), new PortIdSubnet(item.getSubnetId()));
                     } catch (CacheException e) {
                         e.printStackTrace();
                     }
@@ -100,7 +100,7 @@ public class SubnetPortsRepository {
         portEntity.getFixedIps().forEach( item ->
                 {
                     try {
-                        subnetPortIdsCache.remove(item.getSubnetId() + "/" + portEntity.getId());
+                        subnetPortIdsCache.remove(item.getSubnetId() + cacheFactory.KEY_DELIMITER + portEntity.getId());
                     } catch (CacheException e) {
                         e.printStackTrace();
                     }

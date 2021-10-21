@@ -379,7 +379,6 @@ public class VpcController {
             }
             this.vpcDatabaseService.addSubnetId(projectid, vpcid, subnetid);
             inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
-            //inVpcState.setSubnets(this.vpcDatabaseService.getSubnetIds(vpcid));
 
 
         } catch (ParameterNullOrEmptyException e) {
@@ -415,7 +414,6 @@ public class VpcController {
             }
             this.vpcDatabaseService.deleteSubnetId(projectid, vpcid, subnetid);
             inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
-            //inVpcState.setSubnets(this.vpcDatabaseService.getSubnetIds(vpcid));
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);

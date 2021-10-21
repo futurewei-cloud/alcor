@@ -55,7 +55,7 @@ public class NeighborRepository {
             for (Map.Entry<String, List<NeighborInfo>> entry : neighbors.entrySet()) {
                 Map<String, NeighborInfo> neighborMap = entry.getValue()
                         .stream()
-                        .collect(Collectors.toMap(neighbor -> neighbor.getVpcId() + "/" + neighbor.getPortIp(), Function.identity()));
+                        .collect(Collectors.toMap(neighbor -> neighbor.getVpcId() + cacheFactory.KEY_DELIMITER + neighbor.getPortIp(), Function.identity()));
                 CacheConfiguration cfg = CommonUtil.getCacheConfiguration(getNeighborCacheName(projectId));
                 ICache<String, NeighborInfo> neighborCache = cacheFactory.getCache(NeighborInfo.class, cfg);
                 neighborCache.putAll(neighborMap);
@@ -77,7 +77,7 @@ public class NeighborRepository {
                     .collect(Collectors.toList());
 
             for (String oldPortIp: oldPortIps) {
-                neighborCache.remove(vpcId + "/" + oldPortIp);
+                neighborCache.remove(vpcId + cacheFactory.KEY_DELIMITER + oldPortIp);
             }
         }
 
@@ -85,7 +85,7 @@ public class NeighborRepository {
         if (newNeighbors != null) {
             Map<String, NeighborInfo> neighborMap = newNeighbors
                     .stream()
-                    .collect(Collectors.toMap(neighbor -> neighbor.getVpcId() + "/" + neighbor.getPortIp(), Function.identity()));
+                    .collect(Collectors.toMap(neighbor -> neighbor.getVpcId() + cacheFactory.KEY_DELIMITER + neighbor.getPortIp(), Function.identity()));
             neighborCache.putAll(neighborMap);
         }
     }
@@ -103,7 +103,7 @@ public class NeighborRepository {
 
             //Delete old neighborInfos
             for (String oldPortIp: oldPortIps) {
-                neighborCache.remove(vpcId + "/" + oldPortIp);
+                neighborCache.remove(vpcId + cacheFactory.KEY_DELIMITER + oldPortIp);
             }
         }
     }
