@@ -17,13 +17,17 @@ This is the code for the test controller, for testing the reactions between the 
 the ACA.
 
 Params:
-1. Number of ports to generate to each aca node
-2. IP of aca_node_one
-3. IP of aca_node_two
-4. IP of the GRPC call
-5. Port of the GRPC call
-6. User name of aca_nodes
-7. Password of aca_nodes
+1. Number of ports to generate on aca node one
+2. Number of ports to generate on aca node two
+3. IP of aca_node_one
+4. IP of aca_node_two
+5. IP of the GRPC call
+6. Port of the GRPC call
+7. User name of aca_nodes
+8. Password of aca_nodes
+9. Ping mode, either CONCURRENT_PING_MODE(0 and default), or SEQUENTIAL_PING_MODE(other numnbers)
+10. Whether execute background ping or not. If set to 1, execute background ping; otherwise, don't execute background ping
+11. Whether to create containers and execute ping.
 */
 package com.futurewei.alcor.pseudo_controller;
 
@@ -40,24 +44,30 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import org.awaitility.Awaitility;
 
 
 public class pseudo_controller {
 
     static String aca_node_one_ip = "ip_one";
     static String aca_node_two_ip = "ip_two";
+    static final int NUMBER_OF_NODES = 2;
     static String ncm_ip = "ip_three";
     static int ncm_port = 123;
     static String user_name = "root";
     static String password = "abcdefg";
-    static int ports_to_generate_on_each_aca_node = 1;
+    static int ports_to_generate_on_aca_node_one = 1;
+    static int ports_to_generate_on_aca_node_two = 1;
     static String docker_ps_cmd = "docker ps";
     static String vpc_id_1 = "2b08a5bc-b718-11ea-b3de-111111111112";
     static String port_ip_template = "11111111-b718-11ea-b3de-";
     static String subnet_id_1 = "27330ae4-b718-11ea-b3df-111111111113";
+    static String subnet_id_2 = "27330ae4-b718-11ea-b3df-111111111114";
     static String ips_ports_ip_prefix = "10";
     static String mac_port_prefix = "6c:dd:ee:";
     static String project_id = "alcor_testing_project";
@@ -69,27 +79,42 @@ public class pseudo_controller {
     static SortedMap<String, String> port_ip_to_container_name = new TreeMap<>();
     static Vector<String> node_one_port_ips = new Vector<>();
     static Vector<String> node_two_port_ips = new Vector<>();
+    static final int CONCURRENT_PING_MODE = 0;
+    static int user_chosen_ping_method = CONCURRENT_PING_MODE;
+    static final int THREAD_POOL_SIZE = 10;
+    static ExecutorService concurrent_create_containers_thread_pool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+    static ExecutorService backgroundPingExecutor = Executors.newFixedThreadPool(1);
+    static int user_chosen_execute_background_ping = 0;
+    static final int DO_EXECUTE_BACKGROUND_PING = 1;
+    static int finished_sending_goalstate_hosts_count = 0;
+    static final int CREATE_CONTAINER_AND_PING = 0;
+    static int whether_to_create_containers_and_ping = CREATE_CONTAINER_AND_PING;
+    static final int DEFAULT_VLAN_ID = 1;
 
     public static void main(String[] args) throws InterruptedException {
         System.out.println("Start of the test controller");
-        if (args.length == 7) {
+        if (args.length == 11) {
             System.out.println("User passed in params and we need to read them.");
-            ports_to_generate_on_each_aca_node = Integer.parseInt(args[0]);
-            aca_node_one_ip = args[1];
-            aca_node_two_ip = args[2];
-            ncm_ip = args[3];
-            ncm_port = Integer.parseInt(args[4]);
-            user_name = args[5];
-            password = args[6];
-
+            ports_to_generate_on_aca_node_one = Integer.parseInt(args[0]);
+            ports_to_generate_on_aca_node_two = Integer.parseInt(args[1]);
+            aca_node_one_ip = args[2];
+            aca_node_two_ip = args[3];
+            ncm_ip = args[4];
+            ncm_port = Integer.parseInt(args[5]);
+            user_name = args[6];
+            password = args[7];
+            user_chosen_ping_method = Integer.parseInt(args[8]);
+            user_chosen_execute_background_ping = Integer.parseInt(args[9]);
+            whether_to_create_containers_and_ping = Integer.parseInt(args[10]);
         }
-        generate_ip_macs(ports_to_generate_on_each_aca_node * 2);
-        create_containers_on_both_hosts();
+        System.out.println("ACA node one has "+ ports_to_generate_on_aca_node_one + " ports;\nACA node two has "+ports_to_generate_on_aca_node_two+" ports. \nTotal ports: "+(ports_to_generate_on_aca_node_one + ports_to_generate_on_aca_node_two));
+        generate_ip_macs(ports_to_generate_on_aca_node_one + ports_to_generate_on_aca_node_two);
+        create_containers_on_both_hosts_concurrently();
         System.out.println("aca_node_one_ip: " + aca_node_one_ip + "\naca_node_two_ip: " + aca_node_two_ip + "\nuser name: " + user_name + "\npassword: " + password);
 
         System.out.println("Containers setup done, now we gotta construct the GoalStateV2");
 
-        System.out.println("Trying to build the GoalStateV2 for " + ports_to_generate_on_each_aca_node + " Ports");
+        System.out.println("Trying to build the GoalStateV2 for " + ports_to_generate_on_aca_node_one + ports_to_generate_on_aca_node_two + " Ports");
 
 
         Goalstate.GoalStateV2.Builder GoalState_builder_one = Goalstate.GoalStateV2.newBuilder();
@@ -140,7 +165,7 @@ public class pseudo_controller {
             Neighbor.NeighborConfiguration.Builder NeighborConfiguration_builder = Neighbor.NeighborConfiguration.newBuilder();
             NeighborConfiguration_builder.setRevisionNumber(2);
             NeighborConfiguration_builder.setVpcId(vpc_id_1);
-            NeighborConfiguration_builder.setId(port_id+"_n");
+            NeighborConfiguration_builder.setId(port_id + "_n");
             NeighborConfiguration_builder.setMacAddress(port_mac);
             NeighborConfiguration_builder.setHostIpAddress(host_ip);
 
@@ -154,13 +179,13 @@ public class pseudo_controller {
             new_neighborState_builder.setConfiguration(NeighborConfiguration_builder.build());
             Neighbor.NeighborState neighborState_node_one = new_neighborState_builder.build();
 
-
             if (host_ip.equals(aca_node_one_ip)) {
 
                 GoalState_builder_one.putPortStates(port_state_one.getConfiguration().getId(), port_state_one);
 
                 host_resource_builder_node_one.addResources(port_one_resource_id);
                 // if this port is on host_one, then it is a neighbor for ports on host_two
+
                 GoalState_builder_two.putNeighborStates(neighborState_node_one.getConfiguration().getId(), neighborState_node_one);
                 Goalstate.ResourceIdType resource_id_type_neighbor_node_one = Goalstate.ResourceIdType.newBuilder().
                         setType(Common.ResourceType.NEIGHBOR).setId(neighborState_node_one.getConfiguration().getId()).build();
@@ -177,7 +202,58 @@ public class pseudo_controller {
             }
             System.out.println("Finished port state for port [" + port_ip + "] on host: [" + host_ip + "]");
         }
-
+//        Router.RouterState.Builder router_state_builder = Router.RouterState.newBuilder();
+//
+//        Router.RouterConfiguration.Builder router_configuration_builder = Router.RouterConfiguration.newBuilder();
+//
+//        Router.RouterConfiguration.RoutingRule.Builder router_rule_builder = Router.RouterConfiguration.RoutingRule.newBuilder();
+//
+//        Router.RouterConfiguration.RoutingRuleExtraInfo.Builder routing_rule_extra_info_builder = Router.RouterConfiguration.RoutingRuleExtraInfo.newBuilder();
+//
+//        routing_rule_extra_info_builder
+//                .setDestinationType(Router.DestinationType.VPC_GW)
+//                .setNextHopMac("6c:dd:ee:0:0:40");
+//
+//        router_rule_builder
+//                .setId("tc_sample_routing_rule")
+//                .setName("tc_sample_routing_rule")
+//                .setDestination("10.0.0.0/24")
+//                .setNextHopIp(aca_node_one_ip)
+//                .setPriority(999)
+//                .setRoutingRuleExtraInfo(routing_rule_extra_info_builder.build());
+//
+//        Router.RouterConfiguration.SubnetRoutingTable.Builder subnet_routing_table_builder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
+//        subnet_routing_table_builder
+//                .setSubnetId(subnet_id_1)
+//                .addRoutingRules(router_rule_builder.build());
+//
+//        Router.RouterConfiguration.SubnetRoutingTable.Builder subnet_routing_table_builder_two = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
+//        subnet_routing_table_builder_two
+//                .setSubnetId(subnet_id_2)
+//                .addRoutingRules(router_rule_builder.build());
+//
+//        router_configuration_builder
+//                .setRevisionNumber(777)
+//                .setRequestId("tc_sample_routing_rule"+"_rs")
+//                .setId("tc_sample_routing_rule"+"_r")
+//                .setUpdateType(Common.UpdateType.FULL)
+//                .setHostDvrMacAddress("6c:dd:ee:0:0:40")
+//                .addSubnetRoutingTables(subnet_routing_table_builder.build())
+//                .addSubnetRoutingTables(subnet_routing_table_builder_two.build());
+//
+//        router_state_builder
+//                .setOperationType(Common.OperationType.INFO)
+//                .setConfiguration(router_configuration_builder.build());
+//        Router.RouterState router_state = router_state_builder.build();
+//
+//        GoalState_builder_two.putRouterStates(router_state.getConfiguration().getId(), router_state);
+//        GoalState_builder_one.putRouterStates(router_state.getConfiguration().getId(), router_state);
+//        Goalstate.ResourceIdType resource_id_type_router_node_two = Goalstate.ResourceIdType.newBuilder().
+//                setType(Common.ResourceType.ROUTER)
+//                .setId(router_state.getConfiguration().getId())
+//                .build();
+//        host_resource_builder_node_two.addResources(resource_id_type_router_node_two);
+//        host_resource_builder_node_one.addResources(resource_id_type_router_node_two);
         // fill in subnet state structs
         Subnet.SubnetState.Builder new_subnet_states = Subnet.SubnetState.newBuilder();
 
@@ -190,10 +266,30 @@ public class pseudo_controller {
         subnet_configuration_builder.setId(subnet_id_1);
         subnet_configuration_builder.setCidr("10.0.0.0/24");
         subnet_configuration_builder.setTunnelId(21);
+        subnet_configuration_builder.setGateway(Subnet.SubnetConfiguration.Gateway.newBuilder().setIpAddress("0.0.0.0").setMacAddress("6c:dd:ee:0:0:40").build());
 
         new_subnet_states.setConfiguration(subnet_configuration_builder.build());
 
         Subnet.SubnetState subnet_state_for_both_nodes = new_subnet_states.build();
+
+        // fill in subnet state structs
+//        Subnet.SubnetState.Builder new_subnet_states_two = Subnet.SubnetState.newBuilder();
+//
+//        new_subnet_states_two.setOperationType(Common.OperationType.INFO);
+//
+//        Subnet.SubnetConfiguration.Builder subnet_configuration_builder_two = Subnet.SubnetConfiguration.newBuilder();
+//
+//        subnet_configuration_builder_two.setRevisionNumber(2);
+//        subnet_configuration_builder_two.setVpcId(vpc_id_1);
+//        subnet_configuration_builder_two.setId(subnet_id_2);
+//        subnet_configuration_builder_two.setCidr("10.0.0.0/24");
+//        subnet_configuration_builder_two.setTunnelId(22);
+//        subnet_configuration_builder_two.setGateway(Subnet.SubnetConfiguration.Gateway.newBuilder().setIpAddress("0.0.0.1").setMacAddress("6c:dd:ee:0:0:41").build());
+//
+//        new_subnet_states_two.setConfiguration(subnet_configuration_builder_two.build());
+//
+//        Subnet.SubnetState subnet_state_for_both_nodes_two = new_subnet_states_two.build();
+
         // put the new subnet state of subnet 1 into the goalstatev2
 
         // fill in VPC state structs
@@ -212,17 +308,24 @@ public class pseudo_controller {
         Vpc.VpcState vpc_state_for_both_nodes = new_vpc_states.build();
 
         GoalState_builder_one.putSubnetStates(subnet_state_for_both_nodes.getConfiguration().getId(), subnet_state_for_both_nodes);
+//        GoalState_builder_one.putSubnetStates(subnet_state_for_both_nodes_two.getConfiguration().getId(), subnet_state_for_both_nodes_two);
         GoalState_builder_two.putSubnetStates(subnet_state_for_both_nodes.getConfiguration().getId(), subnet_state_for_both_nodes);
+//        GoalState_builder_two.putSubnetStates(subnet_state_for_both_nodes_two.getConfiguration().getId(), subnet_state_for_both_nodes_two);
         GoalState_builder_one.putVpcStates(vpc_state_for_both_nodes.getConfiguration().getId(), vpc_state_for_both_nodes);
         GoalState_builder_two.putVpcStates(vpc_state_for_both_nodes.getConfiguration().getId(), vpc_state_for_both_nodes);
 
         Goalstate.ResourceIdType subnet_resource_id_type = Goalstate.ResourceIdType.newBuilder()
                 .setType(Common.ResourceType.SUBNET).setId(subnet_state_for_both_nodes.getConfiguration().getId()).build();
+//        Goalstate.ResourceIdType subnet_resource_id_type_two = Goalstate.ResourceIdType.newBuilder()
+//                .setType(Common.ResourceType.SUBNET).setId(subnet_state_for_both_nodes_two.getConfiguration().getId()).build();
 
         Goalstate.ResourceIdType vpc_resource_id_type = Goalstate.ResourceIdType.newBuilder().setType(Common.ResourceType.VPC).setId(vpc_state_for_both_nodes.getConfiguration().getId()).build();
         host_resource_builder_node_one.addResources(subnet_resource_id_type);
         host_resource_builder_node_two.addResources(subnet_resource_id_type);
         host_resource_builder_node_one_port_one_neighbor.addResources(subnet_resource_id_type);
+//        host_resource_builder_node_one.addResources(subnet_resource_id_type_two);
+//        host_resource_builder_node_two.addResources(subnet_resource_id_type_two);
+//        host_resource_builder_node_one_port_one_neighbor.addResources(subnet_resource_id_type_two);
         host_resource_builder_node_one.addResources(vpc_resource_id_type);
         host_resource_builder_node_two.addResources(vpc_resource_id_type);
         host_resource_builder_node_one_port_one_neighbor.addResources(vpc_resource_id_type);
@@ -233,8 +336,10 @@ public class pseudo_controller {
         Goalstate.GoalStateV2 message_one = GoalState_builder_one.build();
         Goalstate.GoalStateV2 message_two = GoalState_builder_two.build();
 
-        System.out.println("Built GoalState successfully, GoalStateV2 content for PORT1: \n" + message_one.toString() + "\n");
-        System.out.println("Built GoalState successfully, GoalStateV2 content for PORT2: \n" + message_two.toString() + "\n");
+//        System.out.println("Built GoalState successfully, GoalStateV2 content for PORT1: \n" + message_one.toString() + "\n");
+//        System.out.println("Built GoalState successfully, GoalStateV2 content for PORT2: \n" + message_two.toString() + "\n");
+        System.out.println("GoalStateV2 size in bytes for host1: \n" + message_one.getSerializedSize() + "\n");
+        System.out.println("GoalStateV2 size in bytes for host2: \n" + message_two.getSerializedSize() + "\n");
 
         System.out.println("Time to call the GRPC functions");
 
@@ -246,6 +351,7 @@ public class pseudo_controller {
         StreamObserver<Goalstateprovisioner.GoalStateOperationReply> message_observer = new StreamObserver<>() {
             @Override
             public void onNext(Goalstateprovisioner.GoalStateOperationReply value) {
+                finished_sending_goalstate_hosts_count ++ ;
                 System.out.println("onNext function with this GoalStateOperationReply: \n" + value.toString() + "\n");
             }
 
@@ -267,22 +373,47 @@ public class pseudo_controller {
 
         System.out.println("After calling onNext");
         response_observer.onCompleted();
+
+        System.out.println("Wait no longer than 6000 seconds until both goalstates are sent to both hosts.");
+        Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == NUMBER_OF_NODES);
+
+
+//        System.out.println("Try to send gsv1 to the host!");
+//
+//        ManagedChannel v1_chan_aca_1 = ManagedChannelBuilder.forAddress(aca_node_one_ip, 50001).usePlaintext().build();
+//        ManagedChannel v1_chan_aca_2 = ManagedChannelBuilder.forAddress(aca_node_two_ip, 50001).usePlaintext().build();
+//
+//        GoalStateProvisionerGrpc.GoalStateProvisionerBlockingStub v1_stub_aca_1 = GoalStateProvisionerGrpc.newBlockingStub(v1_chan_aca_1);
+//        GoalStateProvisionerGrpc.GoalStateProvisionerBlockingStub v1_stub_aca_2 = GoalStateProvisionerGrpc.newBlockingStub(v1_chan_aca_2);
+//
+//
+//        //  try to send gsv1 to the host, to see if the server supports gsv1 or not.
+//        for(int i = 0 ; i < ports_to_generate_on_each_aca_node ; i ++){
+//            System.out.println("Sending the " + i + "th gsv1 to ACA1 at: "+aca_node_one_ip);
+//            Goalstateprovisioner.GoalStateOperationReply reply_v1_aca_1 = v1_stub_aca_1.pushNetworkResourceStates(Goalstate.GoalState.getDefaultInstance());
+//            System.out.println("Received the " + i + "th reply: " + reply_v1_aca_1.toString()+" from ACA1 at: "+aca_node_one_ip);
+//            System.out.println("Sending the " + i + "th gsv1 to ACA2 at: "+aca_node_two_ip);
+//            Goalstateprovisioner.GoalStateOperationReply reply_v1_aca_2 = v1_stub_aca_2.pushNetworkResourceStates(Goalstate.GoalState.getDefaultInstance());
+//            System.out.println("Received the " + i + "th reply: " + reply_v1_aca_2.toString()+" from ACA1 at: "+aca_node_two_ip);
+//        }
+//        System.out.println("Done sending gsv1 to the host!");
+
         System.out.println("After the GRPC call, it's time to do the ping test");
-        System.out.println("Sleep 1 second first");
+
+        System.out.println("Sleep 10 seconds before executing the ping");
         try {
-            TimeUnit.SECONDS.sleep(1);
+            TimeUnit.SECONDS.sleep(10);
 
         } catch (Exception e) {
             System.out.println("I can't sleep!!!!");
 
         }
         List<concurrent_run_cmd> concurrent_ping_cmds = new ArrayList<>();
-        for (int i = 0; i < node_one_port_ips.size(); i++) {
-            if (i >= node_two_port_ips.size()) {
-                break;
-            }
-            String pinger_ip = node_one_port_ips.get(i);
+
+        for (int i = 0; i < node_two_port_ips.size(); i++) {
+            String pinger_ip = node_one_port_ips.get(i % node_one_port_ips.size());
             String pinger_container_name = port_ip_to_container_name.get(pinger_ip);
+//            String pingee_ip = node_two_port_ips.get(i);
             String pingee_ip = node_two_port_ips.get(i);
             String ping_cmd = "docker exec " + pinger_container_name + " ping -I " + pinger_ip + " -c1 " + pingee_ip;
             concurrent_ping_cmds.add(new concurrent_run_cmd(ping_cmd, aca_node_one_ip, user_name, password));
@@ -291,23 +422,19 @@ public class pseudo_controller {
 
         System.out.println("Time to execute these ping commands concurrently");
 
-        // Create a thread pool to execute the pings
-
-//        int MAX_THREADS = 5;  // thread pool size
-//
-//        ExecutorService pool = Executors.newFixedThreadPool(MAX_THREADS);
-
-        // Concurrently execute the pings.
-        for (concurrent_run_cmd cmd : concurrent_ping_cmds) {
-            //concurrent
-            Thread t = new Thread(cmd);
-            t.start();
-            // sequential
-            //cmd.run()
-            // use thread pool
-//            pool.execute(cmd);
+        if(whether_to_create_containers_and_ping == CREATE_CONTAINER_AND_PING){
+            // Execute the pings.
+            for (concurrent_run_cmd cmd : concurrent_ping_cmds) {
+                if (user_chosen_ping_method == CONCURRENT_PING_MODE) {
+                    //concurrent
+                    Thread t = new Thread(cmd);
+                    t.start();
+                } else {
+                    // sequential
+                    cmd.run();
+                }
+            }
         }
-
 
         System.out.println("End of the test controller");
         channel.shutdown();
@@ -330,7 +457,7 @@ public class pseudo_controller {
             port_ip_to_container_name.put(port_ip, container_name);
             String create_container_cmd = "docker run -itd --name " + container_name + " --net=none --label test=ACA busybox sh";
             String ovs_docker_add_port_cmd = "ovs-docker add-port br-int eth0 " + container_name + " --ipaddress=" + port_ip + "/16 --macaddress=" + port_mac;
-            String ovs_set_vlan_cmd = "ovs-docker set-vlan br-int eth0 " + container_name + " 1";
+            String ovs_set_vlan_cmd = "ovs-docker set-vlan br-int eth0 " + container_name + " " + String.valueOf(DEFAULT_VLAN_ID);
 
             int ip_last_octet = Integer.parseInt(port_ip.split("\\.")[3]);
             if (ip_last_octet % 2 != 0) {
@@ -360,9 +487,75 @@ public class pseudo_controller {
 
     }
 
+    private static void create_containers_on_both_hosts_concurrently() {
+        System.out.println("Creating containers on both hosts, ip_mac_map has " + ip_mac_map.keySet().size() + "keys");
+        int i = 1;
+        String background_pinger = "";
+        String background_pingee = "";
+        // use a countdown latch to wait for the threads to finish.
+        CountDownLatch latch = new CountDownLatch(ip_mac_map.keySet().size());
+        for (String port_ip : ip_mac_map.keySet()) {
+            String port_mac = ip_mac_map.get(port_ip);
+            String container_name = "test" + Integer.toString(i);
+            port_ip_to_container_name.put(port_ip, container_name);
+            String create_container_cmd = "docker run -itd --name " + container_name + " --net=none --label test=ACA busybox sh";
+            String ovs_docker_add_port_cmd = "ovs-docker add-port br-int eth0 " + container_name + " --ipaddress=" + port_ip + "/16 --macaddress=" + port_mac;
+            String ovs_set_vlan_cmd = "ovs-docker set-vlan br-int eth0 " + container_name + " 1";
+            Vector<String> create_one_container_and_assign_IP_vlax_commands = new Vector<>();
+            create_one_container_and_assign_IP_vlax_commands.add(create_container_cmd);
+            create_one_container_and_assign_IP_vlax_commands.add(ovs_docker_add_port_cmd);
+            create_one_container_and_assign_IP_vlax_commands.add(ovs_set_vlan_cmd);
+
+//            int ip_last_octet = Integer.parseInt(port_ip.split("\\.")[3]);
+            if (node_one_port_ips.size() != ports_to_generate_on_aca_node_one) {
+                System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + aca_node_one_ip + "]");
+                node_one_port_ips.add(port_ip);
+                port_ip_to_host_ip_map.put(port_ip, aca_node_one_ip);
+                if(whether_to_create_containers_and_ping == CREATE_CONTAINER_AND_PING){
+                    concurrent_create_containers_thread_pool.execute(() -> {
+                        execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands, aca_node_one_ip, user_name, password);
+                        latch.countDown();
+                    });
+                }
+                background_pinger = port_ip;
+            } else {
+                System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + aca_node_two_ip + "]");
+                node_two_port_ips.add(port_ip);
+                port_ip_to_host_ip_map.put(port_ip, aca_node_two_ip);
+                if(whether_to_create_containers_and_ping == CREATE_CONTAINER_AND_PING){
+                    concurrent_create_containers_thread_pool.execute(() -> {
+                        execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands, aca_node_two_ip, user_name, password);
+                        latch.countDown();
+                    });
+                }
+                background_pingee = port_ip;
+            }
+            i++;
+        }
+
+        if(whether_to_create_containers_and_ping == CREATE_CONTAINER_AND_PING){
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if (user_chosen_execute_background_ping == DO_EXECUTE_BACKGROUND_PING) {
+                // start the background thread here doing the ping from 1 port to another, util the ping is successful.
+                // it pings every 0.001 second, or 1 millisecond, for 60 seconds
+                String background_ping_command = "docker exec " + port_ip_to_container_name.get(background_pinger) + " ping -I " + background_pinger + " -c 60000 -i  0.001 " + background_pingee + " > /home/user/background_ping_output.log";
+                System.out.println("Created background ping cmd: " + background_ping_command);
+                concurrent_run_cmd c = new concurrent_run_cmd(background_ping_command, aca_node_one_ip, user_name, password);
+                backgroundPingExecutor.execute(c);
+            }
+        }
+
+        System.out.println("DONE creating containers on both hosts, host 1 has "+node_one_port_ips.size()+" ports, host 2 has "+node_two_port_ips.size()+" ports");
+    }
+
 
     // Generates IP/MAC for host_many_per_host, and inserts them into the hashmap
     public static void generate_ip_macs(int amount_of_ports_to_generate) {
+        System.out.println("Need to generate " + amount_of_ports_to_generate + " ports");
         int i = 2;
         while (ip_mac_map.size() != amount_of_ports_to_generate) {
             if (i % 100 != 0) {
@@ -378,6 +571,7 @@ public class pseudo_controller {
             }
             i++;
         }
+        System.out.println("Finished generating " + amount_of_ports_to_generate + " ports, ip->mac map has "+ ip_mac_map.size() +" entries, ip->id map has "+port_ip_to_id_map.size()+" entries");
     }
 
 
@@ -424,6 +618,7 @@ public class pseudo_controller {
             e.printStackTrace();
         }
     }
+
     public static void executeBashCommand(String command) {
 //        boolean success = false;
         System.out.println("Executing BASH command:\n   " + command);
