@@ -18,6 +18,7 @@ package com.futurewei.alcor.web.entity.route;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
 import lombok.Data;
+import org.apache.ignite.cache.query.annotations.QuerySqlField;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -43,6 +44,7 @@ public class Router extends CustomerResource {
     private String vpcDefaultRouteTableId;
 
     // store vpc_id
+    @QuerySqlField
     @JsonProperty("owner")
     private String owner;
 
