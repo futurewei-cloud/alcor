@@ -39,6 +39,9 @@ def put_httprequest(url, data=""):
        response.raise_for_status()
   except requests.exceptions.HTTPError as err:
      print("PUT Failed for {} with error".format(url, response.text))
+     print(response.json)
+     print("ERROR",err)
+     raise SystemExit(err)
 
 
 def post_httprequest(url, data=""):
