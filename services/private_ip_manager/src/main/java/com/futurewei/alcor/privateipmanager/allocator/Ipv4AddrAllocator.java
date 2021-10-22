@@ -59,6 +59,21 @@ public class Ipv4AddrAllocator implements IpAddrAllocator {
     }
 
     @Override
+    public int getIpIndex(String ip) throws Exception {
+        long ipLong = Ipv4AddrUtil.ipv4ToLong(ip);
+        if (ipLong < firstIp || ipLong > lastIp) {
+            throw new IpAddrInvalidException();
+        }
+
+        return (int)(ipLong - firstIp);
+    }
+
+    @Override
+    public String getIp(int index) throws Exception {
+        return Ipv4AddrUtil.longToIpv4(firstIp + index);
+    }
+
+    @Override
     public List<String> allocateBulk(int num) throws Exception {
         List<Integer> freeBits = new ArrayList<>();
         List<String> ipv4AddrList = new ArrayList<>();

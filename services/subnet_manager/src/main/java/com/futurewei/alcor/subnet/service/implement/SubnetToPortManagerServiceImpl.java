@@ -28,6 +28,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
+
 @Service
 public class SubnetToPortManagerServiceImpl implements SubnetToPortManagerService {
 
