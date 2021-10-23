@@ -23,6 +23,10 @@ public interface IpAddrAllocator {
 
     List<String> allocateBulk(int num) throws Exception;
 
+    int getIpIndex(String ip) throws Exception;
+
+    String getIp(int index) throws Exception;
+
     void release(String ipAddr) throws Exception;
 
     void releaseBulk(List<String> ipAddrList) throws Exception;

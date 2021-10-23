@@ -39,7 +39,7 @@ public interface IpAddrService {
 
     IpAddrRangeRequest createIpAddrRange(IpAddrRangeRequest request) throws Exception;
 
-    void deleteIpAddrRange(String rangeId) throws Exception;
+    void deleteIpAddrRange(String rangeId, String vpcId) throws Exception;
 
     IpAddrRangeRequest getIpAddrRange(String rangeId) throws Exception;
 
