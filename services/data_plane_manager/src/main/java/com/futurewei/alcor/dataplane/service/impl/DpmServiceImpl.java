@@ -311,7 +311,11 @@ public class DpmServiceImpl implements DpmService {
                 zetaGatewayClient.enableZetaGatewayForPort(portEntity);
             }
 
-            boolean fastPath = (portEntity.getFastPath() == null ? false : portEntity.getFastPath());
+            //boolean fastPath = (portEntity.getFastPath() == null ? false : portEntity.getFastPath());
+            boolean fastPath = false;
+            if (portEntity.getFastPath() != null && portEntity.getFastPath() == true) {
+                fastPath = portEntity.getFastPath();
+            }
             System.out.println("fastPath " + fastPath);
             System.out.println("portEntity.getFastPath() == null" + (portEntity.getFastPath() == null));
             System.out.println("portEntity.getFastPath(): " + portEntity.getFastPath());
