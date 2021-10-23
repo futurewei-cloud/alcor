@@ -90,6 +90,7 @@ public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, Mu
     }
 
     private List<String> doSendGoalStates(List<UnicastGoalState> unicastGoalStates) {
+        System.out.println("Grpc client send goal state.");
         List<Future<String>>
                 futures = new ArrayList<>(unicastGoalStates.size());
         for (UnicastGoalState unicastGoalState: unicastGoalStates) {
