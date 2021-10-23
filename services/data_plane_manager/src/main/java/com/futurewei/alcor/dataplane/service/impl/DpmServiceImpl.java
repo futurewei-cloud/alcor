@@ -312,8 +312,8 @@ public class DpmServiceImpl implements DpmService {
             }
 
             //boolean fastPath = (portEntity.getFastPath() == null ? false : portEntity.getFastPath());
-            boolean fastPath = false;
-            if (portEntity.getFastPath() != null && portEntity.getFastPath() == true) {
+            boolean fastPath = true;
+            if (portEntity.getFastPath() != null && portEntity.getFastPath() == false) {
                 fastPath = portEntity.getFastPath();
             }
             System.out.println("fastPath " + fastPath);
