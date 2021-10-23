@@ -4,6 +4,10 @@ metadata:
   name: dpm-configmap
 data:
   application.properties: |
+    server.port=9010
+    #Microservice url configuration
+    microservices.node.service.url=http://localhost:9007/nodes
+
     dataplane.grpc.port = 50001
     dataplane.isovs=true
     # the zipkin host should be YOURS
