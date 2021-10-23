@@ -60,12 +60,14 @@ public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, Mu
     @Override
     public List<String> sendGoalStates(
             List<UnicastGoalState> unicastGoalStates) throws Exception {
+        System.out.println("Grpc sendGoalStates");
         return doSendGoalStates(unicastGoalStates);
     }
 
     @Override
     public List<String> sendGoalStates(
             List<UnicastGoalState> unicastGoalStates, MulticastGoalState multicastGoalState) throws Exception {
+        System.out.println("Grpc sendGoalStates");
         if (unicastGoalStates == null) {
             unicastGoalStates = new ArrayList<>();
         }

@@ -148,6 +148,7 @@ public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, Mu
 
     @Override
     public List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates, MulticastGoalState multicastGoalState) throws Exception {
+        System.out.println("pulsarClient");
         List<String> failedHosts = new ArrayList<>();
 
         failedHosts.addAll(sendGoalStates(unicastGoalStates));
