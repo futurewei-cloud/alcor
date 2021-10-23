@@ -14,7 +14,11 @@ data:
     grpc.threads-pool-name = grpc-thread-pool
     #DPM v1 is statically using version 101
     #DPM v2 will start with version 102
-    protobuf.goal-state-message.version = 102
+    protobuf.goal-state-message.version = 101
+
+    grpc.number-of-channels-per-host = 10
+    grpc.number-of-warmups-per-channel = 1
+    grpc.monitor-hosts = 0.0.0.0,0.0.0.1
 
     #logging.file.path=./
     #logging.file.name=data-plane-manager.log
