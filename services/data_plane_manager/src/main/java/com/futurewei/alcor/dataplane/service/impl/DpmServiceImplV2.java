@@ -415,14 +415,14 @@ public class DpmServiceImplV2 implements DpmService {
      */
     private List<String> processRouterConfiguration(NetworkConfiguration networkConfig) throws Exception {
         List<InternalRouterInfo> internalRouterInfos = networkConfig.getInternalRouterInfos();
-        MulticastGoalState multicastGoalState = new MulticastGoalState();
+        MulticastGoalStateV2 multicastGoalState = new MulticastGoalStateV2();
 
         if (internalRouterInfos == null) {
             //throw new RouterInfoInvalid();
             return new ArrayList<>();
         }
 
-        Map<String, UnicastGoalState> unicastGoalStateMap = new HashMap<>();
+        Map<String, UnicastGoalStateV2> unicastGoalStateMap = new HashMap<>();
         for (InternalRouterInfo routerInfo: internalRouterInfos) {
             List<InternalSubnetRoutingTable> subnetRoutingTables =
                     routerInfo.getRouterConfiguration().getSubnetRoutingTables();
@@ -432,23 +432,42 @@ public class DpmServiceImplV2 implements DpmService {
             if (subnetRoutingTables != null) {
                 for (InternalSubnetRoutingTable subnetRoutingTable : subnetRoutingTables) {
                     String subnetId = subnetRoutingTable.getSubnetId();
+
                     InternalSubnetPorts subnetPorts = localCache.getSubnetPorts(subnetId);
                     if (subnetPorts == null) {
                         //throw new SubnetPortsNotFound();
                         //return new ArrayList<>();
                         continue;
                     }
+                    Set<String> ips = new HashSet<>();
+                    subnetRoutingTable.getRoutingRules().forEach(routingRule -> {ips.add(routingRule.getNextHopIp());});
+                    List<Neighbor.NeighborState> neighbors = neighborService.getAllNeighbors(ips) ;
 
                     for (PortHostInfo portHostInfo : subnetPorts.getPorts()) {
                         String hostIp = portHostInfo.getHostIp();
-                        UnicastGoalState unicastGoalState = unicastGoalStateMap.get(hostIp);
+                        UnicastGoalStateV2 unicastGoalState = unicastGoalStateMap.get(hostIp);
                         if (unicastGoalState == null) {
-                            unicastGoalState = new UnicastGoalState();
+                            unicastGoalState = new UnicastGoalStateV2();
                             unicastGoalState.setHostIp(hostIp);
                             unicastGoalStateMap.put(hostIp, unicastGoalState);
+                            for (Neighbor.NeighborState neighbor : neighbors)
+                            {
+                                // neighbor can be NULL, at least in S5, so skip it
+                                if (neighbor == null)
+                                    continue;
+                                unicastGoalState.getGoalStateBuilder().putNeighborStates(neighbor.getConfiguration().getId(), neighbor);
+                                for (Neighbor.NeighborConfiguration.FixedIp fixIp : neighbor.getConfiguration().getFixedIpsList())
+                                {
+                                    if (ips.contains(fixIp.getIpAddress()))
+                                    {
+                                        subnetService.buildSubnetState(fixIp.getSubnetId(), unicastGoalState, multicastGoalState);
+                                    }
+                                }
+                            }
                         }
 
                         routerService.buildRouterState(routerInfo, subnetRoutingTable, unicastGoalState, multicastGoalState);
+                        subnetService.buildSubnetState(subnetId, unicastGoalState, multicastGoalState);
                     }
                 }
             }
@@ -459,7 +478,7 @@ public class DpmServiceImplV2 implements DpmService {
             return new ArrayList<>();
         }
 
-        List<UnicastGoalState> unicastGoalStates = unicastGoalStateMap.values()
+        List<UnicastGoalStateV2> unicastGoalStates = unicastGoalStateMap.values()
                 .stream().peek(gs -> {
                     gs.setGoalState(gs.getGoalStateBuilder().build());
                     gs.setGoalStateBuilder(null);
@@ -467,8 +486,7 @@ public class DpmServiceImplV2 implements DpmService {
 
         //TODO: Merge UnicastGoalState with the same content, build MulticastGoalState
 
-//        return grpcDataPlaneClient.sendGoalStates(unicastGoalStates);
-        return grpcDataPlaneClient.sendGoalStates(null);
+        return grpcDataPlaneClient.sendGoalStates(unicastGoalStates);
     }
 
     private InternalDPMResultList buildResult(NetworkConfiguration networkConfig, List<String> failedHosts, long startTime) {
