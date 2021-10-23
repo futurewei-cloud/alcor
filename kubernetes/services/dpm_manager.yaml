@@ -4,28 +4,24 @@ metadata:
   name: dpm-configmap
 data:
   application.properties: |
-    server.port=9010
-    #Microservice url configuration
-    microservices.node.service.url=http://localhost:9007/nodes
-
     dataplane.grpc.port = 50001
     dataplane.isovs=true
     # the zipkin host should be YOURS
     # spring.zipkin.base-url=http://10.213.43.187:9411
 
-    grpc.number-of-channels-per-host = 10
-    grpc.number-of-warmups-per-channel = 1
-    grpc.monitor-hosts = 0.0.0.0,0.0.0.1
-    
     grpc.min-threads = 100
     grpc.max-threads = 200
     grpc.threads-pool-name = grpc-thread-pool
 
+    grpc.number-of-channels-per-host = 10
+    grpc.number-of-warmups-per-channel = 1
+    grpc.monitor-hosts = 0.0.0.0,0.0.0.1
+
+
     #DPM v1 is statically using version 101
     #DPM v2 will start with version 102
+    #protobuf.goal-state-message.version = 102
     protobuf.goal-state-message.version = 101
-
-
 
     #logging.file.path=./
     #logging.file.name=data-plane-manager.log
