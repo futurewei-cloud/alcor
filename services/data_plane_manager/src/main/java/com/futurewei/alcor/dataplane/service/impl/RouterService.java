@@ -156,9 +156,7 @@ public class RouterService extends ResourceService {
         String subnetId = subnetRoutingTable.getSubnetId();
         subnetRoutingTableBuilder.setSubnetId(subnetId);
         List<InternalRoutingRule> routingRules = subnetRoutingTable.getRoutingRules();
-        if (routingRules == null || routingRules.size() == 0) {
-            return;
-        }
+
         if (routingRules != null && routingRules.size() > 0) {
             for (InternalRoutingRule routingRule: routingRules) {
                 Router.RouterConfiguration.RoutingRule.Builder routingRuleBuilder = Router.RouterConfiguration.RoutingRule.newBuilder();
@@ -184,18 +182,9 @@ public class RouterService extends ResourceService {
         List<Router.RouterConfiguration.SubnetRoutingTable> subnetRoutingTablesList = new ArrayList<>();
         subnetRoutingTablesList.add(subnetRoutingTableBuilder.build());
 
-//        Goalstate.GoalState.Builder goalStateBuilder = unicastGoalState.getGoalStateBuilder();
-//        List<Router.RouterState.Builder> routerStatesBuilders = goalStateBuilder.getRouterStatesBuilderList();
-//        if (routerStatesBuilders != null && routerStatesBuilders.size() > 0) {
-//            subnetRoutingTablesList.addAll(goalStateBuilder.
-//                    getRouterStatesBuilder(0).
-//                    getConfiguration().
-//                    getSubnetRoutingTablesList());
-//            goalStateBuilder.removeRouterStates(0);
-//        }
-
         Goalstate.GoalStateV2.Builder goalStateBuilder = unicastGoalState.getGoalStateBuilder();
         List<Router.RouterState> routerStatesBuilders = new ArrayList<Router.RouterState>(goalStateBuilder.getRouterStatesMap().values());
+
         if (routerStatesBuilders != null && routerStatesBuilders.size() > 0) {
             Router.RouterState routerState = routerStatesBuilders.get(0);
             subnetRoutingTablesList.addAll(routerState.
