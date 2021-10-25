@@ -316,17 +316,12 @@ public class DpmServiceImpl implements DpmService {
             if (portEntity.getFastPath() != null && portEntity.getFastPath() == false) {
                 fastPath = portEntity.getFastPath();
             }
-            System.out.println("fastPath " + fastPath);
-            System.out.println("portEntity.getFastPath() == null" + (portEntity.getFastPath() == null));
-            System.out.println("portEntity.getFastPath(): " + portEntity.getFastPath());
             if (fastPath) {
-                System.out.println("processPortConfiguration grpc client");
                 if (!grpcHostPortEntities.containsKey(portEntity.getBindingHostIP())) {
                     grpcHostPortEntities.put(portEntity.getBindingHostIP(), new ArrayList<>());
                 }
                 grpcHostPortEntities.get(portEntity.getBindingHostIP()).add(portEntity);
             } else {
-                System.out.println("processPortConfiguration pulsar client");
                 if (!pulsarHostPortEntities.containsKey(portEntity.getBindingHostIP())) {
                     pulsarHostPortEntities.put(portEntity.getBindingHostIP(), new ArrayList<>());
                 }
@@ -337,13 +332,11 @@ public class DpmServiceImpl implements DpmService {
         List<String> statusList = new ArrayList<>();
 
         if (grpcHostPortEntities.size() != 0) {
-            System.out.println("processPortConfiguration grpc client");
             statusList.addAll(doCreatePortConfiguration(
                     networkConfig, grpcHostPortEntities, grpcDataPlaneClient));
         }
 
         if (pulsarHostPortEntities.size() != 0) {
-            System.out.println("processPortConfiguration pulsar client");
             statusList.addAll(doCreatePortConfiguration(
                     networkConfig, pulsarHostPortEntities, pulsarDataPlaneClient));
         }
