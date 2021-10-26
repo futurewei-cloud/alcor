@@ -162,7 +162,10 @@ public class RouterService extends ResourceService {
                 Router.RouterConfiguration.RoutingRule.Builder routingRuleBuilder = Router.RouterConfiguration.RoutingRule.newBuilder();
                 routingRuleBuilder.setOperationType(getOperationType(routingRule.getOperationType()));
                 routingRuleBuilder.setId(routingRule.getId());
-                routingRuleBuilder.setName(routingRule.getName());
+                if (routingRule.getName() != null)
+                {
+                    routingRuleBuilder.setName(routingRule.getName());
+                }
                 routingRuleBuilder.setDestination(routingRule.getDestination());
                 routingRuleBuilder.setNextHopIp(routingRule.getNextHopIp());
                 routingRuleBuilder.setPriority(routingRule.getPriority());
