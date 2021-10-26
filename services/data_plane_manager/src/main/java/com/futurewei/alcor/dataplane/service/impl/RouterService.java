@@ -171,7 +171,9 @@ public class RouterService extends ResourceService {
                     Router.RouterConfiguration.RoutingRuleExtraInfo.Builder extraInfoBuilder = Router.RouterConfiguration.RoutingRuleExtraInfo.newBuilder();
                     extraInfoBuilder.setDestinationType(getDestinationType(
                             routingRule.getRoutingRuleExtraInfo().getDestinationType()));
-                    extraInfoBuilder.setNextHopMac(routingRule.getRoutingRuleExtraInfo().getNextHopMac());
+                    if (routingRule.getRoutingRuleExtraInfo().getNextHopMac() != null) {
+                        extraInfoBuilder.setNextHopMac(routingRule.getRoutingRuleExtraInfo().getNextHopMac());
+                    }
                     routingRuleBuilder.setRoutingRuleExtraInfo(extraInfoBuilder.build());
                 }
 
