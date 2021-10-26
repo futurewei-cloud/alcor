@@ -202,7 +202,7 @@ public class RouterService extends ResourceService {
         routerConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
 
         //TODO: where does the hostDvrMacAddress come from ?
-        routerConfigBuilder.setHostDvrMacAddress(routerInfo.getRouterConfiguration().getHostDvrMac());
+        routerConfigBuilder.setHostDvrMacAddress(HOST_DVR_MAC);
         if (routerInfo.getRouterConfiguration().getId() != null) {
             routerConfigBuilder.setId(routerInfo.getRouterConfiguration().getId());
         }
@@ -210,7 +210,6 @@ public class RouterService extends ResourceService {
         Router.RouterState.Builder routerStateBuilder = Router.RouterState.newBuilder();
         routerStateBuilder.setConfiguration(routerConfigBuilder.build());
         Router.RouterState routerState = routerStateBuilder.build();
-
         unicastGoalState.getGoalStateBuilder().putRouterStates(routerState.getConfiguration().getId(), routerState);
         multicastGoalState.getGoalStateBuilder().putRouterStates(routerState.getConfiguration().getId(), routerState);
 
