@@ -203,7 +203,7 @@ public class RouterService extends ResourceService {
 
         //TODO: where does the hostDvrMacAddress come from ?
         //routerConfigBuilder.setHostDvrMacAddress(routerInfo.getRouterConfiguration().getHostDvrMac());
-        //It is workaround.
+        //It is workaround. host_dvr_mac_address from router configure.
         routerConfigBuilder.setHostDvrMacAddress(HOST_DVR_MAC);
         if (routerInfo.getRouterConfiguration().getId() != null) {
             routerConfigBuilder.setId(routerInfo.getRouterConfiguration().getId());
