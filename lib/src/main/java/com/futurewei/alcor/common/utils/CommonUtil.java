@@ -103,7 +103,7 @@ public class CommonUtil {
     }
 
     /**
-     *  Reture CacheConfiguration for transaction
+     *  Return CacheConfiguration for transaction
      * @param cacheName input String
      * @return  return cache configuration
      */
@@ -113,5 +113,25 @@ public class CommonUtil {
         cfg.setName(cacheName);
         cfg.setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL);
         return cfg;
+    }
+
+    /**
+     * Return a simple name of the class or member given a canonical name as string.
+     * @param canon
+     * @return simpleName
+     */
+
+    public static String getSimpleFromCanonicalName(String canon) {
+        int lastDot = canon.lastIndexOf(".");
+        return canon.substring(lastDot + 1);
+    }
+
+    /**
+     * Replace all dots with underscore to make a schema name
+     * @param className
+     * @return
+     */
+    public static String getSchemaNameForCacheClass(String className) {
+        return className.replaceAll("\\.", "_");
     }
 }
