@@ -42,6 +42,7 @@ import org.apache.ignite.client.IgniteClient;
 import org.apache.ignite.configuration.CacheConfiguration;
 import org.apache.ignite.lang.IgniteBiPredicate;
 import org.springframework.util.Assert;
+import org.springframework.util.TypeUtils;
 
 import javax.cache.Cache;
 import javax.cache.expiry.ExpiryPolicy;
@@ -55,6 +56,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
     private static final Logger logger = LoggerFactory.getLogger();
 
     private static final int RESULT_THRESHOLD_SIZE = 100000;
+    private static final String SQL_SCHEMA_NAME = "alcor";
     private ClientCache<K, V> cache;
     private final IgniteClientTransaction transaction;
     private class SqlField {
@@ -67,7 +69,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
     public IgniteClientDbCache(IgniteClient igniteClient, Class<?> v, String name) {
         String className = v.getName();
         try {
-            if (checkedForSqlFields == false) {
+            if (!checkedForSqlFields) {
                 checkedForSqlFields = true;
                 extractSqlFields(className);
                 if (sqlFields != null && sqlFields.size() != 0) {
@@ -114,7 +116,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
 
     public IgniteClientDbCache(IgniteClient igniteClient, Class<?> v, String name, ExpiryPolicy ep) {
         try {
-            if (checkedForSqlFields == false) {
+            if (!checkedForSqlFields) {
                 checkedForSqlFields = true;
                 extractSqlFields(v.getName());
                 if (sqlFields != null) {
@@ -206,7 +208,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
 
     @Override
     public V get(Map<String, Object[]> filterParams) throws CacheException {
-        if (checkForSqlFieldsQuery(filterParams) == true) {
+        if (!checkForSqlFieldsQuery(filterParams)) {
             return getBySqlFields(filterParams);
         }
         IgniteBiPredicate<String, BinaryObject> predicate = MapPredicate.getInstance(filterParams);
@@ -237,7 +239,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
 
     @Override
     public <E1, E2> Map<K, V> getAll(Map<String, Object[]> filterParams) throws CacheException {
-        if (checkForSqlFieldsQuery(filterParams) == true) {
+        if (!checkForSqlFieldsQuery(filterParams)) {
             return getBySqlFieldsAll(filterParams);
         }
         IgniteBiPredicate<String, BinaryObject> predicate = MapPredicate.getInstance(filterParams);
@@ -276,7 +278,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
     }
 
     private boolean checkForSqlFieldsQuery(Map<String, Object[]> filterParams) {
-        if (checkedForSqlFields == true && sqlFields == null)
+        if (checkedForSqlFields && (sqlFields == null || sqlFields.size() != 1))
             return false;
         /*
          * There must be exactly two sqlfileds, one for the index lookup
@@ -297,7 +299,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
             Map<K, V> result = runSQLFieldsQuery(filterParams);
             if (result == null || result.isEmpty())
                 return null;
-            return (V) result.get(0);
+            return result.get(0);
         }
         catch (Exception e) {
             return null;
@@ -306,10 +308,10 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
 
     public <E1, E2> Map<K, V> getBySqlFieldsAll(Map<String, Object[]> filterParams) {
         try {
-            Map<K, V> values = runSQLFieldsQuery(filterParams);
-            return values;
+            return  runSQLFieldsQuery(filterParams);
         }
         catch (Exception e) {
+            logger.log(Level.INFO, "getBySqlFieldsAll failed");
             return null;
         }
     }
@@ -337,14 +339,31 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
         }
     }
 
-    private String buildSqlFieldsQuery(Map<String, Object[]> filterParams){
+    private String buildSqlFieldsQuery(Map<String, Object[]> filterParams) {
+        SqlField valFld = sqlFields.get("value");
+        String valName = valFld.name;
+        String vaType  = valFld.type;
+        Class<?> v;
+        try {
+            v = Class.forName(vaType);
+        } catch (Exception e) {
+            logger.log(Level.INFO, "Failed to find type of " + vaType);
+            return null;
+        }
+
         StringBuilder sb = new StringBuilder("select ");
-        sb.append(sqlFields.get("value").name).append(" from \"");
-        sb.append(cache.getConfiguration().getName()).append("\"");
+        sb.append(valName).append(" from \"");
+        sb.append(cache.getConfiguration().getSqlSchema()).append("\".");
+        sb.append(cache.getConfiguration().getName());
         sb.append(" where ");
         sb.append(filterParams.keySet()).append(" = ");
+        if (TypeUtils.isAssignable(v, String.class)) {
+            sb.append("'");
+        }
         sb.append(filterParams.values());
-
+        if (TypeUtils.isAssignable(v, String.class)) {
+            sb.append("'");
+        }
         return sb.toString();
     }
 
@@ -360,29 +379,37 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
 
         SqlField idxFld = sqlFields.get("index");
         SqlField valFld = sqlFields.get("value");
-        Class<?> v = null;
+        Class<?> v;
         try {
             v = Class.forName(className);
         } catch (Exception e) {
             logger.log(Level.INFO, "Failed to get class for " + className);
             return null;
         }
-        QueryEntity qryEnt = null;
+        QueryEntity qryEnt;
 
         try {
-            String tblName = CommonUtil.getSimpleFromCanonicalName(valFld.name);
-            qryEnt = new QueryEntity(idxFld.type, valFld.name).setTableName(tblName);
+            String tblName = CommonUtil.getSimpleFromCanonicalName(cacheName);
+            qryEnt = new QueryEntity(idxFld.type, className).setTableName(tblName);
+            logger.log(Level.INFO, "QueryEntity = " + qryEnt);
             logger.log(Level.INFO, "Setting table " + tblName + " for cache " + className);
         } catch (Exception e) {
             logger.log(Level.INFO, "Failed to get type for index field " + idxFld.name);
             return null;
         }
         try {
-            qryEnt.setKeyFieldName(idxFld.name);
-            qryEnt.setValueType(idxFld.type);
+            // qryEnt.setKeyFieldName(idxFld.name);
+            qryEnt.setKeyType(idxFld.type);
+            logger.log(Level.INFO, "QE: setKeyType = " + idxFld.type);
+            qryEnt.setValueType(className);
+            logger.log(Level.INFO, "QE: setValueType = " + cacheName);
             qryEnt.addQueryField(idxFld.name, idxFld.type, null);
+            logger.log(Level.INFO, "AQF: name = " + idxFld.name + ", type = " + idxFld.type);
+
             qryEnt.addQueryField(valFld.name, valFld.type, null);
+            logger.log(Level.INFO, "AQF: name = " + valFld.name + ", type = " + valFld.type);
             QueryIndex qryIndex = new QueryIndex(idxFld.name);
+            logger.log(Level.INFO, "QI: name = " + idxFld.name);
             qryEnt.setIndexes(Collections.singleton(qryIndex));
         }
         catch (Exception e) {
@@ -391,13 +418,14 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
         }
 
         cacheConfig.setQueryEntities(qryEnt);
-        String schName = CommonUtil.getSchemaNameForCacheClass(v.getName());
-        logger.log(Level.INFO, "Setting schema name " + schName + " for cahce " + cacheName);
-        cacheConfig.setSqlSchema(schName);
+        // String schName = CommonUtil.getSchemaNameForCacheClass(v.getName());
+        logger.log(Level.INFO, "Setting schema name " + SQL_SCHEMA_NAME + " for cahce " + cacheName);
+        cacheConfig.setSqlSchema(SQL_SCHEMA_NAME);
 
+        logger.log(Level.INFO, "cacheConfig = " + cacheConfig.toString());
         // also make not of this cache, somewhere, somehow?
         // have a static cache?
-        ClientCache<K, V> cache = null;
+        ClientCache<K, V> cache;
 
         if (ep != null) {
             cache = igniteClient.getOrCreateCache(cacheConfig).withExpirePolicy(ep);
@@ -447,7 +475,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
                 }
             }
 
-            if (localFields.isEmpty() == false && localFields.containsValue(className) == false) {
+            if (!(localFields.isEmpty() || localFields.containsValue(className))) {
                 SqlField sqlField = new SqlField();
                 sqlField.name = className;
                 sqlField.type = v.getTypeName();
