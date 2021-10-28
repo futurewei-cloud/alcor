@@ -390,7 +390,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
 
         try {
             String tblName = CommonUtil.getSimpleFromCanonicalName(cacheName);
-            qryEnt = new QueryEntity(idxFld.type, className).setTableName(tblName);
+            qryEnt = new QueryEntity().setTableName(tblName);
             logger.log(Level.INFO, "QueryEntity = " + qryEnt);
             logger.log(Level.INFO, "Setting table " + tblName + " for cache " + className);
         } catch (Exception e) {
@@ -400,16 +400,19 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
         try {
             // qryEnt.setKeyFieldName(idxFld.name);
             qryEnt.setKeyType(idxFld.type);
-            logger.log(Level.INFO, "QE: setKeyType = " + idxFld.type);
             qryEnt.setValueType(className);
-            logger.log(Level.INFO, "QE: setValueType = " + cacheName);
+            qryEnt.setKeyFieldName(idxFld.name);
+            qryEnt.setValueFieldName(valFld.name);
             qryEnt.addQueryField(idxFld.name, idxFld.type, null);
-            logger.log(Level.INFO, "AQF: name = " + idxFld.name + ", type = " + idxFld.type);
+            logger.log(Level.INFO, "QE: " + qryEnt);
 
+            // qryEnt.setKeyType(valFld.name);
+            // qryEnt.setValueType(valFld.type);
             qryEnt.addQueryField(valFld.name, valFld.type, null);
-            logger.log(Level.INFO, "AQF: name = " + valFld.name + ", type = " + valFld.type);
+            logger.log(Level.INFO, "QE: " + qryEnt);
+
             QueryIndex qryIndex = new QueryIndex(idxFld.name);
-            logger.log(Level.INFO, "QI: name = " + idxFld.name);
+            logger.log(Level.INFO, "QI: " + qryIndex);
             qryEnt.setIndexes(Collections.singleton(qryIndex));
         }
         catch (Exception e) {
