@@ -156,45 +156,40 @@ public class RouterService extends ResourceService {
         String subnetId = subnetRoutingTable.getSubnetId();
         subnetRoutingTableBuilder.setSubnetId(subnetId);
         List<InternalRoutingRule> routingRules = subnetRoutingTable.getRoutingRules();
-        if (routingRules == null || routingRules.size() == 0) {
-            return;
-        }
 
-        for (InternalRoutingRule routingRule: routingRules) {
-            Router.RouterConfiguration.RoutingRule.Builder routingRuleBuilder = Router.RouterConfiguration.RoutingRule.newBuilder();
-            routingRuleBuilder.setOperationType(getOperationType(routingRule.getOperationType()));
-            routingRuleBuilder.setId(routingRule.getId());
-            routingRuleBuilder.setName(routingRule.getName());
-            routingRuleBuilder.setDestination(routingRule.getDestination());
-            routingRuleBuilder.setNextHopIp(routingRule.getNextHopIp());
-            routingRuleBuilder.setPriority(routingRule.getPriority());
+        if (routingRules != null && routingRules.size() > 0) {
+            for (InternalRoutingRule routingRule: routingRules) {
+                Router.RouterConfiguration.RoutingRule.Builder routingRuleBuilder = Router.RouterConfiguration.RoutingRule.newBuilder();
+                routingRuleBuilder.setOperationType(getOperationType(routingRule.getOperationType()));
+                routingRuleBuilder.setId(routingRule.getId());
+                if (routingRule.getName() != null)
+                {
+                    routingRuleBuilder.setName(routingRule.getName());
+                }
+                routingRuleBuilder.setDestination(routingRule.getDestination());
+                routingRuleBuilder.setNextHopIp(routingRule.getNextHopIp());
+                routingRuleBuilder.setPriority(routingRule.getPriority());
 
-            if (routingRule.getRoutingRuleExtraInfo() != null) {
-                Router.RouterConfiguration.RoutingRuleExtraInfo.Builder extraInfoBuilder = Router.RouterConfiguration.RoutingRuleExtraInfo.newBuilder();
-                extraInfoBuilder.setDestinationType(getDestinationType(
-                        routingRule.getRoutingRuleExtraInfo().getDestinationType()));
-                extraInfoBuilder.setNextHopMac(routingRule.getRoutingRuleExtraInfo().getNextHopMac());
-                routingRuleBuilder.setRoutingRuleExtraInfo(extraInfoBuilder.build());
+                if (routingRule.getRoutingRuleExtraInfo() != null) {
+                    Router.RouterConfiguration.RoutingRuleExtraInfo.Builder extraInfoBuilder = Router.RouterConfiguration.RoutingRuleExtraInfo.newBuilder();
+                    extraInfoBuilder.setDestinationType(getDestinationType(
+                            routingRule.getRoutingRuleExtraInfo().getDestinationType()));
+                    if (routingRule.getRoutingRuleExtraInfo().getNextHopMac() != null) {
+                        extraInfoBuilder.setNextHopMac(routingRule.getRoutingRuleExtraInfo().getNextHopMac());
+                    }
+                    routingRuleBuilder.setRoutingRuleExtraInfo(extraInfoBuilder.build());
+                }
+
+                subnetRoutingTableBuilder.addRoutingRules(routingRuleBuilder.build());
             }
-
-            subnetRoutingTableBuilder.addRoutingRules(routingRuleBuilder.build());
         }
 
         List<Router.RouterConfiguration.SubnetRoutingTable> subnetRoutingTablesList = new ArrayList<>();
         subnetRoutingTablesList.add(subnetRoutingTableBuilder.build());
 
-//        Goalstate.GoalState.Builder goalStateBuilder = unicastGoalState.getGoalStateBuilder();
-//        List<Router.RouterState.Builder> routerStatesBuilders = goalStateBuilder.getRouterStatesBuilderList();
-//        if (routerStatesBuilders != null && routerStatesBuilders.size() > 0) {
-//            subnetRoutingTablesList.addAll(goalStateBuilder.
-//                    getRouterStatesBuilder(0).
-//                    getConfiguration().
-//                    getSubnetRoutingTablesList());
-//            goalStateBuilder.removeRouterStates(0);
-//        }
-
         Goalstate.GoalStateV2.Builder goalStateBuilder = unicastGoalState.getGoalStateBuilder();
         List<Router.RouterState> routerStatesBuilders = new ArrayList<Router.RouterState>(goalStateBuilder.getRouterStatesMap().values());
+
         if (routerStatesBuilders != null && routerStatesBuilders.size() > 0) {
             Router.RouterState routerState = routerStatesBuilders.get(0);
             subnetRoutingTablesList.addAll(routerState.
@@ -207,13 +202,16 @@ public class RouterService extends ResourceService {
         routerConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
 
         //TODO: where does the hostDvrMacAddress come from ?
-        routerConfigBuilder.setHostDvrMacAddress(routerInfo.getRouterConfiguration().getHostDvrMac());
-        routerConfigBuilder.setId(routerInfo.getRouterConfiguration().getId());
+        //routerConfigBuilder.setHostDvrMacAddress(routerInfo.getRouterConfiguration().getHostDvrMac());
+        //It is workaround. host_dvr_mac_address from router configure.
+        routerConfigBuilder.setHostDvrMacAddress(HOST_DVR_MAC);
+        if (routerInfo.getRouterConfiguration().getId() != null) {
+            routerConfigBuilder.setId(routerInfo.getRouterConfiguration().getId());
+        }
         routerConfigBuilder.addAllSubnetRoutingTables(subnetRoutingTablesList);
         Router.RouterState.Builder routerStateBuilder = Router.RouterState.newBuilder();
         routerStateBuilder.setConfiguration(routerConfigBuilder.build());
         Router.RouterState routerState = routerStateBuilder.build();
-
         unicastGoalState.getGoalStateBuilder().putRouterStates(routerState.getConfiguration().getId(), routerState);
         multicastGoalState.getGoalStateBuilder().putRouterStates(routerState.getConfiguration().getId(), routerState);
 

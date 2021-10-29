@@ -86,8 +86,8 @@ public class SubnetControllerTests {
     public void subnetGetById_canFindSubnet_pass () throws Exception {
         Mockito.when(subnetDatabaseService.getBySubnetId(UnitTestConfig.subnetId))
                 .thenReturn(new SubnetEntity(UnitTestConfig.projectId,
-                UnitTestConfig.vpcId, UnitTestConfig.subnetId,
-                UnitTestConfig.name, UnitTestConfig.cidr));
+                        UnitTestConfig.vpcId, UnitTestConfig.subnetId,
+                        UnitTestConfig.name, UnitTestConfig.cidr));
         this.mockMvc.perform(get(getByIdUri))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -325,9 +325,9 @@ public class SubnetControllerTests {
     public void deleteSubnetState_deleteWhenIdExist_pass () throws Exception {
         Mockito.when(subnetDatabaseService.getBySubnetId(UnitTestConfig.subnetId))
                 .thenReturn(new SubnetEntity( UnitTestConfig.projectId,
-                UnitTestConfig.vpcId,
-                UnitTestConfig.subnetId,
-                UnitTestConfig.name,UnitTestConfig.cidr));
+                        UnitTestConfig.vpcId,
+                        UnitTestConfig.subnetId,
+                        UnitTestConfig.name,UnitTestConfig.cidr));
         this.mockMvc.perform(delete(deleteUri))
                 .andDo(print())
                 .andExpect(status().isOk())

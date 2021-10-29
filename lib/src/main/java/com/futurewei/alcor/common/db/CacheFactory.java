@@ -35,6 +35,9 @@ public class CacheFactory {
 
     @Autowired
     private ICacheFactory iCacheFactory;
+
+    public final String KEY_DELIMITER = "/";
+
     public <K, V> ICache<K, V> getCache(Class<V> v) {
         return iCacheFactory.getCache(v);
     }

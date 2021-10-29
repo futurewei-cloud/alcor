@@ -310,8 +310,10 @@ public class DpmServiceImpl implements DpmService {
             if (zetaGatwayEnabled) {
                 zetaGatewayClient.enableZetaGatewayForPort(portEntity);
             }
-
-            boolean fastPath = portEntity.getFastPath() == null ? false : portEntity.getFastPath();
+            boolean fastPath = true;
+            if (portEntity.getFastPath() != null && portEntity.getFastPath() == false) {
+                fastPath = portEntity.getFastPath();
+            }
             if (fastPath) {
                 if (!grpcHostPortEntities.containsKey(portEntity.getBindingHostIP())) {
                     grpcHostPortEntities.put(portEntity.getBindingHostIP(), new ArrayList<>());
