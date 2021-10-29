@@ -208,7 +208,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
 
     @Override
     public V get(Map<String, Object[]> filterParams) throws CacheException {
-        if (!checkForSqlFieldsQuery(filterParams)) {
+        if (checkForSqlFieldsQuery(filterParams)) {
             return getBySqlFields(filterParams);
         }
         IgniteBiPredicate<String, BinaryObject> predicate = MapPredicate.getInstance(filterParams);
@@ -239,7 +239,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
 
     @Override
     public <E1, E2> Map<K, V> getAll(Map<String, Object[]> filterParams) throws CacheException {
-        if (!checkForSqlFieldsQuery(filterParams)) {
+        if (checkForSqlFieldsQuery(filterParams)) {
             return getBySqlFieldsAll(filterParams);
         }
         IgniteBiPredicate<String, BinaryObject> predicate = MapPredicate.getInstance(filterParams);
@@ -278,7 +278,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
     }
 
     private boolean checkForSqlFieldsQuery(Map<String, Object[]> filterParams) {
-        if (checkedForSqlFields && (sqlFields == null || sqlFields.size() != 1))
+        if (checkedForSqlFields && (sqlFields == null || sqlFields.size() == 0))
             return false;
         /*
          * There must be exactly two sqlfileds, one for the index lookup
@@ -287,7 +287,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
          * The entry in the filterparams should be an indexed field.
          * If these conditions are true, run SQLFieldsQuery otherwise, ScanQuery.
          */
-        if (sqlFields.size() == 2 && filterParams.size() == 1 && sqlFields.containsKey(filterParams.keySet())) {
+        if (sqlFields.size() == 2 && filterParams.size() == 1 && filterParams.containsKey(sqlFields.get("index").name)) {
             return true;
         }
 
@@ -343,6 +343,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
         SqlField valFld = sqlFields.get("value");
         String valName = valFld.name;
         String vaType  = valFld.type;
+        String keyFldName = sqlFields.get("index").name;
         Class<?> v;
         try {
             v = Class.forName(vaType);
@@ -351,19 +352,23 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
             return null;
         }
 
+        boolean needQuotes = false;
+        String keyType = sqlFields.get("index").type;
+        if (this.sqlFields.get("index").type.equals("java.lang.String"))
+            needQuotes = true;
+
         StringBuilder sb = new StringBuilder("select ");
-        sb.append(valName).append(" from \"");
-        sb.append(cache.getConfiguration().getSqlSchema()).append("\".");
-        sb.append(cache.getConfiguration().getName());
+        sb.append(sqlFields.get("index").name).append(", ");
+        sb.append(CommonUtil.getSimpleFromCanonicalName(valName)).append(" from ");
+        sb.append(SQL_SCHEMA_NAME).append(".");
+        sb.append(cache.getConfiguration().getQueryEntities()[0].getTableName());
         sb.append(" where ");
-        sb.append(filterParams.keySet()).append(" = ");
-        if (TypeUtils.isAssignable(v, String.class)) {
+        sb.append(sqlFields.get("index").name).append(" = ");
+        if (needQuotes)
             sb.append("'");
-        }
-        sb.append(filterParams.values());
-        if (TypeUtils.isAssignable(v, String.class)) {
+        sb.append(filterParams.get(keyFldName)[0]);
+        if (needQuotes)
             sb.append("'");
-        }
         return sb.toString();
     }
 
