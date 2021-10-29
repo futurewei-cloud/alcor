@@ -22,31 +22,31 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
   
   kubectl delete clusterrolebinding ignite-alcor
   kubectl delete clusterrole ignite-alcor
-  #kubectl delete namespaces ignite-alcor
   kubectl delete serviceaccounts ignite-alcor -n ignite-alcor
   kubectl delete services ignite-alcor-service -n ignite-alcor
   kubectl delete StatefulSet ignite-alcor -n ignite-alcor
+  kubectl delete namespaces ignite-alcor
 
   kubectl delete clusterrolebinding ignite-alcor-ip
   kubectl delete clusterrole ignite-alcor-ip
-  #kubectl delete namespaces ignite-alcor-ip
   kubectl delete serviceaccounts ignite-alcor-ip -n ignite-alcor-ip
   kubectl delete services ignite-alcor-ip-service -n ignite-alcor-ip
   kubectl delete StatefulSet ignite-alcor-ip -n ignite-alcor-ip
+  kubectl delete namespaces ignite-alcor-ip
 
   kubectl delete clusterrolebinding ignite-alcor-port
   kubectl delete clusterrole ignite-alcor-port
-  #kubectl delete namespaces ignite-alcor-port
   kubectl delete serviceaccounts ignite-alcor-port -n ignite-alcor-port
   kubectl delete services ignite-alcor-port-service -n ignite-alcor-port
   kubectl delete StatefulSet ignite-alcor-port -n ignite-alcor-port
+  kubectl delete namespaces ignite-alcor-port
 
   kubectl delete clusterrolebinding ignite-alcor-mac
   kubectl delete clusterrole ignite-alcor-mac
-  #kubectl delete namespaces ignite-alcor-mac
   kubectl delete serviceaccounts ignite-alcor-mac -n ignite-alcor-mac
   kubectl delete services ignite-alcor-mac-service -n ignite-alcor-mac
   kubectl delete StatefulSet ignite-alcor-mac -n ignite-alcor-mac
+  kubectl delete namespaces ignite-alcor-mac
 
   kubectl delete configmap sg-configmap
   kubectl delete services sgmanager-service

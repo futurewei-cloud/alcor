@@ -18,12 +18,12 @@
 # Install prerequisites
 if [[ "$OSTYPE" == "linux-gnu" ]]; then
 
-  echo "Create yaml files"
+  echo "Create ignite yaml files"
 
-  for d in *;
+  for d in db/ignite/*.yaml;
   do
       kubectl create -f $d
-      echo "Create yaml -  $d completed"
+      echo "Create ignite yaml -  $d completed"
   done
   
   echo "Create yaml files done"
@@ -45,6 +45,13 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
   kubectl exec -it ignite-alcor-port-0 -n ignite-alcor-port -c ignite-alcor-port-node -- /opt/ignite/apache-ignite/bin/control.sh --activate
   #cd apache-ignite/bin/
   #./control.sh --activate
+
+
+  for d in services/*.yaml;
+  do
+      kubectl create -f $d
+      echo "Create ignite yaml -  $d completed"
+  done
   
   echo "ignite cluster has been activated"
 

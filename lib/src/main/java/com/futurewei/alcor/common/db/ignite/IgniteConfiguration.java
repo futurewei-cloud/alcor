@@ -94,7 +94,12 @@ public class IgniteConfiguration {
     private IgniteClient getThinIgniteClient() {
         ClientConfiguration cfg = new ClientConfiguration();
 
-        cfg.setAddresses(host + ":" + port);
+        /***
+         * With partition awareness in place, the thin client can directly route queries and operations to the primary nodes that own the data required for the queries.
+         * This eliminates the bottleneck, allowing the application to scale more easily.
+         */
+        cfg.setAddresses(host + ":" + port)
+                .setPartitionAwarenessEnabled(true);
 
         if (keyStorePath != null && keyStorePassword != null &&
                 trustStorePath != null && trustStorePassword != null) {

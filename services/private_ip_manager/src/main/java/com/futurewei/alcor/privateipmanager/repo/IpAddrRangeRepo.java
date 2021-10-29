@@ -338,7 +338,7 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
     }
 
     @DurationStatistics
-    public synchronized void releaseIpAddrBulk(Map<String, List<String>> requests) throws Exception {
+    public synchronized void releaseIpAddrBulk(SortedMap<String, List<String>> requests) throws Exception {
         try (Transaction tx = ipAddrRangeCache.getTransaction().start()) {
             releaseIpAddrBulkMethod(requests);
             tx.commit();
@@ -406,10 +406,10 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
     }
 
     @DurationStatistics
-    public synchronized IpAddrRange deleteIpAddrRange(String rangeId) throws Exception {
+    public synchronized IpAddrRange deleteIpAddrRange(String rangeId, String vpcId) throws Exception {
         IpAddrRange ipAddrRange = null;
         try (Transaction tx = ipAddrRangeCache.getTransaction().start()) {
-            VpcIpRange vpcIpRange = vpcIpRangeCache.get(ipAddrRange.getVpcId());
+            VpcIpRange vpcIpRange = vpcIpRangeCache.get(vpcId);
             if (vpcIpRange != null) {
                 vpcIpRange.getRanges().remove(ipAddrRange.getId());
 
@@ -444,7 +444,7 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
     }
 
     @DurationStatistics
-    public synchronized List<IpAddrAlloc> updateIpAddr(IpAddrUpdateRequest request,Map<String, List<String>> rangeToIpAddrList,Map<String, List<IpAddrRequest>> rangeRequests,
+    public synchronized List<IpAddrAlloc> updateIpAddr(IpAddrUpdateRequest request,SortedMap<String, List<String>> rangeToIpAddrList,Map<String, List<IpAddrRequest>> rangeRequests,
                                                        Map<String, List<IpAddrRequest>> vpcIpv4Requests,Map<String, List<IpAddrRequest>> vpcIpv6Requests) throws Exception {
         List<IpAddrAlloc> result = null;
 
@@ -473,7 +473,7 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
         return result;
     }
 
-    private void releaseIpAddrBulkMethod(Map<String, List<String>> requests) throws Exception{
+    private void releaseIpAddrBulkMethod(SortedMap<String, List<String>> requests) throws Exception{
         for (Map.Entry<String, List<String>> entry: requests.entrySet()) {
             IpAddrRange ipAddrRange = ipAddrRangeCache.get(entry.getKey());
             if (ipAddrRange == null) {

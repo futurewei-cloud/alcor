@@ -18,7 +18,9 @@ package com.futurewei.alcor.dataplane.service.impl;
 import com.futurewei.alcor.dataplane.cache.NeighborCache;
 import com.futurewei.alcor.dataplane.cache.SubnetPortsCache;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
+import com.futurewei.alcor.dataplane.entity.MulticastGoalStateV2;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
+import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
 import com.futurewei.alcor.dataplane.exception.NeighborInfoNotFound;
 import com.futurewei.alcor.dataplane.exception.PortFixedIpNotFound;
 import com.futurewei.alcor.schema.*;
@@ -188,6 +190,106 @@ public class NeighborService extends ResourceService {
             }
         }
     }
+
+    public void buildNeighborStates(NetworkConfiguration networkConfig, String hostIp,
+                                    UnicastGoalStateV2 unicastGoalState,
+                                    MulticastGoalStateV2 multicastGoalState) throws Exception {
+        Map<String, NeighborInfo> neighborInfos = networkConfig.getNeighborInfos();
+        if (neighborInfos == null || neighborInfos.size() == 0) {
+            return;
+        }
+
+        /**
+         * PortEntities themselves are not included in neighborInfos, build neighborInfos
+         * for them and add them to neighborInfo map before building neighborStates
+         */
+        List<NeighborInfo> neighborInfoList = buildNeighborInfosByPortEntities(networkConfig);
+        for (NeighborInfo neighborInfo: neighborInfoList) {
+            if (!neighborInfos.containsKey(neighborInfo.getPortIp())) {
+                neighborInfos.put(neighborInfo.getPortIp(), neighborInfo);
+            }
+        }
+
+        Map<String, List<NeighborEntry>> neighborTable = networkConfig.getNeighborTable();
+        if (neighborTable == null || neighborTable.size() == 0) {
+            return;
+        }
+
+        List<Port.PortState> portStates = new ArrayList<Port.PortState>(unicastGoalState.getGoalStateBuilder().getPortStatesMap().values());
+        if (portStates == null || portStates.size() == 0) {
+            return;
+        }
+
+        List<NeighborEntry> multicastNeighborEntries = new ArrayList<>();
+        for (Port.PortState portState: portStates) {
+            List<Port.PortConfiguration.FixedIp> fixedIps = portState.getConfiguration().getFixedIpsList();
+            if (fixedIps == null) {
+                throw new PortFixedIpNotFound();
+            }
+
+            for (Port.PortConfiguration.FixedIp fixedIp: fixedIps) {
+                List<NeighborEntry> neighborEntries = neighborTable.get(fixedIp.getIpAddress());
+                if (neighborEntries == null) {
+                    throw new NeighborInfoNotFound();
+                }
+
+                for (NeighborEntry neighborEntry: neighborEntries) {
+                    NeighborInfo neighborInfo = neighborInfos.get(neighborEntry.getNeighborIp());
+                    if (neighborInfo == null) {
+                        throw new NeighborInfoNotFound();
+                    }
+
+                    if (hostIp.equals(neighborInfo.getHostIp()) && !neighborEntry.getNeighborType().equals(NeighborEntry.NeighborType.L3)) {
+                        continue;
+                    }
+
+                    Neighbor.NeighborState neighborState = buildNeighborState(neighborEntry.getNeighborType(), neighborInfo, networkConfig.getOpType());
+                    unicastGoalState.getGoalStateBuilder().putNeighborStates(neighborState.getConfiguration().getId(), neighborState);
+
+                    Goalstate.ResourceIdType neighborResourceIdType = Goalstate.ResourceIdType.newBuilder()
+                            .setType(Common.ResourceType.NEIGHBOR)
+                            .setId(neighborState.getConfiguration().getId())
+                            .build();
+                    Goalstate.HostResources.Builder hostResourceBuilder = Goalstate.HostResources.newBuilder();
+                    hostResourceBuilder.addResources(neighborResourceIdType);
+                    unicastGoalState.getGoalStateBuilder().putHostResources(unicastGoalState.getHostIp(), hostResourceBuilder.build());
+
+                    multicastNeighborEntries.add(neighborEntry);
+                }
+            }
+        }
+
+        Set<NeighborInfo> neighborInfoSet = new HashSet<>();
+        for (NeighborEntry neighborEntry: multicastNeighborEntries) {
+            String localIp = neighborEntry.getLocalIp();
+            String neighborIp = neighborEntry.getNeighborIp();
+            NeighborInfo neighborInfo1 = neighborInfos.get(localIp);
+            NeighborInfo neighborInfo2 = neighborInfos.get(neighborIp);
+            if (neighborInfo1 == null || neighborInfo2 == null) {
+                throw new NeighborInfoNotFound();
+            }
+
+            if (!multicastGoalState.getHostIps().contains(neighborInfo2.getHostIp())) {
+                multicastGoalState.getHostIps().add(neighborInfo2.getHostIp());
+            }
+
+            if (!neighborInfoSet.contains(neighborInfo1)) {
+                Neighbor.NeighborState neighborState = buildNeighborState(neighborEntry.getNeighborType(), neighborInfo1, networkConfig.getOpType());
+                multicastGoalState.getGoalStateBuilder().putNeighborStates(neighborState.getConfiguration().getId(), neighborState);
+
+                Goalstate.ResourceIdType neighborResourceIdType = Goalstate.ResourceIdType.newBuilder()
+                        .setType(Common.ResourceType.NEIGHBOR)
+                        .setId(neighborState.getConfiguration().getId())
+                        .build();
+                Goalstate.HostResources.Builder hostResourceBuilder = Goalstate.HostResources.newBuilder();
+                hostResourceBuilder.addResources(neighborResourceIdType);
+                // TODO: Change resource id
+                multicastGoalState.getGoalStateBuilder().putHostResources(unicastGoalState.getHostIp(), hostResourceBuilder.build());
+
+                neighborInfoSet.add(neighborInfo1);
+            }
+        }
+        }
 
     public List<Neighbor.NeighborState> getAllNeighbors (Set<String> ips) throws Exception
     {

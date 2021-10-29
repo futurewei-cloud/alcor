@@ -1,21 +1,21 @@
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: ignite-alcor-mac
+  name: ignite-alcor-ip
 roleRef:
   kind: ClusterRole
-  name: ignite-alcor-mac
+  name: ignite-alcor-ip
   apiGroup: rbac.authorization.k8s.io
 subjects:
   - kind: ServiceAccount
-    name: ignite-alcor-mac
-    namespace: ignite-alcor-mac
+    name: ignite-alcor-ip
+    namespace: ignite-alcor-ip
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: ignite-alcor-mac
-  namespace: ignite-alcor-mac
+  name: ignite-alcor-ip
+  namespace: ignite-alcor-ip
 rules:
   - apiGroups:
       - ""
@@ -30,23 +30,23 @@ rules:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: ignite-alcor-mac
+  name: ignite-alcor-ip
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: ignite-alcor-mac
-  namespace: ignite-alcor-mac
+  name: ignite-alcor-ip
+  namespace: ignite-alcor-ip
 ---
 apiVersion: v1
 kind: Service
 metadata:
   # The name must be equal to TcpDiscoveryKubernetesIpFinder.serviceName
-  name: ignite-alcor-mac-service
+  name: ignite-alcor-ip-service
   # The name must be equal to TcpDiscoveryKubernetesIpFinder.namespaceName
-  namespace: ignite-alcor-mac
+  namespace: ignite-alcor-ip
   labels:
-    app: ignite-alcor-mac
+    app: ignite-alcor-ip
 spec:
   type: LoadBalancer
   ports:
@@ -54,35 +54,35 @@ spec:
       port: 8080
       targetPort: 8080
     - name: sql
-      port: 10803
+      port: 10801
       targetPort: 10800
     - name: thinclients
       port: 10900
       targetPort: 10900
   selector:
-    app: ignite-alcor-mac
+    app: ignite-alcor-ip
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    app: ignite-alcor-mac
-  name: ignite-alcor-mac
-  namespace: ignite-alcor-mac
+    app: ignite-alcor-ip
+  name: ignite-alcor-ip
+  namespace: ignite-alcor-ip
 spec:
   selector:
     matchLabels:
-      app: ignite-alcor-mac
-  serviceName: ignite-alcor-mac-service
-  replicas: 3
+      app: ignite-alcor-ip
+  serviceName: ignite-alcor-ip-service
+  replicas: 1
   template:
     metadata:
       labels:
-        app: ignite-alcor-mac
+        app: ignite-alcor-ip
     spec:
-      serviceAccountName: ignite-alcor-mac
+      serviceAccountName: ignite-alcor-ip
       containers:
-        - name: ignite-alcor-mac-node
+        - name: ignite-alcor-ip-node
           image: ignite_alcor:lib8
           imagePullPolicy: IfNotPresent
           #resources:
@@ -92,7 +92,7 @@ spec:
             - name: OPTION_LIBS
               value: ignite-kubernetes,ignite-rest-http
             - name: CONFIG_URI
-              value: https://raw.githubusercontent.com/kevin-zhonghao/alcor/xml/kubernetes/services/ignite_mac_config.xml
+              value: https://raw.githubusercontent.com/futurewei-cloud/alcor/master/kubernetes/services/ignite_ip_config.xml
             - name: IGNITE_QUIET
               value: "false"
             - name: JVM_OPTS
@@ -122,9 +122,9 @@ spec:
             - name: port10900
               containerPort: 10900 # Thin clients port number.
           volumeMounts:
-            - name: ignite-alcor-mac-config-volume
-              mountPath: /opt/mac
+            - name: ignite-alcor-ip-config-volume
+              mountPath: /opt/ip
       volumes:
-        - name: ignite-alcor-mac-config-volume
+        - name: ignite-alcor-ip-config-volume
           hostPath: 
-            path: /root/work/mac
+            path: /root/work/ip
