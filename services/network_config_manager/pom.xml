@@ -50,6 +50,12 @@ Copyright(c) 2020 Futurewei Cloud
 
     <dependencies>
         <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport-native-epoll</artifactId>
+            <version>4.1.36.Final</version>
+            <classifier>linux-x86_64</classifier>
+        </dependency>
+        <dependency>
             <groupId>io.opentracing.contrib</groupId>
             <artifactId>opentracing-spring-cloud-starter</artifactId>
             <version>0.3.12</version>

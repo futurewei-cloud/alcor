@@ -27,6 +27,7 @@ import com.futurewei.alcor.netwconfigmanager.service.OnDemandService;
 import com.futurewei.alcor.netwconfigmanager.util.DemoUtil;
 import com.futurewei.alcor.netwconfigmanager.util.NetworkConfigManagerUtil;
 import com.futurewei.alcor.schema.*;
+import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 import io.grpc.stub.StreamObserver;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -82,6 +83,13 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 .maxInboundMessageSize(Integer.MAX_VALUE)
                 .maxInboundMetadataSize(Integer.MAX_VALUE)
                 .intercept(clientIpInterceptor)
+                .build();
+        this.server = NettyServerBuilder.forPort(this.port)
+                .addService(new GoalStateProvisionerImpl(clientIpInterceptor))
+                .maxInboundMessageSize(Integer.MAX_VALUE)
+                .maxInboundMetadataSize(Integer.MAX_VALUE)
+                .intercept(clientIpInterceptor)
+                .maxConcurrentCallsPerConnection(10000)
                 .build();
     }
 
@@ -280,7 +288,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 logger.log(Level.SEVERE, "[requestGoalStates] Retrieve from host fails. IP address = " + clientIpAddress);
                 e.printStackTrace();
             }
-
+            long endx = System.currentTimeMillis();
             // Step 2: Generate response for each packet based on the on-demand algorithm
             // if the packet is allowed, set HostRequestReply.HostRequestOperationStatus[request_id].OperationStatus = SUCCESS
             //                           generate GS with port related resources (completed at Step 1) and go to Step 3
@@ -311,14 +319,15 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             logger.log(Level.INFO, "requestGoalStates : generate reply " + reply.toString());
 
             // Step 3: Send response to target ACAs
-            long end = System.currentTimeMillis();
-            logger.log(Level.FINE, "[requestGoalStates] From received hostOperation to before response, elapsed Time in milli seconds: "+ (end-start));
+            long endy = System.currentTimeMillis();
+            logger.log(Level.FINE, "[requestGoalStates] From received hostOperation to before response, elapsed Time in milli seconds: "+ (endy-start));
+            logger.log(Level.FINE, "[requestGoalStates] Pushing GoalState to host, elapsed Time in milli seconds: "+ (endx-start));
             responseObserver.onNext(reply);
-            logger.log(Level.FINE, "requestGoalStates : replying HostRequest with UUID: " + state_request_uuid + " at: " + end);
+            logger.log(Level.FINE, "requestGoalStates : replying HostRequest with UUID: " + state_request_uuid + " at: " + endy);
             responseObserver.onCompleted();
             long end1 = System.currentTimeMillis();
             logger.log(Level.FINE, "requestGoalStates : sent on-demand response to ACA | ",
-                    reply.toString() + " took " + (end1-end) + " milliseconds");
+                    reply.toString() + " took " + (end1-endy) + " milliseconds");
         }
     }
 }

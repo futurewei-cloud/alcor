@@ -28,6 +28,10 @@ import com.futurewei.alcor.schema.Goalstateprovisioner;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
+import io.grpc.netty.shaded.io.netty.channel.epoll.EpollEventLoopGroup;
+import io.grpc.netty.shaded.io.netty.channel.epoll.EpollSocketChannel;
+import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.springframework.stereotype.Service;
@@ -69,19 +73,19 @@ public class GoalStateClientImpl implements GoalStateClient {
 
     public GoalStateClientImpl(int numberOfGrpcChannelPerHost, int numberOfWarmupsPerChannel, ArrayList<String> monitorHosts) {
         // each host should have at least 1 gRPC channel
-        if(numberOfGrpcChannelPerHost < 1) {
+        if (numberOfGrpcChannelPerHost < 1) {
             numberOfGrpcChannelPerHost = 1;
         }
 
         // allow users to not send warmups, if they wish to.
-        if(numberOfWarmupsPerChannel < 0){
+        if (numberOfWarmupsPerChannel < 0) {
             numberOfWarmupsPerChannel = 0;
         }
 
         this.monitorHosts = monitorHosts;
         logger.log(Level.FINE, "Printing out all monitorHosts");
-        for(String host : this.monitorHosts){
-            logger.log(Level.FINE, "Monitoring this host: "+ host);
+        for (String host : this.monitorHosts) {
+            logger.log(Level.FINE, "Monitoring this host: " + host);
         }
         logger.log(Level.FINE, "Done printing out all monitorHosts");
         this.numberOfGrpcChannelPerHost = numberOfGrpcChannelPerHost;
@@ -96,7 +100,7 @@ public class GoalStateClientImpl implements GoalStateClient {
                 new DefaultThreadFactory("grpc-thread-pool"));
         //TODO: Setup a connection pool. one ACA, one client.
         this.hostIpGrpcChannelStubMap = new ConcurrentHashMap();
-        logger.log(Level.FINE, "This instance has "+ numberOfGrpcChannelPerHost+" channels, and "+ numberOfWarmupsPerChannel+" warmups");
+        logger.log(Level.FINE, "This instance has " + numberOfGrpcChannelPerHost + " channels, and " + numberOfWarmupsPerChannel + " warmups");
     }
 
     @Override
@@ -205,6 +209,15 @@ public class GoalStateClientImpl implements GoalStateClient {
     }
 
     private GrpcChannelStub createGrpcChannelStub(String hostIp) {
+        ManagedChannel a = NettyChannelBuilder.forAddress(hostIp, this.hostAgentPort).usePlaintext().executor(new ThreadPoolExecutor(100,
+                200,
+                50,
+                TimeUnit.SECONDS,
+                new LinkedBlockingDeque<>(),
+                new DefaultThreadFactory(hostIp))).keepAliveWithoutCalls(true).eventLoopGroup(new EpollEventLoopGroup(4)).channelType(EpollSocketChannel.class).keepAliveTime(Long.MAX_VALUE, TimeUnit.SECONDS).flowControlWindow(1024 * 1024 * 1024).build();
+        GoalStateProvisionerGrpc.GoalStateProvisionerStub b = GoalStateProvisionerGrpc.newStub(a);
+        return new GrpcChannelStub(a, b);
+        /*
         ManagedChannel channel = ManagedChannelBuilder.forAddress(hostIp, this.hostAgentPort)
                 .usePlaintext()
                 .keepAliveWithoutCalls(true)
@@ -213,6 +226,7 @@ public class GoalStateClientImpl implements GoalStateClient {
         GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub = GoalStateProvisionerGrpc.newStub(channel);
 
         return new GrpcChannelStub(channel, asyncStub);
+        */
     }
 
     private void doSendGoalState(HostGoalState hostGoalState) throws InterruptedException {
@@ -220,7 +234,6 @@ public class GoalStateClientImpl implements GoalStateClient {
         String hostIp = hostGoalState.getHostIp();
         logger.log(Level.FINE, "Setting up a channel to ACA on: " + hostIp);
         long start = System.currentTimeMillis();
-
         GrpcChannelStub channelStub = getOrCreateGrpcChannel(hostIp);
         long chan_established = System.currentTimeMillis();
         logger.log(Level.FINE, "[doSendGoalState] Established channel, elapsed Time in milli seconds: " + (chan_established - start));
@@ -230,6 +243,7 @@ public class GoalStateClientImpl implements GoalStateClient {
         logger.log(Level.FINE, "[doSendGoalState] Established stub, elapsed Time after channel established in milli seconds: " + (stub_established - chan_established));
 
         Map<String, List<Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus>> result = new HashMap<>();
+
         StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver = new StreamObserver<>() {
             @Override
             public void onNext(Goalstateprovisioner.GoalStateOperationReply reply) {
@@ -249,9 +263,11 @@ public class GoalStateClientImpl implements GoalStateClient {
         };
 
         StreamObserver<Goalstate.GoalStateV2> requestObserver = asyncStub.pushGoalStatesStream(responseObserver);
+        long requestObserverEstablished = System.currentTimeMillis();
+        logger.log(Level.FINE, "[doSendGoalState] Established RequestObserver, elapsed Time after stub established in milli seconds: " + (requestObserverEstablished - stub_established));
         try {
             Goalstate.GoalStateV2 goalState = hostGoalState.getGoalState();
-            logger.log(Level.INFO, "Sending GS to Host " + hostIp + " as follows | " + goalState.toString());
+            logger.log(Level.INFO, "Sending GS with size " + goalState.getSerializedSize() + " to Host " + hostIp + " as follows | " + goalState.toString());
             requestObserver.onNext(goalState);
             if (hostGoalState.getGoalState().getNeighborStatesCount() == 1 && monitorHosts.contains(hostIp)) {
                 long sent_gs_time = System.currentTimeMillis();
@@ -272,7 +288,8 @@ public class GoalStateClientImpl implements GoalStateClient {
 
         // comment out onCompleted so that the same channel/stub and keep sending next time.
         //        requestObserver.onCompleted();
-
+        long onNext_called = System.currentTimeMillis();
+        logger.log(Level.FINE, "[doSendGoalState] From established stub to onNext called, elapsed Time after channel established in milli seconds: " + (onNext_called - requestObserverEstablished));
 //        shutdown(channel);
     }
 
