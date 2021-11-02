@@ -17,6 +17,7 @@ package com.futurewei.alcor.web.entity.dataplane;
 
 public class UnicastGoalStateByte {
     private String nextTopic;
+    private String nextSubTopic;
     private byte[] goalStateByte;
 
     public UnicastGoalStateByte() {
@@ -28,6 +29,12 @@ public class UnicastGoalStateByte {
         this.goalStateByte = goalStateByte;
     }
 
+    public UnicastGoalStateByte(String nextTopic, String nextSubTopic, byte[] goalStateByte) {
+        this.nextTopic = nextTopic;
+        this.nextSubTopic = nextSubTopic;
+        this.goalStateByte = goalStateByte;
+    }
+
     public String getNextTopic() {
         return nextTopic;
     }
@@ -35,6 +42,10 @@ public class UnicastGoalStateByte {
     public void setNextTopic(String nextTopic) {
         this.nextTopic = nextTopic;
     }
+
+    public String getNextSubTopic() { return nextSubTopic; }
+
+    public void setNextSubTopic(String nextSubTopic) { this.nextSubTopic = nextSubTopic; }
 
     public byte[] getGoalStateByte() {
         return goalStateByte;

@@ -86,19 +86,19 @@ public class VpcDatabaseServiceImpl implements VpcDatabaseService {
 
     @Override
     @DurationStatistics
-    public Set<String> getSubnetIds(String vpcId) throws CacheException {
-        return this.vpcRepository.getSubnetIds(vpcId);
+    public Set<String> getSubnetIds(String projectId, String vpcId) throws CacheException {
+        return this.vpcRepository.getSubnetIds(projectId, vpcId);
     }
 
     @Override
     @DurationStatistics
-    public void addSubnetId(String vpcId, String subnetId) throws CacheException {
-        this.vpcRepository.addSubnetId(vpcId, subnetId);
+    public void addSubnetId(String projectId, String vpcId, String subnetId) throws CacheException {
+        this.vpcRepository.addSubnetId(projectId, vpcId, subnetId);
     }
 
     @Override
     @DurationStatistics
-    public void deleteSubnetId(String vpcId, String subnetId) throws CacheException {
-        this.vpcRepository.deleteSubnetId(vpcId, subnetId);
+    public void deleteSubnetId(String projectId, String vpcId, String subnetId) throws CacheException {
+        this.vpcRepository.deleteSubnetId(projectId, vpcId, subnetId);
     }
 }

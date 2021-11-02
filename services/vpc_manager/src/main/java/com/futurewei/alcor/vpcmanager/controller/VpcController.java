@@ -88,7 +88,7 @@ public class VpcController {
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(projectid);
             RestPreconditionsUtil.verifyParameterNotNullorEmpty(vpcid);
             RestPreconditionsUtil.verifyResourceFound(projectid);
-            Set<String> subnetIds = this.vpcDatabaseService.getSubnetIds(vpcid);
+            Set<String> subnetIds = this.vpcDatabaseService.getSubnetIds(projectid, vpcid);
             vpcState = this.vpcDatabaseService.getByVpcId(vpcid);
             if (vpcState != null) {
                 vpcState.setSubnets(subnetIds);
@@ -319,7 +319,7 @@ public class VpcController {
 
             vpcStates = this.vpcDatabaseService.getAllVpcs(queryParams);
             for (VpcEntity vpcEntity : vpcStates.values()) {
-                Set<String> subnetIds = this.vpcDatabaseService.getSubnetIds(vpcEntity.getId());
+                Set<String> subnetIds = this.vpcDatabaseService.getSubnetIds(projectId, vpcEntity.getId());
                 if (vpcEntity != null) {
                     vpcEntity.setSubnets(subnetIds);
                 }
@@ -377,9 +377,8 @@ public class VpcController {
             if (inVpcState == null) {
                 throw new ResourceNotFoundException("Vpc not found : " + vpcid);
             }
-            this.vpcDatabaseService.addSubnetId(vpcid, subnetid);
+            this.vpcDatabaseService.addSubnetId(projectid, vpcid, subnetid);
             inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
-            inVpcState.setSubnets(this.vpcDatabaseService.getSubnetIds(vpcid));
 
 
         } catch (ParameterNullOrEmptyException e) {
@@ -413,9 +412,8 @@ public class VpcController {
             if (inVpcState == null) {
                 throw new ResourceNotFoundException("Vpc not found : " + vpcid);
             }
-            this.vpcDatabaseService.deleteSubnetId(vpcid, subnetid);
+            this.vpcDatabaseService.deleteSubnetId(projectid, vpcid, subnetid);
             inVpcState = this.vpcDatabaseService.getByVpcId(vpcid);
-            inVpcState.setSubnets(this.vpcDatabaseService.getSubnetIds(vpcid));
 
         } catch (ParameterNullOrEmptyException e) {
             throw new Exception(e);

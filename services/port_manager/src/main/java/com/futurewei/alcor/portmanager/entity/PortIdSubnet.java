@@ -19,20 +19,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Set;
 
-public class SubnetPortIds {
+public class PortIdSubnet {
     @JsonProperty("subnet_id")
     private String subnetId;
 
-    @JsonProperty("port_ids")
-    private Set<String> portIds;
-
-    public SubnetPortIds() {
+    public PortIdSubnet() {
 
     }
 
-    public SubnetPortIds(String subnetId, Set<String> portIds) {
+    public PortIdSubnet(String subnetId) {
         this.subnetId = subnetId;
-        this.portIds = portIds;
     }
 
     public String getSubnetId() {
@@ -41,13 +37,5 @@ public class SubnetPortIds {
 
     public void setSubnetId(String subnetId) {
         this.subnetId = subnetId;
-    }
-
-    public Set<String> getPortIds() {
-        return portIds;
-    }
-
-    public void setPortIds(Set<String> portIds) {
-        this.portIds = portIds;
     }
 }

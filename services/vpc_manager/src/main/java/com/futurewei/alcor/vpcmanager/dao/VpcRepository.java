@@ -63,6 +63,10 @@ public class VpcRepository implements IVpcRepository<VpcEntity> {
         logger.log(Level.INFO, "VpcRepository init completed");
     }
 
+    public String getVpcSubnetIdsCache(String projectId) {
+        return "VpcSubnetIds-" + projectId;
+    }
+
     @Override
     @DurationStatistics
     public VpcEntity findItem(String id) throws CacheException {
@@ -105,26 +109,23 @@ public class VpcRepository implements IVpcRepository<VpcEntity> {
 
     @Override
     @DurationStatistics
-    public Set<String> getSubnetIds(String vpcId) throws CacheException {
-        CacheConfiguration cfg = CommonUtil.getCacheConfiguration(vpcId);
-        cfg.setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL);
-        ICache<String, String> subnetCache = cacheFactory.getCache(String.class, cfg);
-        return subnetCache.getAll().keySet();
+    public Set<String> getSubnetIds(String projectId, String vpcId) throws CacheException {
+        ICache<String, String> subnetCache = cacheFactory.getCache(String.class, getVpcSubnetIdsCache(projectId));
+        Map<String, String> subnetIds = subnetCache.getAll();
+        return subnetIds.entrySet().stream().filter(item -> item.getValue().equals(vpcId)).map(Map.Entry::getKey).collect(Collectors.toSet());
     }
 
     @Override
     @DurationStatistics
-    public void addSubnetId(String vpcId, String subnetId) throws CacheException {
-        CacheConfiguration cfg = CommonUtil.getCacheConfiguration(vpcId);
-        ICache<String, String> subnetCache = cacheFactory.getCache(String.class, cfg);
+    public void addSubnetId(String projectId, String vpcId, String subnetId) throws CacheException {
+        ICache<String, String> subnetCache = cacheFactory.getCache(String.class, getVpcSubnetIdsCache(projectId));
         subnetCache.put(subnetId, vpcId);
     }
 
     @Override
     @DurationStatistics
-    public void deleteSubnetId(String vpcId, String subnetId) throws CacheException {
-        CacheConfiguration cfg = CommonUtil.getCacheConfiguration(vpcId);
-        ICache<String, String> subnetCache = cacheFactory.getCache(String.class, cfg);
+    public void deleteSubnetId(String projectId, String vpcId, String subnetId) throws CacheException {
+        ICache<String, String> subnetCache = cacheFactory.getCache(String.class, getVpcSubnetIdsCache(projectId));
         subnetCache.remove(subnetId);
 
     }

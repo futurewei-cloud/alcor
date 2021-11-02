@@ -17,14 +17,16 @@ package com.futurewei.alcor.dataplane.client.kafka;
 
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
+import com.futurewei.alcor.dataplane.entity.MulticastGoalStateV2;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
+import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
 
 import java.util.List;
 import java.util.Map;
 
-public class DataPlaneClientImpl implements DataPlaneClient {
+public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, MulticastGoalState> {
 
     @Override
     public List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates) throws Exception {
