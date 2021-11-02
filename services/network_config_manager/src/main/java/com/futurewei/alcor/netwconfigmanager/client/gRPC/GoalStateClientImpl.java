@@ -234,6 +234,7 @@ public class GoalStateClientImpl implements GoalStateClient {
         String hostIp = hostGoalState.getHostIp();
         logger.log(Level.FINE, "Setting up a channel to ACA on: " + hostIp);
         long start = System.currentTimeMillis();
+        long end = 0;
         GrpcChannelStub channelStub = getOrCreateGrpcChannel(hostIp);
         long chan_established = System.currentTimeMillis();
         logger.log(Level.FINE, "[doSendGoalState] Established channel, elapsed Time in milli seconds: " + (chan_established - start));
@@ -266,9 +267,15 @@ public class GoalStateClientImpl implements GoalStateClient {
         long requestObserverEstablished = System.currentTimeMillis();
         logger.log(Level.FINE, "[doSendGoalState] Established RequestObserver, elapsed Time after stub established in milli seconds: " + (requestObserverEstablished - stub_established));
         try {
+            long before_get_goalState = System.currentTimeMillis();
             Goalstate.GoalStateV2 goalState = hostGoalState.getGoalState();
+            long after_get_goalState = System.currentTimeMillis();
             logger.log(Level.INFO, "Sending GS with size " + goalState.getSerializedSize() + " to Host " + hostIp + " as follows | " + goalState.toString());
             requestObserver.onNext(goalState);
+            long after_onNext = System.currentTimeMillis();
+            logger.log(Level.FINE, "[doSendGoalState] Get goalstatev2 from HostGoalState in milliseconds: " + (after_get_goalState - before_get_goalState));
+            logger.log(Level.FINE, "[doSendGoalState] Call onNext in milliseconds: " + (after_onNext - after_get_goalState));
+
             if (hostGoalState.getGoalState().getNeighborStatesCount() == 1 && monitorHosts.contains(hostIp)) {
                 long sent_gs_time = System.currentTimeMillis();
                 // If there's only one neighbor state and it is trying to send it to aca_node_one, the IP of which is now
@@ -288,8 +295,10 @@ public class GoalStateClientImpl implements GoalStateClient {
 
         // comment out onCompleted so that the same channel/stub and keep sending next time.
         //        requestObserver.onCompleted();
+        end = System.currentTimeMillis();
         long onNext_called = System.currentTimeMillis();
-        logger.log(Level.FINE, "[doSendGoalState] From established stub to onNext called, elapsed Time after channel established in milli seconds: " + (onNext_called - requestObserverEstablished));
+        logger.log(Level.FINE, "[doSendGoalState] Whole function call took time in milliseconds: "+(end - start) +
+                " \nFrom established stub to onNext called, elapsed Time after channel established in milli seconds: " + (onNext_called - requestObserverEstablished));
 //        shutdown(channel);
     }
 

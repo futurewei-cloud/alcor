@@ -78,12 +78,14 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         this.port = 9016; // TODO: make this configurable
 
         IpInterceptor clientIpInterceptor = new IpInterceptor();
+        /*
         this.server = ServerBuilder.forPort(this.port)
                 .addService(new GoalStateProvisionerImpl(clientIpInterceptor))
                 .maxInboundMessageSize(Integer.MAX_VALUE)
                 .maxInboundMetadataSize(Integer.MAX_VALUE)
                 .intercept(clientIpInterceptor)
                 .build();
+         */
         this.server = NettyServerBuilder.forPort(this.port)
                 .addService(new GoalStateProvisionerImpl(clientIpInterceptor))
                 .maxInboundMessageSize(Integer.MAX_VALUE)
