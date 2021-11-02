@@ -194,7 +194,7 @@ public class GoalStateClientImpl implements GoalStateClient {
 
         StreamObserver<Goalstate.GoalStateV2> requestObserver = asyncStub.pushGoalStatesStream(responseObserver);
         */
-        channelStub.mutex.lock();
+//        channelStub.mutex.lock();
         try {
             Goalstate.GoalStateV2 goalState = Goalstate.GoalStateV2.getDefaultInstance();
             logger.log(Level.INFO, "Sending GS to Host " + hostIp + " as follows | " + goalState.toString());
@@ -205,10 +205,10 @@ public class GoalStateClientImpl implements GoalStateClient {
             // Cancel RPC
             logger.log(Level.WARNING, "[doSendGoalState] Sending GS, but error happened | " + e.getMessage());
             channelStub.requestObserver.onError(e);
-            channelStub.mutex.unlock();
+//            channelStub.mutex.unlock();
             throw e;
         }
-        channelStub.mutex.unlock();
+//        channelStub.mutex.unlock();
         // Mark the end of requests
         logger.log(Level.INFO, "Sending warmup GS to Host " + hostIp + " is completed");
         return;
@@ -274,7 +274,7 @@ public class GoalStateClientImpl implements GoalStateClient {
         long requestObserverEstablished = System.currentTimeMillis();
         logger.log(Level.FINE, "[doSendGoalState] Established RequestObserver, elapsed Time after stub established in milli seconds: " + (requestObserverEstablished - stub_established));
          */
-        channelStub.mutex.lock();
+//        channelStub.mutex.lock();
         try {
             long before_get_goalState = System.currentTimeMillis();
             Goalstate.GoalStateV2 goalState = hostGoalState.getGoalState();
@@ -297,10 +297,10 @@ public class GoalStateClientImpl implements GoalStateClient {
             // Cancel RPC
             logger.log(Level.WARNING, "[doSendGoalState] Sending GS, but error happened | " + e.getMessage());
             channelStub.requestObserver.onError(e);
-            channelStub.mutex.unlock();
+//            channelStub.mutex.unlock();
             throw e;
         }
-        channelStub.mutex.unlock();
+//        channelStub.mutex.unlock();
 
         // Mark the end of requests
         logger.log(Level.INFO, "Sending GS to Host " + hostIp + " is completed");
@@ -329,17 +329,17 @@ public class GoalStateClientImpl implements GoalStateClient {
     private class GrpcChannelStub {
         public ManagedChannel channel;
         public GoalStateProvisionerGrpc.GoalStateProvisionerStub stub;
-        public StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseOberver;
+        public StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver;
         public StreamObserver<Goalstate.GoalStateV2> requestObserver;
         public String hostIp;
-        public ReentrantLock mutex;
+//        public ReentrantLock mutex;
 
         public GrpcChannelStub(ManagedChannel channel, GoalStateProvisionerGrpc.GoalStateProvisionerStub stub, String hostIp) {
             this.channel = channel;
             this.stub = stub;
             this.hostIp = hostIp;
-            this.mutex  = new ReentrantLock();
-            this.responseOberver = new StreamObserver<>() {
+//            this.mutex  = new ReentrantLock();
+            this.responseObserver = new StreamObserver<>() {
                 @Override
                 public void onNext(Goalstateprovisioner.GoalStateOperationReply reply) {
                     logger.log(Level.INFO, "Receive response from ACA@" + hostIp + " | " + reply.toString());
@@ -356,7 +356,7 @@ public class GoalStateClientImpl implements GoalStateClient {
                     logger.log(Level.INFO, "Complete receiving message from ACA@" + hostIp);
                 }
             };
-            this.requestObserver = this.stub.pushGoalStatesStream(this.responseOberver);
+            this.requestObserver = this.stub.pushGoalStatesStream(this.responseObserver);
         }
     }
 }
