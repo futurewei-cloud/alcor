@@ -37,6 +37,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 @Service("grpcDataPlaneClient")
 @ConditionalOnProperty(prefix = "protobuf.goal-state-message", name = "version", havingValue = "102")
@@ -237,7 +238,7 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
             @Override
             public void onNext(Goalstateprovisioner.GoalStateOperationReply reply) {
                 LOG.info("Receive response from ACA@" + hostIp + " | " + reply.toString());
-                result.put(hostIp, reply.getOperationStatusesList());
+                result.put(hostIp, reply.getOperationStatusesList().stream().filter(item -> item.getOperationStatus() != null).collect(Collectors.toList()));
             }
 
             @Override
