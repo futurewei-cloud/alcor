@@ -32,10 +32,7 @@ import com.futurewei.alcor.web.entity.subnet.HostRoute;
 import com.futurewei.alcor.web.entity.subnet.SubnetWebJson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -510,7 +507,7 @@ public class RouterController {
             method = PUT,
             value = {"/project/{projectid}/subnets/{subnetid}/routetable"})
     @DurationStatistics
-    public RouteTableWebJson updateSubnetRouteTable(@PathVariable String projectid, @PathVariable String subnetid, @RequestBody RouteTableWebJson resource) throws Exception {
+    public RouteTableWebJson updateSubnetRouteTable(@PathVariable String projectid, @PathVariable String subnetid, @RequestBody RouteTableWebJson resource, @RequestParam String routerid) throws Exception {
 
         RouteTable routetable = null;
 
@@ -529,6 +526,11 @@ public class RouterController {
             String routerId = subnetWebJson.getSubnet().getAttachedRouterId();
 
             routetable = resource.getRoutetable();
+
+            if (routerId == null || routerId.isEmpty()) {
+                routerId = routerid;
+            }
+
             // sub-level routing rule update
             List<RouteEntry> routeEntities = routetable.getRouteEntities();
             NewRoutesWebRequest newRoutes = new NewRoutesWebRequest();
