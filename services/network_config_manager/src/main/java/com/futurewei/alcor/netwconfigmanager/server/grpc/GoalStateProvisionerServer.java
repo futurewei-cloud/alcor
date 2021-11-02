@@ -217,6 +217,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         public void requestGoalStates(Goalstateprovisioner.HostRequest request,
                                       StreamObserver<Goalstateprovisioner.HostRequestReply> responseObserver) {
             long start = System.currentTimeMillis();
+            long end = 0;
             String state_request_uuid = "";
             if (request.getStateRequestsList().size() == 1){
                 state_request_uuid = request.getStateRequests(0).getRequestId();
@@ -282,10 +283,10 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 }
 
                 GoalStateClient grpcGoalStateClient = GoalStateClientImpl.getInstance(numberOfGrpcChannelPerHost, numberOfWarmupsPerChannel, monitorHosts);
-                long end = System.currentTimeMillis();
+                end = System.currentTimeMillis();
                 logger.log(Level.FINE, "requestGoalStates : Pushing GS with UUID: " + state_request_uuid + " at: " + end);
                 grpcGoalStateClient.sendGoalStates(hostGoalStates);
-                logger.log(Level.FINE, "[requestGoalStates] From retrieving goalstate to sent goalstate to host, elapsed Time in milli seconds: "+ (end-start));
+                logger.log(Level.FINE, "[requestGoalStates] From retrieving goalstate to before sending goalstate to host, elapsed Time in milli seconds: "+ (end-start));
             } catch (Exception e) {
                 logger.log(Level.SEVERE, "[requestGoalStates] Retrieve from host fails. IP address = " + clientIpAddress);
                 e.printStackTrace();
@@ -323,13 +324,13 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             // Step 3: Send response to target ACAs
             long endy = System.currentTimeMillis();
             logger.log(Level.FINE, "[requestGoalStates] From received hostOperation to before response, elapsed Time in milli seconds: "+ (endy-start));
-            logger.log(Level.FINE, "[requestGoalStates] Pushing GoalState to host, elapsed Time in milli seconds: "+ (endx-start));
+            logger.log(Level.FINE, "[requestGoalStates] Pushed GoalState to host, elapsed Time in milli seconds: "+ (endx-end));
             responseObserver.onNext(reply);
             logger.log(Level.FINE, "requestGoalStates : replying HostRequest with UUID: " + state_request_uuid + " at: " + endy);
             responseObserver.onCompleted();
             long end1 = System.currentTimeMillis();
-            logger.log(Level.FINE, "requestGoalStates : sent on-demand response to ACA | ",
-                    reply.toString() + " took " + (end1-endy) + " milliseconds");
+            logger.log(Level.FINE, "requestGoalStates : sent on-demand response to ACA"  + " took " + (end1-endy) + " milliseconds | " +
+                    reply.toString());
         }
     }
 }
