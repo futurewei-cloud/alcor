@@ -238,17 +238,7 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
             @Override
             public void onNext(Goalstateprovisioner.GoalStateOperationReply reply) {
                 LOG.info("Receive response from ACA@" + hostIp + " | " + reply.toString());
-                reply.getOperationStatusesList().forEach(item ->
-                {
-                    System.out.println("test" + item.getOperationStatus() + "test");
-                    if (item.getOperationStatus() == null) {
-                        System.out.println("test");
-                    }
-                    if (item.getOperationStatus().toString().isEmpty()) {
-                        System.out.println("test1");
-                    }
-                });
-                result.put(hostIp, reply.getOperationStatusesList().stream().filter(item -> item.getOperationStatus() != null).collect(Collectors.toList()));
+                result.put(hostIp, reply.getOperationStatusesList().stream().filter(item -> !item.getOperationStatus().toString().equals("SUCCESS")).collect(Collectors.toList()));
             }
 
             @Override
