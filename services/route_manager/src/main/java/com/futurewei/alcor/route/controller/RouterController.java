@@ -507,7 +507,7 @@ public class RouterController {
             method = PUT,
             value = {"/project/{projectid}/subnets/{subnetid}/routetable"})
     @DurationStatistics
-    public RouteTableWebJson updateSubnetRouteTable(@PathVariable String projectid, @PathVariable String subnetid, @RequestBody RouteTableWebJson resource, @RequestParam String routerid) throws Exception {
+    public RouteTableWebJson updateSubnetRouteTable(@PathVariable String projectid, @PathVariable String subnetid, @RequestBody RouteTableWebJson resource, @RequestParam(required=false) String routerid) throws Exception {
 
         RouteTable routetable = null;
 
