@@ -67,9 +67,8 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         for (UnicastGoalStateV2 unicastGoalState : unicastGoalStates) {
             String resp = doSendGoalState(unicastGoalState);
             if (resp != null) {
-
+                results.add(resp);
             }
-            results.add(resp);
         }
 
         return results;
