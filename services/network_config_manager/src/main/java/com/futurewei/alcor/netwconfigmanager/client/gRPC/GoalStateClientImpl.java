@@ -210,17 +210,17 @@ public class GoalStateClientImpl implements GoalStateClient {
         long warmup_start = System.currentTimeMillis();
         long current_time = System.currentTimeMillis();
         try {
+            /*
             while((current_time - warmup_start <= GRPC_CHANNEL_WARMUP_TIME_IN_SECONDS * 1000)){
                 current_time = System.currentTimeMillis();
                 requestObserver.onNext(Goalstate.GoalStateV2.getDefaultInstance());
             }
-            /*
+            */
             Goalstate.GoalStateV2 goalState = Goalstate.GoalStateV2.getDefaultInstance();
-            logger.log(Level.INFO, "Sending GS to Host " + hostIp + " as follows | " + goalState.toString());
+            logger.log(Level.INFO, "Sending warmup GS to Host " + hostIp + " as follows | " + goalState.toString());
             for (int i = 0; i < numberOfWarmupsPerChannel; i++) {
                 requestObserver.onNext(goalState);
             }
-            */
         } catch (RuntimeException e) {
             // Cancel RPC
             logger.log(Level.WARNING, "[doSendGoalState] Sending GS, but error happened | " + e.getMessage());
