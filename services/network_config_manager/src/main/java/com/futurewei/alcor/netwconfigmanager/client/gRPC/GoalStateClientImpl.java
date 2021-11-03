@@ -106,6 +106,19 @@ public class GoalStateClientImpl implements GoalStateClient {
     @Override
     @DurationStatistics
     public List<String> sendGoalStates(Map<String, HostGoalState> hostGoalStates) throws Exception {
+        for (HostGoalState hostGoalState : hostGoalStates.values()){
+            this.executor.execute(() -> {
+                try {
+                    doSendGoalState(hostGoalState);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+
+        // Currently, This return value is not used by any of its callers, so it doesn't matter(?)
+        return new ArrayList<String>();
+        /*
         List<Future<HostGoalState>>
                 futures = new ArrayList<>(hostGoalStates.size());
 
@@ -135,6 +148,7 @@ public class GoalStateClientImpl implements GoalStateClient {
 
             return null;
         }).collect(Collectors.toList());
+        */
     }
 
     private GrpcChannelStub getOrCreateGrpcChannel(String hostIp) {
