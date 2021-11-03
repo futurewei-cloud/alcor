@@ -84,11 +84,18 @@ public class IpManagerRestClient extends AbstractRestClient {
     @DurationStatistics
     public IpAddrRequest allocateIpAddress(IpAddrRequest ipAddrRequest) throws Exception {
         HttpEntity<IpAddrRequest> request = new HttpEntity<>(ipAddrRequest);
-        IpAddrRequest result = restTemplate.postForObject(ipManagerUrl, request, IpAddrRequest.class);
-
-        verifyAllocatedIpAddr(result);
-
-        return result;
+        int count = 0;
+        int maxTries = 3;
+        while(true) {
+            try {
+                IpAddrRequest result = restTemplate.postForObject(ipManagerUrl, request, IpAddrRequest.class);
+                verifyAllocatedIpAddr(result);
+                return result;
+            } catch (Exception e) {
+                // handle exception
+                if (++count == maxTries) throw e;
+            }
+        }
     }
 
     @DurationStatistics
