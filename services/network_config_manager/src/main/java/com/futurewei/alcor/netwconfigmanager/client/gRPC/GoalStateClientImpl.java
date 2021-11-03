@@ -216,9 +216,10 @@ public class GoalStateClientImpl implements GoalStateClient {
                 requestObserver.onNext(Goalstate.GoalStateV2.getDefaultInstance());
             }
             */
-            Goalstate.GoalStateV2 goalState = Goalstate.GoalStateV2.getDefaultInstance();
-            logger.log(Level.INFO, "Sending warmup GS to Host " + hostIp + " as follows | " + goalState.toString());
+
             for (int i = 0; i < numberOfWarmupsPerChannel; i++) {
+                Goalstate.GoalStateV2 goalState = Goalstate.GoalStateV2.getDefaultInstance();
+                logger.log(Level.INFO, "Sending warmup GS to Host " + hostIp + " as follows | " + goalState.toString());
                 requestObserver.onNext(goalState);
             }
         } catch (RuntimeException e) {
