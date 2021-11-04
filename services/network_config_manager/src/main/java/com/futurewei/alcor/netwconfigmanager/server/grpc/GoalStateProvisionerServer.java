@@ -59,7 +59,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
     private int numberOfGrpcChannelPerHost;
 
     // when a channel is set up, send this amount of default GoalStates for warmup.
-    @Value("${grpc.number-of-warmups-per-channel:100}")
+    @Value("${grpc.number-of-warmups-per-channel:1}")
     private int numberOfWarmupsPerChannel;
 
     @Value("${grpc.monitor-hosts}")
