@@ -191,6 +191,40 @@ public class GoalStateClientImpl implements GoalStateClient {
 
         long warmup_start = System.currentTimeMillis();
         long current_time = System.currentTimeMillis();
+        int counter = 0;
+        while((current_time - warmup_start <= GRPC_CHANNEL_WARMUP_TIME_IN_SECONDS * 1000)){
+            current_time = System.currentTimeMillis();
+            StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver = new StreamObserver<>() {
+                @Override
+                public void onNext(Goalstateprovisioner.GoalStateOperationReply reply) {
+                    logger.log(Level.INFO, "Receive warmup response from ACA@" + hostIp + " | " + reply.toString());
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                    logger.log(Level.WARNING, "Receive warmup error from ACA@" + hostIp + " |  " + t.getMessage());
+                }
+
+                @Override
+                public void onCompleted() {
+                    logger.log(Level.INFO, "Complete receiving warmup message from ACA@" + hostIp);
+                }
+            };
+
+            StreamObserver<Goalstate.GoalStateV2> requestObserver = asyncStub.pushGoalStatesStream(responseObserver);
+            try {
+                Goalstate.GoalStateV2 goalState = Goalstate.GoalStateV2.getDefaultInstance();
+                logger.log(Level.INFO, "Sending "+counter+"th warmup GS to Host " + hostIp + " as follows | " + goalState.toString());
+                requestObserver.onNext(goalState);
+            } catch (RuntimeException e) {
+                // Cancel RPC
+                logger.log(Level.WARNING, "[doSendGoalState] Sending GS, but error happened | " + e.getMessage());
+                requestObserver.onError(e);
+                throw e;
+            }
+            requestObserver.onNext(Goalstate.GoalStateV2.getDefaultInstance());
+        }
+/*
         for (int i = 0; i < numberOfWarmupsPerChannel; i++) {
             StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver = new StreamObserver<>() {
                 @Override
@@ -211,14 +245,6 @@ public class GoalStateClientImpl implements GoalStateClient {
 
             StreamObserver<Goalstate.GoalStateV2> requestObserver = asyncStub.pushGoalStatesStream(responseObserver);
             try {
-                /*
-                while((current_time - warmup_start <= GRPC_CHANNEL_WARMUP_TIME_IN_SECONDS * 1000)){
-                    current_time = System.currentTimeMillis();
-                    requestObserver.onNext(Goalstate.GoalStateV2.getDefaultInstance());
-                }
-                */
-
-
                 Goalstate.GoalStateV2 goalState = Goalstate.GoalStateV2.newBuilder().setFormatVersion(i).build();//Goalstate.GoalStateV2.getDefaultInstance().toBuilder().build();
                 logger.log(Level.INFO, "Sending "+i+"th warmup GS to Host " + hostIp + " as follows | " + goalState.toString());
                 requestObserver.onNext(goalState);
@@ -229,7 +255,7 @@ public class GoalStateClientImpl implements GoalStateClient {
                 throw e;
             }
         }
-
+*/
         // Mark the end of requests
         logger.log(Level.INFO, "Sending warmup GS to Host " + hostIp + " is completed");
         return;
