@@ -175,11 +175,24 @@ public class GoalStateClientImpl implements GoalStateClient {
     private ArrayList<GrpcChannelStub> createGrpcChannelStubArrayList(String hostIp) {
         long start = System.currentTimeMillis();
         ArrayList<GrpcChannelStub> arr = new ArrayList<>();
+        List<Future<Integer>> channels_warmup_future = new ArrayList<>();
         for (int i = 0; i < numberOfGrpcChannelPerHost; i++) {
             GrpcChannelStub channelStub = createGrpcChannelStub(hostIp);
-            warmUpChannelStub(channelStub, hostIp);
-            arr.add(channelStub);
+            // wait until all warmups for all channels are finished.
+            Future<Integer> channel_warmup_future = this.executor.submit(()->{
+                warmUpChannelStub(channelStub, hostIp);
+                arr.add(channelStub);
+                return 1;
+            });
         }
+        channels_warmup_future.parallelStream().filter(Objects::nonNull).map(future -> {
+            try {
+                return future.get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }).collect(Collectors.toList());
         long end = System.currentTimeMillis();
         logger.log(Level.FINE, "[createGrpcChannelStubArrayList] Created " + numberOfGrpcChannelPerHost + " gRPC channel stubs for host " + hostIp + ", elapsed Time in milli seconds: " + (end - start));
         return arr;
@@ -192,6 +205,7 @@ public class GoalStateClientImpl implements GoalStateClient {
         long warmup_start = System.currentTimeMillis();
         long current_time = System.currentTimeMillis();
         int counter = 0;
+        /*
         while((current_time - warmup_start <= GRPC_CHANNEL_WARMUP_TIME_IN_SECONDS * 1000)){
             current_time = System.currentTimeMillis();
             StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver = new StreamObserver<>() {
@@ -224,7 +238,7 @@ public class GoalStateClientImpl implements GoalStateClient {
             }
             requestObserver.onNext(Goalstate.GoalStateV2.getDefaultInstance());
         }
-/*
+*/
         for (int i = 0; i < numberOfWarmupsPerChannel; i++) {
             StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver = new StreamObserver<>() {
                 @Override
@@ -255,7 +269,6 @@ public class GoalStateClientImpl implements GoalStateClient {
                 throw e;
             }
         }
-*/
         // Mark the end of requests
         logger.log(Level.INFO, "Sending warmup GS to Host " + hostIp + " is completed");
         return;
