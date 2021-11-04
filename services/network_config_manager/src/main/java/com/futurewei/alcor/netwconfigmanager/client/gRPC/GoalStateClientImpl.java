@@ -234,7 +234,7 @@ public class GoalStateClientImpl implements GoalStateClient {
     }
 
     private GrpcChannelStub createGrpcChannelStub(String hostIp) {
-        ManagedChannel a = NettyChannelBuilder.forAddress(hostIp, this.hostAgentPort).usePlaintext().executor(Executors.newFixedThreadPool(16)).keepAliveWithoutCalls(true).eventLoopGroup(new EpollEventLoopGroup(4)).channelType(EpollSocketChannel.class).keepAliveTime(Long.MAX_VALUE, TimeUnit.SECONDS).flowControlWindow(1024 * 1024 * 1024).build();
+        ManagedChannel a = NettyChannelBuilder.forAddress(hostIp, this.hostAgentPort).usePlaintext().flowControlWindow(NettyChannelBuilder.DEFAULT_FLOW_CONTROL_WINDOW * 64 ).executor(Executors.newFixedThreadPool(16)).keepAliveWithoutCalls(true).eventLoopGroup(new EpollEventLoopGroup(4)).channelType(EpollSocketChannel.class).keepAliveTime(Long.MAX_VALUE, TimeUnit.SECONDS).flowControlWindow(1024 * 1024 * 1024).build();
         GoalStateProvisionerGrpc.GoalStateProvisionerStub b = GoalStateProvisionerGrpc.newStub(a);
         return new GrpcChannelStub(a, b);
         /*
