@@ -184,6 +184,7 @@ public class GoalStateClientImpl implements GoalStateClient {
                 arr.add(channelStub);
                 return 1;
             });
+            channels_warmup_future.add(channel_warmup_future);
         }
         channels_warmup_future.parallelStream().filter(Objects::nonNull).map(future -> {
             try {
