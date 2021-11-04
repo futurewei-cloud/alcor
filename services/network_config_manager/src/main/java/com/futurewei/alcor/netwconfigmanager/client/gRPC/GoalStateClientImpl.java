@@ -229,17 +229,12 @@ public class GoalStateClientImpl implements GoalStateClient {
             throw e;
         }
         // Mark the end of requests
-        try {
-            TimeUnit.SECONDS.sleep(10);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            logger.log(Level.WARNING,"Warmup thread can't sleep! " + e.getMessage());
-        }
         logger.log(Level.INFO, "Sending warmup GS to Host " + hostIp + " is completed");
         return;
     }
 
     private GrpcChannelStub createGrpcChannelStub(String hostIp) {
+        /*
         ManagedChannel a = NettyChannelBuilder.forAddress(hostIp, this.hostAgentPort)
                 .usePlaintext()
                 .executor(Executors.newFixedThreadPool(16))
@@ -251,7 +246,7 @@ public class GoalStateClientImpl implements GoalStateClient {
                 .build();
         GoalStateProvisionerGrpc.GoalStateProvisionerStub b = GoalStateProvisionerGrpc.newStub(a);
         return new GrpcChannelStub(a, b);
-        /*
+        */
         ManagedChannel channel = ManagedChannelBuilder.forAddress(hostIp, this.hostAgentPort)
                 .usePlaintext()
                 .keepAliveWithoutCalls(true)
@@ -260,7 +255,6 @@ public class GoalStateClientImpl implements GoalStateClient {
         GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub = GoalStateProvisionerGrpc.newStub(channel);
 
         return new GrpcChannelStub(channel, asyncStub);
-        */
     }
 
     private void doSendGoalState(HostGoalState hostGoalState) throws InterruptedException {
