@@ -229,6 +229,12 @@ public class GoalStateClientImpl implements GoalStateClient {
             throw e;
         }
         // Mark the end of requests
+        try {
+            TimeUnit.SECONDS.sleep(10);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            logger.log(Level.WARNING,"Warmup thread can't sleep! " + e.getMessage());
+        }
         logger.log(Level.INFO, "Sending warmup GS to Host " + hostIp + " is completed");
         return;
     }
