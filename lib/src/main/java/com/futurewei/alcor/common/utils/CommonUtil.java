@@ -123,7 +123,10 @@ public class CommonUtil {
 
     public static String getSimpleFromCanonicalName(String canon) {
         int lastDot = canon.lastIndexOf(".");
-        return canon.substring(lastDot + 1);
+            if (lastDot != -1)
+                return canon.substring(lastDot + 1);
+            else
+                return canon;
     }
 
     /**

@@ -24,8 +24,6 @@ import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.common.utils.ControllerUtil;
-import com.google.common.reflect.TypeToken;
-import io.netty.util.concurrent.EventExecutorChooserFactory;
 import org.apache.ignite.binary.BinaryObject;
 import org.apache.ignite.cache.CachePeekMode;
 import org.apache.ignite.cache.QueryEntity;
@@ -42,28 +40,30 @@ import org.apache.ignite.client.IgniteClient;
 import org.apache.ignite.configuration.CacheConfiguration;
 import org.apache.ignite.lang.IgniteBiPredicate;
 import org.springframework.util.Assert;
-import org.springframework.util.TypeUtils;
 
 import javax.cache.Cache;
 import javax.cache.expiry.ExpiryPolicy;
 import java.lang.reflect.Field;
+import java.sql.Array;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+import static org.apache.ignite.internal.util.lang.GridFunc.asList;
+
 public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
     private static final Logger logger = LoggerFactory.getLogger();
-
+    private static final String NON_SCALAR_ROWSET = "more than one rows found!";
     private static final int RESULT_THRESHOLD_SIZE = 100000;
     private static final String SQL_SCHEMA_NAME = "alcor";
     private ClientCache<K, V> cache;
     private final IgniteClientTransaction transaction;
-    private class SqlField {
-        public String name;
+    private static class SqlField {
         public String type;
+        public boolean isIndexed;
     }
-    private Map<String, SqlField> sqlFields = null;
+    private Map<String, SqlField> sqlFields = null; // needed for index creation and querying
+    private List<String> sqlColumns = null;         // needed for constructing select list
     private boolean checkedForSqlFields = false;
 
     public IgniteClientDbCache(IgniteClient igniteClient, Class<?> v, String name) {
@@ -74,7 +74,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
                 extractSqlFields(className);
                 if (sqlFields != null && sqlFields.size() != 0) {
                     ClientCacheConfiguration clientCacheConfig = new ClientCacheConfiguration();
-                    clientCacheConfig.setName(className);
+                    clientCacheConfig.setName(name);
                     this.cache = getOrCreateIndexedCache(igniteClient, className, clientCacheConfig, null);
                 }
             }
@@ -221,7 +221,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
                 cache.withKeepBinary().query(ScanQueryBuilder.newScanQuery(igniteBiPredicate));
         List<Cache.Entry<E1, E2>> result = cursor.getAll();
         if(result.size() > 1){
-            throw new CacheException("more than one rows found!");
+            throw new CacheException(NON_SCALAR_ROWSET);
         }
 
         if(result.isEmpty()){
@@ -280,30 +280,38 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
     private boolean checkForSqlFieldsQuery(Map<String, Object[]> filterParams) {
         if (checkedForSqlFields && (sqlFields == null || sqlFields.size() == 0))
             return false;
+
         /*
-         * There must be exactly two sqlfileds, one for the index lookup
-         * and the other for the _VAL (V) field in the Class declaration.
-         * There can only one be exactly one field in queryParams for now.
-         * The entry in the filterparams should be an indexed field.
-         * If these conditions are true, run SQLFieldsQuery otherwise, ScanQuery.
+        * All filterParams must be found in sqlfields as "index".
          */
-        if (sqlFields.size() == 2 && filterParams.size() == 1 && filterParams.containsKey(sqlFields.get("index").name)) {
-            return true;
+        int idxCount = 0;
+        for (String f : filterParams.keySet()) {
+            if (sqlFields.containsKey(f))
+                ++idxCount;
         }
 
-        return false;
+        return idxCount == filterParams.size();
     }
 
-    private <E1, E2> V getBySqlFields(Map<String, Object[]> filterParams) {
+    private <E1, E2> V getBySqlFields(Map<String, Object[]> filterParams) throws CacheException {
         try {
             Map<K, V> result = runSQLFieldsQuery(filterParams);
             if (result == null || result.isEmpty())
                 return null;
+            if(result.size() > 1) {
+                throw new CacheException(NON_SCALAR_ROWSET);
+            }
             return result.get(0);
         }
-        catch (Exception e) {
-            return null;
+        catch (CacheException ce) {
+            if (ce.getMessage().equals(NON_SCALAR_ROWSET))
+                throw ce;
         }
+        catch (Exception e) {
+            logger.log(Level.WARNING, "runSQLFieldsQuery exception : " + e.getMessage());
+        }
+
+        return null;
     }
 
     public <E1, E2> Map<K, V> getBySqlFieldsAll(Map<String, Object[]> filterParams) {
@@ -311,7 +319,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
             return  runSQLFieldsQuery(filterParams);
         }
         catch (Exception e) {
-            logger.log(Level.INFO, "getBySqlFieldsAll failed");
+            logger.log(Level.INFO, "runSQLFieldsQuery exception: " + e.getMessage());
             return null;
         }
     }
@@ -340,35 +348,35 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
     }
 
     private String buildSqlFieldsQuery(Map<String, Object[]> filterParams) {
-        SqlField valFld = sqlFields.get("value");
-        String valName = valFld.name;
-        String vaType  = valFld.type;
-        String keyFldName = sqlFields.get("index").name;
+        SqlField valFld = sqlFields.get("$value");
         Class<?> v;
         try {
-            v = Class.forName(vaType);
+            v = Class.forName(valFld.type);
         } catch (Exception e) {
-            logger.log(Level.INFO, "Failed to find type of " + vaType);
+            logger.log(Level.INFO, "Failed to find type of " + valFld.type);
             return null;
         }
 
-        boolean needQuotes = false;
-        String keyType = sqlFields.get("index").type;
-        if (this.sqlFields.get("index").type.equals("java.lang.String"))
-            needQuotes = true;
+        StringBuilder sb = new StringBuilder("select _key, _val from " + SQL_SCHEMA_NAME +
+                "." + cache.getConfiguration().getQueryEntities()[0].getTableName() + " where ");
+        boolean needAnd = false;
+        for (String c : sqlColumns) {
+            if (!sqlFields.get(c).isIndexed)
+                continue;
+            SqlField f = sqlFields.get(c);
+            if (needAnd)
+                sb.append(" and ");
+            needAnd = true;
 
-        StringBuilder sb = new StringBuilder("select ");
-        sb.append(sqlFields.get("index").name).append(", ");
-        sb.append(CommonUtil.getSimpleFromCanonicalName(valName)).append(" from ");
-        sb.append(SQL_SCHEMA_NAME).append(".");
-        sb.append(cache.getConfiguration().getQueryEntities()[0].getTableName());
-        sb.append(" where ");
-        sb.append(sqlFields.get("index").name).append(" = ");
-        if (needQuotes)
-            sb.append("'");
-        sb.append(filterParams.get(keyFldName)[0]);
-        if (needQuotes)
-            sb.append("'");
+            sb.append(c).append(" = ");
+            boolean needQuotes = f.type.equals("java.lang.String");
+                sb.append("'");
+            sb.append(filterParams.get(c)[0]);
+            if (needQuotes)
+                sb.append("'");
+        }
+        logger.log(Level.INFO, "SQL = " + sb.toString());
+
         return sb.toString();
     }
 
@@ -379,11 +387,10 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
      * If the class has QuerySqlField annotations, add query entry fields and indexes.
      */
     private ClientCache<K, V> getOrCreateIndexedCache(IgniteClient igniteClient, String className, ClientCacheConfiguration cacheConfig, ExpiryPolicy ep) {
-        String cacheName = cacheConfig.getName();
+        // TODO: Rename getSchemaNameForCacheClass to something like getSqlNameFromJavaName
+        String cacheName = CommonUtil.getSchemaNameForCacheClass(cacheConfig.getName());
         logger.log(Level.INFO, "Creating cache " + cacheName + " with index");
 
-        SqlField idxFld = sqlFields.get("index");
-        SqlField valFld = sqlFields.get("value");
         Class<?> v;
         try {
             v = Class.forName(className);
@@ -391,34 +398,37 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
             logger.log(Level.INFO, "Failed to get class for " + className);
             return null;
         }
-        QueryEntity qryEnt;
 
+        QueryEntity qryEnt = new QueryEntity().setTableName(cacheName);
+        qryEnt.setValueType(className);
+
+        LinkedHashMap<String, String> qryFields = new LinkedHashMap<>();
+        ArrayList<QueryIndex> idxFields = new ArrayList<>();
         try {
-            String tblName = CommonUtil.getSimpleFromCanonicalName(cacheName);
-            qryEnt = new QueryEntity().setTableName(tblName);
-            logger.log(Level.INFO, "QueryEntity = " + qryEnt);
-            logger.log(Level.INFO, "Setting table " + tblName + " for cache " + className);
-        } catch (Exception e) {
-            logger.log(Level.INFO, "Failed to get type for index field " + idxFld.name);
-            return null;
-        }
-        try {
-            // qryEnt.setKeyFieldName(idxFld.name);
-            qryEnt.setKeyType(idxFld.type);
-            qryEnt.setValueType(className);
-            qryEnt.setKeyFieldName(idxFld.name);
-            qryEnt.setValueFieldName(valFld.name);
-            qryEnt.addQueryField(idxFld.name, idxFld.type, null);
+            for (String c : sqlColumns) {
+                if (c.equals("$value"))
+                    continue;
+                // qryEnt.setKeyFieldName(idxFld.name);
+                // qryEnt.setKeyType(idxFld.name);
+                // qryEnt.setValueType(className);
+                SqlField f = sqlFields.get(c);
+                logger.log(Level.INFO, "getOrCreateIndexedCache: Adding " + c + " to query fields " + " in " + cacheName);
+                qryFields.put(c, f.type);
+                if (f.isIndexed) {
+                    logger.log(Level.INFO, "getOrCreateIndexedCache: Adding " + c + " to index fields " + " in " + cacheName);
+                    idxFields.add(new QueryIndex(c));
+                }
+            }
+
+            qryEnt.setFields(qryFields);
+
             logger.log(Level.INFO, "QE: " + qryEnt);
 
             // qryEnt.setKeyType(valFld.name);
             // qryEnt.setValueType(valFld.type);
-            qryEnt.addQueryField(valFld.name, valFld.type, null);
-            logger.log(Level.INFO, "QE: " + qryEnt);
 
-            QueryIndex qryIndex = new QueryIndex(idxFld.name);
-            logger.log(Level.INFO, "QI: " + qryIndex);
-            qryEnt.setIndexes(Collections.singleton(qryIndex));
+            qryEnt.setIndexes(idxFields);
+            logger.log(Level.INFO, "cache : " + cacheName + ", QE = " + qryEnt.toString());
         }
         catch (Exception e) {
             logger.log(Level.WARNING, "Failed to create index on cache: " + cacheName + ": " + e.getMessage());
@@ -427,7 +437,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
 
         cacheConfig.setQueryEntities(qryEnt);
         // String schName = CommonUtil.getSchemaNameForCacheClass(v.getName());
-        logger.log(Level.INFO, "Setting schema name " + SQL_SCHEMA_NAME + " for cahce " + cacheName);
+        logger.log(Level.INFO, "Setting schema name " + SQL_SCHEMA_NAME + " for cache " + cacheName);
         cacheConfig.setSqlSchema(SQL_SCHEMA_NAME);
 
         logger.log(Level.INFO, "cacheConfig = " + cacheConfig.toString());
@@ -452,6 +462,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
 
     private void extractSqlFields(String className) {
         Map<String, SqlField> localFields = new HashMap<>();
+        List<String> localColumns = new ArrayList<>();
         logger.log(Level.INFO, "Checking for QuerySqlField annotations: " + className);
         Field[] fields = null;
         try {
@@ -459,39 +470,38 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
 
             fields = ControllerUtil.getAllDeclaredFields(v);
 
-            // go through all fields but pick the very first one, for now,
-            // make it work for multiple fields later.
             for (Field f : fields) {
                 QuerySqlField annot = f.getAnnotation(QuerySqlField.class);
                 if (annot != null) {
-                    logger.log(Level.INFO, "Found for " + f.getName() + " annotation: " + annot.toString());
+                    logger.log(Level.INFO, "QuerySqlField Found for " + f.getName() + " annotation: " + annot.toString());
                     if (annot.index()) {
-                        if (localFields.keySet().isEmpty()) {
                             SqlField sqlField = new SqlField();
-                            sqlField.name = f.getName();
+                            sqlField.isIndexed = true;
                             sqlField.type = f.getType().getTypeName();
-                            logger.log(Level.INFO, "Adding index for " + sqlField.name + " with type " + sqlField.type);
-                            localFields.put("index", sqlField);
-                        }
+                            logger.log(Level.INFO, "QuerySqlField Adding index for " + f.getName() + " with type " + sqlField.type);
+                            localFields.put(f.getName(), sqlField);
                     } else {
                         SqlField sqlField = new SqlField();
-                        sqlField.name = f.getName();
+                        sqlField.isIndexed = false;
                         sqlField.type = f.getType().getTypeName();
-                        logger.log(Level.INFO, "Adding value for " + sqlField.name + " with type " + sqlField.type);
-                        sqlFields.put("value", sqlField);
+                        logger.log(Level.INFO, "QuerySqlField Adding value for " + f.getName() + " with type " + sqlField.type);
+                        localFields.put(f.getName(), sqlField);
                     }
+
+                    localColumns.add(f.getName());
                 }
             }
 
             if (!(localFields.isEmpty() || localFields.containsValue(className))) {
                 SqlField sqlField = new SqlField();
-                sqlField.name = className;
+                sqlField.isIndexed = false;
                 sqlField.type = v.getTypeName();
-                logger.log(Level.INFO, "Adding value for " + sqlField.name + " with type " + sqlField.type);
-                localFields.put("value", sqlField);
+                logger.log(Level.INFO, "QuerySqlField Adding value for _VAL with type " + sqlField.type);
+                localFields.put("$value", sqlField);
             }
             sqlFields = localFields;
-            logger.log(Level.INFO, "Found " + sqlFields.size() + " sqlFields");
+            sqlColumns = localColumns;
+            logger.log(Level.INFO, "QuerySqlField Found " + sqlFields.size() + " sqlFields");
         } catch (Exception e) {
             //
         }

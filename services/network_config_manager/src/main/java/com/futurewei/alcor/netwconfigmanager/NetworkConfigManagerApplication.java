@@ -37,12 +37,17 @@ public class NetworkConfigManagerApplication {
 
     @PostConstruct
     public void instantiateGrpcServer(){
+        return;
+        /**
+         * Return so that rest API endpoint can work
+         *
         try {
             networkConfigServer.start();
             networkConfigServer.blockUntilShutdown();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        */
     }
 
     public static void main(String[] args) {

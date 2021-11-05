@@ -18,6 +18,7 @@ package com.futurewei.alcor.web.entity.node;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import org.apache.ignite.cache.query.annotations.QuerySqlField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,9 +33,11 @@ public class NodeInfo implements Serializable {
     private static final Logger logger = LoggerFactory.getLogger(NodeInfo.class);
 
     @JsonProperty("node_id")
+    @QuerySqlField(index = true)
     private String id;
 
     @JsonProperty("node_name")
+    @QuerySqlField(index = true)
     private String name;
 
     @JsonProperty("local_ip")
