@@ -487,7 +487,7 @@ public class SubnetServiceImp implements SubnetService {
         routetable.setRouteTableType(RouteTableType.NEUTRON_SUBNET.getRouteTableType());
         routetable.setRouteEntities(routeEntities);
 
-        String routeManagerServiceUrl = routeUrl + "project/" + projectId + "/subnets/" + subnetId + "/routetable";
+        String routeManagerServiceUrl = routeUrl + "project/" + projectId + "/subnets/" + subnetId + "/routetable?routerid=" + subnetEntity.getAttachedRouterId();
         HttpEntity<RouteTableWebJson> routeRequest = new HttpEntity<>(new RouteTableWebJson(routetable));
         restTemplate.put(routeManagerServiceUrl, routeRequest, RouteTableWebJson.class);
     }
