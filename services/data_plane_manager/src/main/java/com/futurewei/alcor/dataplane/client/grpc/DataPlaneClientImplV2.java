@@ -65,9 +65,10 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
     public List<String> sendGoalStates(List<UnicastGoalStateV2> unicastGoalStates) throws Exception {
         List<String> results = new ArrayList<>();
         for (UnicastGoalStateV2 unicastGoalState : unicastGoalStates) {
-            results.add(
-                    doSendGoalState(unicastGoalState)
-            );
+            String resp = doSendGoalState(unicastGoalState);
+            if (resp != null) {
+                results.add(resp);
+            }
         }
 
         return results;
