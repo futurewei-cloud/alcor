@@ -17,6 +17,7 @@ package com.futurewei.alcor.web.entity.dataplane;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import org.apache.ignite.cache.query.annotations.QuerySqlField;
 
 @Data
 public class NeighborInfo {
@@ -36,6 +37,7 @@ public class NeighborInfo {
     private String portIp;
 
     @JsonProperty("vpc_id")
+    @QuerySqlField(index = true)
     private String vpcId;
 
     @JsonProperty("subnet_id")
