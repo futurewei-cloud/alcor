@@ -24,6 +24,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.retry.annotation.Retryable;
 
 import java.util.List;
 
@@ -82,20 +83,14 @@ public class IpManagerRestClient extends AbstractRestClient {
     }
 
     @DurationStatistics
+    @Retryable
     public IpAddrRequest allocateIpAddress(IpAddrRequest ipAddrRequest) throws Exception {
         HttpEntity<IpAddrRequest> request = new HttpEntity<>(ipAddrRequest);
-        int count = 0;
-        int maxTries = 3;
-        while(true) {
-            try {
-                IpAddrRequest result = restTemplate.postForObject(ipManagerUrl, request, IpAddrRequest.class);
-                verifyAllocatedIpAddr(result);
-                return result;
-            } catch (Exception e) {
-                // handle exception
-                if (++count == maxTries) throw e;
-            }
-        }
+        IpAddrRequest result = restTemplate.postForObject(ipManagerUrl, request, IpAddrRequest.class);
+
+        verifyAllocatedIpAddr(result);
+
+        return result;
     }
 
     @DurationStatistics

@@ -518,6 +518,7 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
 
     }
 
+    @DurationStatistics
     private IpAddrAlloc allocateIpAddrMethod(IpAddrRequest request) throws Exception {
         IpAddrAlloc ipAddrAlloc;
         if (request.getRangeId() == null) {
