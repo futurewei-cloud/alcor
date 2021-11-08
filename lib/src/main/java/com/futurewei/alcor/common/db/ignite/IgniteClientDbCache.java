@@ -361,7 +361,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
                 "." + cache.getConfiguration().getQueryEntities()[0].getTableName() + " where ");
         boolean needAnd = false;
         for (String c : sqlColumns) {
-            if (!sqlFields.get(c).isIndexed)
+            if (!sqlFields.get(c).isIndexed || !filterParams.containsKey(c))
                 continue;
             SqlField f = sqlFields.get(c);
             if (needAnd)
