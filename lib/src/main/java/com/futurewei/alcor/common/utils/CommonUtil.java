@@ -134,7 +134,15 @@ public class CommonUtil {
      * @param className
      * @return
      */
-    public static String getSchemaNameForCacheClass(String className) {
-        return className.replaceAll("\\.", "_");
+    public static String getSqlNameFromCacheName(String className) {
+        return className.replaceAll("[\\.-]", "_");
+    }
+
+    /**
+     * @param name of a cache. Could contain dots and dashes.
+     * @return name with dots and dashes replaced with underscores.
+     */
+    public static String getSqlNameFromGUID(String name) {
+        return name.replaceAll("\\.-", "_");
     }
 }

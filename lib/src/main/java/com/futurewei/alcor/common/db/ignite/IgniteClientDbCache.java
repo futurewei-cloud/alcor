@@ -74,7 +74,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
                 extractSqlFields(className);
                 if (sqlFields != null && sqlFields.size() != 0) {
                     ClientCacheConfiguration clientCacheConfig = new ClientCacheConfiguration();
-                    clientCacheConfig.setName(name);
+                    clientCacheConfig.setName(CommonUtil.getSqlNameFromCacheName(name));
                     this.cache = getOrCreateIndexedCache(igniteClient, className, clientCacheConfig, null);
                 }
             }
@@ -95,7 +95,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
         try {
             String className = v.getName();
             ClientCacheConfiguration clientCacheConfig = new ClientCacheConfiguration();
-            clientCacheConfig.setName(cacheConfig.getName());
+            clientCacheConfig.setName(CommonUtil.getSqlNameFromCacheName(cacheConfig.getName()));
             clientCacheConfig.setAtomicityMode(cacheConfig.getAtomicityMode());
             logger.log(Level.INFO, "Getting or creating cache " + clientCacheConfig.getName() + " AtomicityMode is " + clientCacheConfig.getAtomicityMode());
             extractSqlFields(className);
@@ -387,8 +387,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
      * If the class has QuerySqlField annotations, add query entry fields and indexes.
      */
     private ClientCache<K, V> getOrCreateIndexedCache(IgniteClient igniteClient, String className, ClientCacheConfiguration cacheConfig, ExpiryPolicy ep) {
-        // TODO: Rename getSchemaNameForCacheClass to something like getSqlNameFromJavaName
-        String cacheName = CommonUtil.getSchemaNameForCacheClass(cacheConfig.getName());
+        String cacheName = CommonUtil.getSqlNameFromCacheName(cacheConfig.getName());
         logger.log(Level.INFO, "Creating cache " + cacheName + " with index");
 
         Class<?> v;
@@ -436,7 +435,6 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
         }
 
         cacheConfig.setQueryEntities(qryEnt);
-        // String schName = CommonUtil.getSchemaNameForCacheClass(v.getName());
         logger.log(Level.INFO, "Setting schema name " + SQL_SCHEMA_NAME + " for cache " + cacheName);
         cacheConfig.setSqlSchema(SQL_SCHEMA_NAME);
 
