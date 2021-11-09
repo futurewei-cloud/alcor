@@ -36,6 +36,7 @@ import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import io.jaegertracing.Configuration;
 import io.jaegertracing.internal.JaegerTracer;
+import io.lettuce.core.dynamic.annotation.Param;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.opentracing.contrib.tracerresolver.TracerResolver;
 import org.springframework.stereotype.Service;
@@ -71,7 +72,7 @@ public class GoalStateClientImpl implements GoalStateClient {
 
     private ConcurrentHashMap<String, ArrayList<GrpcChannelStub>> hostIpGrpcChannelStubMap;
 
-    private final Tracer tracer = TracerResolver.resolveTracer();;
+    private final Tracer tracer;
 
     public static GoalStateClientImpl getInstance(int numberOfGrpcChannelPerHost, int numberOfWarmupsPerChannel, ArrayList<String> monitorHosts) {
         if (instance == null) {
@@ -110,12 +111,7 @@ public class GoalStateClientImpl implements GoalStateClient {
         //TODO: Setup a connection pool. one ACA, one client.
         this.hostIpGrpcChannelStubMap = new ConcurrentHashMap();
 
-//        Configuration.SamplerConfiguration samplerConfig = new Configuration.SamplerConfiguration();
-//        Configuration.ReporterConfiguration reporterConfig = new Configuration.ReporterConfiguration();
-//        Configuration config = new Configuration("abc");
-//
-//        // Get the actual OpenTracing-compatible Tracer.
-//        this.tracer = config.getTracer();
+        this.tracer = TracerResolver.resolveTracer();
 
         logger.log(Level.FINE, "This instance has " + numberOfGrpcChannelPerHost + " channels, and " + numberOfWarmupsPerChannel + " warmups");
     }
