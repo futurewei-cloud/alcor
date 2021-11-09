@@ -111,8 +111,7 @@ public class GoalStateClientImpl implements GoalStateClient {
         //TODO: Setup a connection pool. one ACA, one client.
         this.hostIpGrpcChannelStubMap = new ConcurrentHashMap();
 
-        this.tracer = TracerResolver.resolveTracer();
-
+        this.tracer = Configuration.fromEnv().getTracer(); //TracerResolver.resolveTracer();
         logger.log(Level.FINE, "This instance has " + numberOfGrpcChannelPerHost + " channels, and " + numberOfWarmupsPerChannel + " warmups");
     }
 
