@@ -278,7 +278,9 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
     }
 
     private boolean checkForSqlFieldsQuery(Map<String, Object[]> filterParams) {
-        if (checkedForSqlFields && (sqlFields == null || sqlFields.size() == 0))
+        if (!checkedForSqlFields)
+            return false;
+        if (sqlFields == null || sqlFields.size() == 0 || filterParams.size() == 0)
             return false;
 
         /*
@@ -290,7 +292,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
                 ++idxCount;
         }
 
-        return idxCount == filterParams.size();
+        return idxCount != 0 && idxCount == filterParams.size();
     }
 
     private <E1, E2> V getBySqlFields(Map<String, Object[]> filterParams) throws CacheException {
