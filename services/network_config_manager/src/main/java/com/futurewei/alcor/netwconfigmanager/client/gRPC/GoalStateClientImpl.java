@@ -34,16 +34,22 @@ import io.grpc.netty.shaded.io.netty.channel.epoll.EpollSocketChannel;
 import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
+import io.jaegertracing.Configuration;
+import io.jaegertracing.internal.JaegerTracer;
 import io.netty.util.concurrent.DefaultThreadFactory;
+import io.opentracing.contrib.tracerresolver.TracerResolver;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
+import io.opentracing.Tracer;
+import io.opentracing.contrib.grpc.TracingClientInterceptor;
 
 @Service("grpcGoalStateClient")
 public class GoalStateClientImpl implements GoalStateClient {
+
     private final int GRPC_CHANNEL_WARMUP_TIME_IN_SECONDS = 5;
 
     private static GoalStateClientImpl instance = null;
@@ -65,6 +71,7 @@ public class GoalStateClientImpl implements GoalStateClient {
 
     private ConcurrentHashMap<String, ArrayList<GrpcChannelStub>> hostIpGrpcChannelStubMap;
 
+    private final Tracer tracer = TracerResolver.resolveTracer();;
 
     public static GoalStateClientImpl getInstance(int numberOfGrpcChannelPerHost, int numberOfWarmupsPerChannel, ArrayList<String> monitorHosts) {
         if (instance == null) {
@@ -102,6 +109,14 @@ public class GoalStateClientImpl implements GoalStateClient {
                 new DefaultThreadFactory("grpc-thread-pool"));
         //TODO: Setup a connection pool. one ACA, one client.
         this.hostIpGrpcChannelStubMap = new ConcurrentHashMap();
+
+//        Configuration.SamplerConfiguration samplerConfig = new Configuration.SamplerConfiguration();
+//        Configuration.ReporterConfiguration reporterConfig = new Configuration.ReporterConfiguration();
+//        Configuration config = new Configuration("abc");
+//
+//        // Get the actual OpenTracing-compatible Tracer.
+//        this.tracer = config.getTracer();
+
         logger.log(Level.FINE, "This instance has " + numberOfGrpcChannelPerHost + " channels, and " + numberOfWarmupsPerChannel + " warmups");
     }
 
@@ -285,7 +300,14 @@ public class GoalStateClientImpl implements GoalStateClient {
                 .keepAliveTime(Long.MAX_VALUE, TimeUnit.SECONDS)
                 .flowControlWindow(1024 * 1024 * 1024)
                 .build();
-        GoalStateProvisionerGrpc.GoalStateProvisionerStub b = GoalStateProvisionerGrpc.newStub(a);
+
+        // adding tracing stuffs for each channel
+        TracingClientInterceptor tracingClientInterceptor = TracingClientInterceptor
+                .newBuilder()
+                .withTracer(this.tracer)
+                .build();
+
+        GoalStateProvisionerGrpc.GoalStateProvisionerStub b = GoalStateProvisionerGrpc.newStub(tracingClientInterceptor.intercept(a));
         return new GrpcChannelStub(a, b);
         /*
         ManagedChannel channel = ManagedChannelBuilder.forAddress(hostIp, this.hostAgentPort)
