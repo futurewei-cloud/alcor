@@ -129,9 +129,9 @@ public class GoalStateClientImpl implements GoalStateClient {
                 Span span;
 
                 if(pSpan != null){
-                    span = tracer.buildSpan("alcor-ncm-send-gs").asChildOf(pSpan.context()).start();
+                    span = tracer.buildSpan("alcor-ncm-client-send-gs").asChildOf(pSpan.context()).start();
                 }else{
-                    span = tracer.buildSpan("alcor-ncm-send-gs").start();
+                    span = tracer.buildSpan("alcor-ncm-client-send-gs").start();
                 }
                 try (Scope cscope = this.tracer.scopeManager().activate(span)) {
                     doSendGoalState(hostGoalState);

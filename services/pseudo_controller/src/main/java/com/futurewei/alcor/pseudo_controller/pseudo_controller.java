@@ -49,6 +49,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import io.opentracing.Scope;
+import io.opentracing.Span;
+import io.opentracing.Tracer;
+import io.opentracing.contrib.grpc.TracingClientInterceptor;
+import io.opentracing.util.GlobalTracer;
 import org.awaitility.Awaitility;
 
 
@@ -343,10 +348,24 @@ public class pseudo_controller {
 
         System.out.println("Time to call the GRPC functions");
 
+        // Use tracer and interceptor to trace grpc calls.
+        Tracer tracer = GlobalTracer.get();
+        TracingClientInterceptor tracingClientInterceptor = TracingClientInterceptor
+                .newBuilder()
+                .withTracer(tracer)
+                .build();
+
         ManagedChannel channel = ManagedChannelBuilder.forAddress(ncm_ip, ncm_port).usePlaintext().build();
         System.out.println("Constructed channel");
-        GoalStateProvisionerGrpc.GoalStateProvisionerStub stub = GoalStateProvisionerGrpc.newStub(channel);
-
+        GoalStateProvisionerGrpc.GoalStateProvisionerStub stub = GoalStateProvisionerGrpc.newStub(tracingClientInterceptor.intercept(channel));
+        Span parentSpan = tracer.activeSpan();
+        Span span;
+        if(parentSpan != null){
+            span = tracer.buildSpan("alcor-tc-send-gs").asChildOf(parentSpan.context()).start();
+        }else{
+            span = tracer.buildSpan("alcor-tc-send-gs").start();
+        }
+        Scope cscope = tracer.scopeManager().activate(span);
         System.out.println("Created stub");
         StreamObserver<Goalstateprovisioner.GoalStateOperationReply> message_observer = new StreamObserver<>() {
             @Override
@@ -376,7 +395,7 @@ public class pseudo_controller {
 
         System.out.println("Wait no longer than 6000 seconds until both goalstates are sent to both hosts.");
         Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == NUMBER_OF_NODES);
-
+        span.finish();
 
 //        System.out.println("Try to send gsv1 to the host!");
 //

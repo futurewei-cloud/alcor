@@ -31,6 +31,11 @@ import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 import io.grpc.stub.StreamObserver;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import io.opentracing.Scope;
+import io.opentracing.Span;
+import io.opentracing.Tracer;
+import io.opentracing.contrib.grpc.TracingServerInterceptor;
+import io.opentracing.util.GlobalTracer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,6 +58,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
     private final int responseDefaultFormatVersion = 1;
     private final int port;
     private final Server server;
+    private final Tracer tracer;
 
     // each host_ip should have this amount of gRPC channels.
     @Value("${grpc.number-of-channels-per-host:1}")
@@ -78,6 +84,11 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         this.port = 9016; // TODO: make this configurable
 
         IpInterceptor clientIpInterceptor = new IpInterceptor();
+        this.tracer = GlobalTracer.get();
+
+        TracingServerInterceptor serverInterceptor = TracingServerInterceptor
+                .newBuilder().withTracer(this.tracer)
+                .build();
         /*
         this.server = ServerBuilder.forPort(this.port)
                 .addService(new GoalStateProvisionerImpl(clientIpInterceptor))
@@ -87,7 +98,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 .build();
          */
         this.server = NettyServerBuilder.forPort(this.port)
-                .addService(new GoalStateProvisionerImpl(clientIpInterceptor))
+                .addService(serverInterceptor.intercept(new GoalStateProvisionerImpl(clientIpInterceptor)))
                 .maxInboundMessageSize(Integer.MAX_VALUE)
                 .maxInboundMetadataSize(Integer.MAX_VALUE)
                 .intercept(clientIpInterceptor)
@@ -155,7 +166,15 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             return new StreamObserver<Goalstate.GoalStateV2>() {
                 @Override
                 public void onNext(Goalstate.GoalStateV2 value) {
+                    Span pSpan = tracer.activeSpan();
+                    Span span;
 
+                    if(pSpan != null){
+                        span = tracer.buildSpan("alcor-ncm-server-send-gs").asChildOf(pSpan.context()).start();
+                    }else{
+                        span = tracer.buildSpan("alcor-ncm-server-send-gs").start();
+                    }
+                    Scope cscope = tracer.scopeManager().activate(span);
                     logger.log(Level.INFO, "pushGoalStatesStream : receiving GS V2 message " + value.toString());
                     long start = System.currentTimeMillis();
 
@@ -195,6 +214,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     responseObserver.onNext(reply);
                     long end1 = System.currentTimeMillis();
                     logger.log(Level.FINE, "pushGoalStatesStream : Replied to DPM, from received to replied, elapsed time in milliseconds: " + + (end1-end));
+                    span.finish();
                 }
 
                 @Override
@@ -216,6 +236,15 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         @DurationStatistics
         public void requestGoalStates(Goalstateprovisioner.HostRequest request,
                                       StreamObserver<Goalstateprovisioner.HostRequestReply> responseObserver) {
+            Span pSpan = tracer.activeSpan();
+            Span span;
+
+            if(pSpan != null){
+                span = tracer.buildSpan("alcor-ncm-send-gs").asChildOf(pSpan.context()).start();
+            }else{
+                span = tracer.buildSpan("alcor-ncm-send-gs").start();
+            }
+            Scope cscope = tracer.scopeManager().activate(span);
             long start = System.currentTimeMillis();
             long end = 0;
             String state_request_uuid = "";
@@ -331,6 +360,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             long end1 = System.currentTimeMillis();
             logger.log(Level.FINE, "requestGoalStates : sent on-demand response to ACA"  + " took " + (end1-endy) + " milliseconds | " +
                     reply.toString());
+            span.finish();
         }
     }
 }
