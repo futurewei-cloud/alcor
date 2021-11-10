@@ -48,6 +48,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 import io.opentracing.Scope;
 import io.opentracing.Span;
@@ -350,6 +351,8 @@ public class pseudo_controller {
 
         // Use tracer and interceptor to trace grpc calls.
         Tracer tracer = GlobalTracer.get();
+        System.out.println("[Test Controller] Got this global tracer: "+tracer.toString());
+
         TracingClientInterceptor tracingClientInterceptor = TracingClientInterceptor
                 .newBuilder()
                 .withTracer(tracer)
@@ -365,6 +368,8 @@ public class pseudo_controller {
         }else{
             span = tracer.buildSpan("alcor-tc-send-gs").start();
         }
+        System.out.println("[Test Controller] Got parent span: "+parentSpan.toString());
+        System.out.println("[Test Controller] Built child span: "+span.toString());
         Scope cscope = tracer.scopeManager().activate(span);
         System.out.println("Created stub");
         StreamObserver<Goalstateprovisioner.GoalStateOperationReply> message_observer = new StreamObserver<>() {
@@ -396,6 +401,8 @@ public class pseudo_controller {
         System.out.println("Wait no longer than 6000 seconds until both goalstates are sent to both hosts.");
         Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == NUMBER_OF_NODES);
         span.finish();
+        System.out.println("[Test Controller] Child span after finish: "+span.toString());
+
 
 //        System.out.println("Try to send gsv1 to the host!");
 //

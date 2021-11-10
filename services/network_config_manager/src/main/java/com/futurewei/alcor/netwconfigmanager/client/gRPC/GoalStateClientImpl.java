@@ -116,6 +116,7 @@ public class GoalStateClientImpl implements GoalStateClient {
 
         this.tracer = GlobalTracer.get();//Configuration.fromEnv().getTracer();
                  //TracerResolver.resolveTracer();
+        logger.log(Level.INFO, "[GoalStateClientImpl] Got this global tracer: "+this.tracer.toString());
         logger.log(Level.FINE, "This instance has " + numberOfGrpcChannelPerHost + " channels, and " + numberOfWarmupsPerChannel + " warmups");
     }
 
@@ -133,12 +134,17 @@ public class GoalStateClientImpl implements GoalStateClient {
                 }else{
                     span = tracer.buildSpan("alcor-ncm-client-send-gs").start();
                 }
+                logger.log(Level.INFO, "[sendGoalStates] Got parent span: "+pSpan.toString());
+                logger.log(Level.INFO, "[sendGoalStates] Built child span: "+span.toString());
+
                 try (Scope cscope = this.tracer.scopeManager().activate(span)) {
                     doSendGoalState(hostGoalState);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
                 span.finish();
+                logger.log(Level.INFO, "[sendGoalStates] Child span after finish: "+span.toString());
+
             });
         }
 

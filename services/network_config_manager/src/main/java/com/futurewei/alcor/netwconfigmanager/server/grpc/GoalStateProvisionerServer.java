@@ -86,10 +86,10 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
         IpInterceptor clientIpInterceptor = new IpInterceptor();
         this.tracer = GlobalTracer.get();
-
         TracingServerInterceptor serverInterceptor = TracingServerInterceptor
                 .newBuilder().withTracer(this.tracer)
                 .build();
+        logger.log(Level.INFO, "[GoalStateProvisionerServer] Got this global tracer: "+this.tracer.toString());
         /*
         this.server = ServerBuilder.forPort(this.port)
                 .addService(new GoalStateProvisionerImpl(clientIpInterceptor))
@@ -175,6 +175,9 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     }else{
                         span = tracer.buildSpan("alcor-ncm-server-send-gs").start();
                     }
+                    logger.log(Level.INFO, "[pushGoalStatesStream] Got parent span: "+pSpan.toString());
+                    logger.log(Level.INFO, "[pushGoalStatesStream] Built child span: "+span.toString());
+
                     Scope cscope = tracer.scopeManager().activate(span);
                     logger.log(Level.INFO, "pushGoalStatesStream : receiving GS V2 message " + value.toString());
                     long start = System.currentTimeMillis();
@@ -216,6 +219,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     long end1 = System.currentTimeMillis();
                     logger.log(Level.FINE, "pushGoalStatesStream : Replied to DPM, from received to replied, elapsed time in milliseconds: " + + (end1-end));
                     span.finish();
+                    logger.log(Level.INFO, "[pushGoalStatesStream] Child span after finish: "+span.toString());
                 }
 
                 @Override
@@ -245,6 +249,9 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             }else{
                 span = tracer.buildSpan("alcor-ncm-send-gs").start();
             }
+            logger.log(Level.INFO, "[requestGoalStates] Got parent span: "+pSpan.toString());
+            logger.log(Level.INFO, "[requestGoalStates] Built child span: "+span.toString());
+
             Scope cscope = tracer.scopeManager().activate(span);
             long start = System.currentTimeMillis();
             long end = 0;
@@ -362,6 +369,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             logger.log(Level.FINE, "requestGoalStates : sent on-demand response to ACA"  + " took " + (end1-endy) + " milliseconds | " +
                     reply.toString());
             span.finish();
+            logger.log(Level.INFO, "[requestGoalStates] Child span after finish: "+span.toString());
         }
     }
 }
