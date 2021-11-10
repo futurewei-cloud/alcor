@@ -34,6 +34,7 @@ import io.grpc.ServerBuilder;
 import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
+import io.opentracing.contrib.grpc.OpenTracingContextKey;
 import io.opentracing.contrib.grpc.TracingServerInterceptor;
 import io.opentracing.util.GlobalTracer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -166,7 +167,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             return new StreamObserver<Goalstate.GoalStateV2>() {
                 @Override
                 public void onNext(Goalstate.GoalStateV2 value) {
-                    Span pSpan = tracer.activeSpan();
+                    Span pSpan = OpenTracingContextKey.activeSpan();//tracer.activeSpan();
                     Span span;
 
                     if(pSpan != null){
@@ -236,7 +237,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         @DurationStatistics
         public void requestGoalStates(Goalstateprovisioner.HostRequest request,
                                       StreamObserver<Goalstateprovisioner.HostRequestReply> responseObserver) {
-            Span pSpan = tracer.activeSpan();
+            Span pSpan = OpenTracingContextKey.activeSpan();//tracer.activeSpan();
             Span span;
 
             if(pSpan != null){
