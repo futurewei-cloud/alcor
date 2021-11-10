@@ -38,6 +38,8 @@ import io.jaegertracing.Configuration;
 import io.jaegertracing.internal.JaegerTracer;
 import io.lettuce.core.dynamic.annotation.Param;
 import io.netty.util.concurrent.DefaultThreadFactory;
+import io.opentracing.Scope;
+import io.opentracing.Span;
 import io.opentracing.contrib.tracerresolver.TracerResolver;
 import io.opentracing.util.GlobalTracer;
 import org.springframework.stereotype.Service;
@@ -120,13 +122,23 @@ public class GoalStateClientImpl implements GoalStateClient {
     @Override
     @DurationStatistics
     public List<String> sendGoalStates(Map<String, HostGoalState> hostGoalStates) throws Exception {
+        Span pSpan = this.tracer.activeSpan();
+
         for (HostGoalState hostGoalState : hostGoalStates.values()){
             this.executor.execute(() -> {
-                try {
+                Span span;
+
+                if(pSpan != null){
+                    span = tracer.buildSpan("alcor-ncm-send-gs").asChildOf(pSpan.context()).start();
+                }else{
+                    span = tracer.buildSpan("alcor-ncm-send-gs").start();
+                }
+                try (Scope cscope = this.tracer.scopeManager().activate(span)) {
                     doSendGoalState(hostGoalState);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+                span.finish();
             });
         }
 
