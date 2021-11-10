@@ -39,6 +39,7 @@ import io.jaegertracing.internal.JaegerTracer;
 import io.lettuce.core.dynamic.annotation.Param;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.opentracing.contrib.tracerresolver.TracerResolver;
+import io.opentracing.util.GlobalTracer;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -111,8 +112,8 @@ public class GoalStateClientImpl implements GoalStateClient {
         //TODO: Setup a connection pool. one ACA, one client.
         this.hostIpGrpcChannelStubMap = new ConcurrentHashMap();
 
-        this.tracer = //Configuration.fromEnv().getTracer();
-                 TracerResolver.resolveTracer();
+        this.tracer = GlobalTracer.get();//Configuration.fromEnv().getTracer();
+                 //TracerResolver.resolveTracer();
         logger.log(Level.FINE, "This instance has " + numberOfGrpcChannelPerHost + " channels, and " + numberOfWarmupsPerChannel + " warmups");
     }
 
