@@ -36,11 +36,13 @@ import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.grpc.OpenTracingContextKey;
 import io.opentracing.contrib.grpc.TracingServerInterceptor;
+import io.opentracing.contrib.tracerresolver.TracerResolver;
 import io.opentracing.util.GlobalTracer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
