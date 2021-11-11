@@ -54,6 +54,7 @@ import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.grpc.TracingClientInterceptor;
+import io.opentracing.noop.NoopTracer;
 import io.opentracing.util.GlobalTracer;
 import org.awaitility.Awaitility;
 
@@ -348,7 +349,6 @@ public class pseudo_controller {
         System.out.println("GoalStateV2 size in bytes for host2: \n" + message_two.getSerializedSize() + "\n");
 
         System.out.println("Time to call the GRPC functions");
-
         // Use tracer and interceptor to trace grpc calls.
         Tracer tracer = GlobalTracer.get();
         System.out.println("[Test Controller] Got this global tracer: "+tracer.toString());

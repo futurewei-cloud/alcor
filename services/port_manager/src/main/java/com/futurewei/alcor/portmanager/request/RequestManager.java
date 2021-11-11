@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.logging.Level;
 
 public class RequestManager {
     private static final Logger LOG = LoggerFactory.getLogger(RequestManager.class);
@@ -71,7 +72,9 @@ public class RequestManager {
         } else {
             span = tracer.buildSpan("alcor-port-async").start();
         }
-
+        LOG.info("[sendRequestAsync] Got this global tracer: "+tracer.toString());
+        LOG.info("[sendRequestAsync] Got parent span: "+pSpan.toString());
+        LOG.info("[sendRequestAsync] Built child span: "+span.toString());
         CompletableFuture future = CompletableFuture.supplyAsync(() -> {
             try (Scope cscope = tracer.scopeManager().activate(span)) {
                 try {
@@ -84,6 +87,7 @@ public class RequestManager {
         }, AsyncExecutor.executor).thenRun(span::finish);
 
         addFuture(request, future);
+        LOG.info("[sendRequestAsync] Child span after finish: "+span.toString());
     }
 
     /**
