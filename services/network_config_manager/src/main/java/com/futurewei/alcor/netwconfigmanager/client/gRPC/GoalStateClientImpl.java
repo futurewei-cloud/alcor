@@ -36,6 +36,7 @@ import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import io.jaegertracing.Configuration;
 import io.jaegertracing.internal.JaegerTracer;
+import io.jaegertracing.internal.samplers.ConstSampler;
 import io.lettuce.core.dynamic.annotation.Param;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.opentracing.Scope;
@@ -113,8 +114,14 @@ public class GoalStateClientImpl implements GoalStateClient {
                 new DefaultThreadFactory("grpc-thread-pool"));
         //TODO: Setup a connection pool. one ACA, one client.
         this.hostIpGrpcChannelStubMap = new ConcurrentHashMap();
+        Configuration.SamplerConfiguration samplerConfiguration = Configuration.SamplerConfiguration.fromEnv()
+                .withType(ConstSampler.TYPE)
+                .withParam(1);
+        Configuration.ReporterConfiguration reporterConfiguration = Configuration.ReporterConfiguration.fromEnv()
+                .withLogSpans(true);
 
-        this.tracer = GlobalTracer.get();//Configuration.fromEnv().getTracer();
+
+        this.tracer = TracerResolver.resolveTracer();//GlobalTracer.get();//Configuration.fromEnv().getTracer();
                  //TracerResolver.resolveTracer();
         logger.log(Level.INFO, "[GoalStateClientImpl] Got this global tracer: "+this.tracer.toString());
         logger.log(Level.FINE, "This instance has " + numberOfGrpcChannelPerHost + " channels, and " + numberOfWarmupsPerChannel + " warmups");
