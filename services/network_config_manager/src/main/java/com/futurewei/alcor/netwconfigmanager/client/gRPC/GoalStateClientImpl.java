@@ -121,7 +121,7 @@ public class GoalStateClientImpl implements GoalStateClient {
                 .withLogSpans(true);
 
 
-        this.tracer = TracerResolver.resolveTracer();//GlobalTracer.get();//Configuration.fromEnv().getTracer();
+        this.tracer = GlobalTracer.get();//Configuration.fromEnv().getTracer();
                  //TracerResolver.resolveTracer();
         logger.log(Level.INFO, "[GoalStateClientImpl] Got this global tracer: "+this.tracer.toString());
         logger.log(Level.FINE, "This instance has " + numberOfGrpcChannelPerHost + " channels, and " + numberOfWarmupsPerChannel + " warmups");

@@ -41,8 +41,10 @@ import io.opentracing.util.GlobalTracer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -107,13 +109,10 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 .newBuilder().withTracer(this.tracer)
                 .build();
         logger.log(Level.INFO, "[GoalStateProvisionerServer] Got this global tracer: "+this.tracer.toString());
-        logger.log(Level.INFO, "[GoalStateProvisionerServer] Server port: "+serverPort+", monitoring host: " + monitorHosts + ", warmups/channel: "
-                + numberOfWarmupsPerChannel + ", channels/host: " + numberOfGrpcChannelPerHost);
-        logger.log(Level.INFO, "[GoalStateProvisionerServer] Jaeger params: service name: "+ jaegerServiceName +
-                ", enabled: " +jaegerEnabled + ", spring application name: " + springApplicationName);
 
-        String envJaegerServiceName = env.getProperty("opentracing.jaeger.service-name");
-        logger.log(Level.INFO, "[GoalStateProvisionerServer] Got this service name from ENV: " + envJaegerServiceName);
+
+        //String envJaegerServiceName = env.getProperty("opentracing.jaeger.service-name");
+        //logger.log(Level.INFO, "[GoalStateProvisionerServer] Got this service name from ENV: " + envJaegerServiceName);
         /*
         this.server = ServerBuilder.forPort(this.port)
                 .addService(new GoalStateProvisionerImpl(clientIpInterceptor))
@@ -226,7 +225,10 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     // filter neighbor/SG update, and send them down to target ACA
                     try {
                         Map<String, HostGoalState> filteredGoalStates = NetworkConfigManagerUtil.filterNeighbors(hostGoalStates);
-
+                        logger.log(Level.INFO, "[GoalStateProvisionerServer] Server port: "+serverPort+", monitoring host: " + monitorHosts + ", warmups/channel: "
+                                + numberOfWarmupsPerChannel + ", channels/host: " + numberOfGrpcChannelPerHost);
+                        logger.log(Level.INFO, "[GoalStateProvisionerServer] Jaeger params: service name: "+ jaegerServiceName +
+                                ", enabled: " +jaegerEnabled + ", spring application name: " + springApplicationName);
                         GoalStateClient grpcGoalStateClient =  GoalStateClientImpl.getInstance(numberOfGrpcChannelPerHost, numberOfWarmupsPerChannel, monitorHosts);
 
                         grpcGoalStateClient.sendGoalStates(filteredGoalStates);
