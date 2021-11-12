@@ -86,6 +86,9 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
     @Value("${opentracing.jaeger.enabled}")
     private String jaegerEnabled;
 
+    @Value("${spring.application.name}")
+    private String springApplicationName;
+
 //    @Autowired
 //    private GoalStateClient grpcGoalStateClient;
 
@@ -98,7 +101,8 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 .newBuilder().withTracer(this.tracer)
                 .build();
         logger.log(Level.INFO, "[GoalStateProvisionerServer] Got this global tracer: "+this.tracer.toString());
-        logger.log(Level.INFO, "[GoalStateProvisionerServer] Jaeger params: service name:"+ jaegerServiceName + ", enabled" +jaegerEnabled);
+        logger.log(Level.INFO, "[GoalStateProvisionerServer] Jaeger params: service name: "+ jaegerServiceName +
+                ", enabled: " +jaegerEnabled + ", spring application name: " + springApplicationName);
 
         /*
         this.server = ServerBuilder.forPort(this.port)
