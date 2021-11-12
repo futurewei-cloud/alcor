@@ -50,6 +50,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
+import io.jaegertracing.internal.samplers.ConstSampler;
 import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
@@ -57,6 +58,7 @@ import io.opentracing.contrib.grpc.TracingClientInterceptor;
 import io.opentracing.noop.NoopTracer;
 import io.opentracing.util.GlobalTracer;
 import org.awaitility.Awaitility;
+import io.jaegertracing.Configuration;
 
 
 public class pseudo_controller {
@@ -350,7 +352,19 @@ public class pseudo_controller {
 
         System.out.println("Time to call the GRPC functions");
         // Use tracer and interceptor to trace grpc calls.
-        Tracer tracer = GlobalTracer.get();
+        Configuration.SamplerConfiguration samplerConfiguration = Configuration.SamplerConfiguration
+                .fromEnv()
+                .withType(ConstSampler.TYPE)
+                .withParam(1);
+        Configuration.ReporterConfiguration reporterConfiguration = Configuration.ReporterConfiguration
+                .fromEnv()
+                .withLogSpans(true);
+        Configuration configuration = new Configuration("alcor-test-controller")
+                .withSampler(samplerConfiguration)
+                .withReporter(reporterConfiguration);
+
+//        GlobalTracer.registerIfAbsent(configuration.getTracer());
+        Tracer tracer = configuration.getTracer();
         System.out.println("[Test Controller] Got this global tracer: "+tracer.toString());
 
         TracingClientInterceptor tracingClientInterceptor = TracingClientInterceptor

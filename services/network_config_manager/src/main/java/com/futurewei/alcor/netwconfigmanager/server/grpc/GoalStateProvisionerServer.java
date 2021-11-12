@@ -210,17 +210,18 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     Span span;
 
                     if(pSpan != null){
-                        span = tracer.buildSpan("alcor-ncm-server-send-gs").asChildOf(pSpan.context()).start();
+                        span = tracer.buildSpan("alcor-ncm-server-pushdown-gs").asChildOf(pSpan.context()).start();
                     }else{
-                        span = tracer.buildSpan("alcor-ncm-server-send-gs").start();
+                        span = tracer.buildSpan("alcor-ncm-server-pushdown-gs").start();
                     }
                     logger.log(Level.INFO, "[pushGoalStatesStream] Got parent span: "+pSpan.toString());
                     logger.log(Level.INFO, "[pushGoalStatesStream] Built child span: "+span.toString());
 
                     Scope cscope = tracer.scopeManager().activate(span);
+
                     logger.log(Level.INFO, "pushGoalStatesStream : receiving GS V2 message " + value.toString());
                     long start = System.currentTimeMillis();
-
+                    Span storeGsSpan = tracer.buildSpan("alcor-ncm-server-store-gs").asChildOf(pSpan.context()).start();
                     //prepare GS message based on host
                     Map<String, HostGoalState> hostGoalStates = NetworkConfigManagerUtil.splitClusterToHostGoalState(value);
 
@@ -236,8 +237,10 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                             e.printStackTrace();
                         }
                     }
+                    storeGsSpan.finish();
                     long end = System.currentTimeMillis();
                     logger.log(Level.FINE, "pushGoalStatesStream : finished putting GS into cache, elapsed time in milliseconds: " + + (end-start));
+                    Span filterSendGsSpan = tracer.buildSpan("alcor-ncm-server-filter-send-gs").asChildOf(pSpan.context()).start();
                     // filter neighbor/SG update, and send them down to target ACA
                     try {
                         Map<String, HostGoalState> filteredGoalStates = NetworkConfigManagerUtil.filterNeighbors(hostGoalStates);
@@ -248,6 +251,8 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+                    filterSendGsSpan.finish();
+                    Span replyDPMSpan = tracer.buildSpan("alcor-ncm-server-reply-dpm").asChildOf(pSpan.context()).start();
 
                     //consolidate response from ACA and send response to DPM
                     Goalstateprovisioner.GoalStateOperationReply reply =
@@ -257,6 +262,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     responseObserver.onNext(reply);
                     long end1 = System.currentTimeMillis();
                     logger.log(Level.FINE, "pushGoalStatesStream : Replied to DPM, from received to replied, elapsed time in milliseconds: " + + (end1-end));
+                    replyDPMSpan.finish();
                     span.finish();
                     logger.log(Level.INFO, "[pushGoalStatesStream] Child span after finish: "+span.toString());
                 }
