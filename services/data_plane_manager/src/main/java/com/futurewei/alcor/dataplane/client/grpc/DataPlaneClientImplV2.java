@@ -22,9 +22,7 @@ import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.config.Config;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalStateV2;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
-import com.futurewei.alcor.schema.GoalStateProvisionerGrpc;
-import com.futurewei.alcor.schema.Goalstate;
-import com.futurewei.alcor.schema.Goalstateprovisioner;
+import com.futurewei.alcor.schema.*;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -37,6 +35,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.logging.Level;
 
 @Service("grpcDataPlaneClient")
 @ConditionalOnProperty(prefix = "protobuf.goal-state-message", name = "version", havingValue = "102")
@@ -63,15 +62,24 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
 
     @Override
     public List<String> sendGoalStates(List<UnicastGoalStateV2> unicastGoalStates) throws Exception {
+        Goalstate.GoalStateV2.Builder goalStateBuilder = Goalstate.GoalStateV2.newBuilder();
+        final CountDownLatch finishLatch = new CountDownLatch(1);
+        final CountDownLatch exceptionLatch = new CountDownLatch(1);
         List<String> results = new ArrayList<>();
         for (UnicastGoalStateV2 unicastGoalState : unicastGoalStates) {
-            String resp = doSendGoalState(unicastGoalState);
-            if (resp != null) {
-                results.add(resp);
-            }
+            goalStateBuilder = getGoalState(goalStateBuilder, unicastGoalState);
         }
+        System.out.println(goalStateBuilder.build());
+        doSendGoalState(goalStateBuilder.build(), finishLatch, exceptionLatch);
 
-        return results;
+        if (!finishLatch.await(1, TimeUnit.MINUTES) || !exceptionLatch.await(1, TimeUnit.MINUTES)) {
+            if (exceptionLatch.getCount() == 0) {
+                return Arrays.asList("Goal states not correct");
+            }
+            LOG.warn("Send goal states can not finish within 1 minutes");
+            return Arrays.asList("Send goal states can not finish within 1 minutes");
+        }
+        return new ArrayList<>();
     }
 
     public static DataPlaneClientImplV2 getInstance(Config globalConfig, ArrayList<String> monitorHosts) {
@@ -100,7 +108,7 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         LOG.info("Done printing out all monitorHosts");
         this.numberOfGrpcChannelPerHost = globalConfig.numberOfGrpcChannelPerHost;
         this.numberOfWarmupsPerChannel = globalConfig.numberOfWarmupsPerChannel;
-        this.hostAgentPort = 50001;
+        this.hostAgentPort = 9016;
 
         this.executor = new ThreadPoolExecutor(100,
                 200,
@@ -220,11 +228,9 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         return;
     }
 
-    private String doSendGoalState(UnicastGoalStateV2 unicastGoalState) {
-        String hostIp = unicastGoalState.getHostIp();
-        LOG.info("Setting up a channel to ACA on: " + hostIp);
+    private String doSendGoalState(Goalstate.GoalStateV2 goalStateV2, CountDownLatch finishLatch, CountDownLatch exceptionLatch) {
+        String hostIp = "10.97.182.147";
         long start = System.currentTimeMillis();
-
         GrpcChannelStub channelStub = getOrCreateGrpcChannel(hostIp);
         long chan_established = System.currentTimeMillis();
         LOG.info("[doSendGoalState] Established channel, elapsed Time in milli seconds: " + (chan_established - start));
@@ -244,27 +250,19 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
             @Override
             public void onError(Throwable t) {
                 LOG.warn("Receive error from ACA@" + hostIp + " |  " + t.getMessage());
+                exceptionLatch.countDown();
             }
 
             @Override
             public void onCompleted() {
                 LOG.info("Complete receiving message from ACA@" + hostIp);
+                finishLatch.countDown();
             }
         };
 
         StreamObserver<Goalstate.GoalStateV2> requestObserver = asyncStub.pushGoalStatesStream(responseObserver);
         try {
-            Goalstate.GoalStateV2 goalState = unicastGoalState.getGoalState();
-            LOG.info("Sending GS to Host " + hostIp + " as follows | " + goalState.toString());
-            requestObserver.onNext(goalState);
-            if (unicastGoalState.getGoalState().getNeighborStatesCount() == 1 && monitorHosts.contains(hostIp)) {
-                long sent_gs_time = System.currentTimeMillis();
-                // If there's only one neighbor state and it is trying to send it to aca_node_one, the IP of which is now
-                // hardcoded) this send goalstate action is probably caused by on-demand workflow, need to record when it
-                // sends this goalState so what we can look into this and the ACA log to see how much time was spent.
-                String neighbor_id = unicastGoalState.getGoalState().getNeighborStatesMap().keySet().iterator().next();
-                LOG.info("Sending neighbor ID: " + neighbor_id + " at: " + sent_gs_time);
-            }
+            requestObserver.onNext(goalStateV2);
         } catch (RuntimeException e) {
             // Cancel RPC
             LOG.warn("[doSendGoalState] Sending GS, but error happened | " + e.getMessage());
@@ -275,10 +273,7 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         LOG.info("Sending GS to Host " + hostIp + " is completed");
 
         // comment out onCompleted so that the same channel/stub and keep sending next time.
-        //        requestObserver.onCompleted();
-
-//        shutdown(channel);
-
+        requestObserver.onCompleted();
         return null;
     }
 
@@ -290,5 +285,114 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
             this.channel = channel;
             this.stub = stub;
         }
+    }
+
+    private Goalstate.GoalStateV2.Builder getGoalState(Goalstate.GoalStateV2.Builder goalStateBuilder,  UnicastGoalStateV2 unicastGoalStateV2) {
+        Goalstate.GoalStateV2 goalStateV2 = unicastGoalStateV2.getGoalState();
+        Goalstate.HostResources.Builder hostResourceBuilder = Goalstate.HostResources.newBuilder();
+        if (goalStateV2.getSubnetStatesCount() > 0) {
+            goalStateV2.getSubnetStatesMap().keySet().forEach(key -> {
+                Goalstate.ResourceIdType subnetResourceIdType = Goalstate.ResourceIdType.newBuilder()
+                        .setType(Common.ResourceType.SUBNET)
+                        .setId(key)
+                        .build();
+                hostResourceBuilder.addResources(subnetResourceIdType);
+            });
+            goalStateBuilder.putAllSubnetStates(goalStateV2.getSubnetStatesMap());
+        }
+
+        if (goalStateV2.getDhcpStatesCount() > 0) {
+            goalStateV2.getDhcpStatesMap().keySet().forEach(key -> {
+                Goalstate.ResourceIdType dhcpResourceIdType = Goalstate.ResourceIdType.newBuilder()
+                        .setType(Common.ResourceType.DHCP)
+                        .setId(key)
+                        .build();
+                hostResourceBuilder.addResources(dhcpResourceIdType);
+            });
+            goalStateBuilder.putAllDhcpStates(goalStateV2.getDhcpStatesMap());
+        }
+
+        if (goalStateV2.getPortStatesCount() > 0) {
+            goalStateV2.getPortStatesMap().keySet().forEach(key -> {
+                Goalstate.ResourceIdType portResourceIdType = Goalstate.ResourceIdType.newBuilder()
+                        .setType(Common.ResourceType.PORT)
+                        .setId(key)
+                        .build();
+                hostResourceBuilder.addResources(portResourceIdType);
+            });
+            goalStateBuilder.putAllPortStates(goalStateV2.getPortStatesMap());
+        }
+
+        if (goalStateV2.getSecurityGroupStatesCount() > 0) {
+            goalStateV2.getSecurityGroupStatesMap().keySet().forEach(key -> {
+                Goalstate.ResourceIdType securityGroupResourceIdType = Goalstate.ResourceIdType.newBuilder()
+                        .setType(Common.ResourceType.SECURITYGROUP)
+                        .setId(key)
+                        .build();
+                hostResourceBuilder.addResources(securityGroupResourceIdType);
+            });
+            goalStateBuilder.putAllSecurityGroupStates(goalStateV2.getSecurityGroupStatesMap());
+        }
+
+        if (goalStateV2.getNeighborStatesCount() > 0) {
+            goalStateV2.getNeighborStatesMap().keySet().forEach(key -> {
+                Goalstate.ResourceIdType neighborGroupResourceIdType = Goalstate.ResourceIdType.newBuilder()
+                        .setType(Common.ResourceType.NEIGHBOR)
+                        .setId(key)
+                        .build();
+                hostResourceBuilder.addResources(neighborGroupResourceIdType);
+            });
+            goalStateBuilder.putAllNeighborStates(goalStateV2.getNeighborStatesMap());
+        }
+
+        if (goalStateV2.getRouterStatesCount() > 0) {
+            goalStateV2.getRouterStatesMap().entrySet().forEach(entry -> {
+                Goalstate.ResourceIdType routerResourceIdType = Goalstate.ResourceIdType.newBuilder()
+                        .setType(Common.ResourceType.ROUTER)
+                        .setId(unicastGoalStateV2.getHostIp() + "/" + entry.getKey())
+                        .build();
+                hostResourceBuilder.addResources(routerResourceIdType);
+
+
+                if (goalStateBuilder.containsRouterStates(unicastGoalStateV2.getHostIp() + "/" + entry.getKey())) {
+                   Router.RouterConfiguration.Builder routerConfigurationBuilder = goalStateBuilder.getRouterStatesMap().get(unicastGoalStateV2.getHostIp() + "/" + entry.getKey()).getConfiguration().toBuilder();
+                   routerConfigurationBuilder.addAllSubnetRoutingTables(entry.getValue().getConfiguration().getSubnetRoutingTablesList());
+                   Router.RouterState.Builder routerStateBuilder = goalStateBuilder.getRouterStatesMap().get(unicastGoalStateV2.getHostIp() + "/" + entry.getKey()).toBuilder();
+                   routerStateBuilder.setConfiguration(routerConfigurationBuilder);
+                } else {
+                    goalStateBuilder.putRouterStates(unicastGoalStateV2.getHostIp() + "/" + entry.getKey(), entry.getValue());
+                }
+            });
+        }
+
+        if (goalStateV2.getVpcStatesCount() > 0) {
+            goalStateV2.getVpcStatesMap().keySet().forEach(key -> {
+                Goalstate.ResourceIdType vpcResourceIdType = Goalstate.ResourceIdType.newBuilder()
+                        .setType(Common.ResourceType.VPC)
+                        .setId(key)
+                        .build();
+                hostResourceBuilder.addResources(vpcResourceIdType);
+            });
+            goalStateBuilder.putAllVpcStates(goalStateV2.getVpcStatesMap());
+        }
+
+        if (goalStateV2.getGatewayStatesCount() > 0) {
+            goalStateV2.getGatewayStatesMap().keySet().forEach(key -> {
+                Goalstate.ResourceIdType gatewayResourceIdType = Goalstate.ResourceIdType.newBuilder()
+                        .setType(Common.ResourceType.GATEWAY)
+                        .setId(key)
+                        .build();
+                hostResourceBuilder.addResources(gatewayResourceIdType);
+            });
+            goalStateBuilder.putAllGatewayStates(goalStateV2.getGatewayStatesMap());
+        }
+
+        if (goalStateBuilder.containsHostResources(unicastGoalStateV2.getHostIp())) {
+            Goalstate.HostResources.Builder goalStateHostResourceBuilder = goalStateBuilder.getHostResourcesMap().get(unicastGoalStateV2.getHostIp()).toBuilder();
+            goalStateHostResourceBuilder.addAllResources(hostResourceBuilder.getResourcesList());
+        } else {
+            goalStateBuilder.putHostResources(unicastGoalStateV2.getHostIp(), hostResourceBuilder.build());
+        }
+        return goalStateBuilder;
     }
 }

@@ -162,6 +162,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                             goalStatePersistenceService.updateGoalState(hostId, hostGoalState);
                         } catch (Exception e) {
                             e.printStackTrace();
+                            responseObserver.onError(e);
                         }
                     }
                     long end = System.currentTimeMillis();
@@ -175,6 +176,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                         grpcGoalStateClient.sendGoalStates(filteredGoalStates);
                     } catch (Exception e) {
                         e.printStackTrace();
+                        responseObserver.onError(e);
                     }
 
                     //consolidate response from ACA and send response to DPM
@@ -182,7 +184,6 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                             Goalstateprovisioner.GoalStateOperationReply.newBuilder()
                                     .setFormatVersion(100)
                                     .build();
-                    responseObserver.onNext(reply);
                     long end1 = System.currentTimeMillis();
                     logger.log(Level.FINE, "pushGoalStatesStream : Replied to DPM, from received to replied, elapsed time in milliseconds: " + + (end1-end));
                 }
@@ -191,7 +192,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 public void onError(Throwable t) {
                     t.printStackTrace();
                     logger.log(Level.WARNING, "*** pushGoalStatesStream cancelled");
-                    responseObserver.onCompleted();
+                    responseObserver.onError(t);
                 }
 
                 @Override
