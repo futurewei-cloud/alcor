@@ -41,6 +41,7 @@ import io.opentracing.util.GlobalTracer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -74,12 +75,6 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
     @Value("${grpc.monitor-hosts}")
     private ArrayList<String> monitorHosts;
 
-    @Autowired
-    private OnDemandService onDemandService;
-
-    @Autowired
-    private GoalStatePersistenceService goalStatePersistenceService;
-
     @Value("${opentracing.jaeger.service-name}")
     private String jaegerServiceName;
 
@@ -88,6 +83,16 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
     @Value("${spring.application.name}")
     private String springApplicationName;
+
+    @Value("${server.port}")
+    private String serverPort;
+
+    @Autowired
+    private OnDemandService onDemandService;
+
+    @Autowired
+    private GoalStatePersistenceService goalStatePersistenceService;
+
 
 //    @Autowired
 //    private GoalStateClient grpcGoalStateClient;
@@ -101,7 +106,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 .newBuilder().withTracer(this.tracer)
                 .build();
         logger.log(Level.INFO, "[GoalStateProvisionerServer] Got this global tracer: "+this.tracer.toString());
-        logger.log(Level.INFO, "[GoalStateProvisionerServer] Monitoring host: " + monitorHosts + ", warmups/channel: "
+        logger.log(Level.INFO, "[GoalStateProvisionerServer] Server port: "+serverPort+", monitoring host: " + monitorHosts + ", warmups/channel: "
                 + numberOfWarmupsPerChannel + ", channels/host: " + numberOfGrpcChannelPerHost);
         logger.log(Level.INFO, "[GoalStateProvisionerServer] Jaeger params: service name: "+ jaegerServiceName +
                 ", enabled: " +jaegerEnabled + ", spring application name: " + springApplicationName);
