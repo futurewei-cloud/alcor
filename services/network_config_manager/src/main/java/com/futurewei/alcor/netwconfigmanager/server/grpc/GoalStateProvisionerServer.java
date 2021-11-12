@@ -31,6 +31,8 @@ import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 import io.grpc.stub.StreamObserver;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import io.jaegertracing.Configuration;
+import io.jaegertracing.internal.samplers.ConstSampler;
 import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
@@ -44,7 +46,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -104,13 +105,28 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         this.port = 9016; // TODO: make this configurable
 
         IpInterceptor clientIpInterceptor = new IpInterceptor();
+        Configuration.SamplerConfiguration samplerConfiguration = Configuration.SamplerConfiguration
+                .fromEnv()
+                .withType(ConstSampler.TYPE)
+                .withParam(1);
+        Configuration.ReporterConfiguration reporterConfiguration = Configuration.ReporterConfiguration
+                .fromEnv()
+                .withLogSpans(true);
+        Configuration configuration = new Configuration("alcor-ncm")
+                .withSampler(samplerConfiguration)
+                .withReporter(reporterConfiguration);
+
+        GlobalTracer.registerIfAbsent(configuration.getTracer());
         this.tracer = GlobalTracer.get();
         TracingServerInterceptor serverInterceptor = TracingServerInterceptor
                 .newBuilder().withTracer(this.tracer)
                 .build();
         logger.log(Level.INFO, "[GoalStateProvisionerServer] Got this global tracer: "+this.tracer.toString());
 
-
+        logger.log(Level.INFO, "[GoalStateProvisionerServer] Server port: "+serverPort+", monitoring host: " + monitorHosts + ", warmups/channel: "
+                + numberOfWarmupsPerChannel + ", channels/host: " + numberOfGrpcChannelPerHost);
+        logger.log(Level.INFO, "[GoalStateProvisionerServer] Jaeger params: service name: "+ jaegerServiceName +
+                ", enabled: " +jaegerEnabled + ", spring application name: " + springApplicationName);
         //String envJaegerServiceName = env.getProperty("opentracing.jaeger.service-name");
         //logger.log(Level.INFO, "[GoalStateProvisionerServer] Got this service name from ENV: " + envJaegerServiceName);
         /*
@@ -157,12 +173,6 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 logger.log(Level.INFO, "*** server shut down");
             }
         });
-        Tracer tempTracer = TracerResolver.resolveTracer();
-        logger.log(Level.INFO, "[GoalStateProvisionerServer] Got this temp tracer: "+tempTracer.toString());
-        logger.log(Level.INFO, "[GoalStateProvisionerServer] Server port: "+serverPort+", monitoring host: " + monitorHosts + ", warmups/channel: "
-                + numberOfWarmupsPerChannel + ", channels/host: " + numberOfGrpcChannelPerHost);
-        logger.log(Level.INFO, "[GoalStateProvisionerServer] Jaeger params: service name: "+ jaegerServiceName +
-                ", enabled: " +jaegerEnabled + ", spring application name: " + springApplicationName);
     }
 
     @Override
