@@ -157,6 +157,10 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 logger.log(Level.INFO, "*** server shut down");
             }
         });
+        logger.log(Level.INFO, "[GoalStateProvisionerServer] Server port: "+serverPort+", monitoring host: " + monitorHosts + ", warmups/channel: "
+                + numberOfWarmupsPerChannel + ", channels/host: " + numberOfGrpcChannelPerHost);
+        logger.log(Level.INFO, "[GoalStateProvisionerServer] Jaeger params: service name: "+ jaegerServiceName +
+                ", enabled: " +jaegerEnabled + ", spring application name: " + springApplicationName);
     }
 
     @Override
@@ -225,10 +229,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     // filter neighbor/SG update, and send them down to target ACA
                     try {
                         Map<String, HostGoalState> filteredGoalStates = NetworkConfigManagerUtil.filterNeighbors(hostGoalStates);
-                        logger.log(Level.INFO, "[GoalStateProvisionerServer] Server port: "+serverPort+", monitoring host: " + monitorHosts + ", warmups/channel: "
-                                + numberOfWarmupsPerChannel + ", channels/host: " + numberOfGrpcChannelPerHost);
-                        logger.log(Level.INFO, "[GoalStateProvisionerServer] Jaeger params: service name: "+ jaegerServiceName +
-                                ", enabled: " +jaegerEnabled + ", spring application name: " + springApplicationName);
+
                         GoalStateClient grpcGoalStateClient =  GoalStateClientImpl.getInstance(numberOfGrpcChannelPerHost, numberOfWarmupsPerChannel, monitorHosts);
 
                         grpcGoalStateClient.sendGoalStates(filteredGoalStates);
