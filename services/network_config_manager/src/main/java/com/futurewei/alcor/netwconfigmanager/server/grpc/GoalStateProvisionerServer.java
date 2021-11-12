@@ -284,9 +284,9 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             Span span;
 
             if(pSpan != null){
-                span = tracer.buildSpan("alcor-ncm-send-gs").asChildOf(pSpan.context()).start();
+                span = tracer.buildSpan("alcor-ncm-on-demand").asChildOf(pSpan.context()).start();
             }else{
-                span = tracer.buildSpan("alcor-ncm-send-gs").start();
+                span = tracer.buildSpan("alcor-ncm-on-demand").start();
             }
             logger.log(Level.INFO, "[requestGoalStates] Got parent span: "+pSpan.toString());
             logger.log(Level.INFO, "[requestGoalStates] Built child span: "+span.toString());
@@ -324,6 +324,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             /////////////////////////////////////////////////////////////////////////////////////////
 
             // Step 0: Prepare to retrieve client IP address from gRPC transport
+            Span retrieveGsSpan = tracer.buildSpan("alcor-ncm-on-demand-retrieve-gs").asChildOf(span.context()).start();
             String clientIpAddress = this.ipInterceptor.getClientIpAddress();
             logger.log(Level.INFO, "[requestGoalStates] Client IP address = " + clientIpAddress);
 
@@ -367,11 +368,13 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 logger.log(Level.SEVERE, "[requestGoalStates] Retrieve from host fails. IP address = " + clientIpAddress);
                 e.printStackTrace();
             }
+            retrieveGsSpan.finish();
             long endx = System.currentTimeMillis();
             // Step 2: Generate response for each packet based on the on-demand algorithm
             // if the packet is allowed, set HostRequestReply.HostRequestOperationStatus[request_id].OperationStatus = SUCCESS
             //                           generate GS with port related resources (completed at Step 1) and go to Step 3
             // otherwise, set it to FAILURE and go to Step 3
+            Span sendGsSpan = tracer.buildSpan("alcor-ncm-on-demand-send-gs").asChildOf(span.context()).start();
             int ind = 0;
             Goalstateprovisioner.HostRequestReply.Builder replyBuilder = Goalstateprovisioner.HostRequestReply.newBuilder();
             for (Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest : request.getStateRequestsList()) {
@@ -394,6 +397,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                         .addOperationStatuses(ind++, status)
                         .buildPartial();
             }
+            sendGsSpan.finish();
             Goalstateprovisioner.HostRequestReply reply = replyBuilder.build();
             logger.log(Level.INFO, "requestGoalStates : generate reply " + reply.toString());
 
