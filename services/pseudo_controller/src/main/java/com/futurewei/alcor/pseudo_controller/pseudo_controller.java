@@ -379,9 +379,9 @@ public class pseudo_controller {
         Span span;
         if(parentSpan != null){
             span = tracer.buildSpan("alcor-tc-send-gs").asChildOf(parentSpan.context()).start();
+            System.out.println("[Test Controller] Got parent span: "+parentSpan.toString());
         }else{
             span = tracer.buildSpan("alcor-tc-send-gs").start();
-            System.out.println("[Test Controller] Got parent span: "+parentSpan.toString());
         }
         System.out.println("[Test Controller] Built child span: "+span.toString());
         Scope cscope = tracer.scopeManager().activate(span);
