@@ -157,6 +157,8 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 logger.log(Level.INFO, "*** server shut down");
             }
         });
+        Tracer tempTracer = TracerResolver.resolveTracer();
+        logger.log(Level.INFO, "[GoalStateProvisionerServer] Got this temp tracer: "+tempTracer.toString());
         logger.log(Level.INFO, "[GoalStateProvisionerServer] Server port: "+serverPort+", monitoring host: " + monitorHosts + ", warmups/channel: "
                 + numberOfWarmupsPerChannel + ", channels/host: " + numberOfGrpcChannelPerHost);
         logger.log(Level.INFO, "[GoalStateProvisionerServer] Jaeger params: service name: "+ jaegerServiceName +
