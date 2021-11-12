@@ -22,6 +22,7 @@ import com.futurewei.alcor.common.db.ignite.query.MapPredicate;
 import com.futurewei.alcor.common.db.ignite.query.ScanQueryBuilder;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.common.utils.ControllerUtil;
 import org.apache.ignite.binary.BinaryObject;
@@ -295,6 +296,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
         return idxCount != 0 && idxCount == filterParams.size();
     }
 
+    @DurationStatistics
     private <E1, E2> V getBySqlFields(Map<String, Object[]> filterParams) throws CacheException {
         try {
             Map<K, V> result = runSQLFieldsQuery(filterParams);
@@ -316,6 +318,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
         return null;
     }
 
+    @DurationStatistics
     public <E1, E2> Map<K, V> getBySqlFieldsAll(Map<String, Object[]> filterParams) {
         try {
             return  runSQLFieldsQuery(filterParams);
@@ -349,6 +352,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
         }
     }
 
+    @DurationStatistics
     private String buildSqlFieldsQuery(Map<String, Object[]> filterParams) {
         SqlField valFld = sqlFields.get("$value");
         Class<?> v;
@@ -359,6 +363,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
             return null;
         }
 
+        String valFldName = CommonUtil.getSimpleFromCanonicalName(valFld.type);
         StringBuilder sb = new StringBuilder("select _key, _val from " + SQL_SCHEMA_NAME +
                 "." + cache.getConfiguration().getQueryEntities()[0].getTableName() + " where ");
         boolean needAnd = false;
@@ -421,6 +426,8 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
                 }
             }
 
+            SqlField valFld = sqlFields.get("$value");
+            qryFields.put(CommonUtil.getSimpleFromCanonicalName(valFld.type), valFld.type);
             qryEnt.setFields(qryFields);
 
             logger.log(Level.INFO, "QE: " + qryEnt);

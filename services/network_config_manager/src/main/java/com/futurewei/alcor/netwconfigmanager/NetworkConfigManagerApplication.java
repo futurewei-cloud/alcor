@@ -32,13 +32,13 @@ import javax.annotation.PostConstruct;
 @Import(TracerConfiguration.class)
 public class NetworkConfigManagerApplication {
 
+        /**
     @Autowired
     private NetworkConfigServer networkConfigServer;
 
     @PostConstruct
     public void instantiateGrpcServer(){
         return;
-        /**
          * Return so that rest API endpoint can work
          *
         try {
@@ -47,8 +47,8 @@ public class NetworkConfigManagerApplication {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        */
     }
+        */
 
     public static void main(String[] args) {
         SpringApplication.run(NetworkConfigManagerApplication.class, args);
