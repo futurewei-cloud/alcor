@@ -398,6 +398,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                         .buildPartial();
             }
             sendGsSpan.finish();
+            Span replyOnDemandSpan = tracer.buildSpan("alcor-ncm-on-demand-reply").asChildOf(span.context()).start();
             Goalstateprovisioner.HostRequestReply reply = replyBuilder.build();
             logger.log(Level.INFO, "requestGoalStates : generate reply " + reply.toString());
 
@@ -411,6 +412,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             long end1 = System.currentTimeMillis();
             logger.log(Level.FINE, "requestGoalStates : sent on-demand response to ACA"  + " took " + (end1-endy) + " milliseconds | " +
                     reply.toString());
+            replyOnDemandSpan.finish();
             span.finish();
             logger.log(Level.INFO, "[requestGoalStates] Child span after finish: "+span.toString());
         }
