@@ -53,9 +53,9 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-@Component
 @Configurable
 @ComponentScan(value = "com.futurewei.alcor.netwconfigmanager.service")
+@Component
 public class GoalStateProvisionerServer implements NetworkConfigServer {
     private static final Logger logger = LoggerFactory.getLogger();
 
