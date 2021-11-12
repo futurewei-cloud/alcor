@@ -80,10 +80,10 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
     @Autowired
     private GoalStatePersistenceService goalStatePersistenceService;
 
-    @Value("${opentracing.jaeger.service-name:abc}")
+    @Value("${opentracing.jaeger.service-name}")
     private String jaegerServiceName;
 
-    @Value("${opentracing.jaeger.enabled:bbc}")
+    @Value("${opentracing.jaeger.enabled}")
     private String jaegerEnabled;
 
 //    @Autowired
