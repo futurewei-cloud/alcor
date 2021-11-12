@@ -101,8 +101,11 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 .newBuilder().withTracer(this.tracer)
                 .build();
         logger.log(Level.INFO, "[GoalStateProvisionerServer] Got this global tracer: "+this.tracer.toString());
+        logger.log(Level.INFO, "[GoalStateProvisionerServer] Monitoring host: " + monitorHosts + ", warmups/channel: "
+                + numberOfWarmupsPerChannel + ", channels/host: " + numberOfGrpcChannelPerHost);
         logger.log(Level.INFO, "[GoalStateProvisionerServer] Jaeger params: service name: "+ jaegerServiceName +
                 ", enabled: " +jaegerEnabled + ", spring application name: " + springApplicationName);
+
 
         /*
         this.server = ServerBuilder.forPort(this.port)
