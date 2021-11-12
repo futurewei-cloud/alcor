@@ -93,7 +93,8 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
     @Autowired
     private GoalStatePersistenceService goalStatePersistenceService;
 
-
+    @Autowired
+    private Environment env;
 //    @Autowired
 //    private GoalStateClient grpcGoalStateClient;
 
@@ -111,7 +112,8 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         logger.log(Level.INFO, "[GoalStateProvisionerServer] Jaeger params: service name: "+ jaegerServiceName +
                 ", enabled: " +jaegerEnabled + ", spring application name: " + springApplicationName);
 
-
+        String envJaegerServiceName = env.getProperty("opentracing.jaeger.service-name");
+        logger.log(Level.INFO, "[GoalStateProvisionerServer] Got this service name from ENV: " + envJaegerServiceName);
         /*
         this.server = ServerBuilder.forPort(this.port)
                 .addService(new GoalStateProvisionerImpl(clientIpInterceptor))
