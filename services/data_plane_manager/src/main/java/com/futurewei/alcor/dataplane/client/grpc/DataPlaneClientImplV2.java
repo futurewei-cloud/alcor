@@ -229,7 +229,7 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
     }
 
     private String doSendGoalState(Goalstate.GoalStateV2 goalStateV2, CountDownLatch finishLatch, CountDownLatch exceptionLatch) {
-        String hostIp = "10.97.182.147";
+        String hostIp = "netwconfigmanager-service.default.svc.cluster.local";
         long start = System.currentTimeMillis();
         GrpcChannelStub channelStub = getOrCreateGrpcChannel(hostIp);
         long chan_established = System.currentTimeMillis();
