@@ -78,6 +78,7 @@ public class GoalStateClientImpl implements GoalStateClient {
 
     private final Tracer tracer;
 
+    @DurationStatistics
     public static GoalStateClientImpl getInstance(int numberOfGrpcChannelPerHost, int numberOfWarmupsPerChannel, ArrayList<String> monitorHosts) {
         if (instance == null) {
             instance = new GoalStateClientImpl(numberOfGrpcChannelPerHost, numberOfWarmupsPerChannel, monitorHosts);
@@ -190,6 +191,7 @@ public class GoalStateClientImpl implements GoalStateClient {
         */
     }
 
+    @DurationStatistics
     private GrpcChannelStub getOrCreateGrpcChannel(String hostIp) {
         if (!this.hostIpGrpcChannelStubMap.containsKey(hostIp)) {
             this.hostIpGrpcChannelStubMap.put(hostIp, createGrpcChannelStubArrayList(hostIp));
@@ -209,6 +211,7 @@ public class GoalStateClientImpl implements GoalStateClient {
         return this.hostIpGrpcChannelStubMap.get(hostIp).get(usingChannelWithThisIndex);
     }
 
+    @DurationStatistics
     private ArrayList<GrpcChannelStub> createGrpcChannelStubArrayList(String hostIp) {
         long start = System.currentTimeMillis();
         ArrayList<GrpcChannelStub> arr = new ArrayList<>();
@@ -237,6 +240,7 @@ public class GoalStateClientImpl implements GoalStateClient {
     }
 
     // try to warmup a gRPC channel and its stub, by sending an empty GoalState`.
+    @DurationStatistics
     void warmUpChannelStub(GrpcChannelStub channelStub, String hostIp) {
         GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub = channelStub.stub;
 
@@ -312,6 +316,7 @@ public class GoalStateClientImpl implements GoalStateClient {
         return;
     }
 
+    @DurationStatistics
     private GrpcChannelStub createGrpcChannelStub(String hostIp) {
         ManagedChannel a = NettyChannelBuilder.forAddress(hostIp, this.hostAgentPort)
                 .usePlaintext()
@@ -342,6 +347,7 @@ public class GoalStateClientImpl implements GoalStateClient {
         */
     }
 
+    @DurationStatistics
     private void doSendGoalState(HostGoalState hostGoalState) throws InterruptedException {
 
         String hostIp = hostGoalState.getHostIp();
@@ -415,6 +421,7 @@ public class GoalStateClientImpl implements GoalStateClient {
 //        shutdown(channel);
     }
 
+    @DurationStatistics
     private void shutdown(ManagedChannel channel) {
         try {
             channel.shutdown().awaitTermination(Config.SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
