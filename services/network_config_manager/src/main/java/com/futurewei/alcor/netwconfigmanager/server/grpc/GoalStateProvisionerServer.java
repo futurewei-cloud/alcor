@@ -121,9 +121,9 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         TracingServerInterceptor serverInterceptor = TracingServerInterceptor
                 .newBuilder().withTracer(this.tracer)
                 .build();
-        logger.log(Level.INFO, "[GoalStateProvisionerServer] Sampler Configuration: " + samplerConfiguration);
-        logger.log(Level.INFO, "[GoalStateProvisionerServer] Reporter Configuration: " + reporterConfiguration);
-        logger.log(Level.INFO, "[GoalStateProvisionerServer] Tracer Configuration: " + configuration);
+        logger.log(Level.INFO, "[GoalStateProvisionerServer] Sampler Configuration: " + samplerConfiguration.toString());
+        logger.log(Level.INFO, "[GoalStateProvisionerServer] Reporter Configuration: " + reporterConfiguration.toString());
+        logger.log(Level.INFO, "[GoalStateProvisionerServer] Tracer Configuration: " + configuration.toString());
 
         logger.log(Level.INFO, "[GoalStateProvisionerServer] Got this global tracer: "+this.tracer.toString());
 
