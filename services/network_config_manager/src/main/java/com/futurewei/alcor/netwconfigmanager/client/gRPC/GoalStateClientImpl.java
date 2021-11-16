@@ -219,11 +219,15 @@ public class GoalStateClientImpl implements GoalStateClient {
             public void onNext(Goalstateprovisioner.GoalStateOperationReply reply) {
                 logger.log(Level.INFO, "Receive response from ACA@" + hostIp + " | " + reply.toString());
                 result.put(hostIp, reply.getOperationStatusesList());
+                /*
                 if (reply.getOperationStatusesList().stream().filter(item -> !item.getOperationStatus().equals("SUCCESS")).collect(Collectors.toList()).size() > 0) {
                     this.onError(new Exception(reply.toString()));
                 } else {
                     this.onCompleted();
                 }
+
+                 */
+                this.onCompleted();
             }
 
             @Override
