@@ -387,6 +387,7 @@ public class pseudo_controller {
         }
         System.out.println("[Test Controller] Built child span: "+span.toString());
         Scope cscope = tracer.scopeManager().activate(span);
+        span.log("abcdefg");
         System.out.println("Created stub");
         StreamObserver<Goalstateprovisioner.GoalStateOperationReply> message_observer = new StreamObserver<>() {
             @Override
