@@ -77,18 +77,20 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
                     ClientCacheConfiguration clientCacheConfig = new ClientCacheConfiguration();
                     clientCacheConfig.setName(CommonUtil.getSqlNameFromCacheName(name));
                     this.cache = getOrCreateIndexedCache(igniteClient, className, clientCacheConfig, null);
+                    if (this.cache == null) {
+                        logger.log(Level.WARNING, "Create cache for client " + className + " with index failed, falling back");
+                    }
                 }
             }
             if (this.cache == null)
                 this.cache = igniteClient.getOrCreateCache(className);
 
-            logger.log(Level.INFO, "Cache " + className + " AtomicityMode is " + this.cache.getConfiguration().getAtomicityMode());
         } catch (ClientException e) {
-            logger.log(Level.WARNING, "Create cache for client " + className + " failed:" + e.getMessage());
             logger.log(Level.WARNING, "Create cache for client " + className + " failed:" + e.getMessage());
         }
 
         Assert.notNull(this.cache, "Create cache for client " + className + "failed");
+        logger.log(Level.INFO, "Cache " + className + " AtomicityMode is " + this.cache.getConfiguration().getAtomicityMode());
         this.transaction = new IgniteClientTransaction(igniteClient);
     }
 
@@ -102,16 +104,19 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
             extractSqlFields(className);
             if (sqlFields != null) {
                 this.cache = getOrCreateIndexedCache(igniteClient, className, clientCacheConfig, null);
+                if (this.cache == null) {
+                    logger.log(Level.WARNING, "Create cache for client " + className + " with index failed, falling back");
+                }
             }
             if (this.cache == null)
                 this.cache = igniteClient.getOrCreateCache(clientCacheConfig);
 
-            logger.log(Level.INFO, "Retrieved cache " +  this.cache.getConfiguration().getName() + " AtomicityMode is " + this.cache.getConfiguration().getAtomicityMode());
         } catch (ClientException e) {
             logger.log(Level.WARNING, "Create cache for client " + cacheConfig.getName() + " failed:" + e.getMessage());
         }
 
         Assert.notNull(this.cache, "Create cache for client " + cacheConfig.getName() + "failed");
+        logger.log(Level.INFO, "Retrieved cache " +  this.cache.getConfiguration().getName() + " AtomicityMode is " + this.cache.getConfiguration().getAtomicityMode());
         this.transaction = new IgniteClientTransaction(igniteClient);
     }
 
