@@ -333,6 +333,7 @@ public class GoalStateClientImpl implements GoalStateClient {
                 .newBuilder()
                 .withTracer(this.tracer)
                 .withVerbosity()
+                .withStreaming()
                 .build();
 
         GoalStateProvisionerGrpc.GoalStateProvisionerStub b = GoalStateProvisionerGrpc.newStub(tracingClientInterceptor.intercept(a));

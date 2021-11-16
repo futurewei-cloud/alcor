@@ -371,6 +371,7 @@ public class pseudo_controller {
                 .newBuilder()
                 .withTracer(tracer)
                 .withVerbosity()
+                .withStreaming()
                 .build();
 
         ManagedChannel channel = ManagedChannelBuilder.forAddress(ncm_ip, ncm_port).usePlaintext().build();
