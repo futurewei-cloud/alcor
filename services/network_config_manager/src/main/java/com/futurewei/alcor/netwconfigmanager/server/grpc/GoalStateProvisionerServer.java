@@ -120,6 +120,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         this.tracer = GlobalTracer.get();
         TracingServerInterceptor serverInterceptor = TracingServerInterceptor
                 .newBuilder().withTracer(this.tracer)
+                .withVerbosity()
                 .build();
         logger.log(Level.INFO, "[GoalStateProvisionerServer] Sampler Configuration: " + samplerConfiguration.toString());
         logger.log(Level.INFO, "[GoalStateProvisionerServer] Reporter Configuration: " + reporterConfiguration.toString());
