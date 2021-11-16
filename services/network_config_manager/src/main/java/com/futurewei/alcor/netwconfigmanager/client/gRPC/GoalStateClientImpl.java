@@ -100,14 +100,16 @@ public class GoalStateClientImpl implements GoalStateClient {
     @Override
     @DurationStatistics
     public List<String> sendGoalStates(Map<String, HostGoalState> hostGoalStates) throws Exception {
-        final CountDownLatch finishLatch = new CountDownLatch(hostGoalStates.size());
+        final CountDownLatch finishLatch = new CountDownLatch(hostGoalStates.values().size());
         final CountDownLatch exceptionLatch = new CountDownLatch(1);
+
+        logger.log(Level.INFO, "Host goal states size: " + hostGoalStates.values().size());
 
         for (HostGoalState hostGoalState : hostGoalStates.values()) {
             doSendGoalState(hostGoalState, finishLatch, exceptionLatch);
         }
 
-        if (!finishLatch.await(1, TimeUnit.MINUTES) || !exceptionLatch.await(1, TimeUnit.MINUTES)) {
+        if (!finishLatch.await(1, TimeUnit.MINUTES) && !exceptionLatch.await(1, TimeUnit.MINUTES)) {
             if (exceptionLatch.getCount() == 0) {
                 return Arrays.asList("Goal states not correct");
             }

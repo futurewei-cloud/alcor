@@ -72,7 +72,7 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         System.out.println(goalStateBuilder.build());
         doSendGoalState(goalStateBuilder.build(), finishLatch, exceptionLatch);
 
-        if (!finishLatch.await(1, TimeUnit.MINUTES) || !exceptionLatch.await(1, TimeUnit.MINUTES)) {
+        if (!finishLatch.await(1, TimeUnit.MINUTES) && !exceptionLatch.await(1, TimeUnit.MINUTES)) {
             if (exceptionLatch.getCount() == 0) {
                 return Arrays.asList("Goal states not correct");
             }
