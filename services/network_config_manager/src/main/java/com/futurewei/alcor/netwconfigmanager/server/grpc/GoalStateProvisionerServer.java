@@ -228,6 +228,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     logger.log(Level.INFO, "pushGoalStatesStream : receiving GS V2 message " + value.toString());
                     long start = System.currentTimeMillis();
                     Span storeGsSpan = tracer.buildSpan("alcor-ncm-server-store-gs").asChildOf(pSpan.context()).start();
+                    Scope storageCscope = tracer.scopeManager().activate(storeGsSpan);
                     //prepare GS message based on host
                     Map<String, HostGoalState> hostGoalStates = NetworkConfigManagerUtil.splitClusterToHostGoalState(value);
 
@@ -247,6 +248,8 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     long end = System.currentTimeMillis();
                     logger.log(Level.FINE, "pushGoalStatesStream : finished putting GS into cache, elapsed time in milliseconds: " + + (end-start));
                     Span filterSendGsSpan = tracer.buildSpan("alcor-ncm-server-filter-send-gs").asChildOf(pSpan.context()).start();
+                    Scope filterCscope = tracer.scopeManager().activate(filterSendGsSpan);
+
                     // filter neighbor/SG update, and send them down to target ACA
                     try {
                         Map<String, HostGoalState> filteredGoalStates = NetworkConfigManagerUtil.filterNeighbors(hostGoalStates);
@@ -259,7 +262,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     }
                     filterSendGsSpan.finish();
                     Span replyDPMSpan = tracer.buildSpan("alcor-ncm-server-reply-dpm").asChildOf(pSpan.context()).start();
-
+                    Scope replyCscope = tracer.scopeManager().activate(replyDPMSpan);
                     //consolidate response from ACA and send response to DPM
                     Goalstateprovisioner.GoalStateOperationReply reply =
                             Goalstateprovisioner.GoalStateOperationReply.newBuilder()
@@ -337,6 +340,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
             // Step 0: Prepare to retrieve client IP address from gRPC transport
             Span retrieveGsSpan = tracer.buildSpan("alcor-ncm-on-demand-retrieve-gs").asChildOf(span.context()).start();
+            Scope retrieveCscope = tracer.scopeManager().activate(retrieveGsSpan);
             String clientIpAddress = this.ipInterceptor.getClientIpAddress();
             logger.log(Level.INFO, "[requestGoalStates] Client IP address = " + clientIpAddress);
 
@@ -387,6 +391,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             //                           generate GS with port related resources (completed at Step 1) and go to Step 3
             // otherwise, set it to FAILURE and go to Step 3
             Span sendGsSpan = tracer.buildSpan("alcor-ncm-on-demand-send-gs").asChildOf(span.context()).start();
+            Scope sendCscope = tracer.scopeManager().activate(sendGsSpan);
             int ind = 0;
             Goalstateprovisioner.HostRequestReply.Builder replyBuilder = Goalstateprovisioner.HostRequestReply.newBuilder();
             for (Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest : request.getStateRequestsList()) {
@@ -411,6 +416,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             }
             sendGsSpan.finish();
             Span replyOnDemandSpan = tracer.buildSpan("alcor-ncm-on-demand-reply").asChildOf(span.context()).start();
+            Scope replyCscope = tracer.scopeManager().activate(replyOnDemandSpan);
             Goalstateprovisioner.HostRequestReply reply = replyBuilder.build();
             logger.log(Level.INFO, "requestGoalStates : generate reply " + reply.toString());
 
