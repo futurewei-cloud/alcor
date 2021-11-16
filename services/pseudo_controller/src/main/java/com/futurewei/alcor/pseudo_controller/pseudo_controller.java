@@ -370,6 +370,7 @@ public class pseudo_controller {
         TracingClientInterceptor tracingClientInterceptor = TracingClientInterceptor
                 .newBuilder()
                 .withTracer(tracer)
+                .withVerbosity()
                 .build();
 
         ManagedChannel channel = ManagedChannelBuilder.forAddress(ncm_ip, ncm_port).usePlaintext().build();
