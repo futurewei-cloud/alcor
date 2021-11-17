@@ -34,6 +34,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.logging.Level;
 
 @Service
@@ -118,59 +120,40 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
     }
 
     private void processSubnetStates(HostGoalState hostGoalState) throws Exception {
-        Map<String, Subnet.SubnetState> subnetStatesMap = hostGoalState.getGoalState().getSubnetStatesMap();
+        SortedMap<String, Subnet.SubnetState> subnetStatesSortedMap = new TreeMap<>(hostGoalState.getGoalState().getSubnetStatesMap());
+        resourceStateCache.addResourceStates(subnetStatesSortedMap);
 
-        for (String resourceId : subnetStatesMap.keySet()) {
-            resourceStateCache.addResourceState(resourceId, subnetStatesMap.get(resourceId));
-        }
     }
 
     private void processPortStates(HostGoalState hostGoalState) throws Exception {
-        Map<String, Port.PortState> portStatesMap = hostGoalState.getGoalState().getPortStatesMap();
+        SortedMap<String, Port.PortState> portStatesSortedMap = new TreeMap<>(hostGoalState.getGoalState().getPortStatesMap());
+        resourceStateCache.addResourceStates(portStatesSortedMap);
 
-        for (String resourceId : portStatesMap.keySet()) {
-            resourceStateCache.addResourceState(resourceId, portStatesMap.get(resourceId));
-        }
     }
 
     private void processDhcpStates(HostGoalState hostGoalState) throws Exception {
-        Map<String, DHCP.DHCPState> dhcpStatesMap = hostGoalState.getGoalState().getDhcpStatesMap();
-
-        for (String resourceId : dhcpStatesMap.keySet()) {
-            resourceStateCache.addResourceState(resourceId, dhcpStatesMap.get(resourceId));
-        }
+        SortedMap<String, DHCP.DHCPState> portStatesSortedMap = new TreeMap<>(hostGoalState.getGoalState().getDhcpStatesMap());
+        resourceStateCache.addResourceStates(portStatesSortedMap);
     }
 
     private void processNeighborStates(HostGoalState hostGoalState) throws Exception {
-        Map<String, Neighbor.NeighborState> neighborStatesMap = hostGoalState.getGoalState().getNeighborStatesMap();
-
-        for (String resourceId : neighborStatesMap.keySet()) {
-            resourceStateCache.addResourceState(resourceId, neighborStatesMap.get(resourceId));
-        }
+        SortedMap<String, Neighbor.NeighborState> neighborStatesSortedMap = new TreeMap<>(hostGoalState.getGoalState().getNeighborStatesMap());
+        resourceStateCache.addResourceStates(neighborStatesSortedMap);
     }
 
     private void processSecurityGroupStates(HostGoalState hostGoalState) throws Exception {
-        Map<String, SecurityGroup.SecurityGroupState> securityGroupStatesMap = hostGoalState.getGoalState().getSecurityGroupStatesMap();
-
-        for (String resourceId : securityGroupStatesMap.keySet()) {
-            resourceStateCache.addResourceState(resourceId, securityGroupStatesMap.get(resourceId));
-        }
+        SortedMap<String, SecurityGroup.SecurityGroupState> securityGroupStatesSortedMap = new TreeMap<>(hostGoalState.getGoalState().getSecurityGroupStatesMap());
+        resourceStateCache.addResourceStates(securityGroupStatesSortedMap);
     }
 
     private void processRouterStates(HostGoalState hostGoalState) throws Exception {
-        Map<String, Router.RouterState> routerStatesMap = hostGoalState.getGoalState().getRouterStatesMap();
-
-        for (String resourceId : routerStatesMap.keySet()) {
-            resourceStateCache.addResourceState(resourceId, routerStatesMap.get(resourceId));
-        }
+        SortedMap<String, Router.RouterState> routerStatesSortedMap = new TreeMap<>(hostGoalState.getGoalState().getRouterStatesMap());
+        resourceStateCache.addResourceStates(routerStatesSortedMap);
     }
 
     private void processGatewayStates(HostGoalState hostGoalState) throws Exception {
-        Map<String, Gateway.GatewayState> gatewayStatesMap = hostGoalState.getGoalState().getGatewayStatesMap();
-
-        for (String resourceId : gatewayStatesMap.keySet()) {
-            resourceStateCache.addResourceState(resourceId, gatewayStatesMap.get(resourceId));
-        }
+        SortedMap<String, Gateway.GatewayState> gatewayStatesSortedMap = new TreeMap<>(hostGoalState.getGoalState().getGatewayStatesMap());
+        resourceStateCache.addResourceStates(gatewayStatesSortedMap);
     }
 
     private void populateVpcResourceCache(HostGoalState hostGoalState, Map<String, Integer> vpcIdToVniMap) throws Exception {

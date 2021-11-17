@@ -16,6 +16,9 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.netwconfigmanager.service;
 
 import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
+import com.futurewei.alcor.schema.Subnet;
+
+import java.util.SortedMap;
 
 public interface GoalStatePersistenceService {
 
