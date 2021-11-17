@@ -33,11 +33,11 @@ public class NodeInfo implements Serializable {
     private static final Logger logger = LoggerFactory.getLogger(NodeInfo.class);
 
     @JsonProperty("node_id")
-    @QuerySqlField(index = true)
+    // @QuerySqlField(index = true)
     private String id;
 
     @JsonProperty("node_name")
-    @QuerySqlField(index = true)
+    // @QuerySqlField(index = true)
     private String name;
 
     @JsonProperty("local_ip")
