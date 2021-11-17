@@ -168,7 +168,7 @@ public class sqlquery {
 
             System.out.println("DONE INSERTING");
 
-            SqlFieldsQuery sql = new SqlFieldsQuery("select _key, name, cast(_val as varchar(128)) from " + schName +
+            SqlFieldsQuery sql = new SqlFieldsQuery("select _key, _val, cast(_val as varchar(128)) from " + schName +
                     "." + tblName + " where name = ?");
 
             int i;
@@ -192,9 +192,10 @@ public class sqlquery {
                             ++recCount;
                             cbeign = System.nanoTime();
                             nodeId = row.get(0).toString();
-                            nodeName = row.get(1).toString();
+                            NodeInfo node = (NodeInfo)row.get(1);
+                            nodeName = node.getName(); // row.get(1).toString();
                             cend = System.nanoTime();
-                            // assert(nodeNameIn.equals(nodeName));
+                            assert(nodeNameIn.equals(nodeName));
                             curTime[i] = (cend - cbeign) / 1000;
                         }
                     }
