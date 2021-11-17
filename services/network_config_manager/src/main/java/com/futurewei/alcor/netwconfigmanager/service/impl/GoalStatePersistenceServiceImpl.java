@@ -55,7 +55,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
 
     @Override
     @DurationStatistics
-    public boolean updateGoalState(String hostId, HostGoalState hostGoalState) throws Exception {
+    public synchronized boolean updateGoalState(String hostId, HostGoalState hostGoalState) throws Exception {
 
         // TODO: Use Ignite transaction here
         hostResourceMetadataCache.getTransaction();
