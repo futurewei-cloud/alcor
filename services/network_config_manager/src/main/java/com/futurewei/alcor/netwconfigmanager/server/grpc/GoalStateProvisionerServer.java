@@ -64,8 +64,8 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
     private final int responseDefaultFormatVersion = 1;
     private final int port;
-    private final Server server;
-    private final Tracer tracer;
+    private Server server;
+    private Tracer tracer;
 
     // each host_ip should have this amount of gRPC channels.
     @Value("${grpc.number-of-channels-per-host:1}")
@@ -102,6 +102,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 //    private GoalStateClient grpcGoalStateClient;
 
     public GoalStateProvisionerServer() {
+        System.setProperty("JAEGER_SERVICE_NAME","alcor-ncm");
         this.port = 9016; // TODO: make this configurable
 
         IpInterceptor clientIpInterceptor = new IpInterceptor();
@@ -116,8 +117,8 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 .withSampler(samplerConfiguration)
                 .withReporter(reporterConfiguration);
 
-        GlobalTracer.registerIfAbsent(configuration.getTracer());
-        this.tracer = GlobalTracer.get();
+//        GlobalTracer.registerIfAbsent(configuration.getTracer());
+//        this.tracer = GlobalTracer.get();
         TracingServerInterceptor serverInterceptor = TracingServerInterceptor
                 .newBuilder().withTracer(this.tracer)
                 .withVerbosity()
@@ -127,7 +128,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         logger.log(Level.INFO, "[GoalStateProvisionerServer] Reporter Configuration: " + reporterConfiguration.toString());
         logger.log(Level.INFO, "[GoalStateProvisionerServer] Tracer Configuration: " + configuration.toString());
 
-        logger.log(Level.INFO, "[GoalStateProvisionerServer] Got this global tracer: "+this.tracer.toString());
+//        logger.log(Level.INFO, "[GoalStateProvisionerServer] Got this global tracer: "+this.tracer.toString());
 
         logger.log(Level.INFO, "[GoalStateProvisionerServer] Server port: "+serverPort+", monitoring host: " + monitorHosts + ", warmups/channel: "
                 + numberOfWarmupsPerChannel + ", channels/host: " + numberOfGrpcChannelPerHost);
@@ -143,13 +144,13 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 .intercept(clientIpInterceptor)
                 .build();
          */
-        this.server = NettyServerBuilder.forPort(this.port)
-                .addService(serverInterceptor.intercept(new GoalStateProvisionerImpl(clientIpInterceptor)))
-                .maxInboundMessageSize(Integer.MAX_VALUE)
-                .maxInboundMetadataSize(Integer.MAX_VALUE)
-                .intercept(clientIpInterceptor)
-                .maxConcurrentCallsPerConnection(10000)
-                .build();
+//        this.server = NettyServerBuilder.forPort(this.port)
+//                .addService(serverInterceptor.intercept(new GoalStateProvisionerImpl(clientIpInterceptor)))
+//                .maxInboundMessageSize(Integer.MAX_VALUE)
+//                .maxInboundMetadataSize(Integer.MAX_VALUE)
+//                .intercept(clientIpInterceptor)
+//                .maxConcurrentCallsPerConnection(10000)
+//                .build();
     }
 
     @PostConstruct
@@ -160,10 +161,29 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         if (goalStatePersistenceService == null) {
             logger.log(Level.SEVERE, "[requestGoalStates] goalStatePersistenceService is null");
         }
+
+        Tracer t = TracerResolver.resolveTracer();
+        this.tracer = t;
+        logger.log(Level.INFO, "Got this resolved tracer: " + t.toString());
+        TracingServerInterceptor serverInterceptor = TracingServerInterceptor
+                .newBuilder().withTracer(this.tracer)
+                .withVerbosity()
+                .withStreaming()
+                .build();
+        logger.log(Level.INFO, "Got this interceptor from tracer: " + serverInterceptor.toString());
+        IpInterceptor clientIpInterceptor = new IpInterceptor();
+        this.server = NettyServerBuilder.forPort(this.port)
+                .addService(serverInterceptor.intercept(new GoalStateProvisionerImpl(clientIpInterceptor)))
+                .maxInboundMessageSize(Integer.MAX_VALUE)
+                .maxInboundMetadataSize(Integer.MAX_VALUE)
+                .intercept(clientIpInterceptor)
+                .maxConcurrentCallsPerConnection(10000)
+                .build();
     }
 
     @Override
     public void start() throws IOException {
+        logger.log(Level.INFO, "GoalStateProvisionerServer : Trying to start server at port: " + this.port);
         this.server.start();
         logger.log(Level.INFO, "GoalStateProvisionerServer : Server started, listening on " + this.port);
         Runtime.getRuntime().addShutdownHook(new Thread() {
