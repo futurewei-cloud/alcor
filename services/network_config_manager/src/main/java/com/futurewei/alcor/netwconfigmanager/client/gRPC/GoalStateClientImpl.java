@@ -21,6 +21,7 @@ import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.netwconfigmanager.client.GoalStateClient;
 import com.futurewei.alcor.netwconfigmanager.config.Config;
 import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
+import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.schema.GoalStateProvisionerGrpc;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
@@ -221,15 +222,9 @@ public class GoalStateClientImpl implements GoalStateClient {
             public void onNext(Goalstateprovisioner.GoalStateOperationReply reply) {
                 logger.log(Level.INFO, "Receive response from ACA@" + hostIp + " | " + reply.toString());
                 result.put(hostIp, reply.getOperationStatusesList());
-                /*
-                if (reply.getOperationStatusesList().stream().filter(item -> !item.getOperationStatus().equals("SUCCESS")).collect(Collectors.toList()).size() > 0) {
+                if (reply.getOperationStatusesList().stream().filter(item -> item.getOperationStatus().equals(Common.OperationStatus.FAILURE)).collect(Collectors.toList()).size() > 0) {
                     this.onError(new Exception(reply.toString()));
-                } else {
-                    this.onCompleted();
                 }
-
-                 */
-                this.onCompleted();
             }
 
             @Override
