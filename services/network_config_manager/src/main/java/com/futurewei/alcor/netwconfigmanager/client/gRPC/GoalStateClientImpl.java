@@ -102,20 +102,18 @@ public class GoalStateClientImpl implements GoalStateClient {
     @DurationStatistics
     public List<String> sendGoalStates(Map<String, HostGoalState> hostGoalStates) throws Exception {
         final CountDownLatch finishLatch = new CountDownLatch(hostGoalStates.values().size());
-        final CountDownLatch exceptionLatch = new CountDownLatch(1);
-
         logger.log(Level.INFO, "Host goal states size: " + hostGoalStates.values().size());
-
+        List<String> replies = new ArrayList<>();
         for (HostGoalState hostGoalState : hostGoalStates.values()) {
-            doSendGoalState(hostGoalState, finishLatch, exceptionLatch);
+            doSendGoalState(hostGoalState, finishLatch, replies);
         }
 
-        if (!finishLatch.await(1, TimeUnit.MINUTES) && !exceptionLatch.await(1, TimeUnit.MINUTES)) {
-            if (exceptionLatch.getCount() == 0) {
-                return Arrays.asList("Goal states not correct");
-            }
+        if (!finishLatch.await(1, TimeUnit.MINUTES)) {
             logger.log(Level.WARNING, "Send goal states can not finish within 1 minutes");
             return Arrays.asList("Send goal states can not finish within 1 minutes");
+        }
+        if (replies.size() > 0) {
+            return replies;
         }
         return new ArrayList<>();
     }
@@ -202,8 +200,7 @@ public class GoalStateClientImpl implements GoalStateClient {
         return new GrpcChannelStub(channel, asyncStub);
     }
 
-    private void doSendGoalState(HostGoalState hostGoalState, CountDownLatch finishLatch, CountDownLatch exceptionLatch) throws InterruptedException {
-
+    private void doSendGoalState(HostGoalState hostGoalState, CountDownLatch finishLatch, List<String> replies) throws InterruptedException {
         String hostIp = hostGoalState.getHostIp();
         logger.log(Level.FINE, "Setting up a channel to ACA on: " + hostIp);
         long start = System.currentTimeMillis();
@@ -223,14 +220,16 @@ public class GoalStateClientImpl implements GoalStateClient {
                 logger.log(Level.INFO, "Receive response from ACA@" + hostIp + " | " + reply.toString());
                 result.put(hostIp, reply.getOperationStatusesList());
                 if (reply.getOperationStatusesList().stream().filter(item -> item.getOperationStatus().equals(Common.OperationStatus.FAILURE)).collect(Collectors.toList()).size() > 0) {
-                    this.onError(new Exception(reply.toString()));
+                    replies.add(reply.toString());
+                    while (finishLatch.getCount() > 0) {
+                        finishLatch.countDown();
+                    }
                 }
             }
 
             @Override
             public void onError(Throwable t) {
                 logger.log(Level.WARNING, "Receive error from ACA@" + hostIp + " |  " + t.getMessage());
-                exceptionLatch.countDown();
             }
 
             @Override
