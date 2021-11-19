@@ -45,7 +45,6 @@ public class sqlquery {
         }
         final String tblName = "nmm_nodeinfo_cache";
         final String schName = "alcor";
-        // final String nodeInfoValueType = "sqlfldscancmp.NodeInfo";
 
         int exitCode = -1;
 
@@ -86,15 +85,12 @@ public class sqlquery {
 
         try {
 
-            // JSONObject jsonObject = (JSONObject)(new JSONParser().parse(new FileReader(jsonFile)));
-            // JSONArray jsonArray = (JSONArray)jsonObject.get("host_infos");
             ClientCacheConfiguration nodeInfoCacheConfig = new ClientCacheConfiguration();
             nodeInfoCacheConfig.setName(tblName);
             nodeInfoCacheConfig.setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL);
             CacheKeyConfiguration keyConf = new CacheKeyConfiguration();
 
             QueryEntity qryEnt = new QueryEntity();
-            System.out.println("NodeInfo type = " + NodeInfo.class.getName());
             qryEnt.setValueType(NodeInfo.class.getName());
             LinkedHashMap<String, String> qryFields = new LinkedHashMap<>();
 
@@ -168,7 +164,7 @@ public class sqlquery {
 
             System.out.println("DONE INSERTING");
 
-            SqlFieldsQuery sql = new SqlFieldsQuery("select _key, _val, cast(_val as varchar(128)) from " + schName +
+            SqlFieldsQuery sql = new SqlFieldsQuery("select _key, _val from " + schName +
                     "." + tblName + " where name = ?");
 
             int i;
@@ -193,7 +189,7 @@ public class sqlquery {
                             cbeign = System.nanoTime();
                             nodeId = row.get(0).toString();
                             NodeInfo node = (NodeInfo)row.get(1);
-                            nodeName = node.getName(); // row.get(1).toString();
+                            nodeName = node.getName();
                             cend = System.nanoTime();
                             assert(nodeNameIn.equals(nodeName));
                             curTime[i] = (cend - cbeign) / 1000;

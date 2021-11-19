@@ -54,7 +54,7 @@ import static org.apache.ignite.internal.util.lang.GridFunc.asList;
 
 public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
     private static final Logger logger = LoggerFactory.getLogger();
-    private static final String NON_SCALAR_ROWSET = "more than one rows found!";
+    private static final String NON_SCALAR_ROWSET = "too many rows found!";
     private static final int RESULT_THRESHOLD_SIZE = 100000;
     private static final String SQL_SCHEMA_NAME = "alcor";
     private ClientCache<K, V> cache;
@@ -64,7 +64,8 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
         public boolean isIndexed;
     }
     private Map<String, SqlField> sqlFields = null; // needed for index creation and querying
-    private List<String> sqlColumns = null;         // needed for constructing select list
+    private List<String> sqlColumns = null;         // needed for constructing indexes in specified order
+                                                    // so that a prefix query can use indexed search.
     private boolean checkedForSqlFields = false;
 
     public IgniteClientDbCache(IgniteClient igniteClient, Class<?> v, String name) {
@@ -86,10 +87,10 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
                 this.cache = igniteClient.getOrCreateCache(className);
 
         } catch (ClientException e) {
-            logger.log(Level.WARNING, "Create cache for client " + className + " failed:" + e.getMessage());
+            logger.log(Level.WARNING, "Create cache for client " + className + " failed: " + e.getMessage());
         }
 
-        Assert.notNull(this.cache, "Create cache for client " + className + "failed");
+        Assert.notNull(this.cache, "Create cache for client " + className + " failed");
         logger.log(Level.INFO, "Cache " + className + " AtomicityMode is " + this.cache.getConfiguration().getAtomicityMode());
         this.transaction = new IgniteClientTransaction(igniteClient);
     }
@@ -102,7 +103,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
             clientCacheConfig.setAtomicityMode(cacheConfig.getAtomicityMode());
             logger.log(Level.INFO, "Getting or creating cache " + clientCacheConfig.getName() + " AtomicityMode is " + clientCacheConfig.getAtomicityMode());
             extractSqlFields(className);
-            if (sqlFields != null) {
+            if (sqlFields != null && sqlFields.size() != 0) {
                 this.cache = getOrCreateIndexedCache(igniteClient, className, clientCacheConfig, null);
                 if (this.cache == null) {
                     logger.log(Level.WARNING, "Create cache for client " + className + " with index failed, falling back");
@@ -112,10 +113,10 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
                 this.cache = igniteClient.getOrCreateCache(clientCacheConfig);
 
         } catch (ClientException e) {
-            logger.log(Level.WARNING, "Create cache for client " + cacheConfig.getName() + " failed:" + e.getMessage());
+            logger.log(Level.WARNING, "Create cache for client " + cacheConfig.getName() + " failed: " + e.getMessage());
         }
 
-        Assert.notNull(this.cache, "Create cache for client " + cacheConfig.getName() + "failed");
+        Assert.notNull(this.cache, "Create cache for client " + cacheConfig.getName() + " failed");
         logger.log(Level.INFO, "Retrieved cache " +  this.cache.getConfiguration().getName() + " AtomicityMode is " + this.cache.getConfiguration().getAtomicityMode());
         this.transaction = new IgniteClientTransaction(igniteClient);
     }
@@ -125,7 +126,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
             if (!checkedForSqlFields) {
                 checkedForSqlFields = true;
                 extractSqlFields(v.getName());
-                if (sqlFields != null) {
+                if (sqlFields != null && sqlFields.size() != 0) {
                     ClientCacheConfiguration clientCacheConfig = new ClientCacheConfiguration();
                     clientCacheConfig.setName(name);
                     getOrCreateIndexedCache(igniteClient, v.getName(), clientCacheConfig, ep);
@@ -136,10 +137,10 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
                 logger.log(Level.INFO, "Cache " + name + " AtomicityMode is " + this.cache.getConfiguration().getAtomicityMode());
             }
         } catch (ClientException e) {
-            logger.log(Level.WARNING, "Create cache for client " + name + " failed:" + e.getMessage());
+            logger.log(Level.WARNING, "Create cache for client " + name + " failed: " + e.getMessage());
         }
 
-        Assert.notNull(this.cache, "Create cache for client " + name + "failed");
+        Assert.notNull(this.cache, "Create cache for client " + name + " failed");
         this.transaction = new IgniteClientTransaction(igniteClient);
     }
 
@@ -149,7 +150,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
         try {
             return cache.get(key);
         } catch (ClientException e) {
-            logger.log(Level.WARNING, "IgniteCache get operation error:" + e.getMessage());
+            logger.log(Level.WARNING, "IgniteCache get operation error: " + e.getMessage());
             throw new CacheException(e.getMessage());
         }
     }
@@ -159,7 +160,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
         try {
             cache.put(key, value);
         } catch (ClientException e) {
-            logger.log(Level.WARNING, "IgniteCache put operation error:" + e.getMessage());
+            logger.log(Level.WARNING, "IgniteCache put operation error: " + e.getMessage());
             throw new CacheException(e.getMessage());
         }
     }
@@ -174,7 +175,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
         try {
             return cache.containsKey(key);
         } catch (ClientException e) {
-            logger.log(Level.WARNING, "IgniteCache containsKey operation error:" + e.getMessage());
+            logger.log(Level.WARNING, "IgniteCache containsKey operation error: " + e.getMessage());
             throw new CacheException(e.getMessage());
         }
     }
@@ -197,7 +198,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
         try {
             cache.putAll(items);
         } catch (ClientException e) {
-            logger.log(Level.WARNING, "IgniteCache putAll operation error:" + e.getMessage());
+            logger.log(Level.WARNING, "IgniteCache putAll operation error: " + e.getMessage());
             throw new CacheException(e.getMessage());
         }
     }
@@ -207,7 +208,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
         try {
             return cache.remove(key);
         } catch (ClientException e) {
-            logger.log(Level.WARNING, "IgniteCache remove operation error:" + e.getMessage());
+            logger.log(Level.WARNING, "IgniteCache remove operation error: " + e.getMessage());
             throw new CacheException(e.getMessage());
         }
     }
@@ -239,7 +240,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
             BinaryObject binaryObject = (BinaryObject)obj;
             return binaryObject.deserialize();
         }else{
-            throw new CacheException("no support for object type:" + obj.getClass().getName());
+            throw new CacheException("no support for object type: " + obj.getClass().getName());
         }
     }
 
@@ -258,7 +259,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
                 cache.withKeepBinary().query(ScanQueryBuilder.newScanQuery(igniteBiPredicate));
         List<Cache.Entry<E1, E2>> result = cursor.getAll();
         if(result.size() >= RESULT_THRESHOLD_SIZE){
-            throw new CacheException("too many rows found!");
+            throw new CacheException(NON_SCALAR_ROWSET);
         }
         Map<K, V> values = new HashMap<>(result.size());
         for(Cache.Entry<E1, E2> entry: result){
@@ -267,7 +268,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
                 BinaryObject binaryObject = (BinaryObject)obj;
                 values.put((K)entry.getKey(), binaryObject.deserialize());
             }else{
-                throw new CacheException("no support for object type:" + obj.getClass().getName());
+                throw new CacheException("no support for object type: " + obj.getClass().getName());
             }
         }
         return values;
@@ -359,16 +360,6 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
 
     @DurationStatistics
     private String buildSqlFieldsQuery(Map<String, Object[]> filterParams) {
-        SqlField valFld = sqlFields.get("$value");
-        Class<?> v;
-        try {
-            v = Class.forName(valFld.type);
-        } catch (Exception e) {
-            logger.log(Level.INFO, "Failed to find type of " + valFld.type);
-            return null;
-        }
-
-        String valFldName = CommonUtil.getSimpleFromCanonicalName(valFld.type);
         StringBuilder sb = new StringBuilder("select _key, _val from " + SQL_SCHEMA_NAME +
                 "." + cache.getConfiguration().getQueryEntities()[0].getTableName() + " where ");
         boolean needAnd = false;
@@ -417,11 +408,6 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
         ArrayList<QueryIndex> idxFields = new ArrayList<>();
         try {
             for (String c : sqlColumns) {
-                if (c.equals("$value"))
-                    continue;
-                // qryEnt.setKeyFieldName(idxFld.name);
-                // qryEnt.setKeyType(idxFld.name);
-                // qryEnt.setValueType(className);
                 SqlField f = sqlFields.get(c);
                 logger.log(Level.INFO, "getOrCreateIndexedCache: Adding " + c + " to query fields " + " in " + cacheName);
                 qryFields.put(c, f.type);
@@ -431,17 +417,8 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
                 }
             }
 
-            SqlField valFld = sqlFields.get("$value");
-            qryFields.put(CommonUtil.getSimpleFromCanonicalName(valFld.type), valFld.type);
             qryEnt.setFields(qryFields);
-
-            logger.log(Level.INFO, "QE: " + qryEnt);
-
-            // qryEnt.setKeyType(valFld.name);
-            // qryEnt.setValueType(valFld.type);
-
             qryEnt.setIndexes(idxFields);
-            logger.log(Level.INFO, "cache : " + cacheName + ", QE = " + qryEnt.toString());
         }
         catch (Exception e) {
             logger.log(Level.WARNING, "Failed to create index on cache: " + cacheName + ": " + e.getMessage());
@@ -504,18 +481,11 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
                 }
             }
 
-            if (!(localFields.isEmpty() || localFields.containsValue(className))) {
-                SqlField sqlField = new SqlField();
-                sqlField.isIndexed = false;
-                sqlField.type = v.getTypeName();
-                logger.log(Level.INFO, "QuerySqlField Adding value for _VAL with type " + sqlField.type);
-                localFields.put("$value", sqlField);
-            }
             sqlFields = localFields;
             sqlColumns = localColumns;
             logger.log(Level.INFO, "QuerySqlField Found " + sqlFields.size() + " sqlFields");
         } catch (Exception e) {
-            //
+            logger.log(Level.INFO, "Failed to get Class info for class " + className + ", or declared fields");
         }
     }
 }

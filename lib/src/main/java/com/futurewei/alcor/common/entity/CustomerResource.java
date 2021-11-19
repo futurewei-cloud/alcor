@@ -24,7 +24,7 @@ import java.util.Objects;
 public class CustomerResource extends Resource {
 
     @JsonProperty("project_id")
-    @QuerySqlField(index = true)
+    // @QuerySqlField(index = true)
     private String projectId;
 
     @JsonProperty("tenant_id")
