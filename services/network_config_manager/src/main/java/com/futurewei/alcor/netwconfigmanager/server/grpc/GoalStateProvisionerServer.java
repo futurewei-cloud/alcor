@@ -149,22 +149,15 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     logger.log(Level.INFO, "pushGoalStatesStream : receiving GS V2 message " + value.toString());
                     long start = System.currentTimeMillis();
 
-                    //prepare GS message based on host
-                    Map<String, HostGoalState> hostGoalStates = NetworkConfigManagerUtil.splitClusterToHostGoalState(value);
-
                     //store the goal state in cache
-                    Set<String> processedResourceIds = new HashSet<>();
-                    for (Map.Entry<String, HostGoalState> entry : hostGoalStates.entrySet()) {
-                        String hostId = entry.getKey();
-                        HostGoalState hostGoalState = entry.getValue();
-
-                        try {
-                            goalStatePersistenceService.updateGoalState(hostId, hostGoalState);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            responseObserver.onError(e);
-                        }
+                    Map<String, HostGoalState> hostGoalStates = new HashMap<>();
+                    try {
+                        hostGoalStates = goalStatePersistenceService.updateGoalStates(value);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        responseObserver.onError(e);
                     }
+                    Set<String> processedResourceIds = new HashSet<>();
                     long end = System.currentTimeMillis();
                     logger.log(Level.FINE, "pushGoalStatesStream : finished putting GS into cache, elapsed time in milliseconds: " + + (end-start));
                     // filter neighbor/SG update, and send them down to target ACA

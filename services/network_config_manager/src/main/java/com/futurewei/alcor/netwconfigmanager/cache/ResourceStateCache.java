@@ -18,6 +18,7 @@ package com.futurewei.alcor.netwconfigmanager.cache;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.schema.Port;
 import com.futurewei.alcor.schema.Subnet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -43,6 +44,11 @@ public class ResourceStateCache <K, V>{
         Object resourceState = this.hostResourceStates.get(resourceId);
 
         return resourceState;
+    }
+
+    @DurationStatistics
+    public Map<String, Object> getResourceStates() throws Exception {
+        return this.hostResourceStates.getAll();
     }
 
     @DurationStatistics

@@ -55,10 +55,44 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
 
     @Override
     @DurationStatistics
+    public Map<String, HostGoalState> updateGoalStates(Goalstate.GoalStateV2 goalStateV2) throws Exception {
+        //prepare GS message based on host
+        Map<String, HostGoalState> hostGoalStates = NetworkConfigManagerUtil.splitClusterToHostGoalState(goalStateV2);
+
+        SortedMap<String, Object> goalStates = new TreeMap<>();
+        goalStates.putAll(goalStateV2.getSubnetStatesMap());
+        goalStates.putAll(goalStateV2.getHostResourcesMap());
+        goalStates.putAll(goalStateV2.getDhcpStatesMap());
+        goalStates.putAll(goalStateV2.getGatewayStatesMap());
+        goalStates.putAll(goalStateV2.getNeighborStatesMap());
+        goalStates.putAll(goalStateV2.getPortStatesMap());
+        goalStates.putAll(goalStateV2.getRouterStatesMap());
+        goalStates.putAll(goalStateV2.getSecurityGroupStatesMap());
+        synchronized (this) {
+            hostResourceMetadataCache.getTransaction();
+            resourceStateCache.addResourceStates(goalStates);
+            for (Map.Entry<String, HostGoalState> entry : hostGoalStates.entrySet()) {
+                String hostId = entry.getKey();
+                HostGoalState hostGoalState = entry.getValue();
+
+                try {
+                    updateGoalState(hostId, hostGoalState);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            hostResourceMetadataCache.commit();
+        }
+        System.out.println(resourceStateCache.getResourceStates().size());
+        resourceStateCache.getResourceStates().entrySet().forEach(item -> System.out.println(item));
+        return hostGoalStates;
+    }
+
+    @Override
+    @DurationStatistics
     public synchronized boolean updateGoalState(String hostId, HostGoalState hostGoalState) throws Exception {
 
         // TODO: Use Ignite transaction here
-        hostResourceMetadataCache.getTransaction();
 
         // Step 1: Populate host resource metadata cache
         long t1 = System.currentTimeMillis();
@@ -86,6 +120,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
 
         // Step 2: Populate resource state cache
         Map<String, Integer> vpcIdToVniMap = processVpcStates(hostGoalState);
+        /*
         processSubnetStates(hostGoalState);
         processPortStates(hostGoalState);
         processDhcpStates(hostGoalState);
@@ -93,6 +128,8 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
         processSecurityGroupStates(hostGoalState);
         processRouterStates(hostGoalState);
         processGatewayStates(hostGoalState);
+
+         */
         long t5_plus = System.currentTimeMillis();
         logger.log(Level.FINE, "updateGoalstate : hostId: "+hostId+", finished processing goalState, elapsed time in milliseconds: " + (t5_plus-t5));
 
@@ -102,20 +139,19 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
         long t_total = (t6 - t5) + (t4 - t3) + (t2 - t1);
         logger.log(Level.FINE, "updateGoalstate : hostId: "+hostId+", finished populating vpc resource cache, elapsed time in milliseconds: " + (t6-t5_plus));
         logger.log(Level.FINE, "updateGoalstate : hostId: "+hostId+", total time, elapsed time in milliseconds: " + t_total);
-
-        hostResourceMetadataCache.commit();
         return false;
     }
 
     private Map<String, Integer> processVpcStates(HostGoalState hostGoalState) throws Exception {
+        /*
+        SortedMap<String, Vpc.VpcState> vpcStatesSortedMap = new TreeMap<>(hostGoalState.getGoalState().getVpcStatesMap());
+        resourceStateCache.addResourceStates(vpcStatesSortedMap);
+         */
         Map<String, Integer> vpcIdToVniMap = new HashMap<>();
         Map<String, Vpc.VpcState> vpsStatesMap = hostGoalState.getGoalState().getVpcStatesMap();
-
         for (String resourceId : vpsStatesMap.keySet()) {
-            resourceStateCache.addResourceState(resourceId, vpsStatesMap.get(resourceId));
             vpcIdToVniMap.put(resourceId, vpsStatesMap.get(resourceId).getConfiguration().getTunnelId());
         }
-
         return vpcIdToVniMap;
     }
 

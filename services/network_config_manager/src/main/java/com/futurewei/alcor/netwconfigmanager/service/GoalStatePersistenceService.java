@@ -16,8 +16,10 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.netwconfigmanager.service;
 
 import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
+import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Subnet;
 
+import java.util.Map;
 import java.util.SortedMap;
 
 public interface GoalStatePersistenceService {
@@ -30,5 +32,8 @@ public interface GoalStatePersistenceService {
      * @throws Exception Various exceptions that may occur during the create process
      */
     boolean updateGoalState(String hostId, HostGoalState hostGoalState) throws Exception;
+
+
+    Map<String, HostGoalState> updateGoalStates(Goalstate.GoalStateV2 goalStateV2) throws Exception;
 
 }
