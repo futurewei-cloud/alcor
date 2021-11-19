@@ -83,8 +83,6 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
             }
             hostResourceMetadataCache.commit();
         }
-        System.out.println(resourceStateCache.getResourceStates().size());
-        resourceStateCache.getResourceStates().entrySet().forEach(item -> System.out.println(item));
         return hostGoalStates;
     }
 
