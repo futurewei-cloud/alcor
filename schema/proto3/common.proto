@@ -22,15 +22,14 @@ option java_package = "com.futurewei.alcor.schema";
 option java_outer_classname = "Common";
 
 enum ResourceType {
-    DEFAULTTYPE = 0;
-    VPC = 1;
-    SUBNET = 2;
-    PORT = 3;
-    NEIGHBOR = 4;
-    SECURITYGROUP =5;
-    DHCP = 6;
-    ROUTER = 7;
-    GATEWAY = 8;
+    VPC = 0;
+    SUBNET = 1;
+    PORT = 2;
+    NEIGHBOR = 3;
+    SECURITYGROUP =4;
+    DHCP = 5;
+    ROUTER = 6;
+    GATEWAY = 7;
 }
 
 enum OperationType {
