@@ -67,7 +67,6 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         final CountDownLatch exceptionLatch = new CountDownLatch(1);
         List<String> results = new ArrayList<>();
         for (UnicastGoalStateV2 unicastGoalState : unicastGoalStates) {
-            System.out.println(unicastGoalState.getGoalState());
             goalStateBuilder = getGoalState(goalStateBuilder, unicastGoalState);
         }
         System.out.println(goalStateBuilder.build());
@@ -389,8 +388,10 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         }
 
         if (goalStateBuilder.containsHostResources(unicastGoalStateV2.getHostIp())) {
-            Goalstate.HostResources.Builder goalStateHostResourceBuilder = goalStateBuilder.getHostResourcesMap().get(unicastGoalStateV2.getHostIp()).toBuilder();
-            goalStateHostResourceBuilder.addAllResources(hostResourceBuilder.getResourcesList());
+            Goalstate.HostResources.Builder hostResourceBuilder1 = Goalstate.HostResources.newBuilder();
+            hostResourceBuilder1.addAllResources(hostResourceBuilder.getResourcesList());
+            hostResourceBuilder1.addAllResources(goalStateBuilder.getHostResourcesMap().get(unicastGoalStateV2.getHostIp()).getResourcesList());
+            goalStateBuilder.putHostResources(unicastGoalStateV2.getHostIp(), hostResourceBuilder1.build());
         } else {
             goalStateBuilder.putHostResources(unicastGoalStateV2.getHostIp(), hostResourceBuilder.build());
         }
