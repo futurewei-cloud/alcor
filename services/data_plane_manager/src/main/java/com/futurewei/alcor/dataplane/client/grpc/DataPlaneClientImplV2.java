@@ -67,6 +67,7 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         final CountDownLatch exceptionLatch = new CountDownLatch(1);
         List<String> results = new ArrayList<>();
         for (UnicastGoalStateV2 unicastGoalState : unicastGoalStates) {
+            System.out.println(unicastGoalState.getGoalState());
             goalStateBuilder = getGoalState(goalStateBuilder, unicastGoalState);
         }
         System.out.println(goalStateBuilder.build());
