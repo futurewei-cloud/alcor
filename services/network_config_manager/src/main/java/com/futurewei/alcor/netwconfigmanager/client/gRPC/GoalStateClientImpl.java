@@ -224,8 +224,6 @@ public class GoalStateClientImpl implements GoalStateClient {
                     while (finishLatch.getCount() > 0) {
                         finishLatch.countDown();
                     }
-                } else {
-                    finishLatch.countDown();
                 }
             }
 
