@@ -58,6 +58,9 @@ public class Config {
   @Value("${grpc.monitor-hosts}")
   public ArrayList<String> monitorHosts;
 
+  @Value("${microservices.netwconfigmanager.service.url}")
+  public String netwconfigmanagerHost;
+
   public static FileWriter TIME_STAMP_FILE;
   public static BufferedWriter TIME_STAMP_WRITER;
   public static String LOG_FILE_PATH = "timestamp.log";

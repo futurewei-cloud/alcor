@@ -43,6 +43,7 @@ data:
     zetaGateway.enabled=false
     zetaGateway.node.mac=e0:97:96:02:45:53
     microservices.node.service.url=http://nodemanager-service.default.svc.cluster.local:9007/nodes
+    microservices.netwconfigmanager.service.url=netwconfigmanager-service
     microservices.zeta.management.url=http://10.213.43.90
     microservices.gateway.service.url=http://gatewaymanager-service.default.svc.cluster.local:9015
     zetaGateway.check.timeout = 30

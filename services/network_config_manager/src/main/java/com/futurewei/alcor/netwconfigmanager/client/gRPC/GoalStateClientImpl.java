@@ -225,7 +225,6 @@ public class GoalStateClientImpl implements GoalStateClient {
                         finishLatch.countDown();
                     }
                 }
-                this.onCompleted();
             }
 
             @Override

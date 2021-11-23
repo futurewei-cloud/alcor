@@ -55,6 +55,8 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
     // when a channel is set up, send this amount of default GoalStates for warmup.
     private int numberOfWarmupsPerChannel;
 
+    private String netwconfigmanagerHost;
+
     // prints out UUID and time, when sending a GoalState to any of the monitorHosts
     private ArrayList<String> monitorHosts;
 
@@ -64,22 +66,17 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
     public List<String> sendGoalStates(List<UnicastGoalStateV2> unicastGoalStates) throws Exception {
         Goalstate.GoalStateV2.Builder goalStateBuilder = Goalstate.GoalStateV2.newBuilder();
         final CountDownLatch finishLatch = new CountDownLatch(1);
-        final CountDownLatch exceptionLatch = new CountDownLatch(1);
         List<String> results = new ArrayList<>();
         for (UnicastGoalStateV2 unicastGoalState : unicastGoalStates) {
             goalStateBuilder = getGoalState(goalStateBuilder, unicastGoalState);
         }
-        System.out.println(goalStateBuilder.build());
-        doSendGoalState(goalStateBuilder.build(), finishLatch, exceptionLatch);
+        doSendGoalState(goalStateBuilder.build(), finishLatch, results);
 
-        if (!finishLatch.await(1, TimeUnit.MINUTES) && !exceptionLatch.await(1, TimeUnit.MINUTES)) {
-            if (exceptionLatch.getCount() == 0) {
-                return Arrays.asList("Goal states not correct");
-            }
+        if (!finishLatch.await(1, TimeUnit.MINUTES)) {
             LOG.warn("Send goal states can not finish within 1 minutes");
             return Arrays.asList("Send goal states can not finish within 1 minutes");
         }
-        return new ArrayList<>();
+        return results;
     }
 
     public static DataPlaneClientImplV2 getInstance(Config globalConfig, ArrayList<String> monitorHosts) {
@@ -98,6 +95,10 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         // allow users to not send warmups, if they wish to.
         if(numberOfWarmupsPerChannel < 0){
             numberOfWarmupsPerChannel = 0;
+        }
+
+        if (netwconfigmanagerHost == null || netwconfigmanagerHost.isEmpty()) {
+            netwconfigmanagerHost = globalConfig.netwconfigmanagerHost;
         }
 
         this.monitorHosts = monitorHosts;
@@ -181,7 +182,8 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         ArrayList<GrpcChannelStub> arr = new ArrayList<>();
         for (int i = 0; i < numberOfGrpcChannelPerHost; i++) {
             GrpcChannelStub channelStub = createGrpcChannelStub(hostIp);
-            warmUpChannelStub(channelStub, hostIp);
+            // Using Linkerd load balance
+            //warmUpChannelStub(channelStub, hostIp);
             arr.add(channelStub);
         }
         long end = System.currentTimeMillis();
@@ -228,9 +230,8 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         return;
     }
 
-    private String doSendGoalState(Goalstate.GoalStateV2 goalStateV2, CountDownLatch finishLatch, CountDownLatch exceptionLatch) {
-        String hostIp = "netwconfigmanager-service";
-        //String hostIp = "netwconfigmanager-service.default.svc.cluster.local";
+    private String doSendGoalState(Goalstate.GoalStateV2 goalStateV2, CountDownLatch finishLatch, List<String> replies) {
+        String hostIp = netwconfigmanagerHost;
         long start = System.currentTimeMillis();
         GrpcChannelStub channelStub = getOrCreateGrpcChannel(hostIp);
         long chan_established = System.currentTimeMillis();
@@ -246,12 +247,15 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
             public void onNext(Goalstateprovisioner.GoalStateOperationReply reply) {
                 LOG.info("Receive response from ACA@" + hostIp + " | " + reply.toString());
                 result.put(hostIp, reply.getOperationStatusesList());
+                replies.add(reply.toString());
+                while (finishLatch.getCount() > 0) {
+                    finishLatch.countDown();
+                }
             }
 
             @Override
             public void onError(Throwable t) {
                 LOG.warn("Receive error from ACA@" + hostIp + " |  " + t.getMessage());
-                exceptionLatch.countDown();
             }
 
             @Override
