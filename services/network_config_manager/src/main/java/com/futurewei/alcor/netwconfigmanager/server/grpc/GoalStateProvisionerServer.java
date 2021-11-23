@@ -166,6 +166,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
                         GoalStateClient grpcGoalStateClient =  GoalStateClientImpl.getInstance(numberOfGrpcChannelPerHost, numberOfWarmupsPerChannel, monitorHosts);
 
+                        //TODO use filteredGoalStates 
                         grpcGoalStateClient.sendGoalStates(hostGoalStates);
                     } catch (Exception e) {
                         e.printStackTrace();
