@@ -37,15 +37,14 @@ public class NetworkConfigManagerApplication {
 
     @PostConstruct
     public void instantiateGrpcServer(){
-        Thread server = new Thread(() -> {
-            try {
-                networkConfigServer.start();
-                networkConfigServer.blockUntilShutdown();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        server.start();
+
+        try {
+            networkConfigServer.start();
+            networkConfigServer.blockUntilShutdown();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     public static void main(String[] args) {
