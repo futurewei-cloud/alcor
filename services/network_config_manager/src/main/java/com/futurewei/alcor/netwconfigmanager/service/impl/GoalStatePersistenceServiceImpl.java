@@ -59,6 +59,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
         //prepare GS message based on host
         Map<String, HostGoalState> hostGoalStates = NetworkConfigManagerUtil.splitClusterToHostGoalState(goalStateV2);
 
+        //aggregate goal state
         SortedMap<String, Object> goalStates = new TreeMap<>();
         goalStates.putAll(goalStateV2.getSubnetStatesMap());
         goalStates.putAll(goalStateV2.getHostResourcesMap());
