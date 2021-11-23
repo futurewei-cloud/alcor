@@ -54,7 +54,7 @@ spec:
   template:
     metadata:
       annotations:
-        linkerd.io/inject: 1 enabled
+        linkerd.io/inject: enabled
       labels:
         app: netwconfigmanager
     spec:
