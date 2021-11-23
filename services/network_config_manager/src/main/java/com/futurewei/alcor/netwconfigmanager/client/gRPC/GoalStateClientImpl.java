@@ -237,6 +237,7 @@ public class GoalStateClientImpl implements GoalStateClient {
             @Override
             public void onCompleted() {
                 logger.log(Level.INFO, "Complete receiving message from ACA@" + hostIp);
+                finishLatch.countDown();
             }
         };
 
