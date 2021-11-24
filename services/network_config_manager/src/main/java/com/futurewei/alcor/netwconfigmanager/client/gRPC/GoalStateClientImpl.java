@@ -158,11 +158,13 @@ public class GoalStateClientImpl implements GoalStateClient {
             @Override
             public void onNext(Goalstateprovisioner.GoalStateOperationReply reply) {
                 logger.log(Level.INFO, "Receive warmup response from ACA@" + hostIp + " | " + reply.toString());
+
             }
 
             @Override
             public void onError(Throwable t) {
                 logger.log(Level.WARNING, "Receive warmup error from ACA@" + hostIp + " |  " + t.getMessage());
+
             }
 
             @Override
@@ -224,6 +226,8 @@ public class GoalStateClientImpl implements GoalStateClient {
                     while (finishLatch.getCount() > 0) {
                         finishLatch.countDown();
                     }
+                } else {
+                    finishLatch.countDown();
                 }
             }
 
