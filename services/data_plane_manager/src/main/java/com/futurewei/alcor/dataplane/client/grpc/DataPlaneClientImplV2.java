@@ -56,7 +56,7 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
     // when a channel is set up, send this amount of default GoalStates for warmup.
     private int numberOfWarmupsPerChannel;
 
-    private String netwconfigmanagerHost;
+    private String netwconfigmanagerGrpcServiceUrl;
 
     // prints out UUID and time, when sending a GoalState to any of the monitorHosts
     private ArrayList<String> monitorHosts;
@@ -98,8 +98,8 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
             numberOfWarmupsPerChannel = 0;
         }
 
-        if (netwconfigmanagerHost == null || netwconfigmanagerHost.isEmpty()) {
-            netwconfigmanagerHost = globalConfig.netwconfigmanagerHost;
+        if (netwconfigmanagerGrpcServiceUrl == null || netwconfigmanagerGrpcServiceUrl.isEmpty()) {
+            netwconfigmanagerGrpcServiceUrl = globalConfig.netwconfigmanagerGrpcServiceUrl;
         }
 
         this.monitorHosts = monitorHosts;
@@ -232,7 +232,7 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
     }
 
     private String doSendGoalState(Goalstate.GoalStateV2 goalStateV2, CountDownLatch finishLatch, List<String> replies) {
-        String hostIp = netwconfigmanagerHost;
+        String hostIp = netwconfigmanagerGrpcServiceUrl;
         long start = System.currentTimeMillis();
         GrpcChannelStub channelStub = getOrCreateGrpcChannel(hostIp);
         long chan_established = System.currentTimeMillis();

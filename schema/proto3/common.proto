@@ -26,7 +26,7 @@ enum ResourceType {
     SUBNET = 1;
     PORT = 2;
     NEIGHBOR = 3;
-    SECURITYGROUP =4;
+    SECURITYGROUP = 4;
     DHCP = 5;
     ROUTER = 6;
     GATEWAY = 7;

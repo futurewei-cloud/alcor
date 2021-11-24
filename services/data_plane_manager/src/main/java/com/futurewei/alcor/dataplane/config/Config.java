@@ -59,7 +59,7 @@ public class Config {
   public ArrayList<String> monitorHosts;
 
   @Value("${microservices.netwconfigmanager.service.url}")
-  public String netwconfigmanagerHost;
+  public String netwconfigmanagerGrpcServiceUrl;
 
   public static FileWriter TIME_STAMP_FILE;
   public static BufferedWriter TIME_STAMP_WRITER;
