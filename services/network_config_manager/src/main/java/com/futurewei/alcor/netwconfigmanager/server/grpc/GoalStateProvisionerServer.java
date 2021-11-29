@@ -359,14 +359,15 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             /////////////////////////////////////////////////////////////////////////////////////////
 
             // Step 0: Prepare to retrieve client IP address from gRPC transport
-            Span retrieveGsSpan = tracer.buildSpan("alcor-ncm-on-demand-retrieve-gs").asChildOf(span.context()).start();
-            Scope retrieveCscope = tracer.scopeManager().activate(retrieveGsSpan);
+
             String clientIpAddress = this.ipInterceptor.getClientIpAddress();
             logger.log(Level.INFO, "[requestGoalStates] Client IP address = " + clientIpAddress);
 
             // Step 1: Retrieve GoalState from M2/M3 caches and send it down to target ACA
             HashSet<String> failedRequestIds = new HashSet<>();
             try {
+                Span retrieveGsSpan = tracer.buildSpan("alcor-ncm-on-demand-retrieve-gs").asChildOf(span.context()).start();
+                Scope retrieveCscope = tracer.scopeManager().activate(retrieveGsSpan);
                 Map<String, HostGoalState> hostGoalStates = new HashMap<>();
                 for (Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest : request.getStateRequestsList()) {
                     HostGoalState hostGoalState = onDemandService.retrieveGoalState(resourceStateRequest, clientIpAddress);
@@ -394,24 +395,26 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                                 hostGoalState.toString());
                     }
                 }
-
+                retrieveGsSpan.finish();
+                Span sendGsSpan = tracer.buildSpan("alcor-ncm-on-demand-send-gs").asChildOf(span.context()).start();
+                Scope sendCscope = tracer.scopeManager().activate(sendGsSpan);
                 GoalStateClient grpcGoalStateClient = GoalStateClientImpl.getInstance(numberOfGrpcChannelPerHost, numberOfWarmupsPerChannel, monitorHosts);
                 end = System.currentTimeMillis();
                 logger.log(Level.FINE, "requestGoalStates : Pushing GS with UUID: " + state_request_uuid + " at: " + end);
                 grpcGoalStateClient.sendGoalStates(hostGoalStates);
+                sendGsSpan.finish();
                 logger.log(Level.FINE, "[requestGoalStates] From retrieving goalstate to before sending goalstate to host, elapsed Time in milli seconds: "+ (end-start));
             } catch (Exception e) {
                 logger.log(Level.SEVERE, "[requestGoalStates] Retrieve from host fails. IP address = " + clientIpAddress);
                 e.printStackTrace();
             }
-            retrieveGsSpan.finish();
             long endx = System.currentTimeMillis();
             // Step 2: Generate response for each packet based on the on-demand algorithm
             // if the packet is allowed, set HostRequestReply.HostRequestOperationStatus[request_id].OperationStatus = SUCCESS
             //                           generate GS with port related resources (completed at Step 1) and go to Step 3
             // otherwise, set it to FAILURE and go to Step 3
-            Span sendGsSpan = tracer.buildSpan("alcor-ncm-on-demand-send-gs").asChildOf(span.context()).start();
-            Scope sendCscope = tracer.scopeManager().activate(sendGsSpan);
+            Span replyOnDemandSpan = tracer.buildSpan("alcor-ncm-on-demand-reply").asChildOf(span.context()).start();
+            Scope replyCscope = tracer.scopeManager().activate(replyOnDemandSpan);
             int ind = 0;
             Goalstateprovisioner.HostRequestReply.Builder replyBuilder = Goalstateprovisioner.HostRequestReply.newBuilder();
             for (Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest : request.getStateRequestsList()) {
@@ -434,9 +437,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                         .addOperationStatuses(ind++, status)
                         .buildPartial();
             }
-            sendGsSpan.finish();
-            Span replyOnDemandSpan = tracer.buildSpan("alcor-ncm-on-demand-reply").asChildOf(span.context()).start();
-            Scope replyCscope = tracer.scopeManager().activate(replyOnDemandSpan);
+
             Goalstateprovisioner.HostRequestReply reply = replyBuilder.build();
             logger.log(Level.INFO, "requestGoalStates : generate reply " + reply.toString());
 
