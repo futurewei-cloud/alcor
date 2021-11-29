@@ -18,13 +18,19 @@ package com.futurewei.alcor.netwconfigmanager.cache;
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.schema.Port;
+import com.futurewei.alcor.schema.Subnet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
 @Repository
 @ComponentScan(value = "com.futurewei.alcor.common.db")
-public class ResourceStateCache {
+public class ResourceStateCache <K, V>{
     // Map <ResourceId, ResourceState>
     private ICache<String, Object> hostResourceStates;
 
@@ -41,8 +47,18 @@ public class ResourceStateCache {
     }
 
     @DurationStatistics
+    public Map<String, Object> getResourceStates() throws Exception {
+        return this.hostResourceStates.getAll();
+    }
+
+    @DurationStatistics
     public void addResourceState(String resourceId, Object resourceState) throws Exception {
         this.hostResourceStates.put(resourceId, resourceState);
+    }
+
+    @DurationStatistics
+    public void addResourceStates(SortedMap<? extends String, ?> items) throws Exception {
+        this.hostResourceStates.putAll(items);
     }
 
     @DurationStatistics

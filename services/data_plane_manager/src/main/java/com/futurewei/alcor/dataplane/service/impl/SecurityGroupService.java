@@ -234,14 +234,6 @@ public class SecurityGroupService extends ResourceService {
 
             com.futurewei.alcor.schema.SecurityGroup.SecurityGroupState securityGroupState = securityGroupStateBuilder.build();
             unicastGoalState.getGoalStateBuilder().putSecurityGroupStates(securityGroupState.getConfiguration().getId(), securityGroupState);
-
-            Goalstate.ResourceIdType securityGroupResourceIdType = Goalstate.ResourceIdType.newBuilder()
-                    .setType(Common.ResourceType.SECURITYGROUP)
-                    .setId(securityGroupState.getConfiguration().getId())
-                    .build();
-            Goalstate.HostResources.Builder hostResourceBuilder = Goalstate.HostResources.newBuilder();
-            hostResourceBuilder.addResources(securityGroupResourceIdType);
-            unicastGoalState.getGoalStateBuilder().putHostResources(unicastGoalState.getHostIp(), hostResourceBuilder.build());
         }
     }
 }
