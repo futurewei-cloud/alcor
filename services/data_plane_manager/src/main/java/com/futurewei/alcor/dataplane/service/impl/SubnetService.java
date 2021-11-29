@@ -283,16 +283,6 @@ public class SubnetService extends ResourceService {
             Subnet.SubnetState subnetState = subnetStateBuilder.build();
             unicastGoalState.getGoalStateBuilder().putSubnetStates(subnetState.getConfiguration().getId(), subnetState);
             multicastGoalState.getGoalStateBuilder().putSubnetStates(subnetState.getConfiguration().getId(), subnetState);
-
-            Goalstate.ResourceIdType subnetResourceIdType = Goalstate.ResourceIdType.newBuilder()
-                    .setType(Common.ResourceType.SUBNET)
-                    .setId(subnetState.getConfiguration().getId())
-                    .build();
-            Goalstate.HostResources.Builder hostResourceBuilder = Goalstate.HostResources.newBuilder();
-            hostResourceBuilder.addResources(subnetResourceIdType);
-            unicastGoalState.getGoalStateBuilder().putHostResources(unicastGoalState.getHostIp(), hostResourceBuilder.build());
-            // TODO: how to configure multicast GoalState id
-            multicastGoalState.getGoalStateBuilder().putHostResources(unicastGoalState.getHostIp(), hostResourceBuilder.build());
         }
     }
 }

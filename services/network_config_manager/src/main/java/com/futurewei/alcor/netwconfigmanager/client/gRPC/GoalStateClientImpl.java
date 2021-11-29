@@ -21,10 +21,10 @@ import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.netwconfigmanager.client.GoalStateClient;
 import com.futurewei.alcor.netwconfigmanager.config.Config;
 import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
+import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.schema.GoalStateProvisionerGrpc;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
-
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -33,7 +33,6 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.Level;
@@ -102,35 +101,21 @@ public class GoalStateClientImpl implements GoalStateClient {
     @Override
     @DurationStatistics
     public List<String> sendGoalStates(Map<String, HostGoalState> hostGoalStates) throws Exception {
-        List<Future<HostGoalState>>
-                futures = new ArrayList<>(hostGoalStates.size());
-
+        final CountDownLatch finishLatch = new CountDownLatch(hostGoalStates.values().size());
+        logger.log(Level.INFO, "Host goal states size: " + hostGoalStates.values().size());
+        List<String> replies = new ArrayList<>();
         for (HostGoalState hostGoalState : hostGoalStates.values()) {
-            Future<HostGoalState> future =
-                    executor.submit(() -> {
-                        try {
-                            doSendGoalState(hostGoalState);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                            return hostGoalState;
-                        }
-
-                        return new HostGoalState();
-                    });
-
-            futures.add(future);
+            doSendGoalState(hostGoalState, finishLatch, replies);
         }
 
-        //Handle all failed hosts
-        return futures.parallelStream().filter(Objects::nonNull).map(future -> {
-            try {
-                return future.get().getHostIp();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
-
-            return null;
-        }).collect(Collectors.toList());
+        if (!finishLatch.await(1, TimeUnit.MINUTES)) {
+            logger.log(Level.WARNING, "Send goal states can not finish within 1 minutes");
+            return Arrays.asList("Send goal states can not finish within 1 minutes");
+        }
+        if (replies.size() > 0) {
+            return replies;
+        }
+        return new ArrayList<>();
     }
 
     private GrpcChannelStub getOrCreateGrpcChannel(String hostIp) {
@@ -173,11 +158,13 @@ public class GoalStateClientImpl implements GoalStateClient {
             @Override
             public void onNext(Goalstateprovisioner.GoalStateOperationReply reply) {
                 logger.log(Level.INFO, "Receive warmup response from ACA@" + hostIp + " | " + reply.toString());
+
             }
 
             @Override
             public void onError(Throwable t) {
                 logger.log(Level.WARNING, "Receive warmup error from ACA@" + hostIp + " |  " + t.getMessage());
+
             }
 
             @Override
@@ -215,8 +202,7 @@ public class GoalStateClientImpl implements GoalStateClient {
         return new GrpcChannelStub(channel, asyncStub);
     }
 
-    private void doSendGoalState(HostGoalState hostGoalState) throws InterruptedException {
-
+    private void doSendGoalState(HostGoalState hostGoalState, CountDownLatch finishLatch, List<String> replies) throws InterruptedException {
         String hostIp = hostGoalState.getHostIp();
         logger.log(Level.FINE, "Setting up a channel to ACA on: " + hostIp);
         long start = System.currentTimeMillis();
@@ -235,6 +221,12 @@ public class GoalStateClientImpl implements GoalStateClient {
             public void onNext(Goalstateprovisioner.GoalStateOperationReply reply) {
                 logger.log(Level.INFO, "Receive response from ACA@" + hostIp + " | " + reply.toString());
                 result.put(hostIp, reply.getOperationStatusesList());
+                if (reply.getOperationStatusesList().stream().filter(item -> item.getOperationStatus().equals(Common.OperationStatus.FAILURE)).collect(Collectors.toList()).size() > 0) {
+                    replies.add(reply.toString());
+                    while (finishLatch.getCount() > 0) {
+                        finishLatch.countDown();
+                    }
+                }
             }
 
             @Override
@@ -245,6 +237,7 @@ public class GoalStateClientImpl implements GoalStateClient {
             @Override
             public void onCompleted() {
                 logger.log(Level.INFO, "Complete receiving message from ACA@" + hostIp);
+                finishLatch.countDown();
             }
         };
 
@@ -271,7 +264,7 @@ public class GoalStateClientImpl implements GoalStateClient {
         logger.log(Level.INFO, "Sending GS to Host " + hostIp + " is completed");
 
         // comment out onCompleted so that the same channel/stub and keep sending next time.
-        //        requestObserver.onCompleted();
+        requestObserver.onCompleted();
 
 //        shutdown(channel);
     }
