@@ -53,6 +53,8 @@ spec:
   replicas: 1
   template:
     metadata:
+      annotations:
+        linkerd.io/inject: enabled
       labels:
         app: netwconfigmanager
     spec:
@@ -69,7 +71,8 @@ spec:
           imagePullPolicy: IfNotPresent
           command: ["java", "-jar", "/app/AlcorNetworkConfigManager-0.1.0.jar", "--spring.config.location=/etc/ncm/application.properties"]
           ports:
-            - containerPort: 8080
+            - containerPort: 50001
+              protocol: TCP
           volumeMounts:
             - name: ncm-volume
               mountPath: /etc/ncm
@@ -84,10 +87,10 @@ metadata:
   labels:
     name: netwconfigmanager-service
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
-    - port: 9014
-      targetPort: 8080
-      nodePort: 30014
+    - port: 50001
+      protocol: TCP
+      targetPort: 50001
   selector:
     app: netwconfigmanager
