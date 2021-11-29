@@ -164,6 +164,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
         Tracer t = TracerResolver.resolveTracer();
         this.tracer = t;
+        GlobalTracer.registerIfAbsent(this.tracer);
         logger.log(Level.INFO, "Got this resolved tracer: " + t.toString());
         TracingServerInterceptor serverInterceptor = TracingServerInterceptor
                 .newBuilder().withTracer(this.tracer)

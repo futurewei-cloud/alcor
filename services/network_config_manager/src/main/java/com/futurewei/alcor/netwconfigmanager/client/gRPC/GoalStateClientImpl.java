@@ -351,6 +351,7 @@ public class GoalStateClientImpl implements GoalStateClient {
 
     @DurationStatistics
     private void doSendGoalState(HostGoalState hostGoalState) throws InterruptedException {
+//        Span pSpan = this.tracer.activeSpan();
 
         String hostIp = hostGoalState.getHostIp();
         logger.log(Level.FINE, "Setting up a channel to ACA on: " + hostIp);
