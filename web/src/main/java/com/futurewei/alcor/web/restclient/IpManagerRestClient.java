@@ -24,6 +24,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.retry.annotation.Retryable;
 
 import java.util.List;
 
@@ -82,6 +83,7 @@ public class IpManagerRestClient extends AbstractRestClient {
     }
 
     @DurationStatistics
+    @Retryable
     public IpAddrRequest allocateIpAddress(IpAddrRequest ipAddrRequest) throws Exception {
         HttpEntity<IpAddrRequest> request = new HttpEntity<>(ipAddrRequest);
         IpAddrRequest result = restTemplate.postForObject(ipManagerUrl, request, IpAddrRequest.class);
