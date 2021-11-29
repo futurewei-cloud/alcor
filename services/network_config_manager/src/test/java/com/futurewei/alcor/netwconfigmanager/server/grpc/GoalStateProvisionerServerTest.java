@@ -60,6 +60,8 @@ public class GoalStateProvisionerServerTest {
 
     @Autowired
     private NetworkConfigServer networkConfigServer;
+    @Autowired
+    private GoalStateClient grpcGoalStateClient;
 
     private ManagedChannel channel;
     private GoalStateProvisionerGrpc.GoalStateProvisionerBlockingStub blockingStub;
@@ -93,7 +95,7 @@ public class GoalStateProvisionerServerTest {
                 hostGoalStates.get(DemoUtil.aca_node_one_ip).getGoalState().toString());
 
         try {
-            GoalStateClient grpcGoalStateClient = new GoalStateClientImpl(1,1, new ArrayList<>());
+            grpcGoalStateClient.setArgs(1,1, new ArrayList<>());
             grpcGoalStateClient.sendGoalStates(hostGoalStates);
         } catch (Exception e) {
             e.printStackTrace();

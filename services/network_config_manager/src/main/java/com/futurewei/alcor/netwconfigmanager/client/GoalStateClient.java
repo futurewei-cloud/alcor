@@ -18,10 +18,12 @@ package com.futurewei.alcor.netwconfigmanager.client;
 import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @Component
 public interface GoalStateClient {
     List<String> sendGoalStates(Map<String, HostGoalState> hostGoalStates) throws Exception;
+    void setArgs(int numberOfGrpcChannelPerHost, int numberOfWarmupsPerChannel, ArrayList<String> monitorHosts);
 }

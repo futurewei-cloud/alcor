@@ -17,6 +17,7 @@ package com.futurewei.alcor.netwconfigmanager;
 
 import com.futurewei.alcor.common.tracer.TracerConfiguration;
 import com.futurewei.alcor.netwconfigmanager.server.NetworkConfigServer;
+import com.futurewei.alcor.netwconfigmanager.server.grpc.GoalStateProvisionerServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -27,7 +28,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import javax.annotation.PostConstruct;
 
 @SpringBootApplication
-@ComponentScan(value = "com.futurewei.alcor.netwconfigmanager.server")
 @EnableAsync
 @Import(TracerConfiguration.class)
 public class NetworkConfigManagerApplication {
@@ -37,12 +37,32 @@ public class NetworkConfigManagerApplication {
 
     @PostConstruct
     public void instantiateGrpcServer(){
+        /*
+         * This code is left in for reference only and will be removed
+         * in a future PR very soon.
+         * This way of starting the gRPC channel breaks the RESP end point.
+         * The new method, staring it in it's thread along with a few
+         * other changes, autowiring the grpc client instance,
+         * using constructor injections and spring boot ensure that
+         * REST and gRPC can co-exist.
+         *
         try {
             networkConfigServer.start();
             networkConfigServer.blockUntilShutdown();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        */
+
+        Thread server = new Thread(() -> {
+            try {
+                networkConfigServer.start();
+                networkConfigServer.blockUntilShutdown();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        server.start();
     }
 
     public static void main(String[] args) {
