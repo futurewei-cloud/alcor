@@ -233,7 +233,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             return new StreamObserver<Goalstate.GoalStateV2>() {
                 @Override
                 public void onNext(Goalstate.GoalStateV2 value) {
-                    Span pSpan = null;//OpenTracingContextKey.activeSpan();//tracer.activeSpan();
+                    Span pSpan = tracer.activeSpan();//OpenTracingContextKey.activeSpan();//;
                     Span span;
 
                     if(pSpan != null){
@@ -316,7 +316,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         @DurationStatistics
         public void requestGoalStates(Goalstateprovisioner.HostRequest request,
                                       StreamObserver<Goalstateprovisioner.HostRequestReply> responseObserver) {
-            Span pSpan = null;//tracer.activeSpan();//OpenTracingContextKey.activeSpan();
+            Span pSpan = tracer.activeSpan();//OpenTracingContextKey.activeSpan();
 
             Span span;
 
