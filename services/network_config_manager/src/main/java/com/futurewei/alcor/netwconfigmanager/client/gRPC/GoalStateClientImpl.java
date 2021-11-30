@@ -41,8 +41,7 @@ import java.util.stream.Collectors;
 @Service("grpcGoalStateClient")
 public class GoalStateClientImpl implements GoalStateClient {
 
-    @Autowired
-    private static GoalStateClientImpl instance;
+    private static GoalStateClientImpl instance = null;
 
     private static final Logger logger = LoggerFactory.getLogger();
 
@@ -63,6 +62,13 @@ public class GoalStateClientImpl implements GoalStateClient {
 
     private ConcurrentHashMap<String, ArrayList<GrpcChannelStub>> hostIpGrpcChannelStubMap;
 
+    public static GoalStateClientImpl getInstance(int numberOfGrpcChannelPerHost, int numberOfWarmupsPerChannel, ArrayList<String> monitorHosts) {
+        if (instance == null) {
+            instance = new GoalStateClientImpl(numberOfGrpcChannelPerHost, numberOfWarmupsPerChannel, monitorHosts);
+        }
+        return instance;
+    }
+
 
     public void setArgs(int numberOfGrpcChannelPerHost, int numberOfWarmupsPerChannel, ArrayList<String> monitorHosts) {
         // each host should have at least 1 gRPC channel
@@ -79,6 +85,7 @@ public class GoalStateClientImpl implements GoalStateClient {
 
 
     public GoalStateClientImpl(@Value("1") int numberOfGrpcChannelPerHost, @Value("1") int numberOfWarmupsPerChannel, @Value("") ArrayList<String> monitorHosts) {
+
         setArgs(numberOfGrpcChannelPerHost, numberOfWarmupsPerChannel, monitorHosts);
         logger.log(Level.FINE, "Printing out all monitorHosts");
         for(String host : this.monitorHosts){
@@ -96,6 +103,7 @@ public class GoalStateClientImpl implements GoalStateClient {
         //TODO: Setup a connection pool. one ACA, one client.
         this.hostIpGrpcChannelStubMap = new ConcurrentHashMap();
         logger.log(Level.FINE, "This instance has "+ numberOfGrpcChannelPerHost+" channels, and "+ numberOfWarmupsPerChannel+" warmups");
+
     }
 
     @Override

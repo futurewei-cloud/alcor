@@ -42,8 +42,7 @@ public class NetworkConfigManagerApplication {
          * in a future PR very soon.
          * This way of starting the gRPC channel breaks the RESP end point.
          * The new method, staring it in it's thread along with a few
-         * other changes, autowiring the grpc client instance,
-         * using constructor injections and spring boot ensure that
+         * other changes, using constructor injections and spring boot ensure that
          * REST and gRPC can co-exist.
          *
         try {
