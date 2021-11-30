@@ -144,8 +144,8 @@ public class GoalStateClientImpl implements GoalStateClient {
                 }
                 logger.log(Level.INFO, "[sendGoalStates] Got parent span: "+pSpan.toString());
                 logger.log(Level.INFO, "[sendGoalStates] Built child span: "+span.toString());
-
-                try (Scope cscope = this.tracer.scopeManager().activate(span)) {
+                Scope cscope = this.tracer.scopeManager().activate(span);
+                try  {
                     doSendGoalState(hostGoalState);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
