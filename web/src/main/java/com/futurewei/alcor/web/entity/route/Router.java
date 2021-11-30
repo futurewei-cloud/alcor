@@ -44,8 +44,8 @@ public class Router extends CustomerResource {
     private String vpcDefaultRouteTableId;
 
     // store vpc_id
-    @QuerySqlField(index = true)
     @JsonProperty("owner")
+    @QuerySqlField(index = true)
     private String owner;
 
     // store vpc_id

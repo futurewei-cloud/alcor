@@ -33,17 +33,18 @@ public class NodeInfo implements Serializable {
     private static final Logger logger = LoggerFactory.getLogger(NodeInfo.class);
 
     @JsonProperty("node_id")
-    // @QuerySqlField(index = true)
     private String id;
 
     @JsonProperty("node_name")
-    // @QuerySqlField(index = true)
+    @QuerySqlField(index = true)
     private String name;
 
     @JsonProperty("local_ip")
+    @QuerySqlField(index = true)
     private String localIp;
 
     @JsonProperty("mac_address")
+    @QuerySqlField(index = true)
     private String macAddress;
 
     @JsonProperty("veth")
@@ -56,6 +57,7 @@ public class NodeInfo implements Serializable {
     private String hostDvrMac;
 
     @JsonProperty("ncm_id")
+    @QuerySqlField(index = true)
     private String ncm_id;
 
     // doesn't come in the Json version
