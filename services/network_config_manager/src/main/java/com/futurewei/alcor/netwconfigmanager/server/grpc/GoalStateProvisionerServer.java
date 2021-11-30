@@ -248,7 +248,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
                     logger.log(Level.INFO, "pushGoalStatesStream : receiving GS V2 message " + value.toString());
                     long start = System.currentTimeMillis();
-                    Span storeGsSpan = tracer.buildSpan("alcor-ncm-server-store-gs").asChildOf(pSpan.context()).start();
+                    Span storeGsSpan = tracer.buildSpan("alcor-ncm-server-store-gs").asChildOf(span.context()).start();
                     Scope storageCscope = tracer.scopeManager().activate(storeGsSpan);
                     //prepare GS message based on host
                     Map<String, HostGoalState> hostGoalStates = NetworkConfigManagerUtil.splitClusterToHostGoalState(value);
@@ -268,7 +268,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     storeGsSpan.finish();
                     long end = System.currentTimeMillis();
                     logger.log(Level.FINE, "pushGoalStatesStream : finished putting GS into cache, elapsed time in milliseconds: " + + (end-start));
-                    Span filterSendGsSpan = tracer.buildSpan("alcor-ncm-server-filter-send-gs").asChildOf(pSpan.context()).start();
+                    Span filterSendGsSpan = tracer.buildSpan("alcor-ncm-server-filter-send-gs").asChildOf(span.context()).start();
                     Scope filterCscope = tracer.scopeManager().activate(filterSendGsSpan);
 
                     // filter neighbor/SG update, and send them down to target ACA
@@ -282,7 +282,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                         e.printStackTrace();
                     }
                     filterSendGsSpan.finish();
-                    Span replyDPMSpan = tracer.buildSpan("alcor-ncm-server-reply-dpm").asChildOf(pSpan.context()).start();
+                    Span replyDPMSpan = tracer.buildSpan("alcor-ncm-server-reply-dpm").asChildOf(span.context()).start();
                     Scope replyCscope = tracer.scopeManager().activate(replyDPMSpan);
                     //consolidate response from ACA and send response to DPM
                     Goalstateprovisioner.GoalStateOperationReply reply =
