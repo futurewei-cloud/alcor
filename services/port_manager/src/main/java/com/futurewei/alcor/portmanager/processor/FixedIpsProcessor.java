@@ -15,6 +15,7 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.portmanager.processor;
 
+import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.portmanager.entity.SubnetRoute;
 import com.futurewei.alcor.portmanager.exception.AllocateIpAddrException;
 import com.futurewei.alcor.portmanager.exception.UpdatePortIpException;

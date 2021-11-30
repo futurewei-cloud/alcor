@@ -120,6 +120,31 @@ public class SubnetService extends ResourceService {
         }
     }
 
+    public void buildSubnetState (String subnetId, UnicastGoalStateV2 unicastGoalState, MulticastGoalStateV2 multicastGoalState) throws Exception
+    {
+        InternalSubnetPorts subnetEntity = subnetPortsCache.getSubnetPorts(subnetId);
+        if (subnetEntity != null) {
+            if (unicastGoalState.getGoalStateBuilder().getSubnetStatesMap().entrySet().stream()
+                    .filter(e -> e.getKey().equals(subnetEntity.getSubnetId()))
+                    .findFirst().orElse(null) == null)
+            {
+                buildSubnetState(
+                        subnetEntity.getSubnetId(),
+                        subnetEntity.getVpcId(),
+                        subnetEntity.getName(),
+                        subnetEntity.getCidr(),
+                        subnetEntity.getTunnelId(),
+                        subnetEntity.getGatewayPortIp(),
+                        subnetEntity.getGatewayPortMac(),
+                        subnetEntity.getDhcpEnable(),
+                        null,
+                        unicastGoalState,
+                        multicastGoalState
+                );
+            }
+        }
+    }
+
     private void buildSubnetState(String id,
                                   String vpcId,
                                   String name,
@@ -161,6 +186,49 @@ public class SubnetService extends ResourceService {
         subnetStateBuilder.setConfiguration(subnetConfigBuilder.build());
         unicastGoalState.getGoalStateBuilder().addSubnetStates(subnetStateBuilder.build());
         multicastGoalState.getGoalStateBuilder().addSubnetStates(subnetStateBuilder.build());
+    }
+
+    private void buildSubnetState(String id,
+                                  String vpcId,
+                                  String name,
+                                  String cidr,
+                                  long tunnelId,
+                                  String gatewayIp,
+                                  String gatewayMac,
+                                  Boolean enableDhcp,
+                                  String availabilityZone,
+                                  UnicastGoalStateV2 unicastGoalState,
+                                  MulticastGoalStateV2 multicastGoalState)
+    {
+        Subnet.SubnetConfiguration.Builder subnetConfigBuilder = Subnet.SubnetConfiguration.newBuilder();
+        subnetConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
+        subnetConfigBuilder.setId(id);
+        subnetConfigBuilder.setNetworkType(Common.NetworkType.VXLAN);
+        subnetConfigBuilder.setVpcId(vpcId);
+        subnetConfigBuilder.setName(name);
+        subnetConfigBuilder.setCidr(cidr);
+        subnetConfigBuilder.setTunnelId(tunnelId);
+
+        Subnet.SubnetConfiguration.Gateway.Builder gatewayBuilder = Subnet.SubnetConfiguration.Gateway.newBuilder();
+        gatewayBuilder.setIpAddress(gatewayIp);
+        gatewayBuilder.setMacAddress(gatewayMac);
+        subnetConfigBuilder.setGateway(gatewayBuilder.build());
+
+        if (enableDhcp != null) {
+            subnetConfigBuilder.setDhcpEnable(enableDhcp);
+        }
+
+        // TODO: need to set DNS based on latest contract
+
+        if (availabilityZone != null) {
+            subnetConfigBuilder.setAvailabilityZone(availabilityZone);
+        }
+
+        Subnet.SubnetState.Builder subnetStateBuilder = Subnet.SubnetState.newBuilder();
+        subnetStateBuilder.setOperationType(Common.OperationType.INFO);
+        subnetStateBuilder.setConfiguration(subnetConfigBuilder.build());
+        unicastGoalState.getGoalStateBuilder().putSubnetStates(id, subnetStateBuilder.build());
+        multicastGoalState.getGoalStateBuilder().putSubnetStates(id, subnetStateBuilder.build());
     }
 
     public void buildSubnetStates(NetworkConfiguration networkConfig, UnicastGoalStateV2 unicastGoalState, MulticastGoalStateV2 multicastGoalState) throws Exception {
@@ -215,16 +283,6 @@ public class SubnetService extends ResourceService {
             Subnet.SubnetState subnetState = subnetStateBuilder.build();
             unicastGoalState.getGoalStateBuilder().putSubnetStates(subnetState.getConfiguration().getId(), subnetState);
             multicastGoalState.getGoalStateBuilder().putSubnetStates(subnetState.getConfiguration().getId(), subnetState);
-
-            Goalstate.ResourceIdType subnetResourceIdType = Goalstate.ResourceIdType.newBuilder()
-                    .setType(Common.ResourceType.SUBNET)
-                    .setId(subnetState.getConfiguration().getId())
-                    .build();
-            Goalstate.HostResources.Builder hostResourceBuilder = Goalstate.HostResources.newBuilder();
-            hostResourceBuilder.addResources(subnetResourceIdType);
-            unicastGoalState.getGoalStateBuilder().putHostResources(unicastGoalState.getHostIp(), hostResourceBuilder.build());
-            // TODO: how to configure multicast GoalState id
-            multicastGoalState.getGoalStateBuilder().putHostResources(unicastGoalState.getHostIp(), hostResourceBuilder.build());
         }
     }
 }

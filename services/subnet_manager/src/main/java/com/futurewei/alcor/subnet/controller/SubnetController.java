@@ -426,10 +426,10 @@ public class SubnetController {
             }
 
             // update subnet routing rule in route manager
+
             if (hostRoutes != null && hostRoutes.size() > 0) {
                 this.subnetService.updateSubnetRoutingRuleInRM(projectId, subnetId, subnetEntity);
             }
-
 
             this.subnetDatabaseService.addSubnet(subnetEntity);
             subnetEntity = this.subnetDatabaseService.getBySubnetId(subnetId);
@@ -508,7 +508,7 @@ public class SubnetController {
             this.subnetService.deleteSubnetIdInVpc(subnetId, projectId, subnetEntity.getVpcId());
 
             // delete ip range in Private IP Manager
-            this.subnetService.deleteIPRangeInPIM(rangeId);
+            this.subnetService.deleteIPRangeInPIM(rangeId, subnetEntity.getVpcId());
 
             this.subnetDatabaseService.deleteSubnet(subnetId);
 

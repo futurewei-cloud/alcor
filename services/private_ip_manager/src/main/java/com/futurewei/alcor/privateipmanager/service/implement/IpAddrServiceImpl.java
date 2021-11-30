@@ -150,8 +150,9 @@ public class IpAddrServiceImpl implements IpAddrService {
     @DurationStatistics
     public void releaseIpAddrBulk(IpAddrRequestBulk requestBulk) throws Exception {
         LOG.debug("Release ip address bulk, requestBulk: {}", requestBulk);
-
-        Map<String, List<String>> rangeToIpAddrList = new HashMap<>();
+        // Using TreeMap make map key ordered in transaction.
+        // Not sorted key could lock db cache.
+        SortedMap<String, List<String>> rangeToIpAddrList = new TreeMap<>();
 
         for (IpAddrRequest request: requestBulk.getIpRequests()) {
             List<String> ipAddrList = rangeToIpAddrList.get(request.getRangeId());
@@ -230,10 +231,10 @@ public class IpAddrServiceImpl implements IpAddrService {
 
     @Override
     @DurationStatistics
-    public void deleteIpAddrRange(String rangeId) throws Exception {
+    public void deleteIpAddrRange(String rangeId, String vpcId) throws Exception {
         LOG.debug("Delete ip address range, rangeId: {}", rangeId);
 
-        ipAddrRangeRepo.deleteIpAddrRange(rangeId);
+        ipAddrRangeRepo.deleteIpAddrRange(rangeId, vpcId);
 
         LOG.info("Delete ip address range success, rangeId: {}", rangeId);
     }
@@ -293,7 +294,7 @@ public class IpAddrServiceImpl implements IpAddrService {
     @DurationStatistics
     public List<IpAddrRequest> updateIpAddr(IpAddrUpdateRequest request) throws Exception {
 
-        Map<String, List<String>> rangeToIpAddrList = null;
+        SortedMap<String, List<String>> rangeToIpAddrList = null;
 
         Map<String, List<IpAddrRequest>> rangeRequests = null;
         Map<String, List<IpAddrRequest>> vpcIpv4Requests = null;
@@ -302,7 +303,7 @@ public class IpAddrServiceImpl implements IpAddrService {
         if (request.getOldIpAddrRequests().size()>0){
             if (request.getOldIpAddrRequests().size()>1){
                 LOG.debug("Release ip address bulk, requestBulk: {}", request.getOldIpAddrRequests());
-                rangeToIpAddrList = new HashMap<>();
+                rangeToIpAddrList = new TreeMap<>();
                 for (IpAddrRequest ipAddrRequest: request.getOldIpAddrRequests()) {
                     List<String> ipAddrList = rangeToIpAddrList.computeIfAbsent(ipAddrRequest.getRangeId(), k -> new ArrayList<>());
                     ipAddrList.add(ipAddrRequest.getIp());

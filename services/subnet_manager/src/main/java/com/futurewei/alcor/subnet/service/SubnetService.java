@@ -93,5 +93,5 @@ public interface SubnetService {
     public PortEntity constructPortEntity (String portId, String vpcId, String subnetId, String gatewayIP, String deviceOwner);
 
     // delete ip range in Private IP Manager
-    public void deleteIPRangeInPIM (String rangeId);
+    public void deleteIPRangeInPIM (String rangeId, String vpcId);
 }
