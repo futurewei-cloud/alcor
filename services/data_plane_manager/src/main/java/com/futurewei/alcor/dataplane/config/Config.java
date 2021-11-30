@@ -33,7 +33,10 @@ public class Config {
   private String ovs;
 
   @Value("${dataplane.grpc.port}")
-  public int port ;
+  public int port;
+
+  @Value("50002")
+  public int topicGrpcPort;
 
   @Value("${grpc.min-threads: 100}")
   public int grpcMinThreads;
