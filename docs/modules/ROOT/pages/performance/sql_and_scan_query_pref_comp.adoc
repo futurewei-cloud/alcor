@@ -1,0 +1,48 @@
+= SQL Fields Query and Scan Query Performance Comparision
+Prasad Kommoju <pkommoju@futurewei.com>
+2021-11-30
+:toc: right
+:imagesdir: ../../images
+
+
+== Introduction
+In Alcor there are some cases where queries are made on the cases using a field other than the key. Since Ignite is the KV database, these types of queries will require full scan (linear search) of the cache in question and this introduces big latencies as the number of entries in the cache grows.
+
+Ignite supports secondary keys, called QuerySqlFields which will use a tradional B+Tree indexes which can answer point lookup and also range, minumum, maximum, greater than, and less than queries mush faster.
+
+This report is about comparing the performance of the queries on non-key fields using Ignite's SCAN query and through SQL queries.
+
+== Test setup
+Operations are on NodeInfo object. Benchmark tool, DPM, NCM and NMM run on 10.213.43.161.
+Ignite is ru on 10.213.43.163 and 10.213.43.164.
+Number of entries in both SQL and Scan are 1M, 1000 entries are queried on.
+
+The first query always takes way too much time compared to the subsequent
+ones and hence ignored when computing the statistics.
+
+All times in micro seconds.
+
+SQL_QUERY_EXEC time represents time required to execute the SQLFieldsQuery
+(cache.query() API).
+
+SQL_CURSOR_FETCH time represents time required to extract the result from
+result set (cursor, cursor.get() API).
+
+SCAN_QUERY_EXEC time represents time required to execute (QueryCursor
+instantiation, cache.withKeepBinary().query(...)
+
+SCAN_CURSOR_FETCH time represents time required to extract the result from
+result set (cursor, cursor.getAll() API).
+
+== Results
+|===
+|OPERATION TYPE|             MIN|          MAX|          AVG| MEDIAN|       MODE|         P99
+|SQL_QUERY_EXEC|             1.0000|      16.0000|       1.8739| 1.0000|       1.0000|       1.0000
+|SQL_CURSOR_FETCH|           0.0000|       1.0000|       0.6717|   1.0000|       1.0000|       0.0000
+|SCAN_QUERY_EXEC|       530182.0000|  785735.0000|  561550.7678|  552705.0000|  543704.0000|  531308.3565
+|SCAN_CURSOR_FETCH|          0.0000 |      8.0000 |       0.1411|       0.0000|       0.0000|       0.0000
+|===
+
+== Plot of the results
+image::sql_and_scan_query_perf_comp.png[]
+

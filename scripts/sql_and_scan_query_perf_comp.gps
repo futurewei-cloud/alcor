@@ -1,0 +1,21 @@
+set terminal png truecolor enhanced size 700, 450
+set output 'sql_and_scan_query_perf_comp.png'
+set style fill   solid 1.00 border lt -1
+set key fixed right top vertical Right noreverse noenhanced autotitle nobox
+set style histogram clustered gap 1 title textcolor lt -1
+set datafile missing '-'
+# set datafile separator "|"
+set grid
+show grid
+set style data histograms
+set xtics  norangelimit rotate by -45 noenhanced
+# set xtics   ()
+show xtics
+set title "Plot of SqlFieldsQiery and Scan query performance\n\
+Input 1M entries, 1000 queries (excluding 1 outlier in SQL data)"
+set xlabel "Operation"
+set ylabel "Time in Micro seconds"
+set logscale y
+NO_ANIMATION=1
+
+plot newhistogram "", 'sql_and_scan_query_perf_comp.csv' using 2:xtic(1) ti "min", '' u 3:xtic(1) ti "max", '' u 4:xtic(1) ti "avg", '' u 5:xtic(1) ti "median", '' u 6:xtic(1) ti "P95", '' u 7:xtic(1) ti "P99"
