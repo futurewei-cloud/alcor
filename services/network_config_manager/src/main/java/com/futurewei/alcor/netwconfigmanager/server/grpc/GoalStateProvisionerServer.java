@@ -316,7 +316,8 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         @DurationStatistics
         public void requestGoalStates(Goalstateprovisioner.HostRequest request,
                                       StreamObserver<Goalstateprovisioner.HostRequestReply> responseObserver) {
-            Span pSpan = OpenTracingContextKey.activeSpan();//tracer.activeSpan();
+            Span pSpan = tracer.activeSpan();//OpenTracingContextKey.activeSpan();
+
             Span span;
 
             if(pSpan != null){
