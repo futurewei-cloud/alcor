@@ -318,13 +318,13 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                                       StreamObserver<Goalstateprovisioner.HostRequestReply> responseObserver) {
             Span pSpan = tracer.activeSpan();//OpenTracingContextKey.activeSpan();
 
-            Span span;
+            Span span = pSpan;
 
-            if(pSpan != null){
-                span = tracer.buildSpan("alcor-ncm-on-demand").asChildOf(pSpan.context()).start();
-            }else{
-                span = tracer.buildSpan("alcor-ncm-on-demand").start();
-            }
+//            if(pSpan != null){
+//                span = tracer.buildSpan("alcor-ncm-on-demand").asChildOf(pSpan.context()).start();
+//            }else{
+//                span = tracer.buildSpan("alcor-ncm-on-demand").start();
+//            }
             logger.log(Level.INFO, "[requestGoalStates] Got parent span: "+ (null == pSpan? "null" : pSpan.toString()));
             logger.log(Level.INFO, "[requestGoalStates] Built child span: "+span.toString());
 
