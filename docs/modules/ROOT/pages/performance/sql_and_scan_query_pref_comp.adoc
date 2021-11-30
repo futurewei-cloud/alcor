@@ -13,8 +13,7 @@ Ignite supports secondary keys, called QuerySqlFields which will use a tradional
 This report is about comparing the performance of the queries on non-key fields using Ignite's SCAN query and through SQL queries.
 
 == Test setup
-Operations are on NodeInfo object. Benchmark tool, DPM, NCM and NMM run on 10.213.43.161.
-Ignite is ru on 10.213.43.163 and 10.213.43.164.
+Operations are on NodeInfo object. Benchmark tool, DPM, NCM and NMM run on the same physical machine in the lab. Ignite is run on two different physical machines in the lab (partitioned).
 Number of entries in both SQL and Scan are 1M, 1000 entries are queried on.
 
 The first query always takes way too much time compared to the subsequent
