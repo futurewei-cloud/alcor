@@ -149,21 +149,15 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     logger.log(Level.INFO, "pushGoalStatesStream : receiving GS V2 message " + value.toString());
                     long start = System.currentTimeMillis();
 
-                    //prepare GS message based on host
-                    Map<String, HostGoalState> hostGoalStates = NetworkConfigManagerUtil.splitClusterToHostGoalState(value);
-
                     //store the goal state in cache
-                    Set<String> processedResourceIds = new HashSet<>();
-                    for (Map.Entry<String, HostGoalState> entry : hostGoalStates.entrySet()) {
-                        String hostId = entry.getKey();
-                        HostGoalState hostGoalState = entry.getValue();
-
-                        try {
-                            goalStatePersistenceService.updateGoalState(hostId, hostGoalState);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                    Map<String, HostGoalState> hostGoalStates = new HashMap<>();
+                    try {
+                        hostGoalStates = goalStatePersistenceService.updateGoalStates(value);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        responseObserver.onError(e);
                     }
+                    Set<String> processedResourceIds = new HashSet<>();
                     long end = System.currentTimeMillis();
                     logger.log(Level.FINE, "pushGoalStatesStream : finished putting GS into cache, elapsed time in milliseconds: " + + (end-start));
                     // filter neighbor/SG update, and send them down to target ACA
@@ -172,9 +166,11 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
                         GoalStateClient grpcGoalStateClient =  GoalStateClientImpl.getInstance(numberOfGrpcChannelPerHost, numberOfWarmupsPerChannel, monitorHosts);
 
-                        grpcGoalStateClient.sendGoalStates(filteredGoalStates);
+                        //TODO use filteredGoalStates
+                        grpcGoalStateClient.sendGoalStates(hostGoalStates);
                     } catch (Exception e) {
                         e.printStackTrace();
+                        responseObserver.onError(e);
                     }
 
                     //consolidate response from ACA and send response to DPM
@@ -182,7 +178,6 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                             Goalstateprovisioner.GoalStateOperationReply.newBuilder()
                                     .setFormatVersion(100)
                                     .build();
-                    responseObserver.onNext(reply);
                     long end1 = System.currentTimeMillis();
                     logger.log(Level.FINE, "pushGoalStatesStream : Replied to DPM, from received to replied, elapsed time in milliseconds: " + + (end1-end));
                 }
@@ -191,7 +186,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 public void onError(Throwable t) {
                     t.printStackTrace();
                     logger.log(Level.WARNING, "*** pushGoalStatesStream cancelled");
-                    responseObserver.onCompleted();
+                    responseObserver.onError(t);
                 }
 
                 @Override

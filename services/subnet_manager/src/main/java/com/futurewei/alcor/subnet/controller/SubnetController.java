@@ -426,10 +426,10 @@ public class SubnetController {
             }
 
             // update subnet routing rule in route manager
+
             if (hostRoutes != null && hostRoutes.size() > 0) {
                 this.subnetService.updateSubnetRoutingRuleInRM(projectId, subnetId, subnetEntity);
             }
-
 
             this.subnetDatabaseService.addSubnet(subnetEntity);
             subnetEntity = this.subnetDatabaseService.getBySubnetId(subnetId);

@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class DhcpService extends ResourceService {
@@ -72,6 +73,7 @@ public class DhcpService extends ResourceService {
                 DHCP.DHCPConfiguration.Builder dhcpConfigBuilder = DHCP.DHCPConfiguration.newBuilder();
                 dhcpConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
                 dhcpConfigBuilder.setMacAddress(macAddress);
+                dhcpConfigBuilder.setId(UUID.randomUUID().toString());
                 dhcpConfigBuilder.setIpv4Address(fixedIp.getIpAddress());
                 dhcpConfigBuilder.setSubnetId(fixedIp.getSubnetId());
 
@@ -87,14 +89,6 @@ public class DhcpService extends ResourceService {
 
                 DHCP.DHCPState dhcpState = dhcpStateBuilder.build();
                 unicastGoalState.getGoalStateBuilder().putDhcpStates(dhcpState.getConfiguration().getId(), dhcpState);
-
-                Goalstate.ResourceIdType dhcpResourceIdType = Goalstate.ResourceIdType.newBuilder()
-                        .setType(Common.ResourceType.DHCP)
-                        .setId(dhcpState.getConfiguration().getId())
-                        .build();
-                Goalstate.HostResources.Builder hostResourceBuilder = Goalstate.HostResources.newBuilder();
-                hostResourceBuilder.addResources(dhcpResourceIdType);
-                unicastGoalState.getGoalStateBuilder().putHostResources(unicastGoalState.getHostIp(), hostResourceBuilder.build());
             }
         }
     }

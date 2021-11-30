@@ -20,6 +20,7 @@ import com.futurewei.alcor.netwconfigmanager.entity.ResourceMeta;
 import com.futurewei.alcor.netwconfigmanager.exception.UnexpectedHostNumException;
 import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.schema.Goalstate;
+import com.futurewei.alcor.schema.Router;
 import org.springframework.core.io.Resource;
 
 import java.util.HashMap;
@@ -65,7 +66,12 @@ public class NetworkConfigManagerUtil {
                         hostGoalState.getGoalStateBuilder().putDhcpStates(resourceId, goalState.getDhcpStatesOrThrow(resourceId));
                         break;
                     case ROUTER:
-                        hostGoalState.getGoalStateBuilder().putRouterStates(resourceId, goalState.getRouterStatesOrThrow(resourceId));
+                        Router.RouterState routerState = goalState.getRouterStatesOrThrow(resourceId);
+                        String[] tokens = resourceId.split("/");
+                        if (tokens.length == 2) {
+                            resourceId = tokens[1];
+                        }
+                        hostGoalState.getGoalStateBuilder().putRouterStates(resourceId, routerState);
                         break;
                     case GATEWAY:
                         hostGoalState.getGoalStateBuilder().putGatewayStates(resourceId, goalState.getGatewayStatesOrThrow(resourceId));
