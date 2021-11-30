@@ -233,7 +233,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             return new StreamObserver<Goalstate.GoalStateV2>() {
                 @Override
                 public void onNext(Goalstate.GoalStateV2 value) {
-                    Span pSpan = OpenTracingContextKey.activeSpan();//tracer.activeSpan();
+                    Span pSpan = null;//OpenTracingContextKey.activeSpan();//tracer.activeSpan();
                     Span span;
 
                     if(pSpan != null){
@@ -241,7 +241,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     }else{
                         span = tracer.buildSpan("alcor-ncm-server-pushdown-gs").start();
                     }
-                    logger.log(Level.INFO, "[pushGoalStatesStream] Got parent span: "+pSpan.toString());
+                    logger.log(Level.INFO, "[pushGoalStatesStream] Got parent span: "+(null == span? "null" : pSpan.toString()));
                     logger.log(Level.INFO, "[pushGoalStatesStream] Built child span: "+span.toString());
 
                     Scope cscope = tracer.scopeManager().activate(span);
