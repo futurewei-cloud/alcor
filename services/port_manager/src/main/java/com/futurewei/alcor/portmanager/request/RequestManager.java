@@ -72,9 +72,7 @@ public class RequestManager {
         } else {
             span = tracer.buildSpan("alcor-port-async").start();
         }
-        LOG.info("[sendRequestAsync] Got this global tracer: "+tracer.toString());
-        LOG.info("[sendRequestAsync] Got parent span: "+pSpan.toString());
-        LOG.info("[sendRequestAsync] Built child span: "+span.toString());
+
         CompletableFuture future = CompletableFuture.supplyAsync(() -> {
             try (Scope cscope = tracer.scopeManager().activate(span)) {
                 try {

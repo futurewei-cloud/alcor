@@ -700,7 +700,7 @@ class concurrent_run_cmd implements Runnable {
         System.out.println("Need to execute this command concurrently: [" + this.command_to_run + "]");
         cmd_list.add(this.command_to_run);
         pseudo_controller.execute_ssh_commands(cmd_list, host, user_name, password);
-//        pseudo_controller.executeBashCommand(command_to_run);
+        pseudo_controller.executeBashCommand(command_to_run);
     }
 
     public concurrent_run_cmd(String cmd, String host, String user_name, String password) {

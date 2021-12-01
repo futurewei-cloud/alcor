@@ -259,8 +259,12 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                                       StreamObserver<Goalstateprovisioner.HostRequestReply> responseObserver) {
             Span pSpan = tracer.activeSpan();
 
-            logger.log(Level.FINE, "[requestGoalStates] Parent span context, tracer_id: " + pSpan.context().toTraceId() + ", span_id: " + pSpan.context().toSpanId());
-            Span span; //= pSpan;
+            logger.log(Level.FINE, "[requestGoalStates] Parent span context, tracer_id: " +
+                    (null == pSpan? "null" : pSpan.context().toTraceId()) +
+                    ", span_id: " +
+                    (null == pSpan? "null" : pSpan.context().toSpanId())
+            );
+            Span span;
 
             if(pSpan != null){
                 span = tracer.buildSpan("alcor-ncm-on-demand").asChildOf(pSpan.context()).start();
