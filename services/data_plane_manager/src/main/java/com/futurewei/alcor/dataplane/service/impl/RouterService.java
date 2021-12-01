@@ -214,16 +214,6 @@ public class RouterService extends ResourceService {
         Router.RouterState routerState = routerStateBuilder.build();
         unicastGoalState.getGoalStateBuilder().putRouterStates(routerState.getConfiguration().getId(), routerState);
         multicastGoalState.getGoalStateBuilder().putRouterStates(routerState.getConfiguration().getId(), routerState);
-
-        Goalstate.ResourceIdType routerResourceIdType = Goalstate.ResourceIdType.newBuilder()
-                .setType(Common.ResourceType.ROUTER)
-                .setId(routerState.getConfiguration().getId())
-                .build();
-        Goalstate.HostResources.Builder hostResourceBuilder = Goalstate.HostResources.newBuilder();
-        hostResourceBuilder.addResources(routerResourceIdType);
-        unicastGoalState.getGoalStateBuilder().putHostResources(unicastGoalState.getHostIp(), hostResourceBuilder.build());
-        // TODO: how to configure multicast GoalState id
-        multicastGoalState.getGoalStateBuilder().putHostResources(unicastGoalState.getHostIp(), hostResourceBuilder.build());
     }
 
     public void buildRouterStates(NetworkConfiguration networkConfig, UnicastGoalStateV2 unicastGoalState, MulticastGoalStateV2 multicastGoalState) throws Exception {

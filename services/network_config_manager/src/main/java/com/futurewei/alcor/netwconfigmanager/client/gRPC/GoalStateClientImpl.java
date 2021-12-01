@@ -21,10 +21,10 @@ import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.netwconfigmanager.client.GoalStateClient;
 import com.futurewei.alcor.netwconfigmanager.config.Config;
 import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
+import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.schema.GoalStateProvisionerGrpc;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
-
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -44,7 +44,6 @@ import io.opentracing.Span;
 import io.opentracing.contrib.tracerresolver.TracerResolver;
 import io.opentracing.util.GlobalTracer;
 import org.springframework.stereotype.Service;
-
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.Level;
@@ -131,64 +130,25 @@ public class GoalStateClientImpl implements GoalStateClient {
     @Override
     @DurationStatistics
     public List<String> sendGoalStates(Map<String, HostGoalState> hostGoalStates) throws Exception {
-        Span pSpan = this.tracer.activeSpan();
 
-        for (HostGoalState hostGoalState : hostGoalStates.values()){
-            this.executor.execute(() -> {
-                Span span;
-
-                if(pSpan != null){
-                    span = tracer.buildSpan("alcor-ncm-client-send-gs").asChildOf(pSpan.context()).start();
-                }else{
-                    span = tracer.buildSpan("alcor-ncm-client-send-gs").start();
-                }
-                logger.log(Level.INFO, "[sendGoalStates] Got parent span: "+pSpan.toString());
-                logger.log(Level.INFO, "[sendGoalStates] Built child span: "+span.toString());
-                Scope cscope = this.tracer.scopeManager().activate(span);
-                try  {
-                    doSendGoalState(hostGoalState);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                span.finish();
-                logger.log(Level.INFO, "[sendGoalStates] Child span after finish: "+span.toString());
-
-            });
-        }
-
-        // Currently, This return value is not used by any of its callers, so it doesn't matter(?)
-        return new ArrayList<String>();
-        /*
-        List<Future<HostGoalState>>
-                futures = new ArrayList<>(hostGoalStates.size());
+        final CountDownLatch finishLatch = new CountDownLatch(hostGoalStates.values().size());
+        logger.log(Level.INFO, "Host goal states size: " + hostGoalStates.values().size());
+        List<String> replies = new ArrayList<>();
 
         for (HostGoalState hostGoalState : hostGoalStates.values()) {
-            Future<HostGoalState> future =
-                    executor.submit(() -> {
-                        try {
-                            doSendGoalState(hostGoalState);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                            return hostGoalState;
-                        }
-
-                        return new HostGoalState();
-                    });
-
-            futures.add(future);
+            doSendGoalState(hostGoalState, finishLatch, replies);
         }
 
-        //Handle all failed hosts
-        return futures.parallelStream().filter(Objects::nonNull).map(future -> {
-            try {
-                return future.get().getHostIp();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
 
-            return null;
-        }).collect(Collectors.toList());
-        */
+        if (!finishLatch.await(1, TimeUnit.MINUTES)) {
+            logger.log(Level.WARNING, "Send goal states can not finish within 1 minutes");
+            return Arrays.asList("Send goal states can not finish within 1 minutes");
+        }
+        if (replies.size() > 0) {
+            return replies;
+        }
+        return new ArrayList<>();
+
     }
 
     @DurationStatistics
@@ -244,39 +204,37 @@ public class GoalStateClientImpl implements GoalStateClient {
     void warmUpChannelStub(GrpcChannelStub channelStub, String hostIp) {
         GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub = channelStub.stub;
 
-        long warmup_start = System.currentTimeMillis();
-        long current_time = System.currentTimeMillis();
-        int counter = 0;
+        StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver = new StreamObserver<>() {
+            @Override
+            public void onNext(Goalstateprovisioner.GoalStateOperationReply reply) {
+                logger.log(Level.INFO, "Receive warmup response from ACA@" + hostIp + " | " + reply.toString());
 
-        for (int i = 0; i < numberOfWarmupsPerChannel; i++) {
-            StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver = new StreamObserver<>() {
-                @Override
-                public void onNext(Goalstateprovisioner.GoalStateOperationReply reply) {
-                    logger.log(Level.INFO, "Receive warmup response from ACA@" + hostIp + " | " + reply.toString());
-                }
+            }
 
-                @Override
-                public void onError(Throwable t) {
-                    logger.log(Level.WARNING, "Receive warmup error from ACA@" + hostIp + " |  " + t.getMessage());
-                }
+            @Override
+            public void onError(Throwable t) {
+                logger.log(Level.WARNING, "Receive warmup error from ACA@" + hostIp + " |  " + t.getMessage());
 
-                @Override
-                public void onCompleted() {
-                    logger.log(Level.INFO, "Complete receiving warmup message from ACA@" + hostIp);
-                }
-            };
+            }
 
-            StreamObserver<Goalstate.GoalStateV2> requestObserver = asyncStub.pushGoalStatesStream(responseObserver);
-            try {
-                Goalstate.GoalStateV2 goalState = Goalstate.GoalStateV2.newBuilder().setFormatVersion(i).build();//Goalstate.GoalStateV2.getDefaultInstance().toBuilder().build();
-                logger.log(Level.INFO, "Sending "+i+"th warmup GS to Host " + hostIp + " as follows | " + goalState.toString());
+            @Override
+            public void onCompleted() {
+                logger.log(Level.INFO, "Complete receiving warmup message from ACA@" + hostIp);
+            }
+        };
+
+        StreamObserver<Goalstate.GoalStateV2> requestObserver = asyncStub.pushGoalStatesStream(responseObserver);
+        try {
+            Goalstate.GoalStateV2 goalState = Goalstate.GoalStateV2.getDefaultInstance();
+            logger.log(Level.INFO, "Sending GS to Host " + hostIp + " as follows | " + goalState.toString());
+            for (int i = 0; i < numberOfWarmupsPerChannel; i++) {
                 requestObserver.onNext(goalState);
-            } catch (RuntimeException e) {
+            }
+        } catch (RuntimeException e) {
                 // Cancel RPC
                 logger.log(Level.WARNING, "[doSendGoalState] Sending GS, but error happened | " + e.getMessage());
                 requestObserver.onError(e);
                 throw e;
-            }
         }
         // Mark the end of requests
         logger.log(Level.INFO, "Sending warmup GS to Host " + hostIp + " is completed");
@@ -304,9 +262,8 @@ public class GoalStateClientImpl implements GoalStateClient {
 
     }
 
-    @DurationStatistics
-    private void doSendGoalState(HostGoalState hostGoalState) throws InterruptedException {
 
+    private void doSendGoalState(HostGoalState hostGoalState, CountDownLatch finishLatch, List<String> replies) throws InterruptedException {
         String hostIp = hostGoalState.getHostIp();
         logger.log(Level.FINE, "Setting up a channel to ACA on: " + hostIp);
         long start = System.currentTimeMillis();
@@ -326,6 +283,12 @@ public class GoalStateClientImpl implements GoalStateClient {
             public void onNext(Goalstateprovisioner.GoalStateOperationReply reply) {
                 logger.log(Level.INFO, "Receive response from ACA@" + hostIp + " | " + reply.toString());
                 result.put(hostIp, reply.getOperationStatusesList());
+                if (reply.getOperationStatusesList().stream().filter(item -> item.getOperationStatus().equals(Common.OperationStatus.FAILURE)).collect(Collectors.toList()).size() > 0) {
+                    replies.add(reply.toString());
+                    while (finishLatch.getCount() > 0) {
+                        finishLatch.countDown();
+                    }
+                }
             }
 
             @Override
@@ -336,6 +299,7 @@ public class GoalStateClientImpl implements GoalStateClient {
             @Override
             public void onCompleted() {
                 logger.log(Level.INFO, "Complete receiving message from ACA@" + hostIp);
+                finishLatch.countDown();
             }
         };
 
@@ -375,6 +339,8 @@ public class GoalStateClientImpl implements GoalStateClient {
         long onNext_called = System.currentTimeMillis();
         logger.log(Level.FINE, "[doSendGoalState] Whole function call took time in milliseconds: "+(end - start) +
                 " \nFrom established stub to onNext called, elapsed Time after channel established in milli seconds: " + (onNext_called - requestObserverEstablished));
+        requestObserver.onCompleted();
+
 //        shutdown(channel);
     }
 

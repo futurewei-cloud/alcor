@@ -34,6 +34,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.logging.Level;
 
 @Service
@@ -53,10 +55,43 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
 
     @Override
     @DurationStatistics
-    public boolean updateGoalState(String hostId, HostGoalState hostGoalState) throws Exception {
+    public Map<String, HostGoalState> updateGoalStates(Goalstate.GoalStateV2 goalStateV2) throws Exception {
+        //prepare GS message based on host
+        Map<String, HostGoalState> hostGoalStates = NetworkConfigManagerUtil.splitClusterToHostGoalState(goalStateV2);
+
+        //aggregate goal state
+        SortedMap<String, Object> goalStates = new TreeMap<>();
+        goalStates.putAll(goalStateV2.getSubnetStatesMap());
+        goalStates.putAll(goalStateV2.getHostResourcesMap());
+        goalStates.putAll(goalStateV2.getDhcpStatesMap());
+        goalStates.putAll(goalStateV2.getGatewayStatesMap());
+        goalStates.putAll(goalStateV2.getNeighborStatesMap());
+        goalStates.putAll(goalStateV2.getPortStatesMap());
+        goalStates.putAll(goalStateV2.getRouterStatesMap());
+        goalStates.putAll(goalStateV2.getSecurityGroupStatesMap());
+        synchronized (this) {
+            hostResourceMetadataCache.getTransaction();
+            resourceStateCache.addResourceStates(goalStates);
+            for (Map.Entry<String, HostGoalState> entry : hostGoalStates.entrySet()) {
+                String hostId = entry.getKey();
+                HostGoalState hostGoalState = entry.getValue();
+
+                try {
+                    updateGoalState(hostId, hostGoalState);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            hostResourceMetadataCache.commit();
+        }
+        return hostGoalStates;
+    }
+
+    @Override
+    @DurationStatistics
+    public synchronized boolean updateGoalState(String hostId, HostGoalState hostGoalState) throws Exception {
 
         // TODO: Use Ignite transaction here
-        hostResourceMetadataCache.getTransaction();
 
         // Step 1: Populate host resource metadata cache
         long t1 = System.currentTimeMillis();
@@ -84,6 +119,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
 
         // Step 2: Populate resource state cache
         Map<String, Integer> vpcIdToVniMap = processVpcStates(hostGoalState);
+        /*
         processSubnetStates(hostGoalState);
         processPortStates(hostGoalState);
         processDhcpStates(hostGoalState);
@@ -91,6 +127,8 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
         processSecurityGroupStates(hostGoalState);
         processRouterStates(hostGoalState);
         processGatewayStates(hostGoalState);
+
+         */
         long t5_plus = System.currentTimeMillis();
         logger.log(Level.FINE, "updateGoalstate : hostId: "+hostId+", finished processing goalState, elapsed time in milliseconds: " + (t5_plus-t5));
 
@@ -100,77 +138,57 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
         long t_total = (t6 - t5) + (t4 - t3) + (t2 - t1);
         logger.log(Level.FINE, "updateGoalstate : hostId: "+hostId+", finished populating vpc resource cache, elapsed time in milliseconds: " + (t6-t5_plus));
         logger.log(Level.FINE, "updateGoalstate : hostId: "+hostId+", total time, elapsed time in milliseconds: " + t_total);
-
-        hostResourceMetadataCache.commit();
         return false;
     }
 
     private Map<String, Integer> processVpcStates(HostGoalState hostGoalState) throws Exception {
+        /*
+        SortedMap<String, Vpc.VpcState> vpcStatesSortedMap = new TreeMap<>(hostGoalState.getGoalState().getVpcStatesMap());
+        resourceStateCache.addResourceStates(vpcStatesSortedMap);
+         */
         Map<String, Integer> vpcIdToVniMap = new HashMap<>();
         Map<String, Vpc.VpcState> vpsStatesMap = hostGoalState.getGoalState().getVpcStatesMap();
-
         for (String resourceId : vpsStatesMap.keySet()) {
-            resourceStateCache.addResourceState(resourceId, vpsStatesMap.get(resourceId));
             vpcIdToVniMap.put(resourceId, vpsStatesMap.get(resourceId).getConfiguration().getTunnelId());
         }
-
         return vpcIdToVniMap;
     }
 
     private void processSubnetStates(HostGoalState hostGoalState) throws Exception {
-        Map<String, Subnet.SubnetState> subnetStatesMap = hostGoalState.getGoalState().getSubnetStatesMap();
+        SortedMap<String, Subnet.SubnetState> subnetStatesSortedMap = new TreeMap<>(hostGoalState.getGoalState().getSubnetStatesMap());
+        resourceStateCache.addResourceStates(subnetStatesSortedMap);
 
-        for (String resourceId : subnetStatesMap.keySet()) {
-            resourceStateCache.addResourceState(resourceId, subnetStatesMap.get(resourceId));
-        }
     }
 
     private void processPortStates(HostGoalState hostGoalState) throws Exception {
-        Map<String, Port.PortState> portStatesMap = hostGoalState.getGoalState().getPortStatesMap();
+        SortedMap<String, Port.PortState> portStatesSortedMap = new TreeMap<>(hostGoalState.getGoalState().getPortStatesMap());
+        resourceStateCache.addResourceStates(portStatesSortedMap);
 
-        for (String resourceId : portStatesMap.keySet()) {
-            resourceStateCache.addResourceState(resourceId, portStatesMap.get(resourceId));
-        }
     }
 
     private void processDhcpStates(HostGoalState hostGoalState) throws Exception {
-        Map<String, DHCP.DHCPState> dhcpStatesMap = hostGoalState.getGoalState().getDhcpStatesMap();
-
-        for (String resourceId : dhcpStatesMap.keySet()) {
-            resourceStateCache.addResourceState(resourceId, dhcpStatesMap.get(resourceId));
-        }
+        SortedMap<String, DHCP.DHCPState> portStatesSortedMap = new TreeMap<>(hostGoalState.getGoalState().getDhcpStatesMap());
+        resourceStateCache.addResourceStates(portStatesSortedMap);
     }
 
     private void processNeighborStates(HostGoalState hostGoalState) throws Exception {
-        Map<String, Neighbor.NeighborState> neighborStatesMap = hostGoalState.getGoalState().getNeighborStatesMap();
-
-        for (String resourceId : neighborStatesMap.keySet()) {
-            resourceStateCache.addResourceState(resourceId, neighborStatesMap.get(resourceId));
-        }
+        SortedMap<String, Neighbor.NeighborState> neighborStatesSortedMap = new TreeMap<>(hostGoalState.getGoalState().getNeighborStatesMap());
+        resourceStateCache.addResourceStates(neighborStatesSortedMap);
     }
 
     private void processSecurityGroupStates(HostGoalState hostGoalState) throws Exception {
-        Map<String, SecurityGroup.SecurityGroupState> securityGroupStatesMap = hostGoalState.getGoalState().getSecurityGroupStatesMap();
-
-        for (String resourceId : securityGroupStatesMap.keySet()) {
-            resourceStateCache.addResourceState(resourceId, securityGroupStatesMap.get(resourceId));
-        }
+        SortedMap<String, SecurityGroup.SecurityGroupState> securityGroupStatesSortedMap = new TreeMap<>(hostGoalState.getGoalState().getSecurityGroupStatesMap());
+        resourceStateCache.addResourceStates(securityGroupStatesSortedMap);
     }
 
     private void processRouterStates(HostGoalState hostGoalState) throws Exception {
-        Map<String, Router.RouterState> routerStatesMap = hostGoalState.getGoalState().getRouterStatesMap();
-
-        for (String resourceId : routerStatesMap.keySet()) {
-            resourceStateCache.addResourceState(resourceId, routerStatesMap.get(resourceId));
-        }
+        SortedMap<String, Router.RouterState> routerStatesSortedMap = new TreeMap<>(hostGoalState.getGoalState().getRouterStatesMap());
+        resourceStateCache.addResourceStates(routerStatesSortedMap);
     }
 
     private void processGatewayStates(HostGoalState hostGoalState) throws Exception {
-        Map<String, Gateway.GatewayState> gatewayStatesMap = hostGoalState.getGoalState().getGatewayStatesMap();
-
-        for (String resourceId : gatewayStatesMap.keySet()) {
-            resourceStateCache.addResourceState(resourceId, gatewayStatesMap.get(resourceId));
-        }
+        SortedMap<String, Gateway.GatewayState> gatewayStatesSortedMap = new TreeMap<>(hostGoalState.getGoalState().getGatewayStatesMap());
+        resourceStateCache.addResourceStates(gatewayStatesSortedMap);
     }
 
     private void populateVpcResourceCache(HostGoalState hostGoalState, Map<String, Integer> vpcIdToVniMap) throws Exception {

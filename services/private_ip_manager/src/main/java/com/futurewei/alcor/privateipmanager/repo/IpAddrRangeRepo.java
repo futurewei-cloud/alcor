@@ -155,24 +155,30 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
             if (ipAddrAlloc != null) {
                 break;
             }
+            synchronized (this) {
+                try (Transaction tx = ipAddrRangeCache.getTransaction().start()) {
+                    IpAddrRange ipAddrRange = ipAddrRangeCache.get(rangeId);
+                    if (ipAddrRange == null) {
+                        throw new IpRangeNotFoundException();
+                    }
 
-            IpAddrRange ipAddrRange = ipAddrRangeCache.get(rangeId);
-            if (ipAddrRange == null) {
-                throw new IpRangeNotFoundException();
+                    if (ipAddrRange.getIpVersion() != ipVersion) {
+                        continue;
+                    }
+
+                    try {
+                        ipAddrAlloc = ipAddrRange.allocate(ipAddr);
+                    } catch (Exception e) {
+                        LOG.warn("Allocate ip address from {} failed", ipAddrRange.getId());
+                        continue;
+                    }
+
+                    ipAddrRangeCache.put(ipAddrRange.getId(), ipAddrRange);
+                    tx.commit();
+                }
             }
 
-            if (ipAddrRange.getIpVersion() != ipVersion) {
-                continue;
-            }
 
-            try {
-                ipAddrAlloc = ipAddrRange.allocate(ipAddr);
-            } catch (Exception e) {
-                LOG.warn("Allocate ip address from {} failed", ipAddrRange.getId());
-                continue;
-            }
-
-            ipAddrRangeCache.put(ipAddrRange.getId(), ipAddrRange);
             break;
         }
 
@@ -190,17 +196,9 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
      * @throws Exception Db operation or ip address assignment exception
      */
     @DurationStatistics
-    public synchronized IpAddrAlloc allocateIpAddr(IpAddrRequest request) throws Exception {
-        IpAddrAlloc ipAddrAlloc = null;
-        try (Transaction tx = ipAddrRangeCache.getTransaction().start()) {
-            ipAddrAlloc = allocateIpAddrMethod(request);
-            tx.commit();
+    public IpAddrAlloc allocateIpAddr(IpAddrRequest request) throws Exception {
+            IpAddrAlloc ipAddrAlloc = allocateIpAddrMethod(request);
             return ipAddrAlloc;
-        } catch (Exception e) {
-            LOG.warn("Transaction exception: ");
-            LOG.warn(e.getMessage());
-        }
-        return ipAddrAlloc;
     }
 
     /**
@@ -520,18 +518,26 @@ public class IpAddrRangeRepo implements ICacheRepository<IpAddrRange> {
 
     }
 
+    @DurationStatistics
     private IpAddrAlloc allocateIpAddrMethod(IpAddrRequest request) throws Exception {
         IpAddrAlloc ipAddrAlloc;
         if (request.getRangeId() == null) {
             ipAddrAlloc = doAllocateIpAddr(request.getVpcId(), request.getIpVersion(), request.getIp());
         } else {
-            IpAddrRange ipAddrRange = ipAddrRangeCache.get(request.getRangeId());
-            if (ipAddrRange == null) {
-                throw new IpRangeNotFoundException();
+            synchronized (this) {
+                try (Transaction tx = ipAddrRangeCache.getTransaction().start()) {
+                    IpAddrRange ipAddrRange = ipAddrRangeCache.get(request.getRangeId());
+                    if (ipAddrRange == null) {
+                        throw new IpRangeNotFoundException();
+                    }
+
+                    ipAddrAlloc = ipAddrRange.allocate(request.getIp());
+                    ipAddrRangeCache.put(ipAddrRange.getId(), ipAddrRange);
+                    tx.commit();
+                }
             }
 
-            ipAddrAlloc = ipAddrRange.allocate(request.getIp());
-            ipAddrRangeCache.put(ipAddrRange.getId(), ipAddrRange);
+
         }
         return ipAddrAlloc;
     }
