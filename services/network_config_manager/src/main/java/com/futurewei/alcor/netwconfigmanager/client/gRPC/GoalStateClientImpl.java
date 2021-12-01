@@ -54,8 +54,6 @@ import io.opentracing.contrib.grpc.TracingClientInterceptor;
 @Service("grpcGoalStateClient")
 public class GoalStateClientImpl implements GoalStateClient {
 
-    private final int GRPC_CHANNEL_WARMUP_TIME_IN_SECONDS = 5;
-
     private static GoalStateClientImpl instance = null;
 
     private static final Logger logger = LoggerFactory.getLogger();
@@ -148,7 +146,6 @@ public class GoalStateClientImpl implements GoalStateClient {
             return replies;
         }
         return new ArrayList<>();
-
     }
 
     @DurationStatistics
@@ -231,10 +228,10 @@ public class GoalStateClientImpl implements GoalStateClient {
                 requestObserver.onNext(goalState);
             }
         } catch (RuntimeException e) {
-                // Cancel RPC
-                logger.log(Level.WARNING, "[doSendGoalState] Sending GS, but error happened | " + e.getMessage());
-                requestObserver.onError(e);
-                throw e;
+            // Cancel RPC
+            logger.log(Level.WARNING, "[doSendGoalState] Sending GS, but error happened | " + e.getMessage());
+            requestObserver.onError(e);
+            throw e;
         }
         // Mark the end of requests
         logger.log(Level.INFO, "Sending warmup GS to Host " + hostIp + " is completed");
@@ -261,7 +258,6 @@ public class GoalStateClientImpl implements GoalStateClient {
         return new GrpcChannelStub(channel, asyncStub);
 
     }
-
 
     private void doSendGoalState(HostGoalState hostGoalState, CountDownLatch finishLatch, List<String> replies) throws InterruptedException {
         String hostIp = hostGoalState.getHostIp();
@@ -333,8 +329,6 @@ public class GoalStateClientImpl implements GoalStateClient {
         // Mark the end of requests
         logger.log(Level.INFO, "Sending GS to Host " + hostIp + " is completed");
 
-        // comment out onCompleted so that the same channel/stub and keep sending next time.
-        //        requestObserver.onCompleted();
         end = System.currentTimeMillis();
         long onNext_called = System.currentTimeMillis();
         logger.log(Level.FINE, "[doSendGoalState] Whole function call took time in milliseconds: "+(end - start) +

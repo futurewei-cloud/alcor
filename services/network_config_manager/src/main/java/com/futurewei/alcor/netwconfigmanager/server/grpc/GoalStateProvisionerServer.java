@@ -78,18 +78,6 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
     @Value("${grpc.monitor-hosts}")
     private ArrayList<String> monitorHosts;
 
-    @Value("${opentracing.jaeger.service-name}")
-    private String jaegerServiceName;
-
-    @Value("${opentracing.jaeger.enabled}")
-    private String jaegerEnabled;
-
-    @Value("${spring.application.name}")
-    private String springApplicationName;
-
-    @Value("${server.port}")
-    private String serverPort;
-
     @Autowired
     private OnDemandService onDemandService;
 
@@ -123,10 +111,6 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 .intercept(clientIpInterceptor)
                 .maxConcurrentCallsPerConnection(10000)
                 .build();
-        logger.log(Level.INFO, "[GoalStateProvisionerServer] Server port: "+serverPort+", monitoring host: " + monitorHosts + ", warmups/channel: "
-                + numberOfWarmupsPerChannel + ", channels/host: " + numberOfGrpcChannelPerHost);
-        logger.log(Level.INFO, "[GoalStateProvisionerServer] Jaeger params: service name: "+ jaegerServiceName +
-                ", enabled: " +jaegerEnabled + ", spring application name: " + springApplicationName);
     }
 
     @PostConstruct
@@ -141,7 +125,6 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
     @Override
     public void start() throws IOException {
-        logger.log(Level.INFO, "GoalStateProvisionerServer : Trying to start server at port: " + this.port);
         this.server.start();
         logger.log(Level.INFO, "GoalStateProvisionerServer : Server started, listening on " + this.port);
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -190,7 +173,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             return new StreamObserver<Goalstate.GoalStateV2>() {
                 @Override
                 public void onNext(Goalstate.GoalStateV2 value) {
-                    Span pSpan = tracer.activeSpan();//OpenTracingContextKey.activeSpan();//;
+                    Span pSpan = tracer.activeSpan();
                     Span span;
 
                     if(pSpan != null){
@@ -274,7 +257,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
         @DurationStatistics
         public void requestGoalStates(Goalstateprovisioner.HostRequest request,
                                       StreamObserver<Goalstateprovisioner.HostRequestReply> responseObserver) {
-            Span pSpan = tracer.activeSpan();//OpenTracingContextKey.activeSpan();
+            Span pSpan = tracer.activeSpan();
 
             logger.log(Level.FINE, "[requestGoalStates] Parent span context, tracer_id: " + pSpan.context().toTraceId() + ", span_id: " + pSpan.context().toSpanId());
             Span span; //= pSpan;
@@ -320,7 +303,6 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             /////////////////////////////////////////////////////////////////////////////////////////
 
             // Step 0: Prepare to retrieve client IP address from gRPC transport
-
             String clientIpAddress = this.ipInterceptor.getClientIpAddress();
             logger.log(Level.INFO, "[requestGoalStates] Client IP address = " + clientIpAddress);
 
