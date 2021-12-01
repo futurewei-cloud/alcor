@@ -55,8 +55,6 @@ import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.grpc.TracingClientInterceptor;
-import io.opentracing.noop.NoopTracer;
-import io.opentracing.util.GlobalTracer;
 import org.awaitility.Awaitility;
 import io.jaegertracing.Configuration;
 
@@ -358,12 +356,12 @@ public class pseudo_controller {
                 .withParam(1);
         Configuration.ReporterConfiguration reporterConfiguration = Configuration.ReporterConfiguration
                 .fromEnv()
+                .withSender(Configuration.SenderConfiguration.fromEnv().withAgentHost(ncm_ip).withAgentPort(6831))
                 .withLogSpans(true);
         Configuration configuration = new Configuration("alcor-test-controller")
                 .withSampler(samplerConfiguration)
                 .withReporter(reporterConfiguration);
 
-//        GlobalTracer.registerIfAbsent(configuration.getTracer());
         Tracer tracer = configuration.getTracer();
         System.out.println("[Test Controller] Got this global tracer: "+tracer.toString());
 
