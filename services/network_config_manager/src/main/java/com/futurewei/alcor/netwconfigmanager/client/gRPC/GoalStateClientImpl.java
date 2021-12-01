@@ -247,40 +247,7 @@ public class GoalStateClientImpl implements GoalStateClient {
         long warmup_start = System.currentTimeMillis();
         long current_time = System.currentTimeMillis();
         int counter = 0;
-        /*
-        while((current_time - warmup_start <= GRPC_CHANNEL_WARMUP_TIME_IN_SECONDS * 1000)){
-            current_time = System.currentTimeMillis();
-            StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver = new StreamObserver<>() {
-                @Override
-                public void onNext(Goalstateprovisioner.GoalStateOperationReply reply) {
-                    logger.log(Level.INFO, "Receive warmup response from ACA@" + hostIp + " | " + reply.toString());
-                }
 
-                @Override
-                public void onError(Throwable t) {
-                    logger.log(Level.WARNING, "Receive warmup error from ACA@" + hostIp + " |  " + t.getMessage());
-                }
-
-                @Override
-                public void onCompleted() {
-                    logger.log(Level.INFO, "Complete receiving warmup message from ACA@" + hostIp);
-                }
-            };
-
-            StreamObserver<Goalstate.GoalStateV2> requestObserver = asyncStub.pushGoalStatesStream(responseObserver);
-            try {
-                Goalstate.GoalStateV2 goalState = Goalstate.GoalStateV2.getDefaultInstance();
-                logger.log(Level.INFO, "Sending "+counter+"th warmup GS to Host " + hostIp + " as follows | " + goalState.toString());
-                requestObserver.onNext(goalState);
-            } catch (RuntimeException e) {
-                // Cancel RPC
-                logger.log(Level.WARNING, "[doSendGoalState] Sending GS, but error happened | " + e.getMessage());
-                requestObserver.onError(e);
-                throw e;
-            }
-            requestObserver.onNext(Goalstate.GoalStateV2.getDefaultInstance());
-        }
-*/
         for (int i = 0; i < numberOfWarmupsPerChannel; i++) {
             StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver = new StreamObserver<>() {
                 @Override
@@ -318,16 +285,6 @@ public class GoalStateClientImpl implements GoalStateClient {
 
     @DurationStatistics
     private GrpcChannelStub createGrpcChannelStub(String hostIp) {
-        ManagedChannel a = NettyChannelBuilder.forAddress(hostIp, this.hostAgentPort)
-                .usePlaintext()
-                .executor(Executors.newFixedThreadPool(16))
-                .keepAliveWithoutCalls(true)
-                .eventLoopGroup(new EpollEventLoopGroup(4))
-                .channelType(EpollSocketChannel.class)
-                .keepAliveTime(Long.MAX_VALUE, TimeUnit.SECONDS)
-                .flowControlWindow(1024 * 1024 * 1024)
-                .build();
-
         // adding tracing stuffs for each channel
         TracingClientInterceptor tracingClientInterceptor = TracingClientInterceptor
                 .newBuilder()
@@ -336,22 +293,19 @@ public class GoalStateClientImpl implements GoalStateClient {
                 .withStreaming()
                 .build();
 
-        GoalStateProvisionerGrpc.GoalStateProvisionerStub b = GoalStateProvisionerGrpc.newStub(tracingClientInterceptor.intercept(a));
-        return new GrpcChannelStub(a, b);
-        /*
+
         ManagedChannel channel = ManagedChannelBuilder.forAddress(hostIp, this.hostAgentPort)
                 .usePlaintext()
                 .keepAliveWithoutCalls(true)
                 .keepAliveTime(Long.MAX_VALUE, TimeUnit.SECONDS)
                 .build();
-        GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub = GoalStateProvisionerGrpc.newStub(channel);
+        GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub = GoalStateProvisionerGrpc.newStub(tracingClientInterceptor.intercept(channel));
         return new GrpcChannelStub(channel, asyncStub);
-        */
+
     }
 
     @DurationStatistics
     private void doSendGoalState(HostGoalState hostGoalState) throws InterruptedException {
-//        Span pSpan = this.tracer.activeSpan();
 
         String hostIp = hostGoalState.getHostIp();
         logger.log(Level.FINE, "Setting up a channel to ACA on: " + hostIp);
