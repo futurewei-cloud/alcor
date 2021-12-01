@@ -318,7 +318,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                                       StreamObserver<Goalstateprovisioner.HostRequestReply> responseObserver) {
             Span pSpan = tracer.activeSpan();//OpenTracingContextKey.activeSpan();
 
-            logger.log(Level.INFO, "[requestGoalStates] Parent span context: " + pSpan.context().toString());
+            logger.log(Level.INFO, "[requestGoalStates] Parent span context, tracer_id: " + pSpan.context().toTraceId());
             Span span; //= pSpan;
 
             if(pSpan != null){
