@@ -64,9 +64,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
         public String type;
         public boolean isIndexed;
     }
-    private Map<String, SqlField> sqlFields = null; // needed for index creation and querying
-    private List<String> sqlColumns = null;         // needed for constructing indexes in specified order
-                                                    // so that a prefix query can use indexed search.
+    private LinkedHashMap<String, SqlField> sqlFields = null; // needed for index creation and querying
     private boolean checkedForSqlFields = false;
 
     public IgniteClientDbCache(IgniteClient igniteClient, Class<?> v, String name) {
@@ -350,8 +348,8 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
         StringBuilder sb = new StringBuilder("select _key, _val from " + SQL_SCHEMA_NAME +
                 "." + cache.getConfiguration().getQueryEntities()[0].getTableName() + " where ");
         boolean needAnd = false;
-        for (String c : sqlColumns) {
-            if (!sqlFields.get(c).isIndexed || !filterParams.containsKey(c))
+        for (String c : filterParams.keySet()) {
+            if (!sqlFields.get(c).isIndexed)
                 continue;
             SqlField f = sqlFields.get(c);
             if (needAnd)
@@ -395,11 +393,12 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
         LinkedHashMap<String, String> qryFields = new LinkedHashMap<>();
         ArrayList<QueryIndex> idxFields = new ArrayList<>();
         try {
-            for (String c : sqlColumns) {
-                SqlField f = sqlFields.get(c);
-                qryFields.put(c, f.type);
+            for (Map.Entry<String, SqlField> e : sqlFields.entrySet()) {
+                String cname = e.getKey();
+                SqlField f = e.getValue();
+                qryFields.put(cname, f.type);
                 if (f.isIndexed) {
-                    idxFields.add(new QueryIndex(c));
+                    idxFields.add(new QueryIndex(cname));
                 }
             }
 
@@ -435,7 +434,6 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
 
     private void extractSqlFields(String className) {
         Map<String, SqlField> localFields = new HashMap<>();
-        List<String> localColumns = new ArrayList<>();
         logger.log(Level.INFO, "Checking for QuerySqlField annotations: " + className);
         Field[] fields = null;
         try {
@@ -457,13 +455,10 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
                         sqlField.type = f.getType().getTypeName();
                         localFields.put(f.getName(), sqlField);
                     }
-
-                    localColumns.add(f.getName());
                 }
             }
 
             sqlFields = localFields;
-            sqlColumns = localColumns;
             logger.log(Level.INFO, "QuerySqlField Found " + sqlFields.size() + " sqlFields");
         } catch (Exception e) {
             logger.log(Level.INFO, "Failed to get Class info for class " + className + ", or declared fields");

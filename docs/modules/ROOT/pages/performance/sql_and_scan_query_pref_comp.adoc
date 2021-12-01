@@ -19,7 +19,7 @@ Number of entries in both SQL and Scan are 1M, 1000 entries are queried on.
 The first query always takes way too much time compared to the subsequent
 ones and hence ignored when computing the statistics.
 
-All times in micro seconds.
+All times are in micro seconds. Time axis (y) in the histogram is in logscale.
 
 SQL_QUERY_EXEC time represents time required to execute the SQLFieldsQuery
 (cache.query() API).
@@ -33,13 +33,17 @@ instantiation, cache.withKeepBinary().query(...)
 SCAN_CURSOR_FETCH time represents time required to extract the result from
 result set (cursor, cursor.getAll() API).
 
+For Insert operation, MAX represents total time to insert 1M entires into the cache and AVG represents the average time to insert one single entry. All other statistcs for Insert are not relevant and are shown as zero.
+
 == Results
 |===
 |OPERATION TYPE|             MIN|          MAX|          AVG| MEDIAN|       MODE|         P99
 |SQL_QUERY_EXEC|             1.0000|      16.0000|       1.8739| 1.0000|       1.0000|       1.0000
-|SQL_CURSOR_FETCH|           0.0000|       1.0000|       0.6717|   1.0000|       1.0000|       0.0000
 |SCAN_QUERY_EXEC|       530182.0000|  785735.0000|  561550.7678|  552705.0000|  543704.0000|  531308.3565
+|SQL_CURSOR_FETCH|           0.0000|       1.0000|       0.6717|   1.0000|       1.0000|       0.0000
 |SCAN_CURSOR_FETCH|          0.0000 |      8.0000 |       0.1411|       0.0000|       0.0000|       0.0000
+|SQL_INSERT|                 0.0000 | 929676278.00|     929.6762|    0.0|          0.0|          0.0
+|SCAN_INSERT|                0.0000|  812451365.00|     812.4514|    0.0|          0.0|          0.0
 |===
 
 == Plot of the results

@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.futurewei.alcor.common.entity.CustomerResource;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.ignite.cache.query.annotations.QuerySqlField;
 
 import java.util.List;
 
@@ -28,7 +27,6 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 public class PortEntity extends CustomerResource {
     @JsonProperty("network_id")
-    @QuerySqlField(index = true)
     private String vpcId;
 
     @JsonProperty("admin_state_up")
