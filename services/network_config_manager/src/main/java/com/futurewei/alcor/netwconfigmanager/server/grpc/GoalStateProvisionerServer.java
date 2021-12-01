@@ -247,6 +247,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                             Goalstateprovisioner.GoalStateOperationReply.newBuilder()
                                     .setFormatVersion(100)
                                     .build();
+                    responseObserver.onNext(reply);
                     long end1 = System.currentTimeMillis();
                     logger.log(Level.FINE, "pushGoalStatesStream : Replied to DPM, from received to replied, elapsed time in milliseconds: " + + (end1-end));
                     replyDPMSpan.finish();
