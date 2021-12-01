@@ -25,5 +25,4 @@ import java.util.Map;
 @Component
 public interface GoalStateClient {
     List<String> sendGoalStates(Map<String, HostGoalState> hostGoalStates) throws Exception;
-    void setArgs(int numberOfGrpcChannelPerHost, int numberOfWarmupsPerChannel, ArrayList<String> monitorHosts);
 }

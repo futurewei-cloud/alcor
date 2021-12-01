@@ -50,11 +50,11 @@ public class GoalStateClientImpl implements GoalStateClient {
     private final ExecutorService executor;
 
     // each host_ip should have this amount of gRPC channels
-    @Value("1")
+    @Value("${grpc.number-of-channels-per-host:1}")
     private int numberOfGrpcChannelPerHost;
 
     // when a channel is set up, send this amount of default GoalStates for warmup.
-     @Value("10")
+    @Value("${grpc.number-of-warmups-per-channel:1}")
     private int numberOfWarmupsPerChannel;
 
     // prints out UUID and time, when sending a GoalState to any of the monitorHosts
@@ -70,23 +70,17 @@ public class GoalStateClientImpl implements GoalStateClient {
     }
 
 
-    public void setArgs(int numberOfGrpcChannelPerHost, int numberOfWarmupsPerChannel, ArrayList<String> monitorHosts) {
-        // each host should have at least 1 gRPC channel
-        if((this.numberOfGrpcChannelPerHost = numberOfGrpcChannelPerHost) < 1) {
-            this.numberOfGrpcChannelPerHost = 1;
-        }
+    public GoalStateClientImpl(@Value("${grpc.number-of-channels-per-host:1}") int numberOfGrpcChannelPerHost, @Value("${grpc.number-of-warmups-per-channel:1}") int numberOfWarmupsPerChannel, @Value("")ArrayList<String> monitorHosts) {
 
-        // allow users to not send warmups, if they wish to.
-        if((this.numberOfWarmupsPerChannel = numberOfWarmupsPerChannel) < 0){
+        if ((this.numberOfGrpcChannelPerHost = numberOfGrpcChannelPerHost) < 1) {
+            this.numberOfGrpcChannelPerHost = 1;
+         }
+
+        if ((this.numberOfWarmupsPerChannel = numberOfWarmupsPerChannel) < 0) {
             this.numberOfWarmupsPerChannel = 0;
         }
+
         this.monitorHosts = monitorHosts;
-    }
-
-
-    public GoalStateClientImpl(@Value("1") int numberOfGrpcChannelPerHost, @Value("1") int numberOfWarmupsPerChannel, @Value("") ArrayList<String> monitorHosts) {
-
-        setArgs(numberOfGrpcChannelPerHost, numberOfWarmupsPerChannel, monitorHosts);
         logger.log(Level.FINE, "Printing out all monitorHosts");
         for(String host : this.monitorHosts){
             logger.log(Level.FINE, "Monitoring this host: "+ host);
