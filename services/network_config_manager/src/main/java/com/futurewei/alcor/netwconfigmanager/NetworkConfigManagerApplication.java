@@ -37,7 +37,6 @@ public class NetworkConfigManagerApplication {
 
     @PostConstruct
     public void instantiateGrpcServer(){
-
         try {
             networkConfigServer.start();
             networkConfigServer.blockUntilShutdown();
