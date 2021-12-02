@@ -94,6 +94,8 @@ def run_ping_test(target_machines, ip_addrs, container_names):
     expected_output = "2 packets transmitted, 2 packets received"
     if expected_output in str(output1) and expected_output in str(output2):
         print (colored("PING TEST SUCCESSFULL", 'green'))
+        return 0
     else:
         print(colored('PING TEST FAILED', 'red'))
+        return 1
 
