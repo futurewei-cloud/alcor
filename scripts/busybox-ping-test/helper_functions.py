@@ -167,6 +167,9 @@ def check_alcor_services():
             if retcode > 0:
                 print("Failed to execute command", repr(str(command)))
                 print_output(res[1])
+            elif "9001 9002 9003 9004 9005 9006 9007 9008 9009 9010 9011 9012 9014 9015" in str(res):
+                print("SUCCESS for: ", command, "\n")
+                return True
             elif "9001 9002 9003 9004 9005 9006 9007 9008 9009 9010 9011 9012 9015 9016" in str(res):
                 print("SUCCESS for: ", command, "\n")
                 return True

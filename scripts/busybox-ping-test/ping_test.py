@@ -209,9 +209,12 @@ Example of use: python script_name -b
     print("Goal states: ", ip_mac_db)
     print("Container names: ", container_names)
     busybox_container_deploy(aca_node_ips, ip_mac_db, container_names)
-    run_ping_test(aca_node_ips, goal_state_ips, container_names)
+    status = run_ping_test(aca_node_ips, goal_state_ips, container_names)
+    if status != 0:
+        print("ERROR: Quitting test\n")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
     main()
-
+    sys.exit(0)
