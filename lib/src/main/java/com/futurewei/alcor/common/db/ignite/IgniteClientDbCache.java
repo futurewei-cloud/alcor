@@ -433,7 +433,7 @@ public class IgniteClientDbCache<K, V> implements IgniteICache<K, V> {
 
 
     private void extractSqlFields(String className) {
-        Map<String, SqlField> localFields = new HashMap<>();
+        LinkedHashMap<String, SqlField> localFields = new LinkedHashMap<>();
         logger.log(Level.INFO, "Checking for QuerySqlField annotations: " + className);
         Field[] fields = null;
         try {
