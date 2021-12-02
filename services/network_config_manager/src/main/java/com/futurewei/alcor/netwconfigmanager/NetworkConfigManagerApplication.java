@@ -37,7 +37,6 @@ public class NetworkConfigManagerApplication {
 
     @PostConstruct
     public void instantiateGrpcServer(){
-
         Thread server = new Thread(() -> {
             try {
                 networkConfigServer.start();
