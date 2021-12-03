@@ -58,6 +58,10 @@ def build_containers(services_dict):
 
     if(execute_commands("Build ", container_list) == True):
        print("All Alcor services built successfully")
+       return True
+    else:
+       print("All Alcor services could not be built successfully")
+       return False
 
 
 def start_containers(serv):
@@ -118,7 +122,7 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description='Busybox ping test',
         epilog=textwrap.dedent('''\
-Example of use: python script_name -b
+Example of use: python script_name -b build
 -t 1 : L2 Basic
 -t 2 : L3_AttachRouter_then_CreatePorts (S4)
 -t 3 : L3_CreatePorts_then_AttachRouter (S5)
@@ -127,10 +131,12 @@ Example of use: python script_name -b
     parser.add_argument("-t", "--testcase", type=int, nargs='?', help='Test case number or {} for all tests cases. Default -t 1'.format('all'), default="1")
     parser.add_argument("-s", "--all", type=str, nargs='?', help = 'all tests cases')
     args = parser.parse_args()
+    print("PING TEST ARGS {}".format(args))
 
     if args.build:
         if(args.build == "build"):
-           build_containers(services_dict)
+            if (build_containers(services_dict) == False):
+                sys.exit(1)
         else:
            print("To build before running the tests, use '-b build'")
            print("ERROR: Quitting test\n")
@@ -172,8 +178,7 @@ Example of use: python script_name -b
       sys.exit(1)
 
     print("Waiting for Alcor services to be up and running...\n")
-    alcor_status = check_alcor_services()
-    if alcor_status == False:
+    if (check_alcor_services() == False):
         print("ERROR: Alcor Services failed to start ...\n")
         sys.exit(1)
 
@@ -193,14 +198,6 @@ Example of use: python script_name -b
         sys.exit(1)
     else:
       ip_mac_db = create_test_setup(aca_nodes_ip_mac, config_file_object)
-      # if args.all== 'all':
-      #   print("Invoke both all test cases"
-      # ip_mac_db = prepare_all_test_cases(aca_nodes_ip_mac, service_port_map)
-
-    #aca_nodes_ip_mac={"10.213.43.161":"90:17:ac:c1:30:68", "10.213.43.163":"90:17:ac:c1:30:3c"}
-    #ip_mac_db={"10.0.1.101":"aa:bb:cc:a8:c9:c6", "10.0.1.102":"aa:bb:cc:df:79:f1"}
-    #container_names_dict = dict(config_file_object.items("test_setup"))["container_names"]
-    #container_names = json.loads(container_names_dict)
 
     aca_node_ips = list(aca_nodes_ip_mac.keys())
     goal_state_ips = list(ip_mac_db.keys())
@@ -213,8 +210,11 @@ Example of use: python script_name -b
     if status != 0:
         print("ERROR: Quitting test\n")
         sys.exit(1)
+    return True
 
 
 if __name__ == "__main__":
-    main()
-    sys.exit(0)
+    if (main() == False):
+        sys.exit(1)
+    else:
+        sys.exit(0)
