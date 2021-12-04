@@ -43,6 +43,8 @@ import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.contrib.tracerresolver.TracerResolver;
 import io.opentracing.util.GlobalTracer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.concurrent.*;
@@ -63,9 +65,11 @@ public class GoalStateClientImpl implements GoalStateClient {
     private final ExecutorService executor;
 
     // each host_ip should have this amount of gRPC channels
+    @Value("${grpc.number-of-channels-per-host:1}")
     private int numberOfGrpcChannelPerHost;
 
     // when a channel is set up, send this amount of default GoalStates for warmup.
+    @Value("${grpc.number-of-warmups-per-channel:1}")
     private int numberOfWarmupsPerChannel;
 
     // prints out UUID and time, when sending a GoalState to any of the monitorHosts
@@ -83,15 +87,14 @@ public class GoalStateClientImpl implements GoalStateClient {
         return instance;
     }
 
-    public GoalStateClientImpl(int numberOfGrpcChannelPerHost, int numberOfWarmupsPerChannel, ArrayList<String> monitorHosts) {
-        // each host should have at least 1 gRPC channel
-        if (numberOfGrpcChannelPerHost < 1) {
-            numberOfGrpcChannelPerHost = 1;
-        }
+    public GoalStateClientImpl(@Value("${grpc.number-of-channels-per-host:1}") int numberOfGrpcChannelPerHost, @Value("${grpc.number-of-warmups-per-channel:1}") int numberOfWarmupsPerChannel, @Value("")ArrayList<String> monitorHosts) {
 
-        // allow users to not send warmups, if they wish to.
-        if (numberOfWarmupsPerChannel < 0) {
-            numberOfWarmupsPerChannel = 0;
+        if ((this.numberOfGrpcChannelPerHost = numberOfGrpcChannelPerHost) < 1) {
+            this.numberOfGrpcChannelPerHost = 1;
+         }
+
+        if ((this.numberOfWarmupsPerChannel = numberOfWarmupsPerChannel) < 0) {
+            this.numberOfWarmupsPerChannel = 0;
         }
 
         this.monitorHosts = monitorHosts;
@@ -100,8 +103,6 @@ public class GoalStateClientImpl implements GoalStateClient {
             logger.log(Level.FINE, "Monitoring this host: " + host);
         }
         logger.log(Level.FINE, "Done printing out all monitorHosts");
-        this.numberOfGrpcChannelPerHost = numberOfGrpcChannelPerHost;
-        this.numberOfWarmupsPerChannel = numberOfWarmupsPerChannel;
         this.hostAgentPort = 50001;
 
         this.executor = new ThreadPoolExecutor(100,
@@ -123,6 +124,7 @@ public class GoalStateClientImpl implements GoalStateClient {
                  //TracerResolver.resolveTracer();
         logger.log(Level.INFO, "[GoalStateClientImpl] Got this global tracer: "+this.tracer.toString());
         logger.log(Level.FINE, "This instance has " + numberOfGrpcChannelPerHost + " channels, and " + numberOfWarmupsPerChannel + " warmups");
+
     }
 
     @Override
