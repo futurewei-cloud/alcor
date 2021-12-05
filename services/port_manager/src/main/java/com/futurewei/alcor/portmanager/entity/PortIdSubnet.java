@@ -16,11 +16,13 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.portmanager.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.ignite.cache.query.annotations.QuerySqlField;
 
 import java.util.Set;
 
 public class PortIdSubnet {
     @JsonProperty("subnet_id")
+    @QuerySqlField(index = true)
     private String subnetId;
 
     public PortIdSubnet() {
