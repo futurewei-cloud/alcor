@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import subprocess as sp
-import sys, os, pwd, configparser
+import sys, os, configparser
 import json,time
 from   subprocess import *
 
@@ -106,7 +106,6 @@ def get_mac_id(HOST):
     return mac_addr
 
 def get_username():
-   #return pwd.getpwuid( os.getuid() )[ 0 ]
    return 'ubuntu'
 
 
@@ -128,18 +127,21 @@ def run_command_on_host(HOST, COMMAND):
       print("Remote output",result)
       retcode = ssh1.returncode
       if "Segmentation fault" in str(result):
-        return "segmentation  fault"
+        print("segmentation fault")
+        sys.exit(1)
       print("Remote: ", retcode)
       if retcode > 0:
         print(result[1],retcode)
         if 'Connection to' not in result[1] and 'closed' not in result[1]:
           print("ERROR: ", result[1])
+          sys.exit(1)
       else:
         #print("In else ",result[0])
         return result[0]
     except Exception as e:
       print(e)
       print("Exception thrown when running command {} on HOST {}:".format(COMMAND, HOST), sys.exc_info()[0])
+      sys.exit(1)
 
 
 def print_output(output):
