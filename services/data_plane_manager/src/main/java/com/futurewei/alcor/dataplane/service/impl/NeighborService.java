@@ -426,15 +426,15 @@ public class NeighborService extends ResourceService {
                                     multicastGoalStateV2.getHostIps().add(portHostInfo.getHostIp());
                                     neighborStateMap.put(neighborState.getConfiguration().getId(), neighborState);
                                     subnetStateMap.put(internalSubnetPort.getSubnetId(), subnetService.buildSubnetState(internalSubnetPort.getSubnetId()).build());
-                                }
-                                if (!unicastGoalStateV2.getGoalStateBuilder().getSubnetStatesMap().containsKey(internalSubnetPort.getSubnetId())){
-                                    System.out.println("Router state: " + internalSubnetPort.getSubnetId());
-                                    Router.RouterConfiguration.SubnetRoutingTable.Builder subnetRoutingTableBuilder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
-                                    String subnetId = portHostInfo.getSubnetId();
-                                    subnetRoutingTableBuilder.setSubnetId(subnetId);
-                                    Router.RouterConfiguration.Builder routerConfigurationBuilder =  unicastGoalStateV2.getGoalStateBuilder().getRouterStatesMap().get(routerId).getConfiguration().toBuilder();
-                                    routerConfigurationBuilder.addSubnetRoutingTables(subnetRoutingTableBuilder.build());
-                                    unicastGoalStateV2.getGoalStateBuilder().putRouterStates(routerId, Router.RouterState.newBuilder().setConfiguration(routerConfigurationBuilder).build());
+                                    if (!unicastGoalStateV2.getGoalStateBuilder().getSubnetStatesMap().containsKey(internalSubnetPort.getSubnetId())){
+                                        System.out.println("Router state: " + internalSubnetPort.getSubnetId());
+                                        Router.RouterConfiguration.SubnetRoutingTable.Builder subnetRoutingTableBuilder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
+                                        String subnetId = portHostInfo.getSubnetId();
+                                        subnetRoutingTableBuilder.setSubnetId(subnetId);
+                                        Router.RouterConfiguration.Builder routerConfigurationBuilder =  unicastGoalStateV2.getGoalStateBuilder().getRouterStatesMap().get(routerId).getConfiguration().toBuilder();
+                                        routerConfigurationBuilder.addSubnetRoutingTables(subnetRoutingTableBuilder.build());
+                                        unicastGoalStateV2.getGoalStateBuilder().putRouterStates(routerId, Router.RouterState.newBuilder().setConfiguration(routerConfigurationBuilder).build());
+                                    }
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
