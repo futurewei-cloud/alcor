@@ -20,89 +20,62 @@ import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.dataplane.entity.InternalSubnetRouterMap;
 import com.futurewei.alcor.dataplane.entity.InternalSubnets;
+import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
+import com.futurewei.alcor.web.entity.port.PortHostInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
 @ComponentScan(value="com.futurewei.alcor.common.db")
-public class RouterSubnetsCache implements ICacheRepository<InternalSubnets> {
+public class RouterSubnetsCache {
     // The cache is a map(routerId, subnetIds)
-    private final ICache<String, InternalSubnets> routerSubnetsCache;
+    private final ICache<String, InternalSubnetRouterMap> routerSubnetsCache;
+    private CacheFactory cacheFactory;
 
     @Autowired
     public RouterSubnetsCache(CacheFactory cacheFactory) {
-        this.routerSubnetsCache = cacheFactory.getCache(InternalSubnets.class);
+        this.cacheFactory = cacheFactory;
+        this.routerSubnetsCache = cacheFactory.getCache(InternalSubnetRouterMap.class);
     }
 
     @DurationStatistics
-    public InternalSubnets getRouterSubnets(String routerId) throws CacheException {
-        return routerSubnetsCache.get(routerId);
+    public synchronized Collection<InternalSubnetRouterMap> getRouterSubnets(String routerId) throws CacheException {
+        Map<String, Object[]> queryParams = new HashMap<>();
+        Object[] values = new Object[1];
+        values[0] = routerId;
+        queryParams.put("routerId", values);
+        return routerSubnetsCache.getAll(queryParams).values();
+
     }
 
     @DurationStatistics
-    public Map<String, InternalSubnets> getAllSubnets() throws CacheException {
-        return routerSubnetsCache.getAll();
+    public synchronized Collection<InternalSubnetRouterMap> updateVpcSubnets(NetworkConfiguration networkConfig) throws CacheException {
+        Map<String, InternalSubnetRouterMap> internalSubnetsMap =  networkConfig
+                .getInternalRouterInfos()
+                .stream()
+                .filter(routerInfo -> routerInfo.getRouterConfiguration().getSubnetRoutingTables().size() > 0)
+                .flatMap(routerInfo -> routerInfo.getRouterConfiguration().getSubnetRoutingTables()
+                        .stream()
+                        .map(routingTable -> new InternalSubnetRouterMap(routerInfo.getRouterConfiguration().getId()
+                                , routingTable.getSubnetId())))
+                .collect(Collectors.toMap(routerInfo -> routerInfo.getRouterId() + cacheFactory.KEY_DELIMITER + routerInfo.getSubnetId(), Function.identity()));
+        routerSubnetsCache.putAll(internalSubnetsMap);
+        return internalSubnetsMap.values();
     }
 
     @DurationStatistics
-    public Map<String, InternalSubnets> getAllSubnets(Map<String, Object[]> queryParams) throws CacheException {
-        return routerSubnetsCache.getAll(queryParams);
+    public synchronized void deleteVpcGatewayInfo(String routerId, String subnetId) throws CacheException {
+        routerSubnetsCache.remove(routerId + cacheFactory.KEY_DELIMITER + subnetId);
     }
 
-    @DurationStatistics
-    public synchronized void addVpcSubnets(InternalSubnets subnets) throws CacheException {
-        routerSubnetsCache.put(subnets.getRouterId(), subnets);
-    }
 
-    @DurationStatistics
-    public void updateVpcSubnets(InternalSubnets subnets) throws CacheException {
-        routerSubnetsCache.put(subnets.getRouterId(), subnets);
-    }
-
-    @DurationStatistics
-    public void deleteVpcGatewayInfo(String routerId) throws CacheException {
-        routerSubnetsCache.remove(routerId);
-    }
-
-    @Override
-    public InternalSubnets findItem(String id) throws CacheException {
-        return routerSubnetsCache.get(id);
-    }
-
-    @Override
-    public Map<String, InternalSubnets> findAllItems() throws CacheException {
-        return routerSubnetsCache.getAll();
-    }
-
-    @Override
-    public Map<String, InternalSubnets> findAllItems(Map<String, Object[]> queryParams) throws CacheException {
-        return routerSubnetsCache.getAll(queryParams);
-    }
-
-    @Override
-    public void addItem(InternalSubnets subnets) throws CacheException {
-        log.debug("Add Subnets {} to Router {}", subnets.toString(), subnets.getRouterId());
-        routerSubnetsCache.put(subnets.getRouterId(), subnets);
-    }
-
-    @Override
-    public void addItems(List<InternalSubnets> items) throws CacheException {
-        Map<String, InternalSubnets> subnetsMap = items.stream().collect(Collectors.toMap(InternalSubnets::getRouterId, Function.identity()));
-        routerSubnetsCache.putAll(subnetsMap);
-    }
-
-    @Override
-    public void deleteItem(String id) throws CacheException {
-        log.debug("Delete Router {}", id);
-        routerSubnetsCache.remove(id);
-    }
 }

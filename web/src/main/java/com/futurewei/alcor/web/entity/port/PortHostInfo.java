@@ -21,17 +21,19 @@ public class PortHostInfo {
     private String portMac;
     private String hostId;
     private String hostIp;
+    private String subnetId;
 
     public PortHostInfo() {
 
     }
 
-    public PortHostInfo(String portId, String portIp, String portMac, String hostId, String hostIp) {
+    public PortHostInfo(String portId, String portIp, String portMac, String hostId, String hostIp, String subnetId) {
         this.portId = portId;
         this.portIp = portIp;
         this.portMac = portMac;
         this.hostId = hostId;
         this.hostIp = hostIp;
+        this.subnetId = subnetId;
     }
 
     public String getPortId() {
@@ -72,5 +74,13 @@ public class PortHostInfo {
 
     public void setHostIp(String hostIp) {
         this.hostIp = hostIp;
+    }
+
+    public String getSubnetId() {
+        return subnetId;
+    }
+
+    public void setSubnetId(String subnetId) {
+        this.subnetId = subnetId;
     }
 }

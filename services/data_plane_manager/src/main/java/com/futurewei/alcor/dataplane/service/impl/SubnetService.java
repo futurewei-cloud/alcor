@@ -120,6 +120,35 @@ public class SubnetService extends ResourceService {
         }
     }
 
+    public Subnet.SubnetState.Builder buildSubnetState (String subnetId) throws Exception
+    {
+        InternalSubnetPorts subnetEntity = subnetPortsCache.getSubnetPorts(subnetId);
+        Subnet.SubnetConfiguration.Builder subnetConfigBuilder = Subnet.SubnetConfiguration.newBuilder();
+        subnetConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
+        subnetConfigBuilder.setId(subnetId);
+        subnetConfigBuilder.setNetworkType(Common.NetworkType.VXLAN);
+        subnetConfigBuilder.setVpcId(subnetEntity.getVpcId());
+        subnetConfigBuilder.setName(subnetEntity.getName());
+        subnetConfigBuilder.setCidr(subnetEntity.getCidr());
+        subnetConfigBuilder.setTunnelId(subnetEntity.getTunnelId());
+
+        Subnet.SubnetConfiguration.Gateway.Builder gatewayBuilder = Subnet.SubnetConfiguration.Gateway.newBuilder();
+        gatewayBuilder.setIpAddress(subnetEntity.getGatewayPortIp());
+        gatewayBuilder.setMacAddress(subnetEntity.getGatewayPortMac());
+        subnetConfigBuilder.setGateway(gatewayBuilder.build());
+
+        if (subnetEntity.getDhcpEnable() != null) {
+            subnetConfigBuilder.setDhcpEnable(true);
+        }
+
+        // TODO: need to set DNS based on latest contract
+
+        Subnet.SubnetState.Builder subnetStateBuilder = Subnet.SubnetState.newBuilder();
+        subnetStateBuilder.setOperationType(Common.OperationType.INFO);
+        subnetStateBuilder.setConfiguration(subnetConfigBuilder.build());
+        return subnetStateBuilder;
+    }
+
     public void buildSubnetState (String subnetId, UnicastGoalStateV2 unicastGoalState, MulticastGoalStateV2 multicastGoalState) throws Exception
     {
         InternalSubnetPorts subnetEntity = subnetPortsCache.getSubnetPorts(subnetId);
@@ -227,11 +256,16 @@ public class SubnetService extends ResourceService {
         Subnet.SubnetState.Builder subnetStateBuilder = Subnet.SubnetState.newBuilder();
         subnetStateBuilder.setOperationType(Common.OperationType.INFO);
         subnetStateBuilder.setConfiguration(subnetConfigBuilder.build());
-        unicastGoalState.getGoalStateBuilder().putSubnetStates(id, subnetStateBuilder.build());
-        multicastGoalState.getGoalStateBuilder().putSubnetStates(id, subnetStateBuilder.build());
+        if (unicastGoalState != null) {
+            unicastGoalState.getGoalStateBuilder().putSubnetStates(id, subnetStateBuilder.build());
+        }
+        if (multicastGoalState != null) {
+            multicastGoalState.getGoalStateBuilder().putSubnetStates(id, subnetStateBuilder.build());
+        }
+
     }
 
-    public void buildSubnetStates(NetworkConfiguration networkConfig, UnicastGoalStateV2 unicastGoalState, MulticastGoalStateV2 multicastGoalState) throws Exception {
+    public void buildSubnetStates(NetworkConfiguration networkConfig, UnicastGoalStateV2 unicastGoalState) throws Exception {
         Map<String, Port.PortState> portStateMap = unicastGoalState.getGoalStateBuilder().getPortStatesMap();
         List<Port.PortState> portStates = new ArrayList<Port.PortState>(portStateMap.values());
         if (portStates == null || portStates.size() == 0) {
@@ -282,7 +316,6 @@ public class SubnetService extends ResourceService {
             subnetStateBuilder.setConfiguration(subnetConfigBuilder.build());
             Subnet.SubnetState subnetState = subnetStateBuilder.build();
             unicastGoalState.getGoalStateBuilder().putSubnetStates(subnetState.getConfiguration().getId(), subnetState);
-            multicastGoalState.getGoalStateBuilder().putSubnetStates(subnetState.getConfiguration().getId(), subnetState);
         }
     }
 }

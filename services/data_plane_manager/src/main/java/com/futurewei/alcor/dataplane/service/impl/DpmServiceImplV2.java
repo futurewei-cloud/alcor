@@ -16,10 +16,9 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.dataplane.service.impl;
 
 import com.futurewei.alcor.common.db.CacheException;
+import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.tracer.Tracer;
-import com.futurewei.alcor.dataplane.cache.LocalCache;
-import com.futurewei.alcor.dataplane.cache.SubnetPortsCache;
-import com.futurewei.alcor.dataplane.cache.VpcGatewayInfoCache;
+import com.futurewei.alcor.dataplane.cache.*;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.client.ZetaGatewayClient;
 import com.futurewei.alcor.dataplane.config.Config;
@@ -104,6 +103,12 @@ public class DpmServiceImplV2 implements DpmService {
     private RouterService routerService;
 
     @Autowired
+    private RouterSubnetsCache routerSubnetsCache;
+
+    @Autowired
+    private PortHostInfoCache portHostInfoCache;
+
+    @Autowired
     private DpmServiceImplV2(Config globalConfig) {
         this.goalStateMessageVersion = globalConfig.goalStateMessageVersion;
     }
@@ -119,13 +124,26 @@ public class DpmServiceImplV2 implements DpmService {
             portService.buildPortState(networkConfig, portEntities, unicastGoalState);
         }
 
+        Map<String, InternalSubnetPorts> internalSubnetPorts = subnetPortsCache.getSubnetPorts(networkConfig);
+        Map<String, PortHostInfo> portHostInfoMap = portHostInfoCache.getPortHostInfo(networkConfig);
+        synchronized (this) {
+            try(Transaction tx = subnetPortsCache.getTransaction().start()) {
+                subnetPortsCache.updateSubnetPorts(internalSubnetPorts);
+                portHostInfoCache.updatePortHostInfo(portHostInfoMap);
+                tx.commit();
+            }
+        }
+
         vpcService.buildVpcStates(networkConfig, unicastGoalState);
-        subnetService.buildSubnetStates(networkConfig, unicastGoalState, multicastGoalState);
-        neighborService.buildNeighborStates(networkConfig, hostIp, unicastGoalState, multicastGoalState);
+        subnetService.buildSubnetStates(networkConfig, unicastGoalState);
         securityGroupService.buildSecurityGroupStates(networkConfig, unicastGoalState);
         dhcpService.buildDhcpStates(networkConfig, unicastGoalState);
-        routerService.buildRouterStates(networkConfig, unicastGoalState, multicastGoalState);
-        patchGoalstateForNeighbor(networkConfig, unicastGoalState);
+        routerService.buildRouterStates(networkConfig, unicastGoalState);
+
+        neighborService.buildNeighborStatesL2(unicastGoalState, multicastGoalState, networkConfig.getOpType());
+        if (networkConfig.getInternalRouterInfos() != null) {
+            neighborService.buildNeighborStatesL3(networkConfig, unicastGoalState, multicastGoalState, networkConfig.getOpType());
+        }
 
         unicastGoalState.setGoalState(unicastGoalState.getGoalStateBuilder().build());
         unicastGoalState.setGoalStateBuilder(null);
@@ -594,8 +612,8 @@ public class DpmServiceImplV2 implements DpmService {
                 for (InternalSubnetRoutingTable subnetRoutingTable : subnetRoutingTables) {
                     String subnetId = subnetRoutingTable.getSubnetId();
 
-                    InternalSubnetPorts subnetPorts = localCache.getSubnetPorts(subnetId);
-                    if (subnetPorts == null) {
+                    Collection<PortHostInfo> portHostInfos = portHostInfoCache.getPortHostInfos(subnetId);
+                    if (portHostInfos == null) {
                         //throw new SubnetPortsNotFound();
                         //return new ArrayList<>();
                         continue;
@@ -604,7 +622,7 @@ public class DpmServiceImplV2 implements DpmService {
                     subnetRoutingTable.getRoutingRules().forEach(routingRule -> {ips.add(routingRule.getNextHopIp());});
                     List<Neighbor.NeighborState> neighbors = neighborService.getAllNeighbors(ips) ;
 
-                    for (PortHostInfo portHostInfo : subnetPorts.getPorts()) {
+                    for (PortHostInfo portHostInfo : portHostInfos) {
                         String hostIp = portHostInfo.getHostIp();
                         UnicastGoalStateV2 unicastGoalState = unicastGoalStateMap.get(hostIp);
                         if (unicastGoalState == null) {
@@ -627,7 +645,7 @@ public class DpmServiceImplV2 implements DpmService {
                             }
                         }
 
-                        routerService.buildRouterState(routerInfo, subnetRoutingTable, unicastGoalState, multicastGoalState);
+                        routerService.buildRouterState(routerInfo, subnetRoutingTable, unicastGoalState);
                         subnetService.buildSubnetState(subnetId, unicastGoalState, multicastGoalState);
                     }
                 }

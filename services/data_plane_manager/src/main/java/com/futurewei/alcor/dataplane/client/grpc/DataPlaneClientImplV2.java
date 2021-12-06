@@ -71,6 +71,7 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         for (UnicastGoalStateV2 unicastGoalState : unicastGoalStates) {
             goalStateBuilder = getGoalState(goalStateBuilder, unicastGoalState);
         }
+        System.out.println(goalStateBuilder.build());
         doSendGoalState(goalStateBuilder.build(), finishLatch, results);
 
         if (!finishLatch.await(1, TimeUnit.MINUTES)) {

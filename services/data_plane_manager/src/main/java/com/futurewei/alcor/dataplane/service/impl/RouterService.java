@@ -151,7 +151,7 @@ public class RouterService extends ResourceService {
         }
     }
 
-    public void buildRouterState(InternalRouterInfo routerInfo, InternalSubnetRoutingTable subnetRoutingTable, UnicastGoalStateV2 unicastGoalState, MulticastGoalStateV2 multicastGoalState) {
+    public void buildRouterState(InternalRouterInfo routerInfo, InternalSubnetRoutingTable subnetRoutingTable, UnicastGoalStateV2 unicastGoalState) {
         Router.RouterConfiguration.SubnetRoutingTable.Builder subnetRoutingTableBuilder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
         String subnetId = subnetRoutingTable.getSubnetId();
         subnetRoutingTableBuilder.setSubnetId(subnetId);
@@ -213,10 +213,9 @@ public class RouterService extends ResourceService {
         routerStateBuilder.setConfiguration(routerConfigBuilder.build());
         Router.RouterState routerState = routerStateBuilder.build();
         unicastGoalState.getGoalStateBuilder().putRouterStates(routerState.getConfiguration().getId(), routerState);
-        multicastGoalState.getGoalStateBuilder().putRouterStates(routerState.getConfiguration().getId(), routerState);
     }
 
-    public void buildRouterStates(NetworkConfiguration networkConfig, UnicastGoalStateV2 unicastGoalState, MulticastGoalStateV2 multicastGoalState) throws Exception {
+    public void buildRouterStates(NetworkConfiguration networkConfig, UnicastGoalStateV2 unicastGoalState) throws Exception {
         List<Port.PortState> portStates = new ArrayList<Port.PortState>(unicastGoalState.getGoalStateBuilder().getPortStatesMap().values());
         if (portStates == null || portStates.size() == 0) {
             return;
@@ -247,7 +246,7 @@ public class RouterService extends ResourceService {
 
                 for (InternalSubnetRoutingTable subnetRoutingTable : subnetRoutingTables) {
                     if (subnetId.equals(subnetRoutingTable.getSubnetId())) {
-                        buildRouterState(routerInfo, subnetRoutingTable, unicastGoalState, multicastGoalState);
+                        buildRouterState(routerInfo, subnetRoutingTable, unicastGoalState);
                         break;
                     }
                 }
