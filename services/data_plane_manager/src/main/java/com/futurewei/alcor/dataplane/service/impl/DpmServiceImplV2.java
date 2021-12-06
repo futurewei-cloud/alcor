@@ -142,7 +142,7 @@ public class DpmServiceImplV2 implements DpmService {
 
         neighborService.buildNeighborStatesL2(unicastGoalState, multicastGoalState, networkConfig.getOpType());
         if (networkConfig.getInternalRouterInfos() != null) {
-            neighborService.buildNeighborStatesL3(networkConfig, unicastGoalState, multicastGoalState, networkConfig.getOpType());
+            neighborService.buildNeighborStatesL3(networkConfig, unicastGoalState, multicastGoalState);
         }
 
         unicastGoalState.setGoalState(unicastGoalState.getGoalStateBuilder().build());
@@ -456,126 +456,24 @@ public class DpmServiceImplV2 implements DpmService {
      * @throws Exception Process exceptions and send exceptions
      */
     private List<String> processNeighborConfiguration(NetworkConfiguration networkConfig) throws Exception {
-        Map<String, NeighborInfo> neighborInfos = networkConfig.getNeighborInfos();
-        Map<String, List<NeighborEntry>> neighborTable = networkConfig.getNeighborTable();
-        List<UnicastGoalStateV2> unicastGoalStates = new ArrayList<>();
+        Map<String, UnicastGoalStateV2> unicastGoalStates = new HashMap<>();
         MulticastGoalStateV2 multicastGoalState = new MulticastGoalStateV2();
-        Map<String, List<String>> hostsSubnets = new HashMap<>();
-
-        if (neighborTable == null || neighborInfos == null) {
-            throw new NeighborInfoNotFound();
-            //return new ArrayList<>();
-        }
-
-        Map<String, List<NeighborInfo>> hostNeighbors = new HashMap<>();
-        for (Map.Entry<String, List<NeighborEntry>> entry: neighborTable.entrySet()) {
-            String portIp = entry.getKey();
-            NeighborInfo localInfo = neighborInfos.get(portIp);
-            if (localInfo == null) {
-                throw new NeighborInfoNotFound();
-            }
-
-            String hostIp = localInfo.getHostIp();
-            if (!hostNeighbors.containsKey(hostIp)) {
-                hostNeighbors.put(hostIp, new ArrayList<>());
-                hostsSubnets.put(hostIp, new ArrayList<>());
-            }
-            hostsSubnets.get(hostIp).add(localInfo.getSubnetId());
-
-            List<NeighborEntry> neighborEntries = entry.getValue();
-            for (NeighborEntry neighborEntry: neighborEntries) {
-                String neighborIp = neighborEntry.getNeighborIp();
-                NeighborInfo neighborInfo = neighborInfos.get(neighborIp);
-                if (neighborInfo == null) {
-                    throw new NeighborInfoNotFound();
-                }
-                if (!Objects.equals(neighborEntry.getNeighborType().name(), "L2")) {
-                    hostNeighbors.get(hostIp).add(neighborInfo);
-                    multicastGoalState.getHostIps().add(neighborInfo.getHostIp());
-                }
-            }
-
-            if (multicastGoalState.getHostIps().size() <= 0) {
-                // return new ArrayList<>();
-                continue;
-            }
-            //Add neighborInfo to multicastGoalState
-            Neighbor.NeighborState neighborState = neighborService.buildNeighborState(
-                    NeighborEntry.NeighborType.L3, localInfo, networkConfig.getOpType());
-            multicastGoalState.getGoalStateBuilder().putNeighborStates(neighborState.getConfiguration().getId(), neighborState);
-            UnicastGoalStateV2 unicastGoalStateTemp = new UnicastGoalStateV2();
-            unicastGoalStateTemp.getGoalStateBuilder().putNeighborStates(neighborState.getConfiguration().getId(), neighborState);
-            patchGoalstateForNeighbor(networkConfig, unicastGoalStateTemp);
-            if (unicastGoalStateTemp.getGoalStateBuilder().getRouterStatesMap() != null &&
-                    unicastGoalStateTemp.getGoalStateBuilder().getRouterStatesMap().size() > 0 ) {
-                multicastGoalState.getGoalStateBuilder().putAllSubnetStates(unicastGoalStateTemp.getGoalStateBuilder().getSubnetStatesMap());
-            }
-            if (unicastGoalStateTemp.getGoalStateBuilder().getRouterStatesMap() != null &&
-                    unicastGoalStateTemp.getGoalStateBuilder().getRouterStatesMap().size() > 0) {
-                multicastGoalState.getGoalStateBuilder().putAllRouterStates(unicastGoalStateTemp.getGoalStateBuilder().getRouterStatesMap());
-            }
-        }
-
-        boolean patchRouterSubnetStates = false;
-        for (Map.Entry<String, List<NeighborInfo>> entry: hostNeighbors.entrySet()) {
-            String hostIp = entry.getKey();
-            List<NeighborInfo> hostNeighborInfos = entry.getValue();
-
-            if (hostNeighborInfos.size() <= 0) {
-                multicastGoalState.getHostIps().add(hostIp);
-                patchRouterSubnetStates = true;
-            }
-
-            /**
-             * At present, there are only L3 neighbors in the neighbor table,
-             * and the processing of L2 neighbors should be considered in the future.
-             */
-            for (NeighborInfo neighborInfo: hostNeighborInfos) {
-                Neighbor.NeighborState neighborState = neighborService.buildNeighborState(
-                        NeighborEntry.NeighborType.L3,
-                        neighborInfo,
-                        networkConfig.getOpType());
-
-                UnicastGoalStateV2 unicastGoalState = new UnicastGoalStateV2();
-                //unicastGoalState.setHostIp(neighborInfo.getHostIp());
-                unicastGoalState.setHostIp(hostIp);
-                unicastGoalState.getGoalStateBuilder().putNeighborStates(neighborState.getConfiguration().getId(), neighborState);
-
-                // use unicastGoalStateTemp object to get patchGoalStates for neighborState update
-                // unicasGoalStateTemp will include subnet_states and a consolidated router_state based on the current neighborState
-                UnicastGoalStateV2 unicastGoalStateTemp = new UnicastGoalStateV2();
-                unicastGoalStateTemp.getGoalStateBuilder().putNeighborStates(neighborState.getConfiguration().getId(), neighborState);
-                patchGoalstateForNeighbor(networkConfig, unicastGoalStateTemp);
-
-                unicastGoalState.getGoalStateBuilder().putAllSubnetStates(unicastGoalStateTemp.getGoalStateBuilder().getSubnetStatesMap());
-                unicastGoalState.getGoalStateBuilder().putAllRouterStates(unicastGoalStateTemp.getGoalStateBuilder().getRouterStatesMap());
-                unicastGoalState.getGoalStateBuilder().putAllSubnetStates(multicastGoalState.getGoalStateBuilder().getSubnetStatesMap());
-                rebuildRouterState(unicastGoalState.getGoalStateBuilder(), multicastGoalState.getGoalStateBuilder());
-                multicastGoalState.getGoalStateBuilder().putAllSubnetStates(unicastGoalStateTemp.getGoalStateBuilder().getSubnetStatesMap());
-                rebuildRouterState(multicastGoalState.getGoalStateBuilder(), unicastGoalStateTemp.getGoalStateBuilder());
-                unicastGoalStates.add(unicastGoalState);
-            }
-        }
-
-        /**
-         * The flag patchRouterSubnetStates is to fix issue #686 (issue from test scenario 4.5)
-         */
-        if (patchRouterSubnetStates) {
-            patchGoalstateForRouterSubnet(networkConfig, hostsSubnets, multicastGoalState);
+        if (networkConfig.getInternalRouterInfos() != null) {
+            neighborService.buildNeighborStatesL3(networkConfig, unicastGoalStates, multicastGoalState);
         }
 
         multicastGoalState.setGoalState(multicastGoalState.getGoalStateBuilder().build());
         multicastGoalState.setGoalStateBuilder(null);
-        unicastGoalStates.stream().forEach(u -> {
+        unicastGoalStates.values().stream().forEach(u -> {
             u.setGoalState(u.getGoalStateBuilder().build());
             u.setGoalStateBuilder(null);
         });
 
         if (USE_PULSAR_CLIENT) {
-            return pulsarDataPlaneClient.sendGoalStates(unicastGoalStates, multicastGoalState);
+            return pulsarDataPlaneClient.sendGoalStates(new ArrayList<>(unicastGoalStates.values()), multicastGoalState);
         }
 
-        return grpcDataPlaneClient.sendGoalStates(unicastGoalStates, multicastGoalState);
+        return grpcDataPlaneClient.sendGoalStates(new ArrayList<>(unicastGoalStates.values()), multicastGoalState);
     }
 
     private List<String> processSecurityGroupConfiguration(NetworkConfiguration networkConfig) throws Exception {

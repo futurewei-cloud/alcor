@@ -44,12 +44,18 @@ public class RouterToDPMServiceImpl implements RouterToDPMService {
     }
 
     @Override
-    public void sendInternalRouterInfoToDPM(InternalRouterInfo internalRouterInfo) throws Exception{
+    public void sendInternalRouterInfoToDPM(InternalRouterInfo internalRouterInfo, Common.ResourceType... resourceTypes) throws Exception{
         NetworkConfiguration networkConfiguration = new NetworkConfiguration();
         List<InternalRouterInfo> internalRouterInfos = new ArrayList<>();
         internalRouterInfos.add(internalRouterInfo);
         networkConfiguration.setInternalRouterInfos(internalRouterInfos);
-        networkConfiguration.setRsType(Common.ResourceType.ROUTER);
+
+        if (resourceTypes.length == 0) {
+            networkConfiguration.setRsType(Common.ResourceType.ROUTER);
+        } else {
+            networkConfiguration.setRsType(resourceTypes[0]);
+        }
+
         switch (internalRouterInfo.getOperationType())
         {
             case CREATE:

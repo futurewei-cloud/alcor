@@ -322,8 +322,8 @@ public class NeutronRouterController {
             InternalSubnetRoutingTable internalSubnetRoutingTable = updateRoutingRuleResponse.getInternalSubnetRoutingTable();
             List<InternalSubnetRoutingTable> internalSubnetRoutingTableList = this.neutronRouterService.constructInternalSubnetRoutingTables(router);
             internalSubnetRoutingTableList.add(internalSubnetRoutingTable);
-            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(routerid, internalSubnetRoutingTableList);
-            this.routerToPMService.updateL3Neighbors(projectid, router.getOwner(), subnetId, "add", gatewayPorts, internalRouterInfo);
+            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(routerid, internalSubnetRoutingTableList, OperationType.CREATE);
+            this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo, Common.ResourceType.NEIGHBOR);
         }
 
         return routerInterfaceResponse;
@@ -373,8 +373,8 @@ public class NeutronRouterController {
 
             List<InternalSubnetRoutingTable> internalSubnetRoutingTableList = this.neutronRouterService.constructInternalSubnetRoutingTables(router);
             internalSubnetRoutingTableList.add(internalSubnetRoutingTable);
-            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(routerid, internalSubnetRoutingTableList);
-            this.routerToPMService.updateL3Neighbors(projectid, router.getOwner(), subnetId, "delete", gatewayPorts, internalRouterInfo);
+            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(routerid, internalSubnetRoutingTableList, OperationType.DELETE);
+            this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo, Common.ResourceType.NEIGHBOR);
         }
 
         return routerInterfaceResponse;

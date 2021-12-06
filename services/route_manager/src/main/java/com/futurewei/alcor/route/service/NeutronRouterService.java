@@ -16,6 +16,7 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.route.service;
 
 import com.futurewei.alcor.common.db.CacheException;
+import com.futurewei.alcor.common.enumClass.OperationType;
 import com.futurewei.alcor.common.exception.DatabasePersistenceException;
 import com.futurewei.alcor.common.exception.QueryParamTypeNotSupportException;
 import com.futurewei.alcor.common.exception.ResourceNotFoundException;
@@ -35,7 +36,7 @@ public interface NeutronRouterService {
     public RoutesToNeutronWebResponse removeRoutesFromNeutronRouter(String routerid, NewRoutesWebRequest requestRouter) throws RouterOrSubnetAndPortNotExistOrNotVisible, ResourceNotFoundException, ResourcePersistenceException, DestinationOrNexthopCanNotBeNull, DatabasePersistenceException;
     public ConnectedSubnetsWebResponse getConnectedSubnets (String projectId, String vpcId, String subnetId) throws ResourceNotFoundException, ResourcePersistenceException, SubnetNotBindUniquePortId;
     public UpdateRoutingRuleResponse updateRoutingRule (String owner, NewRoutesWebRequest newRouteEntry, boolean isNeutronOrVPCLevelRoutingRule, boolean isAddOperation) throws DestinationOrNexthopCanNotBeNull, CacheException, CanNotFindRouteTableByOwner, QueryParamTypeNotSupportException, RouteTableNotUnique, DestinationInvalid, DatabasePersistenceException;
-    public InternalRouterInfo constructInternalRouterInfo (String routerid, List<InternalSubnetRoutingTable> internalSubnetRoutingTableList);
+    public InternalRouterInfo constructInternalRouterInfo (String routerid, List<InternalSubnetRoutingTable> internalSubnetRoutingTableList, OperationType... operationType);
     public List<InternalSubnetRoutingTable> constructInternalSubnetRoutingTables (Router router) throws Exception;
     public List<RouteTable> getRouteTablesBySubnetIds (List<String> subnetIds, String projectid) throws Exception;
 }
