@@ -22,6 +22,7 @@ import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.dataplane.entity.InternalSubnetRouterMap;
 import com.futurewei.alcor.dataplane.entity.InternalSubnets;
+import com.futurewei.alcor.web.entity.dataplane.InternalSubnetEntity;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortHostInfo;
 import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
@@ -29,9 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -98,21 +97,40 @@ public class SubnetPortsCache {
     @DurationStatistics
     public Map<String, InternalSubnetPorts> getSubnetPorts(NetworkConfiguration networkConfig) {
         Map<String, String> internalSubnetsRouterMap = getInternalSubnetRouterMap(networkConfig);
+        Set<String> keys = internalSubnetsRouterMap.keySet();
+        Map<String, InternalSubnetPorts> internalSubnetEntityMap = new HashMap<>();
+        keys.parallelStream().forEach(key -> {
+            try {
+                if (subnetPortsCache.containsKey(key)) {
+                    internalSubnetEntityMap.put(key, subnetPortsCache.get(key));
+                } else {
+
+                }
+            } catch (CacheException e) {
+                e.printStackTrace();
+            }
+        });
 
         Map<String, InternalSubnetPorts> internalSubnetPortsMap =  networkConfig
                 .getSubnets()
                 .stream()
                 .filter(subnetEntity -> subnetEntity != null)
-                .map(subnetEntity -> new InternalSubnetPorts(subnetEntity.getId()
-                        ,subnetEntity.getGatewayPortDetail().getGatewayPortId()
-                        ,subnetEntity.getGatewayIp()
-                        ,subnetEntity.getGatewayPortDetail().getGatewayMacAddress()
-                        ,subnetEntity.getName()
-                        ,subnetEntity.getCidr()
-                        ,subnetEntity.getVpcId()
-                        ,subnetEntity.getTunnelId()
-                        ,subnetEntity.getDhcpEnable()
-                        ,internalSubnetsRouterMap.getOrDefault(subnetEntity.getId(), null))
+                .map(subnetEntity -> {
+                        InternalSubnetPorts internalSubnetPorts = internalSubnetEntityMap.getOrDefault(subnetEntity.getId(), null);
+                        if (internalSubnetPorts == null) {
+                            internalSubnetPorts = new InternalSubnetPorts(subnetEntity.getId()
+                                    ,subnetEntity.getGatewayPortDetail().getGatewayPortId()
+                                    ,subnetEntity.getGatewayIp()
+                                    ,subnetEntity.getGatewayPortDetail().getGatewayMacAddress()
+                                    ,subnetEntity.getName()
+                                    ,subnetEntity.getCidr()
+                                    ,subnetEntity.getVpcId()
+                                    ,subnetEntity.getTunnelId()
+                                    ,subnetEntity.getDhcpEnable()
+                                    ,internalSubnetsRouterMap.getOrDefault(subnetEntity.getId(), null));
+                        }
+                        return internalSubnetPorts;
+                    }
                 )
                 .collect(Collectors.toMap(InternalSubnetPorts::getSubnetId, Function.identity()));
 
