@@ -88,10 +88,29 @@ public class SubnetPortsCache {
                             .stream()
                             .map(routingTable -> new InternalSubnetRouterMap(routerInfo.getRouterConfiguration().getId()
                                     , routingTable.getSubnetId())))
+                    .distinct()
                     .collect(Collectors.toMap(routerInfo -> routerInfo.getSubnetId(), routerInfo -> routerInfo.getRouterId()));
             return internalSubnetsRouterMap;
         }
         return new HashMap<>();
+    }
+
+
+
+    @DurationStatistics
+    public void attacheRouter(Map<String, String> subnetIdRouterIdMap) {
+       subnetIdRouterIdMap
+            .entrySet()
+            .forEach(subnetIdRouterId -> {
+                InternalSubnetPorts internalSubnetPorts = null;
+                try {
+                    internalSubnetPorts = subnetPortsCache.get(subnetIdRouterId.getKey());
+                    internalSubnetPorts.setRouterId(subnetIdRouterId.getValue());
+                    subnetPortsCache.put(subnetIdRouterId.getKey(), internalSubnetPorts);
+                } catch (CacheException e) {
+                    e.printStackTrace();
+                }
+            });
     }
 
     @DurationStatistics

@@ -16,6 +16,8 @@ Copyright(c) 2020 Futurewei Cloud
 
 package com.futurewei.alcor.dataplane.entity;
 
+import com.futurewei.alcor.web.entity.route.RouteEntry;
+
 public class InternalSubnetRouterMap {
     private String routerId;
     private String subnetId;
@@ -37,5 +39,20 @@ public class InternalSubnetRouterMap {
 
     public String getSubnetId() {
         return this.subnetId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        //if (!super.equals(o)) return false;
+        InternalSubnetRouterMap internalSubnetRouterMap = (InternalSubnetRouterMap) o;
+        return routerId.equals(internalSubnetRouterMap.routerId) && subnetId.equals(internalSubnetRouterMap.subnetId);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return 31 * subnetId.hashCode() + routerId.hashCode();
     }
 }

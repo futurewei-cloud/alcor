@@ -187,6 +187,10 @@ public class RouterService extends ResourceService {
         List<Router.RouterConfiguration.SubnetRoutingTable> subnetRoutingTablesList = new ArrayList<>();
         subnetRoutingTablesList.add(subnetRoutingTableBuilder.build());
 
+        if (unicastGoalState.length == 0) {
+            unicastGoalState = new UnicastGoalStateV2[1];
+            unicastGoalState[0] = new UnicastGoalStateV2("", Goalstate.GoalStateV2.newBuilder());
+        }
         Goalstate.GoalStateV2.Builder goalStateBuilder = unicastGoalState[0].getGoalStateBuilder();
         List<Router.RouterState> routerStatesBuilders = new ArrayList<Router.RouterState>(goalStateBuilder.getRouterStatesMap().values());
 
