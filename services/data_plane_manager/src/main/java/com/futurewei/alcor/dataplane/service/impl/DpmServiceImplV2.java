@@ -53,7 +53,6 @@ import static com.futurewei.alcor.dataplane.service.impl.ResourceService.HOST_DV
 @ConditionalOnProperty(prefix = "protobuf.goal-state-message", name = "version", havingValue = "102")
 public class DpmServiceImplV2 implements DpmService {
     private static final Logger LOG = LoggerFactory.getLogger(DpmServiceImplV2.class);
-    private static final boolean USE_PULSAR_CLIENT = false;
 
     private int goalStateMessageVersion;
     private DataPlaneManagerRestClient dataPlaneManagerRestClient;
@@ -102,6 +101,9 @@ public class DpmServiceImplV2 implements DpmService {
 
     @Autowired
     private RouterService routerService;
+
+    @Autowired
+    private PathManagerService pathManagerService;
 
     @Autowired
     private DpmServiceImplV2(Config globalConfig) {
@@ -274,11 +276,11 @@ public class DpmServiceImplV2 implements DpmService {
                 zetaGatewayClient.enableZetaGatewayForPort(portEntity);
             }
 
-            boolean fastPath = true;
-            if (portEntity.getFastPath() != null && portEntity.getFastPath() == false) {
-                fastPath = portEntity.getFastPath();
-            }
-            if (fastPath) {
+//            boolean fastPath = true;
+//            if (portEntity.getFastPath() != null && portEntity.getFastPath() == false) {
+//                fastPath = portEntity.getFastPath();
+//            }
+            if (pathManagerService.isFastPath(portEntity)) {
                 if (!grpcHostPortEntities.containsKey(portEntity.getBindingHostIP())) {
                     grpcHostPortEntities.put(portEntity.getBindingHostIP(), new ArrayList<>());
                 }
@@ -551,7 +553,7 @@ public class DpmServiceImplV2 implements DpmService {
             u.setGoalStateBuilder(null);
         });
 
-        if (USE_PULSAR_CLIENT) {
+        if (pathManagerService.isFastPath()) {
             return pulsarDataPlaneClient.sendGoalStates(unicastGoalStates, multicastGoalState);
         }
 

@@ -40,8 +40,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Service("pulsarDataPlaneClient")
-@ConditionalOnProperty(prefix = "protobuf.goal-state-message", name = "version", havingValue = "101")
+//@Service("pulsarDataPlaneClient")
+//@ConditionalOnProperty(prefix = "protobuf.goal-state-message", name = "version", havingValue = "101")
 public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, MulticastGoalState> {
     private static final Logger LOG = LoggerFactory.getLogger(DataPlaneClientImpl.class);
 

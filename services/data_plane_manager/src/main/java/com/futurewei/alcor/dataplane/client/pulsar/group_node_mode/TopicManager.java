@@ -26,8 +26,8 @@ import org.springframework.context.annotation.Configuration;
 import javax.annotation.PostConstruct;
 import java.util.*;
 
-@Configuration
-@ConditionalOnProperty(prefix = "mq", name = "type", havingValue = "pulsar")
+//@Configuration
+//@ConditionalOnProperty(prefix = "mq", name = "type", havingValue = "pulsar")
 public class TopicManager {
     private static final Logger LOG = LoggerFactory.getLogger(TopicManager.class);
 
