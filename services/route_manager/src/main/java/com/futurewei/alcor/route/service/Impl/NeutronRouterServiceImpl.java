@@ -122,7 +122,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
     }
 
     @Override
-    public RouterInterfaceResponse addAnInterfaceToNeutronRouter(String projectid, String portId, String subnetId, String routerId)
+    public RouterInterfaceResponse addAnInterfaceToNeutronRouter(String projectid, String portId, String subnetId, String routerId, SubnetEntity subnetEntity)
             throws SpecifyBothSubnetIDAndPortID, ResourceNotFoundException, ResourcePersistenceException, RouterUnavailable,
             DatabasePersistenceException, PortIDIsAlreadyExist, PortIsAlreadyInUse, SubnetNotBindUniquePortId, RouterHasMultipleVPCs {
         if (portId != null && subnetId != null) {
@@ -166,6 +166,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         } else {
             return new RouterInterfaceResponse();
         }
+
         Router router = this.routerDatabaseService.getByRouterId(routerId);
         if (router == null) {
             throw new RouterUnavailable(routerId);
@@ -180,7 +181,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
             throw new PortIsAlreadyInUse();
         }
         subnet.setAttachedRouterId(routerId);
-
+        BeanUtils.copyProperties(subnet, subnetEntity);
         /*
            In order to make Neutron router compatible with VPC scenario.
            We only allow subnet's gateways from the same VPC can be attached to router.
@@ -239,7 +240,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
     }
 
     @Override
-    public RouterInterfaceResponse removeAnInterfaceToNeutronRouter(String projectid, String portId, String subnetId, String routerId) throws ResourceNotFoundException, ResourcePersistenceException, RouterOrSubnetAndPortNotExistOrNotVisible, AttachedPortsNotMatchPortId, RouterTableNotExist, RouterInterfaceAreUsedByRoutes, SubnetNotBindUniquePortId, DatabasePersistenceException {
+    public RouterInterfaceResponse removeAnInterfaceToNeutronRouter(String projectid, String portId, String subnetId, String routerId, SubnetEntity subnetEntity) throws ResourceNotFoundException, ResourcePersistenceException, RouterOrSubnetAndPortNotExistOrNotVisible, AttachedPortsNotMatchPortId, RouterTableNotExist, RouterInterfaceAreUsedByRoutes, SubnetNotBindUniquePortId, DatabasePersistenceException {
         SubnetEntity subnet = null;
         String projectId = null;
         String subnetid = null;
@@ -292,7 +293,7 @@ public class NeutronRouterServiceImpl implements NeutronRouterService {
         } else {
             return new RouterInterfaceResponse();
         }
-
+        BeanUtils.copyProperties(subnet, subnetEntity);
         // check if the router or the subnet and port do not exist or are not visible
         Router router = this.routerDatabaseService.getByRouterId(routerId);
         if (router == null) {

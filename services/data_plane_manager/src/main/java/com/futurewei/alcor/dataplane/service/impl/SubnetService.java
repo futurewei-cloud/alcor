@@ -130,8 +130,9 @@ public class SubnetService extends ResourceService {
         subnetConfigBuilder.setVpcId(subnetEntity.getVpcId());
         subnetConfigBuilder.setName(subnetEntity.getName());
         subnetConfigBuilder.setCidr(subnetEntity.getCidr());
-        subnetConfigBuilder.setTunnelId(subnetEntity.getTunnelId());
-
+        if (subnetEntity.getTunnelId() != null) {
+            subnetConfigBuilder.setTunnelId(subnetEntity.getTunnelId());
+        }
         Subnet.SubnetConfiguration.Gateway.Builder gatewayBuilder = Subnet.SubnetConfiguration.Gateway.newBuilder();
         gatewayBuilder.setIpAddress(subnetEntity.getGatewayPortIp());
         gatewayBuilder.setMacAddress(subnetEntity.getGatewayPortMac());
