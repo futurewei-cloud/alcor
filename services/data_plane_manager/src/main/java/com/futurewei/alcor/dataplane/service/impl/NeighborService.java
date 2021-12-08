@@ -437,9 +437,7 @@ public class NeighborService extends ResourceService {
         Map<String, Neighbor.NeighborState> neighborStateMap = new TreeMap<>();
         Map<String, Subnet.SubnetState> subnetStateMap = new TreeMap<>();
         Router.RouterConfiguration.Builder unicastRouterConfigurationBuilder = Router.RouterConfiguration.newBuilder();
-        String subnetId = networkConfiguration.getInternalRouterInfos().stream().flatMap(routerInfo ->
-            routerInfo.getRouterConfiguration().getSubnetRoutingTables().stream().map(subnetRoutingTable -> subnetRoutingTable.getSubnetId())
-        ).collect(Collectors.toSet()).stream().findFirst().orElse("");
+        String subnetId = networkConfiguration.getSubnets().stream().map(subnetEntity -> subnetEntity.getId()).findFirst().orElse("");
         String vpcid = subnetPortsCache.getSubnetPorts(subnetId).getVpcId();
         portHostInfoCache.getPortHostInfos(subnetId)
                 .forEach(portState -> unicastGoalStates.put(portState.getHostIp(), new UnicastGoalStateV2(portState.getHostIp(), Goalstate.GoalStateV2.newBuilder())));
@@ -458,10 +456,11 @@ public class NeighborService extends ResourceService {
                             multicastGoalState.getHostIps().add(portHostInfo.getHostIp());
                             neighborStateMap.put(neighborState.getConfiguration().getId(), neighborState);
                             subnetStateMap.put(internalSubnetPort.getSubnetId(), subnetService.buildSubnetState(internalSubnetPort.getSubnetId()).build());
+                            Router.RouterConfiguration.SubnetRoutingTable.Builder subnetRoutingTableBuilder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
+                            subnetRoutingTableBuilder.setSubnetId(internalSubnetPort.getSubnetId());
+                            unicastRouterConfigurationBuilder.addSubnetRoutingTables(subnetRoutingTableBuilder.build());
                         }
-                        Router.RouterConfiguration.SubnetRoutingTable.Builder subnetRoutingTableBuilder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
-                        subnetRoutingTableBuilder.setSubnetId(internalSubnetPort.getSubnetId());
-                        unicastRouterConfigurationBuilder.addSubnetRoutingTables(subnetRoutingTableBuilder.build());
+
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -474,8 +473,8 @@ public class NeighborService extends ResourceService {
 
         InternalSubnetRoutingTable subnetRoutingTables =
                 networkConfiguration.getInternalRouterInfos().get(0).getRouterConfiguration().getSubnetRoutingTables().stream().filter(subnetRoutingTable -> subnetRoutingTable.getSubnetId().equals(subnetId)).findFirst().orElse(null);
-        multicastGoalState.getGoalStateBuilder().putRouterStates(routerId, routerService.buildRouterState(networkConfiguration.getInternalRouterInfos().get(0), subnetRoutingTables).build());
-
+        Router.RouterState routerState =  routerService.buildRouterState(networkConfiguration.getInternalRouterInfos().get(0), subnetRoutingTables).build();
+        multicastGoalState.getGoalStateBuilder().putRouterStates(routerId, routerState);
         Subnet.SubnetState subnetState = subnetService.buildSubnetState(subnetId).build();
         multicastGoalState.getGoalStateBuilder().putSubnetStates(subnetId, subnetState);
         subnetStateMap.put(subnetId, subnetState);
