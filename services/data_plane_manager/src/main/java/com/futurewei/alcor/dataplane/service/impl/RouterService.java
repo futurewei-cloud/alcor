@@ -184,7 +184,7 @@ public class RouterService extends ResourceService {
             }
         }
 
-        List<Router.RouterConfiguration.SubnetRoutingTable> subnetRoutingTablesList = new ArrayList<>();
+        Set<Router.RouterConfiguration.SubnetRoutingTable> subnetRoutingTablesList = new HashSet<>();
         subnetRoutingTablesList.add(subnetRoutingTableBuilder.build());
 
         if (unicastGoalState.length == 0) {
