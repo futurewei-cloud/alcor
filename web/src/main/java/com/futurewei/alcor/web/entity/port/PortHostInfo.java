@@ -15,12 +15,15 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.web.entity.port;
 
+import org.apache.ignite.cache.query.annotations.QuerySqlField;
+
 public class PortHostInfo {
     private String portId;
     private String portIp;
     private String portMac;
     private String hostId;
     private String hostIp;
+    @QuerySqlField(index = true)
     private String subnetId;
 
     public PortHostInfo() {

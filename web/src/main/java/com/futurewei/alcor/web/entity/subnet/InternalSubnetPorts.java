@@ -16,6 +16,7 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.web.entity.subnet;
 
 import com.futurewei.alcor.web.entity.port.PortHostInfo;
+import org.apache.ignite.cache.query.annotations.QuerySqlField;
 
 import java.util.List;
 
@@ -30,6 +31,7 @@ public class InternalSubnetPorts {
     private Long tunnelId;
     private Boolean dhcpEnable;
     private List<PortHostInfo> ports;
+    @QuerySqlField(index = true)
     private String routerId;
 
     public InternalSubnetPorts() {
