@@ -53,12 +53,12 @@ public class SubnetPortsCache {
     }
 
     @DurationStatistics
-    public Collection<InternalSubnetPorts> getSubnetPortsByRouterId(String routerId) throws CacheException {
+    public Map<String, InternalSubnetPorts> getSubnetPortsByRouterId(String routerId) throws CacheException {
         Map<String, Object[]> queryParams = new HashMap<>();
         Object[] values = new Object[1];
         values[0] = routerId;
         queryParams.put("routerId", values);
-        return subnetPortsCache.getAll(queryParams).values();
+        return subnetPortsCache.getAll(queryParams);
     }
 
     @DurationStatistics
@@ -95,21 +95,9 @@ public class SubnetPortsCache {
     }
 
     @DurationStatistics
-    public Map<String, InternalSubnetPorts> getSubnetPorts(NetworkConfiguration networkConfig) {
+    public Map<String, InternalSubnetPorts> getSubnetPorts(NetworkConfiguration networkConfig) throws CacheException {
         Map<String, String> internalSubnetsRouterMap = getInternalSubnetRouterMap(networkConfig);
-        Set<String> keys = internalSubnetsRouterMap.keySet();
-        Map<String, InternalSubnetPorts> internalSubnetEntityMap = new HashMap<>();
-        keys.parallelStream().forEach(key -> {
-            try {
-                if (subnetPortsCache.containsKey(key)) {
-                    internalSubnetEntityMap.put(key, subnetPortsCache.get(key));
-                } else {
-
-                }
-            } catch (CacheException e) {
-                e.printStackTrace();
-            }
-        });
+        Map<String, InternalSubnetPorts> internalSubnetEntityMap = getSubnetPortsByRouterId(internalSubnetsRouterMap.values().stream().findFirst().orElse(""));
 
         Map<String, InternalSubnetPorts> internalSubnetPortsMap =  networkConfig
                 .getSubnets()

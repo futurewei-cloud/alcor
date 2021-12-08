@@ -390,7 +390,7 @@ public class NeighborService extends ResourceService {
         String vpcid = unicastGoalStateV2.getGoalStateBuilder().getVpcStatesMap().values().stream().map(vpcState -> vpcState.getConfiguration().getId()).findFirst().orElse(null);
         routerIds.parallelStream().forEach(routerId -> {
             try {
-                Collection<InternalSubnetPorts> internalSubnetPorts  = subnetPortsCache.getSubnetPortsByRouterId(routerId);
+                Collection<InternalSubnetPorts> internalSubnetPorts  = subnetPortsCache.getSubnetPortsByRouterId(routerId).values();
 
                 for (InternalSubnetPorts internalSubnetPort : internalSubnetPorts) {
                     try {
@@ -444,7 +444,7 @@ public class NeighborService extends ResourceService {
         portHostInfoCache.getPortHostInfos(subnetId)
                 .forEach(portState -> unicastGoalStates.put(portState.getHostIp(), new UnicastGoalStateV2(portState.getHostIp(), Goalstate.GoalStateV2.newBuilder())));
 
-        Collection<InternalSubnetPorts> internalSubnetPorts  = subnetPortsCache.getSubnetPortsByRouterId(routerId);
+        Collection<InternalSubnetPorts> internalSubnetPorts  = subnetPortsCache.getSubnetPortsByRouterId(routerId).values();
         for (InternalSubnetPorts internalSubnetPort : internalSubnetPorts) {
             try {
                 Collection<PortHostInfo> portHostInfos = portHostInfoCache.getPortHostInfos(internalSubnetPort.getSubnetId());
