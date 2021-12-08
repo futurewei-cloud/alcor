@@ -26,6 +26,7 @@ import com.futurewei.alcor.web.entity.dataplane.InternalSubnetEntity;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortHostInfo;
 import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
+import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
@@ -95,50 +96,43 @@ public class SubnetPortsCache {
     }
 
     @DurationStatistics
-    public void attacheRouter(Map<String, String> subnetIdRouterIdMap) {
-       subnetIdRouterIdMap
-            .entrySet()
-            .forEach(subnetIdRouterId -> {
-               InternalSubnetPorts internalSubnetPorts = null;
-                 try {
-                        internalSubnetPorts = subnetPortsCache.get(subnetIdRouterId.getKey());
-                        internalSubnetPorts.setRouterId(subnetIdRouterId.getValue());
-                        subnetPortsCache.put(subnetIdRouterId.getKey(), internalSubnetPorts);
-                     } catch (CacheException e) {
-                        e.printStackTrace();
-                     }
-       });
+    public Map<String, InternalSubnetPorts> attacheRouter(Map<String, String> subnetIdRouterIdMap) throws CacheException {
+        Map<String, InternalSubnetPorts> internalSubnetEntityMap = new TreeMap<>();
+        for (Map.Entry<String, String> subnetIdRouterId : subnetIdRouterIdMap.entrySet()) {
+            InternalSubnetPorts internalSubnetPorts = null;
+            try {
+                if (subnetPortsCache.containsKey(subnetIdRouterId.getKey())) {
+                    internalSubnetPorts = subnetPortsCache.get(subnetIdRouterId.getKey());
+                    internalSubnetPorts.setRouterId(subnetIdRouterId.getValue());
+                    internalSubnetEntityMap.put(subnetIdRouterId.getKey(), internalSubnetPorts);
+                }
+            } catch (CacheException e) {
+                e.printStackTrace();
+            }
+        }
+
+        subnetPortsCache.putAll(internalSubnetEntityMap);
+        return internalSubnetEntityMap;
     }
 
 
     @DurationStatistics
     public Map<String, InternalSubnetPorts> getSubnetPorts(NetworkConfiguration networkConfig) throws CacheException {
         Map<String, String> internalSubnetsRouterMap = getInternalSubnetRouterMap(networkConfig);
-        Map<String, InternalSubnetPorts> internalSubnetEntityMap = getSubnetPortsByRouterId(internalSubnetsRouterMap.values().stream().findFirst().orElse(""));
-
-        Map<String, InternalSubnetPorts> internalSubnetPortsMap =  networkConfig
-                .getSubnets()
-                .stream()
-                .filter(subnetEntity -> subnetEntity != null)
-                .map(subnetEntity -> {
-                        InternalSubnetPorts internalSubnetPorts = internalSubnetEntityMap.getOrDefault(subnetEntity.getId(), null);
-                        if (internalSubnetPorts == null) {
-                            internalSubnetPorts = new InternalSubnetPorts(subnetEntity.getId()
-                                    ,subnetEntity.getGatewayPortDetail().getGatewayPortId()
-                                    ,subnetEntity.getGatewayIp()
-                                    ,subnetEntity.getGatewayPortDetail().getGatewayMacAddress()
-                                    ,subnetEntity.getName()
-                                    ,subnetEntity.getCidr()
-                                    ,subnetEntity.getVpcId()
-                                    ,subnetEntity.getTunnelId()
-                                    ,subnetEntity.getDhcpEnable()
-                                    ,internalSubnetsRouterMap.getOrDefault(subnetEntity.getId(), null));
-                        }
-                        return internalSubnetPorts;
-                    }
-                )
-                .collect(Collectors.toMap(InternalSubnetPorts::getSubnetId, Function.identity()));
-
+        Map<String, InternalSubnetPorts> internalSubnetPortsMap = new TreeMap<>();
+        for (InternalSubnetEntity subnetEntity : networkConfig.getSubnets()) {
+            InternalSubnetPorts internalSubnetPorts = new InternalSubnetPorts(subnetEntity.getId()
+                    ,subnetEntity.getGatewayPortDetail().getGatewayPortId()
+                    ,subnetEntity.getGatewayIp()
+                    ,subnetEntity.getGatewayPortDetail().getGatewayMacAddress()
+                    ,subnetEntity.getName()
+                    ,subnetEntity.getCidr()
+                    ,subnetEntity.getVpcId()
+                    ,subnetEntity.getTunnelId()
+                    ,subnetEntity.getDhcpEnable()
+                    ,internalSubnetsRouterMap.getOrDefault(subnetEntity.getId(), null));
+            internalSubnetPortsMap.put(subnetEntity.getId(), internalSubnetPorts);
+        }
         return internalSubnetPortsMap;
     }
 

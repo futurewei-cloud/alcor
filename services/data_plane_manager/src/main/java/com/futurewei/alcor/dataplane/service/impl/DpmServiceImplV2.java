@@ -258,8 +258,6 @@ public class DpmServiceImplV2 implements DpmService {
     private List<String> processNeighborConfiguration(NetworkConfiguration networkConfig) throws Exception {
         Map<String, String> subnetIdRouterIdMap = subnetPortsCache.getInternalSubnetRouterMap(networkConfig);
         subnetPortsCache.attacheRouter(subnetIdRouterIdMap);
-        Map<String, InternalSubnetPorts> internalSubnetPortsMap =  subnetPortsCache.getSubnetPorts(networkConfig);
-        subnetPortsCache.updateSubnetPorts(internalSubnetPortsMap);
         Map<String, UnicastGoalStateV2> unicastGoalStates = new HashMap<>();
         MulticastGoalStateV2 multicastGoalState = new MulticastGoalStateV2();
         if (networkConfig.getInternalRouterInfos() != null) {

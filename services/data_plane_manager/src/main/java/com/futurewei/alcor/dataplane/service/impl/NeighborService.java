@@ -437,7 +437,13 @@ public class NeighborService extends ResourceService {
         Map<String, Neighbor.NeighborState> neighborStateMap = new TreeMap<>();
         Map<String, Subnet.SubnetState> subnetStateMap = new TreeMap<>();
         Router.RouterConfiguration.Builder unicastRouterConfigurationBuilder = Router.RouterConfiguration.newBuilder();
+        if (networkConfiguration.getSubnets().size() == 0) {
+            return;
+        }
         String subnetId = networkConfiguration.getSubnets().stream().map(subnetEntity -> subnetEntity.getId()).findFirst().orElse("");
+        if (subnetPortsCache.getSubnetPorts(subnetId) == null) {
+            return;
+        }
         String vpcid = subnetPortsCache.getSubnetPorts(subnetId).getVpcId();
         portHostInfoCache.getPortHostInfos(subnetId)
                 .forEach(portState -> unicastGoalStates.put(portState.getHostIp(), new UnicastGoalStateV2(portState.getHostIp(), Goalstate.GoalStateV2.newBuilder())));
