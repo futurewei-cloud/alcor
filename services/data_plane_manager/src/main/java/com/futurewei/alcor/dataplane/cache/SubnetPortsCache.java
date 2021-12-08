@@ -95,6 +95,23 @@ public class SubnetPortsCache {
     }
 
     @DurationStatistics
+    public void attacheRouter(Map<String, String> subnetIdRouterIdMap) {
+       subnetIdRouterIdMap
+            .entrySet()
+            .forEach(subnetIdRouterId -> {
+               InternalSubnetPorts internalSubnetPorts = null;
+                 try {
+                        internalSubnetPorts = subnetPortsCache.get(subnetIdRouterId.getKey());
+                        internalSubnetPorts.setRouterId(subnetIdRouterId.getValue());
+                        subnetPortsCache.put(subnetIdRouterId.getKey(), internalSubnetPorts);
+                     } catch (CacheException e) {
+                        e.printStackTrace();
+                     }
+       });
+    }
+
+
+    @DurationStatistics
     public Map<String, InternalSubnetPorts> getSubnetPorts(NetworkConfiguration networkConfig) throws CacheException {
         Map<String, String> internalSubnetsRouterMap = getInternalSubnetRouterMap(networkConfig);
         Map<String, InternalSubnetPorts> internalSubnetEntityMap = getSubnetPortsByRouterId(internalSubnetsRouterMap.values().stream().findFirst().orElse(""));
