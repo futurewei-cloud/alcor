@@ -4,16 +4,18 @@ Prasad Kommoju <pkommoju@futurewei.com>
 :toc: right
 :imagesdir: ../../images
 
+NOTE: This is not a design document. The external interface is generic but the internals of the module are specific to Ignite 2.10.0, which is the current database.
+
 === Introduction
+
 This is an effort to document the way Alcor uses database(s) for persistence. All of the database access is in the package named db which is part of the common library. It also covers any generic optimization and special or custom features of the database used by the module to provide better performance.
 
-=== Current database.
-The interface is generic enough and the document will try to be generic but there are cases where the current database Apache Ignite 2.10.0 is mentioned.
+=== Components of the DB module/package
 
-=== Components of the DB module/package.
-There are a few foundational components as Java Interfaces within DB module, which together provide all the database access required by Alcor stack. They are ICache, ICacheFactory, IDistributedLock, IDistributedLockFactory, ICacheRepository, ICacheRepositoryEx and Transaction. 
+There are a few foundational components as Java Interfaces within DB module, which together provide all the database access required by Alcor stack. They are ICache, ICacheFactory, IDistributedLock, IDistributedLockFactory, ICacheRepository, ICacheRepositoryEx and Transaction.
 
 ==== ICahce
+
 An abstraction of a cache entity. It is parameterized by the type of the key and the type of the value stored in the cache, in other words the, an entry in the cache. It provides the following interfaces to work the the cache.
 
 .. put - Given a key and value, store them in the cache, replace the value if the key already exists.
@@ -27,9 +29,11 @@ An abstraction of a cache entity. It is parameterized by the type of the key and
 .. Transaction - Create an instance of a transaction on the cache.
 
 ==== ICacheFactory
+
 An abstraction to create caches themselves. It will create a cache if it doesn't exist or return the existing instance.
 
 ==== ICacheRepository
+
 An interface to the database containing the caches. Each specific database implements this interface through which actual operations are performed and they are routed through ICache interface to the actual concrete cache implementation. It provides the following operations.
 
 .. findItem - Given a key, return the matching cache entry.
@@ -40,42 +44,62 @@ An interface to the database containing the caches. Each specific database imple
 .. deleteItem - Remove the cache entry with given key.
 
 ==== IDistributedLock
+
 An abstraction of a database lock which can co-ordinate a single transaction  on multiple instances of the same database. It provides the following operations.
+
 .. lock - Lock a resource with the given identifier, waiting forever if the lock is held by some other thread or process.
 .. unlock - unlock a resource with a given identifier.
 .. tryLock - Try to lock a resource with the given identifier but do not wait if the lock can't be obtained.
 
 There are other minor components whose details are not discussed.
 
-== Internals
+=== Internals
+
 In this section, an overview of how the DB layer maps its external interface to particular database is provided. Since this section is specific to each database and currently Apache Ignite is used, it's focus is on Apache Ignite.
 
-Ignite has many different "clients" and caches, thick client, thin client, near cache etc., Alcor uses thin client, which does not support near cache.
-Briefly, thin client means the data resides elsewhere and near cache means there is a copy of the cache within the address space of the client. Thin client is called ClientCache.
+Ignite client is an Ignite library through which the application communicates with the Ignite Server or a cluster of Ignite servers. Ignite has many different "clients".
 
-=== Interfaces to Ignite used by the DB module.
-The DB module uses IgniteClientDbCache class to encapsulate almost all of it's interaction with the Ignite database. It holds an instance of IgniteClient which is a "connection" to the instance of the database, and instance of the cache itself, and an instance of a Transaction.
+. A thick client is actually an Ignite server which owns some data, is aware of the data distribution, can route the requests to other server instances which own the required data and it is part of the cluster topology. It supports all of the Ignite APIs.
 
-==== Atomicity of caches.
+. A thin client is just a little more than a socket library, communicates with one of the servers. It doesn't support all of the APIs.
+
+. JDBC, ODBC and other clients are like thin clients to be used from JDBC, ODBC and other applications.
+
+Alcor DB layer supports both thick and thin clients but only thin client interface is used in the current code base.
+
+Ignite supports many different kinds of caches called near cache and server side cache. Near cache means there is a copy of the cache within the address space of the client and it is managed by the Ignite client library which is part of the application. This is supported only by the Thick client. Non-near cache means the data resides elsewhere.
+
+
+=== Interfaces to Ignite used by the DB module
+
+The DB module uses IgniteClientDbCache class to encapsulate almost all of it's interaction with the Ignite database. It holds an instance of IgniteClient which is a connection to the instance of the database, and instance of the cache itself, and an instance of a Transaction.
+
+==== Atomicity of caches
+
 Alcor caches can be created such that each individual operation on the cache is atomic (Cache with ATOMIC atomicity mode), or a group of operations to act as a single unit (Cache with TRANSACTIONAL atomicity mode). Most caches in Alcor are created with TRANSACTIONAL atomicity mode.
 
-==== Naming of caches.
+==== Naming of caches
+
 Caches can be named simply the type name of the object stored in the cache (Class name), or a name different from the class name. The later is used when different micro-services cache the same class/object but need to have distinct caches. NodeInfo is an example. DPM, NMM, and NCM all use NodeInfo but they need to have their own instance of the cache.
 
 === Creating or connecting to a cache: getOrCreateCache
+
 Given an instance of "connection", called igniteClient, to the database getOrCreateCache is called to either create new cache entity or get a handle o the existing one.
 
 If a cache is likely to be queried using non key fields, DB module creates a cache with SQL Indexes on the non key fields. This information is provided by way of @QuerySqlField annotation on the field in the definition of the class.
 
 If the class has @QuerySqlField annotations but creating SQL indices fails for any reason, DB module creates the cache without any SQL indices.
 
-=== Adding entries to the cache: put
-DB module uses three main Ignite interfaces a) put, for single entry at a time, b) putAll, for multiple entries at a time, c) putIfAbsent, to add an entry only if an entry the the key does not exist. The regular put operations replace an existing key's value or add a new key and value. 
+=== Adding entries to the cache: put(), putAll()
 
-=== Checking if an entry exists: containsKey
+DB module uses three main Ignite interfaces a) put, for single entry at a time, b) putAll, for multiple entries at a time, c) putIfAbsent, to add an entry only if an entry the the key does not exist. The regular put operations replace an existing key's value or add a new key and value.
+
+=== Checking if an entry exists: containsKey()
+
 If just checking if an exists or not is sufficient, containsKey() method is used. This is avoids reading the value and discarding it.
 
 === Querying: get, getAll with or without any qualifying conditions.
+
 . get(key): Return the entry matching the given key. This is also called point lookup.
 . get(set of keys): Return all entries which have keys matching keys. This is a bulk query.
 . get(qualifying conditions): This is used when cache lookup is based on non key fields. DB module can decide, with the help of the information collected during the creation of the cache, if a SQL Index query can be used to speed up the query execution or not.
@@ -83,10 +107,13 @@ If just checking if an exists or not is sufficient, containsKey() method is used
 The DB module uses three different interfaces of Ignite to execute these searches depending on the characteristics of the search.
 
 ==== Regular query: get(), getAll()
+
 When the search is on a single field which happens to be the key fields of the cache, get() and getAll() methods of Ignite are used to do a hash lookup.
 
 ==== SqlFieldsQuery
+
 If the set of fields in the qualifying conditions (Called queryParams) is entirely covered by the set of SQL Indices, DB module uses SqlFieldsQuery of Ignite to speed up the search. This query has the following form:
+
 [source]
 SELECT _KEY, _VAL
 FROM SQL_TABLENAME_OF_THE_CACHE
@@ -101,34 +128,40 @@ The SqlFieldsQuery is executed using query() method of Ignite. It returns an ins
 An optimization not attempted at this is to compile these queries once at the time the cache is built, or an instance handle is obtained (called prepared statement in DBMS parlance) because the memory requirements could become very high. It is possible to enable this optimization selectively for the queries whose query compilation time dominates the execution time.
 
 ==== ScanQuery
+
 When a query with queryParams (search using non key fields) is not eligible for SQL index query, it is executed using ScanQuery interface of Ignite. The search condition represented by the query params is used to construct an instance of igniteBiPredicate, which is used to build an instance of ScanQuery. The query() method of Ignite also works with ScanQuery and returns a QueryCursor.
 
 === Transactions
+
 Transactions are applicable and required only on caches created with TRANSACTIONAL atomicity mode.
 In some places in the code, more than one cache is operated on and all these operations have to done or none of them should be done. This is where Alcor stack uses transactions. DB module uses start(), commit(), rollback() methods of Ignite to facilitate transactions.
 
 === Distributed Locks
+
 Ignite transactions are implicitly distributed but in some cases explicit distributed locks may be required. Alcor stack uses Ignite cache to simulate distributed lock. Distributed locks are used in Alcor primarily for locking portions of the cache instead of the whole cache.
 
-This is an optimization aimed at increasing concurrency.
+This is an optimization aimed at increasing concurrency but managing the transactions and additional responsibility of the application code.
 
-Only ElasticIpAllocator (Elastic IP Manager), BitmapPoolImpl and MacServiceImpl (MAC Manager), and QuotaServiceImpl [QM] use distributed locks.
+Only ElasticIpAllocator (Elastic IP Manager), BitmapPoolImpl and MacServiceImpl (MAC Manager), and QuotaServiceImpl (QM) use distributed locks.
 
 === Optimization features implemented
+
 . SQL Indices to speedup non key field lookup.
-. Store index field value of upto 36 characters inline to avoid multiple index page lookups.
+. Store index field value of up to 36 characters inline to avoid multiple index page lookups.
 . Distributed locks to reduce lock contention and increase concurrency.
 . Enable Partition awareness to avoid one ignite server node to become bottleneck.
 . Use of bulk get/put operations.
 
 === Optimization features to consider
+
 . Thick client with near caches.
-. Keeping data, checkpoint and WAL storage separate, preferably on SSD.
+. Keeping data, checkpoint and WAL storage separate, preferably on SSD at least in production deployment.
 . Adjusting WAL segment size.
 . Enabling Direct I/O.
 . Enabling Binary Mode for select caches.
 
-==== Summary of Key Ignite interfaces and features used in Alcor DB module
+=== Summary of Key Ignite interfaces and features used in Alcor DB module
+
 . IgniteClient
 . ClientCacheConfiguration - with the following attributes:
 .. expiration policy
@@ -143,4 +176,121 @@ Only ElasticIpAllocator (Elastic IP Manager), BitmapPoolImpl and MacServiceImpl 
 . ScanCursor
 . IgniteBiPredicate
 . Transaction
+
+=== Implementation and Usage notes
+
+This section provides brief examples of how each of the Ignite features are used in the DB module, specifically the thin client and remote cache (not near cache).
+
+* Creating a connection to the server.
+
+[source]
+ClientConfiguration cfg = new ClientConfiguration();
+IgniteClient client = Ignition.startClient(cfg);
+
+Creates a thin client connection using default configuration. ClientConfiguration can be used to specify many connection or client specific attributes such as username, password, server addresses, transaction mode and others.
+
+* Creating new a new cache or getting a handle to the existing one.
+[source]
+ClientCache<K, V> cache = client.getOrCreateCache(arg);
+
+arg can be the name of the cache, or an instance of ClientCacheConfiguration specifying the name of the cache and other properties.
+
+There are many ways to create a cache with SQL Indices and the following is the way DB module has implemented it.
+
+[source]
+ClientCacheConfiguration cacheConfig = new ClientCacheConfiguration();
+cacheConfig.setName("NodeInfo_SQLView");
+cacheConfig.setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL);
+QueryEntity qryEnt = new QueryEntity();
+qryEnt.setValueType(NodeInfo.class.getName());
+LinkedHashMap<String, String> qryFields = new LinkedHashMap<>();
+qryFields.put("id", String.class.getName());
+qryFields.put("name", String.class.getName());
+qryEnt.setFields(qryFields);
+qryEnt.setIndexes(Arrays.asList(new QueryIndex("id"), new QueryIndex("name")));
+cacheConfig.setQueryEntities(qryEnt).setSqlSchema(schName);
+ClientCache<String, NodeInfo> nodeInfoClientCache = client.getOrCreateCache(acheConfig);
+
+QueryEntity contains the fields which can be used in select list (query fields) and fields on which lookups will be done (index fields). Each query field specifies the name of the field and its data type. Each index field is specified in an instance of QueryIndex naming the lookup field.
+
+Creating a cache with SQL queriable fields with or without indices exposes it as a SQL Table. By default this table appears in PUBLIC schema (kind of namespace) but the name can be set. DB Module sets alcor as the name of the schema of all SQL visible caches.
+
+SQL table name, if not explicitly set, will the name of the class of the value in the cache and it will be case sensitive. This means the name requires double quotes in SQL constructs. In the example shown above the name NodeInfo_SQLView is not case sensitive and should not be double quoted.
+
+ScanQuery does not need this extra setup at cache creation time but to use ScanQuery
+
+* Using SqlFieldsQuery.
+
+Using a SqlFieldsQuery requires that the cache has one or more fields annotated with QuerySqlField and index creation was successful. The user code (outside of the common lib) does not have to do anything special. The required annotation will trigger the DB module to take care of building and running the correct SQL query .
+
+[source]
+/*
+* Construct a SQL statement. _key and _val are predefined
+* and they represent the key and value fields of the cache.
+* schName is the name of the schema (DB module uses alcor)
+* tblName is the the SQL name of the cache, and
+* indexField is the lookup field. Every field with
+* QuerySqlField annotation will also be lookup field.
+*/
+SqlFieldsQuery sql = new SqlFieldsQuery("select _key, _val from " + schName + "." + tblName + " where " + indexField + " = ?");
+/* set the value to search for */
+sql.setArgs(srchValue);
+/* execute the query and get a cursor, the result set */
+QueryCursor<List<?>> cursor = cache.query(sql);
+/* iterate over the rows, retrieve the _val field */
+for (List<?> row : cursor) {
+    /*
+    * value at position zero is the value of _key and
+    * at position 1 is the value of the _val. Cast it
+    * to the type of the value stored in the cache.
+    * This example uses NodeInfo.
+    */
+    nodeId = row.get(0).toString();
+    NodeInfo node = (NodeInfo)row.get(1);
+}
+
+* Using ScanQuery
+
+Again, no special arrangements in the user code are needed for this. Calling get() or getAll() with a Map<String, Object[]> argument is all that is required.
+
+[source]
+/* Example using nodeInfo */
+Map<String, Object[]> queryParams = new HashMap<>();
+Object[] values = new Object[1];
+/*
+* add to query params all the search conditions, here
+* name = "node1" is the search condition.
+*/
+values[0] = "node1";
+queryParams.put("name", values);
+IgniteBiPredicate<String, BinaryObject> pred = MapPredicate.getInstance(queryParams);
+QueryCursor<Cache.Entry<String, BinaryObject>> cursor = nodeInfoClientCache.withKeepBinary().query(ScanQueryBuilder.newScanQuery(pred));
+List<Cache.Entry<String, BinaryObject>> result = cursor.getAll();
+BinaryObject obj = result.get(0).getValue();
+if (obj instanceof BinaryObject) {
+    BinaryObject binObj = (BinaryObject) obj;
+    NodeInfo node = (NodeInfo) binObj.deserialize();
+    assert(node.getName().equals(nodeNameIn));
+}
+
+=== Using Transactions
+
+There are two ways of using transactions in Alcor code. One is to start the transaction in a try {} block, the other is to start it outside a try {} block.
+
+[source]
+try (Transaction tx = cache.getTransaction().start()) {
+    /* work */
+    tx.commit();
+}
+
+This is the preferred method since there is no need for an explicit rollback if the block of code under the try fails, the transaction will be rolled back automatically.
+
+The second method starts the transaction outside a try block and needs an explicit rollback in the catch block. This is necessary sometimes. For instance, if an unknown number of entries are being added to a cache in a loop then adding all of them in transaction may cause out of memory exception; adding each entry under its own transaction will slowdown the insert throughput. In such cases, a set of number of entries are committed in each transaction. See the sources in sqlquery_test_nodemanager, or scanquery_test_nodemanager.
+
+=== References
+
+. Ignite Documentation
+
+.. Documentation: https://ignite.apache.org/docs/2.10.0/index
+.. API's: https://www.gridgain.com/sdk/latest/javadoc/index.html
 
