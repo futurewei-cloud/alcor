@@ -391,10 +391,8 @@ public class NeighborService extends ResourceService {
         routerIds.parallelStream().forEach(routerId -> {
             try {
                 Collection<InternalSubnetPorts> internalSubnetPorts  = subnetPortsCache.getSubnetPortsByRouterId(routerId).values();
-
                 for (InternalSubnetPorts internalSubnetPort : internalSubnetPorts) {
                     try {
-
                         Collection<PortHostInfo> portHostInfos = portHostInfoCache.getPortHostInfos(internalSubnetPort.getSubnetId());
                         portHostInfos.parallelStream().forEach(portHostInfo -> {
                             try {
