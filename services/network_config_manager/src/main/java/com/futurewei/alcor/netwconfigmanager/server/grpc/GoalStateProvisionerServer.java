@@ -45,7 +45,6 @@ import java.util.logging.Level;
 
 @Component
 @Configurable
-@ComponentScan(value = "com.futurewei.alcor.netwconfigmanager.service")
 public class GoalStateProvisionerServer implements NetworkConfigServer {
     private static final Logger logger = LoggerFactory.getLogger();
 
@@ -70,8 +69,8 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
     @Autowired
     private GoalStatePersistenceService goalStatePersistenceService;
 
-//    @Autowired
-//    private GoalStateClient grpcGoalStateClient;
+    @Autowired
+    private GoalStateClient grpcGoalStateClient;
 
     public GoalStateProvisionerServer() {
         this.port = 9016; // TODO: make this configurable
@@ -163,8 +162,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     // filter neighbor/SG update, and send them down to target ACA
                     try {
                         Map<String, HostGoalState> filteredGoalStates = NetworkConfigManagerUtil.filterNeighbors(hostGoalStates);
-
-                        GoalStateClient grpcGoalStateClient =  GoalStateClientImpl.getInstance(numberOfGrpcChannelPerHost, numberOfWarmupsPerChannel, monitorHosts);
+                        GoalStateClient grpcGoalStateClient = GoalStateClientImpl.getInstance(numberOfGrpcChannelPerHost, numberOfWarmupsPerChannel, monitorHosts);
 
                         //TODO use filteredGoalStates
                         grpcGoalStateClient.sendGoalStates(hostGoalStates);
@@ -265,7 +263,6 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                                 hostGoalState.toString());
                     }
                 }
-
                 GoalStateClient grpcGoalStateClient = GoalStateClientImpl.getInstance(numberOfGrpcChannelPerHost, numberOfWarmupsPerChannel, monitorHosts);
                 long end = System.currentTimeMillis();
                 logger.log(Level.FINE, "requestGoalStates : Pushing GS with UUID: " + state_request_uuid + " at: " + end);

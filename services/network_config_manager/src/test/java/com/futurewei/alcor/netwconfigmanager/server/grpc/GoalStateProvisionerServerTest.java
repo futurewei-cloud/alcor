@@ -93,7 +93,7 @@ public class GoalStateProvisionerServerTest {
                 hostGoalStates.get(DemoUtil.aca_node_one_ip).getGoalState().toString());
 
         try {
-            GoalStateClient grpcGoalStateClient = new GoalStateClientImpl(1,1, new ArrayList<>());
+            GoalStateClient grpcGoalStateClient = new GoalStateClientImpl(1, 1, new ArrayList<>());
             grpcGoalStateClient.sendGoalStates(hostGoalStates);
         } catch (Exception e) {
             e.printStackTrace();

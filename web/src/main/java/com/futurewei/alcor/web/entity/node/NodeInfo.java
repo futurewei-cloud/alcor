@@ -18,6 +18,7 @@ package com.futurewei.alcor.web.entity.node;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import org.apache.ignite.cache.query.annotations.QuerySqlField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,12 +36,15 @@ public class NodeInfo implements Serializable {
     private String id;
 
     @JsonProperty("node_name")
+    @QuerySqlField(index = true)
     private String name;
 
     @JsonProperty("local_ip")
+    @QuerySqlField(index = true)
     private String localIp;
 
     @JsonProperty("mac_address")
+    @QuerySqlField(index = true)
     private String macAddress;
 
     @JsonProperty("veth")
@@ -53,6 +57,7 @@ public class NodeInfo implements Serializable {
     private String hostDvrMac;
 
     @JsonProperty("ncm_id")
+    @QuerySqlField(index = true)
     private String ncm_id;
 
     // doesn't come in the Json version

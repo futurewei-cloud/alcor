@@ -47,23 +47,23 @@ public class IgniteClientCacheFactory implements ICacheFactory {
 
     @Override
     public <K, V> ICache<K, V> getCache(Class<V> v) {
-        return new IgniteClientDbCache<>(igniteClient, v.getName());
+        return new IgniteClientDbCache<K, V>(igniteClient, v, v.getName());
     }
 
     @Override
     public <K, V> ICache<K, V> getCache(Class<V> v, String cacheName) {
-        return new IgniteClientDbCache<>(igniteClient, cacheName);
+        return new IgniteClientDbCache<K, V>(igniteClient, v, cacheName);
     }
 
     @Override
     public <K, V> ICache<K, V> getCache(Class<V> v, CacheConfiguration cacheConfig) {
-        return new IgniteClientDbCache<>(igniteClient, cacheConfig);
+        return new IgniteClientDbCache<>(igniteClient, v, cacheConfig);
     }
 
     @Override
     public <K, V> ICache<K, V> getExpireCache(Class<V> v, long timeout, TimeUnit timeUnit) {
         ExpiryPolicy ep = CreatedExpiryPolicy.factoryOf(new Duration(timeUnit, timeout)).create();
-        return new IgniteClientDbCache<>(igniteClient, v.getName(), ep);
+        return new IgniteClientDbCache<>(igniteClient, v, v.getName(), ep);
     }
 
     @Override
