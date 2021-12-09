@@ -147,7 +147,7 @@ public class SubnetPortsCache {
     }
 
     @DurationStatistics
-    public synchronized void deleteSubnetPorts(String subnetId) throws Exception {
+    public void deleteSubnetPorts(String subnetId) throws Exception {
         subnetPortsCache.remove(subnetId);
     }
 
