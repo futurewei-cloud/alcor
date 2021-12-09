@@ -48,7 +48,7 @@ public class RouterSubnetsCache {
     }
 
     @DurationStatistics
-    public synchronized Collection<InternalSubnetRouterMap> getRouterSubnets(String routerId) throws CacheException {
+    public Collection<InternalSubnetRouterMap> getRouterSubnets(String routerId) throws CacheException {
         Map<String, Object[]> queryParams = new HashMap<>();
         Object[] values = new Object[1];
         values[0] = routerId;
@@ -58,7 +58,7 @@ public class RouterSubnetsCache {
     }
 
     @DurationStatistics
-    public synchronized Collection<InternalSubnetRouterMap> updateVpcSubnets(NetworkConfiguration networkConfig) throws CacheException {
+    public Collection<InternalSubnetRouterMap> updateVpcSubnets(NetworkConfiguration networkConfig) throws CacheException {
         Map<String, InternalSubnetRouterMap> internalSubnetsMap =  networkConfig
                 .getInternalRouterInfos()
                 .stream()
@@ -73,7 +73,7 @@ public class RouterSubnetsCache {
     }
 
     @DurationStatistics
-    public synchronized void deleteVpcGatewayInfo(String routerId, String subnetId) throws CacheException {
+    public void deleteVpcGatewayInfo(String routerId, String subnetId) throws CacheException {
         routerSubnetsCache.remove(routerId + cacheFactory.KEY_DELIMITER + subnetId);
     }
 
