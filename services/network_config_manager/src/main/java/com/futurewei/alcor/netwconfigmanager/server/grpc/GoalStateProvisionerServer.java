@@ -146,7 +146,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 @Override
                 public void onNext(Goalstate.GoalStateV2 value) {
 
-                    logger.log(Level.INFO, "pushGoalStatesStream : receiving GS V2 message " + value.toString());
+                    logger.log(Level.FINE, "pushGoalStatesStream : receiving GS V2 message " + value.toString());
                     long start = System.currentTimeMillis();
 
                     //store the goal state in cache
