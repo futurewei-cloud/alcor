@@ -78,6 +78,30 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
     @Value("${grpc.monitor-hosts}")
     private ArrayList<String> monitorHosts;
 
+    @Value("${jaeger.span-name.ncm_server_pushdown_gs:emptySpanName}")
+    private String pushdownGsSpanName;
+
+    @Value("${jaeger.span-name.ncm_server_store_gs:emptySpanName}")
+    private String serverStoreGsSpanName;
+
+    @Value("${jaeger.span-name.ncm_server_filter_send_gs:emptySpanName}")
+    private String serverFilterSendGsSpanName;
+
+    @Value("${jaeger.span-name.ncm_server_reply_dpm:emptySpanName}")
+    private String serverReplyDpmSpanName;
+
+    @Value("${jaeger.span-name.ncm_server_on_demand:emptySpanName}")
+    private String onDemandSpanName;
+
+    @Value("${jaeger.span-name.ncm_server_on_demand_retrieve_gs:emptySpanName}")
+    private String onDemandRetrieveGsSpanName;
+
+    @Value("${jaeger.span-name.ncm_server_on_demand_send_gs:emptySpanName}")
+    private String onDemandSendGsSpanName;
+
+    @Value("${jaeger.span-name.ncm_server_on_demand_reply:emptySpanName}")
+    private String onDemandReplySpanName;
+
     @Autowired
     private OnDemandService onDemandService;
 
@@ -88,6 +112,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
     private GoalStateClient grpcGoalStateClient;
 
     public GoalStateProvisionerServer() {
+        // TODO: Figure out how to get this propertiy from application.properties, so that we don't have to set it here.
         System.setProperty("JAEGER_SERVICE_NAME","alcor-ncm");
         this.port = 9016; // TODO: make this configurable
 
@@ -175,9 +200,9 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     Span span;
 
                     if(pSpan != null){
-                        span = tracer.buildSpan("alcor-ncm-server-pushdown-gs").asChildOf(pSpan.context()).start();
+                        span = tracer.buildSpan(pushdownGsSpanName).asChildOf(pSpan.context()).start();
                     }else{
-                        span = tracer.buildSpan("alcor-ncm-server-pushdown-gs").start();
+                        span = tracer.buildSpan(pushdownGsSpanName).start();
                     }
                     logger.log(Level.INFO, "[pushGoalStatesStream] Got parent span: "+(null == pSpan? "null" : pSpan.toString()));
                     logger.log(Level.INFO, "[pushGoalStatesStream] Built child span: "+span.toString());
@@ -186,7 +211,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
                     logger.log(Level.INFO, "pushGoalStatesStream : receiving GS V2 message " + value.toString());
                     long start = System.currentTimeMillis();
-                    Span storeGsSpan = tracer.buildSpan("alcor-ncm-server-store-gs").asChildOf(span.context()).start();
+                    Span storeGsSpan = tracer.buildSpan(serverStoreGsSpanName).asChildOf(span.context()).start();
                     Scope storageCscope = tracer.scopeManager().activate(storeGsSpan);
 
 
@@ -205,7 +230,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
                     long end = System.currentTimeMillis();
                     logger.log(Level.FINE, "pushGoalStatesStream : finished putting GS into cache, elapsed time in milliseconds: " + + (end-start));
-                    Span filterSendGsSpan = tracer.buildSpan("alcor-ncm-server-filter-send-gs").asChildOf(span.context()).start();
+                    Span filterSendGsSpan = tracer.buildSpan(serverFilterSendGsSpanName).asChildOf(span.context()).start();
                     Scope filterCscope = tracer.scopeManager().activate(filterSendGsSpan);
 
                     // filter neighbor/SG update, and send them down to target ACA
@@ -220,7 +245,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                         responseObserver.onError(e);
                     }
                     filterSendGsSpan.finish();
-                    Span replyDPMSpan = tracer.buildSpan("alcor-ncm-server-reply-dpm").asChildOf(span.context()).start();
+                    Span replyDPMSpan = tracer.buildSpan(serverReplyDpmSpanName).asChildOf(span.context()).start();
                     Scope replyCscope = tracer.scopeManager().activate(replyDPMSpan);
                     //consolidate response from ACA and send response to DPM
                     Goalstateprovisioner.GoalStateOperationReply reply =
@@ -264,9 +289,9 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             Span span;
 
             if(pSpan != null){
-                span = tracer.buildSpan("alcor-ncm-on-demand").asChildOf(pSpan.context()).start();
+                span = tracer.buildSpan(onDemandSpanName).asChildOf(pSpan.context()).start();
             }else{
-                span = tracer.buildSpan("alcor-ncm-on-demand").start();
+                span = tracer.buildSpan(onDemandSpanName).start();
             }
             logger.log(Level.INFO, "[requestGoalStates] Got parent span: "+ (null == pSpan? "null" : pSpan.toString()));
             logger.log(Level.INFO, "[requestGoalStates] Built child span: "+span.toString());
@@ -310,7 +335,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             // Step 1: Retrieve GoalState from M2/M3 caches and send it down to target ACA
             HashSet<String> failedRequestIds = new HashSet<>();
             try {
-                Span retrieveGsSpan = tracer.buildSpan("alcor-ncm-on-demand-retrieve-gs").asChildOf(span.context()).start();
+                Span retrieveGsSpan = tracer.buildSpan(onDemandRetrieveGsSpanName).asChildOf(span.context()).start();
                 Scope retrieveCscope = tracer.scopeManager().activate(retrieveGsSpan);
                 Map<String, HostGoalState> hostGoalStates = new HashMap<>();
                 for (Goalstateprovisioner.HostRequest.ResourceStateRequest resourceStateRequest : request.getStateRequestsList()) {
@@ -340,7 +365,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     }
                 }
                 retrieveGsSpan.finish();
-                Span sendGsSpan = tracer.buildSpan("alcor-ncm-on-demand-send-gs").asChildOf(span.context()).start();
+                Span sendGsSpan = tracer.buildSpan(onDemandSendGsSpanName).asChildOf(span.context()).start();
                 Scope sendCscope = tracer.scopeManager().activate(sendGsSpan);
 
                 GoalStateClient grpcGoalStateClient = GoalStateClientImpl.getInstance(numberOfGrpcChannelPerHost, numberOfWarmupsPerChannel, monitorHosts);
@@ -358,7 +383,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
             // if the packet is allowed, set HostRequestReply.HostRequestOperationStatus[request_id].OperationStatus = SUCCESS
             //                           generate GS with port related resources (completed at Step 1) and go to Step 3
             // otherwise, set it to FAILURE and go to Step 3
-            Span replyOnDemandSpan = tracer.buildSpan("alcor-ncm-on-demand-reply").asChildOf(span.context()).start();
+            Span replyOnDemandSpan = tracer.buildSpan(onDemandReplySpanName).asChildOf(span.context()).start();
             Scope replyCscope = tracer.scopeManager().activate(replyOnDemandSpan);
             int ind = 0;
             Goalstateprovisioner.HostRequestReply.Builder replyBuilder = Goalstateprovisioner.HostRequestReply.newBuilder();
