@@ -22,6 +22,7 @@ import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.dataplane.entity.InternalSubnetRouterMap;
 import com.futurewei.alcor.dataplane.entity.InternalSubnets;
+import com.futurewei.alcor.schema.Subnet;
 import com.futurewei.alcor.web.entity.dataplane.InternalSubnetEntity;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortHostInfo;
@@ -121,19 +122,23 @@ public class SubnetPortsCache {
         Map<String, String> internalSubnetsRouterMap = getInternalSubnetRouterMap(networkConfig);
         Map<String, InternalSubnetPorts> internalSubnetPortsMap = new TreeMap<>();
         for (InternalSubnetEntity subnetEntity : networkConfig.getSubnets()) {
-            InternalSubnetPorts internalSubnetPorts = new InternalSubnetPorts(subnetEntity.getId()
-                    ,subnetEntity.getGatewayPortDetail().getGatewayPortId()
-                    ,subnetEntity.getGatewayIp()
-                    ,subnetEntity.getGatewayPortDetail().getGatewayMacAddress()
-                    ,subnetEntity.getName()
-                    ,subnetEntity.getCidr()
-                    ,subnetEntity.getVpcId()
-                    ,subnetEntity.getTunnelId()
-                    ,subnetEntity.getDhcpEnable()
-                    ,internalSubnetsRouterMap.getOrDefault(subnetEntity.getId(), null));
-            internalSubnetPortsMap.put(subnetEntity.getId(), internalSubnetPorts);
+            internalSubnetPortsMap.put(subnetEntity.getId(), getInternalSubnetPorts(subnetEntity, internalSubnetsRouterMap.getOrDefault(subnetEntity.getId(), null)));
         }
         return internalSubnetPortsMap;
+    }
+
+    private InternalSubnetPorts getInternalSubnetPorts(InternalSubnetEntity subnetEntity, String routerId) {
+        InternalSubnetPorts internalSubnetPorts = new InternalSubnetPorts(subnetEntity.getId()
+                ,subnetEntity.getGatewayPortDetail().getGatewayPortId()
+                ,subnetEntity.getGatewayIp()
+                ,subnetEntity.getGatewayPortDetail().getGatewayMacAddress()
+                ,subnetEntity.getName()
+                ,subnetEntity.getCidr()
+                ,subnetEntity.getVpcId()
+                ,subnetEntity.getTunnelId()
+                ,subnetEntity.getDhcpEnable()
+                ,routerId);
+        return internalSubnetPorts;
     }
 
     @DurationStatistics
