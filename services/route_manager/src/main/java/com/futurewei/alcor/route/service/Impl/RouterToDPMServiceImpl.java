@@ -22,6 +22,7 @@ import com.futurewei.alcor.schema.Common;
 import com.futurewei.alcor.web.entity.dataplane.InternalDPMResultList;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
+import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
@@ -44,12 +45,19 @@ public class RouterToDPMServiceImpl implements RouterToDPMService {
     }
 
     @Override
-    public void sendInternalRouterInfoToDPM(InternalRouterInfo internalRouterInfo) throws Exception{
+    public void sendInternalRouterInfoToDPM(InternalRouterInfo internalRouterInfo, NetworkConfiguration... networkConfigurations) throws Exception{
         NetworkConfiguration networkConfiguration = new NetworkConfiguration();
         List<InternalRouterInfo> internalRouterInfos = new ArrayList<>();
         internalRouterInfos.add(internalRouterInfo);
         networkConfiguration.setInternalRouterInfos(internalRouterInfos);
-        networkConfiguration.setRsType(Common.ResourceType.ROUTER);
+
+        if (networkConfigurations.length == 0) {
+            networkConfiguration.setRsType(Common.ResourceType.ROUTER);
+        } else {
+            networkConfiguration = networkConfigurations[0];
+            internalRouterInfo = networkConfiguration.getInternalRouterInfos().get(0);
+        }
+
         switch (internalRouterInfo.getOperationType())
         {
             case CREATE:

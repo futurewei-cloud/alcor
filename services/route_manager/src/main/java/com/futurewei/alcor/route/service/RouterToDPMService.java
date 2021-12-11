@@ -15,10 +15,13 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.route.service;
 
+import com.futurewei.alcor.schema.Common;
+import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
+import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 
 public interface RouterToDPMService {
 
-    public void sendInternalRouterInfoToDPM (InternalRouterInfo internalRouterInfo) throws Exception;
+    public void sendInternalRouterInfoToDPM (InternalRouterInfo internalRouterInfo, NetworkConfiguration... networkConfigurations) throws Exception;
 
 }

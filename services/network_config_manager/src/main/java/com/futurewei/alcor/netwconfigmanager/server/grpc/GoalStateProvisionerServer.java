@@ -209,7 +209,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
 
                     Scope cscope = tracer.scopeManager().activate(span);
 
-                    logger.log(Level.INFO, "pushGoalStatesStream : receiving GS V2 message " + value.toString());
+                    logger.log(Level.FINE, "pushGoalStatesStream : receiving GS V2 message " + value.toString());
                     long start = System.currentTimeMillis();
                     Span storeGsSpan = tracer.buildSpan(serverStoreGsSpanName).asChildOf(span.context()).start();
                     Scope storageCscope = tracer.scopeManager().activate(storeGsSpan);
