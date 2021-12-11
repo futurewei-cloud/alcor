@@ -17,6 +17,7 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.common.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.ignite.cache.query.annotations.QuerySqlField;
 
 import java.util.Objects;
 

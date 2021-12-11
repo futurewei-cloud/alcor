@@ -21,7 +21,10 @@ import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.db.repo.ICacheRepository;
 import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
+import org.apache.ignite.cache.CacheAtomicityMode;
+import org.apache.ignite.configuration.CacheConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +43,8 @@ public class NodeRepository implements ICacheRepository<NodeInfo> {
 
     @Autowired
     public NodeRepository(CacheFactory cacheFactory) {
-        cache = cacheFactory.getCache(NodeInfo.class, "nmm_nodeinfo_cache");
+        CacheConfiguration cacheConfig = CommonUtil.getCacheConfiguration("nmm_nodeinfo_cache");
+        cache = cacheFactory.getCache(NodeInfo.class, cacheConfig);
     }
 
     public ICache<String, NodeInfo> getCache() {

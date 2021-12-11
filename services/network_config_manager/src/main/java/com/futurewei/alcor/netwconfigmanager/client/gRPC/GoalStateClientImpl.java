@@ -30,6 +30,8 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import io.netty.util.concurrent.DefaultThreadFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.concurrent.*;
@@ -48,16 +50,17 @@ public class GoalStateClientImpl implements GoalStateClient {
     private final ExecutorService executor;
 
     // each host_ip should have this amount of gRPC channels
+    @Value("${grpc.number-of-channels-per-host:1}")
     private int numberOfGrpcChannelPerHost;
 
     // when a channel is set up, send this amount of default GoalStates for warmup.
+    @Value("${grpc.number-of-warmups-per-channel:1}")
     private int numberOfWarmupsPerChannel;
 
     // prints out UUID and time, when sending a GoalState to any of the monitorHosts
     private ArrayList<String> monitorHosts;
 
     private ConcurrentHashMap<String, ArrayList<GrpcChannelStub>> hostIpGrpcChannelStubMap;
-
 
     public static GoalStateClientImpl getInstance(int numberOfGrpcChannelPerHost, int numberOfWarmupsPerChannel, ArrayList<String> monitorHosts) {
         if (instance == null) {
@@ -66,15 +69,15 @@ public class GoalStateClientImpl implements GoalStateClient {
         return instance;
     }
 
-    public GoalStateClientImpl(int numberOfGrpcChannelPerHost, int numberOfWarmupsPerChannel, ArrayList<String> monitorHosts) {
-        // each host should have at least 1 gRPC channel
-        if(numberOfGrpcChannelPerHost < 1) {
-            numberOfGrpcChannelPerHost = 1;
-        }
 
-        // allow users to not send warmups, if they wish to.
-        if(numberOfWarmupsPerChannel < 0){
-            numberOfWarmupsPerChannel = 0;
+    public GoalStateClientImpl(@Value("${grpc.number-of-channels-per-host:1}") int numberOfGrpcChannelPerHost, @Value("${grpc.number-of-warmups-per-channel:1}") int numberOfWarmupsPerChannel, @Value("")ArrayList<String> monitorHosts) {
+
+        if ((this.numberOfGrpcChannelPerHost = numberOfGrpcChannelPerHost) < 1) {
+            this.numberOfGrpcChannelPerHost = 1;
+         }
+
+        if ((this.numberOfWarmupsPerChannel = numberOfWarmupsPerChannel) < 0) {
+            this.numberOfWarmupsPerChannel = 0;
         }
 
         this.monitorHosts = monitorHosts;
@@ -83,8 +86,6 @@ public class GoalStateClientImpl implements GoalStateClient {
             logger.log(Level.FINE, "Monitoring this host: "+ host);
         }
         logger.log(Level.FINE, "Done printing out all monitorHosts");
-        this.numberOfGrpcChannelPerHost = numberOfGrpcChannelPerHost;
-        this.numberOfWarmupsPerChannel = numberOfWarmupsPerChannel;
         this.hostAgentPort = 50001;
 
         this.executor = new ThreadPoolExecutor(100,
@@ -96,6 +97,7 @@ public class GoalStateClientImpl implements GoalStateClient {
         //TODO: Setup a connection pool. one ACA, one client.
         this.hostIpGrpcChannelStubMap = new ConcurrentHashMap();
         logger.log(Level.FINE, "This instance has "+ numberOfGrpcChannelPerHost+" channels, and "+ numberOfWarmupsPerChannel+" warmups");
+
     }
 
     @Override
