@@ -60,6 +60,7 @@ public class SubnetPortsCache {
         Object[] values = new Object[1];
         values[0] = routerId;
         queryParams.put("routerId", values);
+        // Use sql index
         return subnetPortsCache.getAll(queryParams);
     }
 

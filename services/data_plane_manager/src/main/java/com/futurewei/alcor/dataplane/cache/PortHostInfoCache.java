@@ -72,6 +72,7 @@ public class PortHostInfoCache {
         Object[] values = new Object[1];
         values[0] = subnetId;
         queryParams.put("subnetId", values);
+        // Use sql index
         return portHostInfoCache.getAll(queryParams).values();
     }
 
