@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.logging.Level;
 
 public class RequestManager {
     private static final Logger LOG = LoggerFactory.getLogger(RequestManager.class);
@@ -84,6 +85,7 @@ public class RequestManager {
         }, AsyncExecutor.executor).thenRun(span::finish);
 
         addFuture(request, future);
+        LOG.info("[sendRequestAsync] Child span after finish: "+span.toString());
     }
 
     /**

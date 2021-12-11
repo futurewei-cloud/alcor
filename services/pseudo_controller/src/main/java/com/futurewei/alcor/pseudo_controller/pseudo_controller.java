@@ -48,8 +48,15 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
+import io.jaegertracing.internal.samplers.ConstSampler;
+import io.opentracing.Scope;
+import io.opentracing.Span;
+import io.opentracing.Tracer;
+import io.opentracing.contrib.grpc.TracingClientInterceptor;
 import org.awaitility.Awaitility;
+import io.jaegertracing.Configuration;
 
 
 public class pseudo_controller {
@@ -342,11 +349,43 @@ public class pseudo_controller {
         System.out.println("GoalStateV2 size in bytes for host2: \n" + message_two.getSerializedSize() + "\n");
 
         System.out.println("Time to call the GRPC functions");
+        // Use tracer and interceptor to trace grpc calls.
+        Configuration.SamplerConfiguration samplerConfiguration = Configuration.SamplerConfiguration
+                .fromEnv()
+                .withType(ConstSampler.TYPE)
+                .withParam(1);
+        Configuration.ReporterConfiguration reporterConfiguration = Configuration.ReporterConfiguration
+                .fromEnv()
+                .withSender(Configuration.SenderConfiguration.fromEnv().withAgentHost(ncm_ip).withAgentPort(6831))
+                .withLogSpans(true);
+        Configuration configuration = new Configuration("alcor-test-controller")
+                .withSampler(samplerConfiguration)
+                .withReporter(reporterConfiguration);
+
+        Tracer tracer = configuration.getTracer();
+        System.out.println("[Test Controller] Got this global tracer: "+tracer.toString());
+
+        TracingClientInterceptor tracingClientInterceptor = TracingClientInterceptor
+                .newBuilder()
+                .withTracer(tracer)
+                .withVerbosity()
+                .withStreaming()
+                .build();
 
         ManagedChannel channel = ManagedChannelBuilder.forAddress(ncm_ip, ncm_port).usePlaintext().build();
         System.out.println("Constructed channel");
-        GoalStateProvisionerGrpc.GoalStateProvisionerStub stub = GoalStateProvisionerGrpc.newStub(channel);
-
+        GoalStateProvisionerGrpc.GoalStateProvisionerStub stub = GoalStateProvisionerGrpc.newStub(tracingClientInterceptor.intercept(channel));
+        Span parentSpan = tracer.activeSpan();
+        Span span;
+        if(parentSpan != null){
+            span = tracer.buildSpan("alcor-tc-send-gs").asChildOf(parentSpan.context()).start();
+            System.out.println("[Test Controller] Got parent span: "+parentSpan.toString());
+        }else{
+            span = tracer.buildSpan("alcor-tc-send-gs").start();
+        }
+        System.out.println("[Test Controller] Built child span: "+span.toString());
+        Scope cscope = tracer.scopeManager().activate(span);
+        span.log("abcdefg");
         System.out.println("Created stub");
         StreamObserver<Goalstateprovisioner.GoalStateOperationReply> message_observer = new StreamObserver<>() {
             @Override
@@ -376,6 +415,8 @@ public class pseudo_controller {
 
         System.out.println("Wait no longer than 6000 seconds until both goalstates are sent to both hosts.");
         Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == NUMBER_OF_NODES);
+        span.finish();
+        System.out.println("[Test Controller] Child span after finish: "+span.toString());
 
 
 //        System.out.println("Try to send gsv1 to the host!");
@@ -655,10 +696,10 @@ class concurrent_run_cmd implements Runnable {
 
     @Override
     public void run() {
-//        Vector<String> cmd_list = new Vector<>();
+        Vector<String> cmd_list = new Vector<>();
         System.out.println("Need to execute this command concurrently: [" + this.command_to_run + "]");
-//        cmd_list.add(this.command_to_run);
-//        pseudo_controller.execute_ssh_commands(cmd_list, host, user_name, password);
+        cmd_list.add(this.command_to_run);
+        pseudo_controller.execute_ssh_commands(cmd_list, host, user_name, password);
         pseudo_controller.executeBashCommand(command_to_run);
     }
 
