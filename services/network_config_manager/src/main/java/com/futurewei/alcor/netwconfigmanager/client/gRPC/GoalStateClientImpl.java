@@ -307,8 +307,10 @@ public class GoalStateClientImpl implements GoalStateClient {
         try {
             long before_get_goalState = System.currentTimeMillis();
             Goalstate.GoalStateV2 goalState = hostGoalState.getGoalState();
+
             long after_get_goalState = System.currentTimeMillis();
             logger.log(Level.INFO, "Sending GS with size " + goalState.getSerializedSize() + " to Host " + hostIp + " as follows | " + goalState.toString());
+
             requestObserver.onNext(goalState);
             long after_onNext = System.currentTimeMillis();
             logger.log(Level.FINE, "[doSendGoalState] Get goalstatev2 from HostGoalState in milliseconds: " + (after_get_goalState - before_get_goalState));
@@ -320,7 +322,7 @@ public class GoalStateClientImpl implements GoalStateClient {
                 // hardcoded) this send goalstate action is probably caused by on-demand workflow, need to record when it
                 // sends this goalState so what we can look into this and the ACA log to see how much time was spent.
                 String neighbor_id = hostGoalState.getGoalState().getNeighborStatesMap().keySet().iterator().next();
-                logger.log(Level.INFO, "Sending neighbor ID: " + neighbor_id + " at: " + sent_gs_time);
+                logger.log(Level.FINE, "Sending neighbor ID: " + neighbor_id + " at: " + sent_gs_time);
             }
         } catch (RuntimeException e) {
             // Cancel RPC
