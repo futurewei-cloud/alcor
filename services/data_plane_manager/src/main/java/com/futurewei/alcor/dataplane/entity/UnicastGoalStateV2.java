@@ -37,6 +37,11 @@ public class UnicastGoalStateV2 {
         this.goalState = goalState;
     }
 
+    public UnicastGoalStateV2(String hostIp, GoalStateV2.Builder goalStateBuilder) {
+        this.hostIp = hostIp;
+        this.goalStateBuilder = goalStateBuilder;
+    }
+
     public UnicastGoalStateV2(String hostIp, String vpcId, GoalStateV2 goalState) {
         this.hostIp = hostIp;
         this.vpcId = vpcId;
