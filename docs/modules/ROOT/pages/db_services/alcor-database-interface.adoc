@@ -25,6 +25,7 @@ An abstraction of a cache entity. It is parameterized by the type of the key and
 .. get - Given a key, return the value if a match is found.
 .. get - Given a set of keys return values matching those keys.
 .. get - Given a set of non-key fields and matching values, return matching cache entries. This is called a non-key search query, or lookup by non key.
+.. getAll - Like get() but return all matching entries.
 .. remove - Given a key, remove the associated cache entry.
 .. Transaction - Create an instance of a transaction on the cache.
 
@@ -103,6 +104,7 @@ If just checking if an exists or not is sufficient, containsKey() method is used
 . get(key): Return the entry matching the given key. This is also called point lookup.
 . get(set of keys): Return all entries which have keys matching keys. This is a bulk query.
 . get(qualifying conditions): This is used when cache lookup is based on non key fields. DB module can decide, with the help of the information collected during the creation of the cache, if a SQL Index query can be used to speed up the query execution or not.
+. getAll - Like get() but return all matching entries.
 
 The DB module uses three different interfaces of Ignite to execute these searches depending on the characteristics of the search.
 
