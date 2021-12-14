@@ -15,15 +15,12 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.dataplane.service.impl;
 
-import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.Transaction;
-import com.futurewei.alcor.common.tracer.Tracer;
 import com.futurewei.alcor.dataplane.cache.*;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.client.ZetaGatewayClient;
 import com.futurewei.alcor.dataplane.config.Config;
 import com.futurewei.alcor.dataplane.entity.*;
-import com.futurewei.alcor.dataplane.exception.NeighborInfoNotFound;
 import com.futurewei.alcor.dataplane.exception.PortBindingHostIpNotFound;
 import com.futurewei.alcor.dataplane.exception.UnknownResourceType;
 import com.futurewei.alcor.dataplane.service.DpmService;
