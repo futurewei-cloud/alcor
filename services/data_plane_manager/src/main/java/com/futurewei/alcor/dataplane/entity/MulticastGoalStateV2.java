@@ -20,10 +20,12 @@ import com.futurewei.alcor.schema.Goalstate.GoalStateV2;
 import com.futurewei.alcor.web.entity.dataplane.MulticastGoalStateByte;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class MulticastGoalStateV2 {
-    private List<String> hostIps;
+    private Set<String> hostIps;
     private List<String> vpcIds;
     private List<String> topics;
     private List<String> subTopics;
@@ -32,26 +34,26 @@ public class MulticastGoalStateV2 {
     private GoalStateV2.Builder goalStateBuilder;
 
     public MulticastGoalStateV2() {
-        hostIps = new ArrayList<>();
+        hostIps = new HashSet<>();
         goalStateBuilder = GoalStateV2.newBuilder();
     }
 
-    public MulticastGoalStateV2(List<String> hostIps, GoalStateV2 goalState) {
+    public MulticastGoalStateV2(Set<String> hostIps, GoalStateV2 goalState) {
         this.hostIps = hostIps;
         this.goalState = goalState;
     }
 
-    public MulticastGoalStateV2(List<String> hostIps, List<String> vpcIds, GoalStateV2 goalState) {
+    public MulticastGoalStateV2(Set<String> hostIps, List<String> vpcIds, GoalStateV2 goalState) {
         this.hostIps = hostIps;
         this.vpcIds = vpcIds;
         this.goalState = goalState;
     }
 
-    public List<String> getHostIps() {
+    public Set<String> getHostIps() {
         return hostIps;
     }
 
-    public void setHostIps(List<String> hostIps) {
+    public void setHostIps(Set<String> hostIps) {
         this.hostIps = hostIps;
     }
 

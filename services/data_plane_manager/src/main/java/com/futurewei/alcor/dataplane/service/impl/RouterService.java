@@ -151,7 +151,7 @@ public class RouterService extends ResourceService {
         }
     }
 
-    public void buildRouterState(InternalRouterInfo routerInfo, InternalSubnetRoutingTable subnetRoutingTable, UnicastGoalStateV2 unicastGoalState, MulticastGoalStateV2 multicastGoalState) {
+    public Router.RouterState.Builder buildRouterState(InternalRouterInfo routerInfo, InternalSubnetRoutingTable subnetRoutingTable, UnicastGoalStateV2... unicastGoalState) {
         Router.RouterConfiguration.SubnetRoutingTable.Builder subnetRoutingTableBuilder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
         String subnetId = subnetRoutingTable.getSubnetId();
         subnetRoutingTableBuilder.setSubnetId(subnetId);
@@ -184,10 +184,14 @@ public class RouterService extends ResourceService {
             }
         }
 
-        List<Router.RouterConfiguration.SubnetRoutingTable> subnetRoutingTablesList = new ArrayList<>();
+        Set<Router.RouterConfiguration.SubnetRoutingTable> subnetRoutingTablesList = new HashSet<>();
         subnetRoutingTablesList.add(subnetRoutingTableBuilder.build());
 
-        Goalstate.GoalStateV2.Builder goalStateBuilder = unicastGoalState.getGoalStateBuilder();
+        if (unicastGoalState.length == 0) {
+            unicastGoalState = new UnicastGoalStateV2[1];
+            unicastGoalState[0] = new UnicastGoalStateV2("", Goalstate.GoalStateV2.newBuilder());
+        }
+        Goalstate.GoalStateV2.Builder goalStateBuilder = unicastGoalState[0].getGoalStateBuilder();
         List<Router.RouterState> routerStatesBuilders = new ArrayList<Router.RouterState>(goalStateBuilder.getRouterStatesMap().values());
 
         if (routerStatesBuilders != null && routerStatesBuilders.size() > 0) {
@@ -212,11 +216,12 @@ public class RouterService extends ResourceService {
         Router.RouterState.Builder routerStateBuilder = Router.RouterState.newBuilder();
         routerStateBuilder.setConfiguration(routerConfigBuilder.build());
         Router.RouterState routerState = routerStateBuilder.build();
-        unicastGoalState.getGoalStateBuilder().putRouterStates(routerState.getConfiguration().getId(), routerState);
-        multicastGoalState.getGoalStateBuilder().putRouterStates(routerState.getConfiguration().getId(), routerState);
+        unicastGoalState[0].getGoalStateBuilder().putRouterStates(routerState.getConfiguration().getId(), routerState);
+        return routerStateBuilder;
     }
 
-    public void buildRouterStates(NetworkConfiguration networkConfig, UnicastGoalStateV2 unicastGoalState, MulticastGoalStateV2 multicastGoalState) throws Exception {
+
+    public void buildRouterStates(NetworkConfiguration networkConfig, UnicastGoalStateV2 unicastGoalState) throws Exception {
         List<Port.PortState> portStates = new ArrayList<Port.PortState>(unicastGoalState.getGoalStateBuilder().getPortStatesMap().values());
         if (portStates == null || portStates.size() == 0) {
             return;
@@ -247,7 +252,7 @@ public class RouterService extends ResourceService {
 
                 for (InternalSubnetRoutingTable subnetRoutingTable : subnetRoutingTables) {
                     if (subnetId.equals(subnetRoutingTable.getSubnetId())) {
-                        buildRouterState(routerInfo, subnetRoutingTable, unicastGoalState, multicastGoalState);
+                        buildRouterState(routerInfo, subnetRoutingTable, unicastGoalState);
                         break;
                     }
                 }

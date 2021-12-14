@@ -61,6 +61,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
 
         //aggregate goal state
         SortedMap<String, Object> goalStates = new TreeMap<>();
+        goalStates.putAll(goalStateV2.getVpcStatesMap());
         goalStates.putAll(goalStateV2.getSubnetStatesMap());
         goalStates.putAll(goalStateV2.getHostResourcesMap());
         goalStates.putAll(goalStateV2.getDhcpStatesMap());
