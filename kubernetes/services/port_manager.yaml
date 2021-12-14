@@ -9,6 +9,7 @@ data:
     ignite.port=10802
     server.max-http-header-size=16384
     server.max-initial-line-length=65536
+    protobuf.goal-state-message.version = 102
     logging.level.root=DEBUG
     microservices.vpc.service.url=http://vpcmanager-service.default.svc.cluster.local:9001
     microservices.subnet.service.url=http://subnetmanager-service.default.svc.cluster.local:9002
@@ -23,7 +24,6 @@ data:
     alcor.vif_type=ovs
     Spring.mvc.async.request-timeout=30000
 
-    protobuf.goal-state-message.version = 102
     opentracing.jaeger.udp-sender.host=localhost
     opentracing.jaeger.udp-sender.port=6831
     opentracing.jaeger.const-sampler.decision=true
