@@ -16,10 +16,12 @@ This report is about comparing the performance of the queries on non-key fields 
 All times are in micro seconds. Time axis (y) in the histogram is in logscale.
 
 Operations are on NodeInfo object. Benchmark tool, DPM, NCM and NMM run on the same physical machine in the lab. Ignite is run on two different physical machines in the lab (partitioned).
-Number of entries in both SQL and Scan are 1M, 1000 entries are queried on.
 
-The first query always takes way too much time compared to the subsequent
-ones and hence ignored when computing the statistics.
+Number of entries in both SQL and Scan are 1M.
+
+1000 queries are run but the performance statistics are only for 999
+queries, ignoring the first one which always takes orders of
+magnitude longer.
 
 SQL_QUERY_EXEC time represents time required to execute the SQLFieldsQuery
 (cache.query() API).
@@ -33,19 +35,23 @@ instantiation, cache.withKeepBinary().query(...)
 SCAN_CURSOR_FETCH time represents time required to extract the result from
 result set (cursor, cursor.getAll() API).
 
-For Insert operation, MAX represents total time to insert 1M entires into the cache and AVG represents the average time to insert one single entry. All other statistcs for Insert are not relevant and are set to zero.
+Total time is applicable only to insert operations therefore query execution
+and fetch times show "N/A" for these operations.
+
+For Insert operation, only total time for million insertions and average for
+signle insert is relevant therefore other times are set to "N/A" (Not
+Applicable).
 
 == Results
 |===
-|OPERATION_TYPE|    MIN|          MAX|          AVG| MEDIAN|       MODE|         P99
-|SQL_EXEC|        1.0000|       16.0000|     1.8739|     1.0000|     1.0000|     7.0000
-|SCAN_EXEC|  530182.0000|   785735.0000|561550.0000|552705.0000|543704.0000|667240.0000
-|SQL_FECTH|       0.0000|        1.0000|     0.6717|     1.0000|     1.0000|     1.0000
-|SCAN_FETCH|      0.0000|        8.0000|     0.1411|     0.0000|     0.0000|     3.0000
-|SQL_INSERT|      0.0000|929676278.0000|   929.6763|     0.0000|     0.0000|     0.0000
-|SCAN_INSERT|     0.0000|812451365.0000|   812.4514|     0.0000|     0.0000|     0.0000
+|OPERATION_TYPE|MIN         |MAX         |AVG         |TOTAL           |MEDIAN      |MODE        |P99
+|SQL_EXEC      |      1.0000|     16.0000|      1.8739|N/A             |      1.0000|      1.0000|      7.0000
+|SCAN_EXEC     |530,182.0000|785,735.0000|561,550.0000|N/A             |552,705.0000|543,704.0000|667,240.0000
+|SQL_FECTH     |      0.0000|      3.0000|      0.7537|N/A             |      1.0000|      1.0000|      1.0000
+|SCAN_FETCH    |      0.0000|      8.0000|      0.1411|N/A             |      0.0000|      0.0000|      3.0000
+|SQL_INSERT    |      0.0000|N/A         |    929.6800|929,676,278.0000|N/A         |N/A         |N/A
+|SCAN_INSERT   |      0.0000|N/A         |    812.4500|812,451,365.0000|N/A         |N/A         |N/A
 |===
 
 == Plot of the results
 image::sql_and_scan_query_perf_comp.png[]
-
