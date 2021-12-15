@@ -16,13 +16,13 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.dataplane.service.impl;
 
 import com.futurewei.alcor.dataplane.cache.SubnetPortsCache;
+import com.futurewei.alcor.dataplane.cache.SubnetPortsCacheV2;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalStateV2;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
 import com.futurewei.alcor.dataplane.exception.SubnetEntityNotFound;
 import com.futurewei.alcor.schema.Common;
-import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Port;
 import com.futurewei.alcor.schema.Subnet;
 import com.futurewei.alcor.web.entity.dataplane.InternalSubnetEntity;
@@ -37,6 +37,9 @@ import java.util.Map;
 
 @Service
 public class SubnetService extends ResourceService {
+
+    @Autowired
+    private SubnetPortsCacheV2 subnetPortsCacheV2;
 
     @Autowired
     private SubnetPortsCache subnetPortsCache;
@@ -122,7 +125,7 @@ public class SubnetService extends ResourceService {
 
     public Subnet.SubnetState.Builder buildSubnetState (String subnetId) throws Exception
     {
-        InternalSubnetPorts subnetEntity = subnetPortsCache.getSubnetPorts(subnetId);
+        InternalSubnetPorts subnetEntity = subnetPortsCacheV2.getSubnetPorts(subnetId);
         Subnet.SubnetConfiguration.Builder subnetConfigBuilder = Subnet.SubnetConfiguration.newBuilder();
         subnetConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
         subnetConfigBuilder.setId(subnetId);
@@ -152,7 +155,7 @@ public class SubnetService extends ResourceService {
 
     public void buildSubnetState (String subnetId, UnicastGoalStateV2 unicastGoalState, MulticastGoalStateV2 multicastGoalState) throws Exception
     {
-        InternalSubnetPorts subnetEntity = subnetPortsCache.getSubnetPorts(subnetId);
+        InternalSubnetPorts subnetEntity = subnetPortsCacheV2.getSubnetPorts(subnetId);
         if (subnetEntity != null) {
             if (unicastGoalState.getGoalStateBuilder().getSubnetStatesMap().entrySet().stream()
                     .filter(e -> e.getKey().equals(subnetEntity.getSubnetId()))

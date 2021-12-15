@@ -8,6 +8,7 @@ data:
     microservices.subnet.service.url=http://subnetmanager-service.default.svc.cluster.local:9002
     microservices.dpm.service.url=http://dataplanemanager-service.default.svc.cluster.local:9010
     microservices.port.service.url=http://portmanager-service.default.svc.cluster.local:9006
+    protobuf.goal-state-message.version = 101
     ignite.thin.client.enable=true
     ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
     ignite.port=10800

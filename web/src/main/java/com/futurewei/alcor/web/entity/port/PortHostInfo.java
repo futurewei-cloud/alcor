@@ -30,6 +30,14 @@ public class PortHostInfo {
 
     }
 
+    public PortHostInfo(String portId, String portIp, String portMac, String hostId, String hostIp) {
+        this.portId = portId;
+        this.portIp = portIp;
+        this.portMac = portMac;
+        this.hostId = hostId;
+        this.hostIp = hostIp;
+    }
+
     public PortHostInfo(String portId, String portIp, String portMac, String hostId, String hostIp, String subnetId) {
         this.portId = portId;
         this.portIp = portIp;

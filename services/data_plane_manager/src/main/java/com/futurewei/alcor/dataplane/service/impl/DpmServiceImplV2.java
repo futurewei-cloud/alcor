@@ -42,9 +42,6 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.futurewei.alcor.dataplane.service.impl.ResourceService.FORMAT_REVISION_NUMBER;
-import static com.futurewei.alcor.dataplane.service.impl.ResourceService.HOST_DVR_MAC;
-
 @Service
 @ConditionalOnProperty(prefix = "protobuf.goal-state-message", name = "version", havingValue = "102")
 public class DpmServiceImplV2 implements DpmService {
@@ -67,7 +64,7 @@ public class DpmServiceImplV2 implements DpmService {
     private VpcGatewayInfoCache gatewayInfoCache;
 
     @Autowired
-    private SubnetPortsCache subnetPortsCache;
+    private SubnetPortsCacheV2 subnetPortsCache;
 
     @Autowired
     private DataPlaneClient<UnicastGoalStateV2, MulticastGoalStateV2> grpcDataPlaneClient;

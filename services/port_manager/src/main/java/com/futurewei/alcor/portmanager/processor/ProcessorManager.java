@@ -87,9 +87,6 @@ public class ProcessorManager {
         }
 
         processorChainManager.buildProcessChain(this);
-        for (IProcessor p : processors) {
-            System.out.println(p.getClass().getName());
-        }
 
         LOG.info("ProcessorManager init success");
     }

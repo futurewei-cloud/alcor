@@ -36,6 +36,7 @@ import com.futurewei.alcor.common.logging.*;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -75,6 +76,9 @@ public class NeutronRouterController {
 
     @Autowired
     private HttpServletRequest request;
+
+    @Value("${protobuf.goal-state-message.version}")
+    private String version;
 
     /**
      * Show a Neutron router
@@ -326,17 +330,24 @@ public class NeutronRouterController {
             InternalSubnetRoutingTable internalSubnetRoutingTable = updateRoutingRuleResponse.getInternalSubnetRoutingTable();
             List<InternalSubnetRoutingTable> internalSubnetRoutingTableList = this.neutronRouterService.constructInternalSubnetRoutingTables(router);
             internalSubnetRoutingTableList.add(internalSubnetRoutingTable);
-            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(routerid, internalSubnetRoutingTableList, OperationType.CREATE);
-            NetworkConfiguration networkConfiguration = new NetworkConfiguration();
-            List<InternalRouterInfo> internalRouterInfos = new ArrayList<>();
-            internalRouterInfos.add(internalRouterInfo);
-            networkConfiguration.setInternalRouterInfos(internalRouterInfos);
-            List<InternalSubnetEntity> internalSubnetEntities = new ArrayList<>();
-            InternalSubnetEntity internalSubnetEntity = new InternalSubnetEntity(subnetEntity, null);
-            internalSubnetEntities.add(internalSubnetEntity);
-            networkConfiguration.setSubnets(internalSubnetEntities);
-            networkConfiguration.setRsType(Common.ResourceType.NEIGHBOR);
-            this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo, networkConfiguration);
+            if (version.equals("101")) {
+                InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(routerid, internalSubnetRoutingTableList);
+                System.out.println("version 101");
+                this.routerToPMService.updateL3Neighbors(projectid, router.getOwner(), subnetId, "add", gatewayPorts, internalRouterInfo);
+            } if (version.equals("102")) {
+                InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(routerid, internalSubnetRoutingTableList, OperationType.CREATE);
+                NetworkConfiguration networkConfiguration = new NetworkConfiguration();
+                List<InternalRouterInfo> internalRouterInfos = new ArrayList<>();
+                internalRouterInfos.add(internalRouterInfo);
+                networkConfiguration.setInternalRouterInfos(internalRouterInfos);
+                List<InternalSubnetEntity> internalSubnetEntities = new ArrayList<>();
+                InternalSubnetEntity internalSubnetEntity = new InternalSubnetEntity(subnetEntity, null);
+                internalSubnetEntities.add(internalSubnetEntity);
+                networkConfiguration.setSubnets(internalSubnetEntities);
+                networkConfiguration.setRsType(Common.ResourceType.NEIGHBOR);
+                System.out.println("version 102");
+                this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo, networkConfiguration);
+            }
         }
 
         return routerInterfaceResponse;
@@ -387,18 +398,24 @@ public class NeutronRouterController {
 
             List<InternalSubnetRoutingTable> internalSubnetRoutingTableList = this.neutronRouterService.constructInternalSubnetRoutingTables(router);
             internalSubnetRoutingTableList.add(internalSubnetRoutingTable);
-            InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(routerid, internalSubnetRoutingTableList, OperationType.DELETE);
-            NetworkConfiguration networkConfiguration = new NetworkConfiguration();
-            List<InternalRouterInfo> internalRouterInfos = new ArrayList<>();
-            internalRouterInfos.add(internalRouterInfo);
-            networkConfiguration.setInternalRouterInfos(internalRouterInfos);
-            List<InternalSubnetEntity> internalSubnetEntities = new ArrayList<>();
-            InternalSubnetEntity internalSubnetEntity = new InternalSubnetEntity(subnetEntity, null);
-            internalSubnetEntities.add(internalSubnetEntity);
-            networkConfiguration.setSubnets(internalSubnetEntities);
-            networkConfiguration.setSubnets(new ArrayList<>());
-            networkConfiguration.setRsType(Common.ResourceType.NEIGHBOR);
-            this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo, networkConfiguration);
+            if (version.equals("101")) {
+                InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(routerid, internalSubnetRoutingTableList);
+                this.routerToPMService.updateL3Neighbors(projectid, router.getOwner(), subnetId, "delete", gatewayPorts, internalRouterInfo);
+            } else if (version.equals("102")) {
+                InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(routerid, internalSubnetRoutingTableList, OperationType.DELETE);
+                NetworkConfiguration networkConfiguration = new NetworkConfiguration();
+                List<InternalRouterInfo> internalRouterInfos = new ArrayList<>();
+                internalRouterInfos.add(internalRouterInfo);
+                networkConfiguration.setInternalRouterInfos(internalRouterInfos);
+                List<InternalSubnetEntity> internalSubnetEntities = new ArrayList<>();
+                InternalSubnetEntity internalSubnetEntity = new InternalSubnetEntity(subnetEntity, null);
+                internalSubnetEntities.add(internalSubnetEntity);
+                networkConfiguration.setSubnets(internalSubnetEntities);
+                networkConfiguration.setSubnets(new ArrayList<>());
+                networkConfiguration.setRsType(Common.ResourceType.NEIGHBOR);
+                this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo, networkConfiguration);
+            }
+
         }
 
         return routerInterfaceResponse;
