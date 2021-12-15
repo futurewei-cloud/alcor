@@ -20,10 +20,12 @@ package com.futurewei.alcor.dataplane.client.pulsar.vpc_mode;
 
 import com.futurewei.alcor.dataplane.cache.VpcTopicCache;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
+import com.futurewei.alcor.dataplane.client.NodeSubscribeClient;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalStateV2;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
+import com.futurewei.alcor.schema.Subscribeinfoprovisioner;
 import com.futurewei.alcor.web.entity.dataplane.MulticastGoalStateByte;
 import com.futurewei.alcor.web.entity.dataplane.UnicastGoalStateByte;
 import com.futurewei.alcor.web.entity.topic.VpcTopicInfo;
@@ -38,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class DataPlaneClientImplV2  implements DataPlaneClient<UnicastGoalStateV2, MulticastGoalStateV2> {
@@ -47,42 +50,23 @@ public class DataPlaneClientImplV2  implements DataPlaneClient<UnicastGoalStateV
     private PulsarClient pulsarClient;
 
     @Autowired
-    private VpcTopicCache vpcTopicCache;
+    private TopicManager topicManager;
 
     private List<String> createGoalState(MulticastGoalStateV2 multicastGoalState) throws Exception {
         List<String> failedHosts = new ArrayList<>();
 
         for (int multiGsIndex = 0; multiGsIndex < multicastGoalState.getVpcIds().size(); multiGsIndex++) {
-            VpcTopicInfo vpcTopicInfo = vpcTopicCache.getTopicInfoByVpcId(multicastGoalState.getVpcIds().get(multiGsIndex));
-            if (vpcTopicInfo == null) {
-                vpcTopicInfo = new VpcTopicInfo(TopicManager.generateTopicByVpcId(multicastGoalState.getVpcIds().get(multiGsIndex)));
-                try {
-                    vpcTopicCache.addTopicMapping(
-                            multicastGoalState.getVpcIds().get(multiGsIndex),
-                            vpcTopicInfo
-                    );
-                } catch (Exception e) {
-
-                }
-            }
-            String multicastTopic = vpcTopicInfo.getTopicName();
 
 
-            String multicastKey = vpcTopicInfo.getSubscribeMapping().get(multicastGoalState.getHostIps().get(multiGsIndex));
+            String multicastTopic = TopicManager.generateTopicByVpcId(multicastGoalState.getVpcIds().get(multiGsIndex));
+            String multicastKey = TopicManager.generateKeyByNodeIp(new ArrayList<>(multicastGoalState.getHostIps()).get(multiGsIndex));
+            topicManager.sendSubscribeInfo(new ArrayList<>(multicastGoalState.getHostIps()).get(multiGsIndex), multicastTopic, multicastKey);
 
-            if (multicastKey == null || StringUtils.isEmpty(multicastKey)) {
-                multicastKey = TopicManager.generateKeyByNodeId(multicastGoalState.getHostIps().get(multiGsIndex));
+//            TODO: The generation of topic and key needs to be replace by following methods
+//            VpcTopicInfo vpcTopicInfo = topicManager.getTopicInfoByVpcId(multicastGoalState.getVpcIds().get(multiGsIndex));
+//            String multicastTopic = vpcTopicInfo.getTopicName();
+//            String multicastKey = vpcTopicInfo.getSubscribeMapping().get(new ArrayList<>(multicastGoalState.getHostIps()).get(multiGsIndex));
 
-                try {
-                    vpcTopicCache.addSubscribedNodeForVpcId(
-                            multicastGoalState.getVpcIds().get(multiGsIndex),
-                            multicastGoalState.getHostIps().get(multiGsIndex),
-                            multicastKey
-                    );
-                } catch (Exception e) {
-
-                }
-            }
 
             try {
                 Producer<MulticastGoalStateByte> producer = pulsarClient
@@ -114,34 +98,15 @@ public class DataPlaneClientImplV2  implements DataPlaneClient<UnicastGoalStateV
         List<String> failedHosts = new ArrayList<>();
 
         for (UnicastGoalStateV2 unicastGoalState : unicastGoalStates) {
-            VpcTopicInfo vpcTopicInfo = vpcTopicCache.getTopicInfoByVpcId(unicastGoalState.getVpcId());
-            if (vpcTopicInfo == null) {
-                vpcTopicInfo = new VpcTopicInfo(TopicManager.generateTopicByVpcId(unicastGoalState.getVpcId()));
-                try {
-                    vpcTopicCache.addTopicMapping(
-                            unicastGoalState.getVpcId(),
-                            vpcTopicInfo
-                    );
-                } catch (Exception e) {
 
-                }
-            }
-            String unicastTopic = vpcTopicInfo.getTopicName();
+            String unicastTopic = TopicManager.generateTopicByVpcId(unicastGoalState.getVpcId());
+            String unicastKey = TopicManager.generateKeyByNodeIp(unicastGoalState.getHostIp());
+            topicManager.sendSubscribeInfo(unicastGoalState.getHostIp(), unicastTopic, unicastKey);
 
-            String unicastKey = vpcTopicInfo.getSubscribeMapping().get(unicastGoalState.getHostIp());
-            if (unicastKey == null || StringUtils.isEmpty(unicastKey)) {
-                unicastKey = TopicManager.generateKeyByNodeId(unicastGoalState.getHostIp());
-
-                try {
-                    vpcTopicCache.addSubscribedNodeForVpcId(
-                            unicastGoalState.getVpcId(),
-                            unicastGoalState.getHostIp(),
-                            unicastKey
-                    );
-                } catch (Exception e) {
-
-                }
-            }
+//            TODO: The generation of topic and key needs to be replace by following methods
+//            VpcTopicInfo vpcTopicInfo = topicManager.getTopicInfoByVpcId(unicastGoalState.getVpcId());
+//            String unicastTopic = vpcTopicInfo.getTopicName();
+//            String unicastKey = vpcTopicInfo.getSubscribeMapping().get(unicastGoalState.getHostIp());
 
             try {
                 Producer<UnicastGoalStateByte> producer = pulsarClient

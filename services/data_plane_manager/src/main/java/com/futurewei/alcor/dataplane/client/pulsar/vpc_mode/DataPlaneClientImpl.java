@@ -74,7 +74,7 @@ public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, Mu
             String multicastKey = vpcTopicInfo.getSubscribeMapping().get(multicastGoalState.getHostIps().get(multiGsIndex));
 
             if (multicastKey == null || StringUtils.isEmpty(multicastKey)) {
-                multicastKey = TopicManager.generateKeyByNodeId(multicastGoalState.getHostIps().get(multiGsIndex));
+                multicastKey = TopicManager.generateKeyByNodeIp(multicastGoalState.getHostIps().get(multiGsIndex));
 
                 try {
                     vpcTopicCache.addSubscribedNodeForVpcId(
@@ -133,7 +133,7 @@ public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, Mu
 
             String unicastKey = vpcTopicInfo.getSubscribeMapping().get(unicastGoalState.getHostIp());
             if (unicastKey == null || StringUtils.isEmpty(unicastKey)) {
-                unicastKey = TopicManager.generateKeyByNodeId(unicastGoalState.getHostIp());
+                unicastKey = TopicManager.generateKeyByNodeIp(unicastGoalState.getHostIp());
 
                 try {
                     vpcTopicCache.addSubscribedNodeForVpcId(
