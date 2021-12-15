@@ -20,7 +20,7 @@ data:
 
     #DPM v1 is statically using version 101
     #DPM v2 will start with version 102
-    protobuf.goal-state-message.version = 101
+    protobuf.goal-state-message.version = 102
 
     #logging.file.path=./
     #logging.file.name=data-plane-manager.log

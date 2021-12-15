@@ -9,7 +9,7 @@ data:
     ignite.port=10802
     server.max-http-header-size=16384
     server.max-initial-line-length=65536
-    protobuf.goal-state-message.version = 101
+    protobuf.goal-state-message.version = 102
     logging.level.root=DEBUG
     microservices.vpc.service.url=http://vpcmanager-service.default.svc.cluster.local:9001
     microservices.subnet.service.url=http://subnetmanager-service.default.svc.cluster.local:9002
