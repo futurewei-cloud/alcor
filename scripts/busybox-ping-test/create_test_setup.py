@@ -148,25 +148,11 @@ def create_test_setup(ip_mac, config_file_object):
   service_port_map = get_service_port_map(services)
 
   create_default_segment_table(service_port_map["sgs"])
-
-  #network_info = dict(config_file_object.items("vpc_info"))
   create_vpc(service_port_map["vpm"])
-  #get_vpcs(service_port_map["vpm"])
-
-  #node_info = dict(config_file_object.items("node_info"))
   create_node(service_port_map["nm"], ip_mac)
-  #get_nodes(service_port_map["nm"])
-
-  #subnet_info = dict(config_file_object.items("subnet_info"))
   create_subnet(service_port_map["snm"])
-  #get_subnets(service_port_map["snm"])
-
-  #sg_info = dict(config_file_object.items("security_groups"))
   create_security_group(service_port_map["sgm"])
-
-  #port_info = dict(config_file_object.items("port_info"))
   create_ports(service_port_map["pm"])
-  #get_ports(service_port_map["pm"])
 
   ip_mac_db = get_mac_from_db()
   print("Goal State IP/MACs: ", ip_mac_db)

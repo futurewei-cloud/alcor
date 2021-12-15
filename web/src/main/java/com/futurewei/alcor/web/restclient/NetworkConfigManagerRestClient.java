@@ -52,6 +52,7 @@ public class NetworkConfigManagerRestClient extends AbstractRestClient {
             return;
         }
         HttpEntity<NodeInfoJson> request = new HttpEntity<>(message);
+        LOG.log(Level.INFO, "[createNodeInfo] Posting to NCM URI: " + ncmUri);
         restTemplate.postForObject(ncmUri, request, Object.class);
     }
 
