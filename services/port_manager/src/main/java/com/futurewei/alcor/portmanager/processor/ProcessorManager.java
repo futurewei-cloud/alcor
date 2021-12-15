@@ -35,9 +35,10 @@ public class ProcessorManager {
     @Autowired
     private IProcessorChainManager processorChainManager;
 
-    private void buildProcessChain() {
+    public void buildProcessChain(Set<Class<?>> processorClasses) {
         LOG.info("Build process chain: ");
 
+        processors.removeIf(processor -> processorClasses.contains(processor.getClass()));
         if (processors.isEmpty()) {
             LOG.warn("Processor number is 0");
             return;
@@ -85,7 +86,10 @@ public class ProcessorManager {
             instanceProcessor(subClass);
         }
 
-        processorChainManager.buildProcessChain(processors);
+        processorChainManager.buildProcessChain(this);
+        for (IProcessor p : processors) {
+            System.out.println(p.getClass().getName());
+        }
 
         LOG.info("ProcessorManager init success");
     }

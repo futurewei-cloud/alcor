@@ -18,5 +18,5 @@ package com.futurewei.alcor.portmanager.processor;
 import java.util.List;
 
 public interface IProcessorChainManager {
-    List<IProcessor> buildProcessChain(List<IProcessor> processors);
+    void buildProcessChain(ProcessorManager processorManager);
 }

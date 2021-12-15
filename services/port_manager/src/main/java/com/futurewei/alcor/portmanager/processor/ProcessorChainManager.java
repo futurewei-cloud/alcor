@@ -33,38 +33,13 @@ public class ProcessorChainManager implements IProcessorChainManager {
     Set<Class<?>> classes = new HashSet<>();
 
     @Override
-    public List<IProcessor> buildProcessChain(List<IProcessor> processors) {
+    public void buildProcessChain(ProcessorManager processorManager) {
         if (this.getClass().isAnnotationPresent(AfterProcessor.class)) {
             Class<?>[] processor = this.getClass().getAnnotation(AfterProcessor.class).exclude();
             classes = new HashSet<Class<?>>(Arrays.asList(processor));
         }
         LOG.info("Build process chain: ");
 
-        if (processors.isEmpty()) {
-            LOG.warn("Processor number is 0");
-            return processors;
-        }
-
-        if (processors.size() == 1) {
-            LOG.info("{}", processors.get(0));
-            processors.get(0).setNextProcessor(null);
-            return processors;
-        }
-
-        LOG.info("{}", processors.get(0));
-        IProcessor prev = processors.get(0);
-
-        for (int i = 1; i < processors.size(); i++) {
-            if (classes.contains(processors.get(i).getClass())) {
-                processors.remove(i);
-                continue;
-            }
-            prev.setNextProcessor(processors.get(i));
-            prev = processors.get(i);
-            LOG.info("{}", processors.get(i));
-        }
-
-        prev.setNextProcessor(null);
-        return processors;
+        processorManager.buildProcessChain(classes);
     }
 }
