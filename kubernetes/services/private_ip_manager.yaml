@@ -7,7 +7,7 @@ data:
     ignite.thin.client.enable=true
     ignite.host=ignite-alcor-ip-service.ignite-alcor-ip.svc.cluster.local
     ignite.port=10801
-    logging.level.root=DEBUG
+    logging.level.root=INFO
 
     opentracing.jaeger.udp-sender.host=localhost
     opentracing.jaeger.udp-sender.port=6831
