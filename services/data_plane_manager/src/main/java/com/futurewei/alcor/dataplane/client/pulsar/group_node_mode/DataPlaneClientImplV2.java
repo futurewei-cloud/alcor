@@ -41,8 +41,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//@Service("pulsarDataPlaneClient")
-//@ConditionalOnProperty(prefix = "protobuf.goal-state-message", name = "version", havingValue = "102")
 public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2, MulticastGoalStateV2> {
     private static final Logger LOG = LoggerFactory.getLogger(DataPlaneClientImplV2.class);
 
@@ -81,7 +79,7 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
     private List<String> createGoalState(MulticastGoalStateV2 multicastGoalState) throws Exception {
         List<String> failedHosts = new ArrayList<>();
 
-        Map<String, List<String>> multicastTopics = getMulticastTopics(multicastGoalState.getHostIps());
+        Map<String, List<String>> multicastTopics = getMulticastTopics(new ArrayList<>(multicastGoalState.getHostIps()));
 
         for (Map.Entry<String, List<String>> entry: multicastTopics.entrySet()) {
             String multicastTopic = entry.getKey();

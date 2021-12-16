@@ -22,8 +22,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-//@Configuration
-//@ConditionalOnProperty(prefix = "mq", name = "type", havingValue = "pulsar")
 public class PulsarConfiguration {
     @Value("${pulsar.url}")
     private String pulsarUrl;
