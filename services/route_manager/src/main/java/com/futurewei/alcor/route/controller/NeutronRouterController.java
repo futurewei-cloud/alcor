@@ -330,9 +330,9 @@ public class NeutronRouterController {
             InternalSubnetRoutingTable internalSubnetRoutingTable = updateRoutingRuleResponse.getInternalSubnetRoutingTable();
             List<InternalSubnetRoutingTable> internalSubnetRoutingTableList = this.neutronRouterService.constructInternalSubnetRoutingTables(router);
             internalSubnetRoutingTableList.add(internalSubnetRoutingTable);
+            logger.log(Level.FINE, "Goal stater version: " + version);
             if (version.equals("101")) {
                 InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(routerid, internalSubnetRoutingTableList);
-                System.out.println("version 101");
                 this.routerToPMService.updateL3Neighbors(projectid, router.getOwner(), subnetId, "add", gatewayPorts, internalRouterInfo);
             } if (version.equals("102")) {
                 InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(routerid, internalSubnetRoutingTableList, OperationType.CREATE);
@@ -345,13 +345,10 @@ public class NeutronRouterController {
                 internalSubnetEntities.add(internalSubnetEntity);
                 networkConfiguration.setSubnets(internalSubnetEntities);
                 networkConfiguration.setRsType(Common.ResourceType.NEIGHBOR);
-                System.out.println("version 102");
                 this.routerToDPMService.sendInternalRouterInfoToDPM(internalRouterInfo, networkConfiguration);
             }
         }
-
         return routerInterfaceResponse;
-
     }
 
     @RequestMapping(
@@ -397,6 +394,7 @@ public class NeutronRouterController {
             InternalSubnetRoutingTable internalSubnetRoutingTable = updateRoutingRuleResponse.getInternalSubnetRoutingTable();
 
             List<InternalSubnetRoutingTable> internalSubnetRoutingTableList = this.neutronRouterService.constructInternalSubnetRoutingTables(router);
+            logger.log(Level.FINE, "Goal stater version: " + version);
             internalSubnetRoutingTableList.add(internalSubnetRoutingTable);
             if (version.equals("101")) {
                 InternalRouterInfo internalRouterInfo = this.neutronRouterService.constructInternalRouterInfo(routerid, internalSubnetRoutingTableList);
