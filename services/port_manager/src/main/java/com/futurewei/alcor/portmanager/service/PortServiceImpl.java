@@ -21,6 +21,7 @@ import com.futurewei.alcor.common.enumClass.StatusEnum;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.portmanager.exception.PortEntityNotFound;
 import com.futurewei.alcor.portmanager.processor.*;
+import com.futurewei.alcor.portmanager.repo.IPortRepository;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
 import com.futurewei.alcor.portmanager.request.CreateNetworkConfigRequest;
 import com.futurewei.alcor.portmanager.request.IRestRequest;
@@ -49,7 +50,7 @@ public class PortServiceImpl implements PortService {
     private static final Logger LOG = LoggerFactory.getLogger(PortServiceImpl.class);
 
     @Autowired
-    private PortRepository portRepository;
+    private IPortRepository portRepository;
 
     private void handleException(PortContext context, Exception e) throws Exception {
         LOG.error("Catch exception: ", e);

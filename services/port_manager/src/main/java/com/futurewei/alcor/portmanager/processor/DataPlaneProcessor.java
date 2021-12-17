@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 @AfterProcessor({FixedIpsProcessor.class, MacProcessor.class,
-        NodeProcessor.class, PortProcessor.class,
+        NeighborProcessor.class, NodeProcessor.class, PortProcessor.class,
         RouterProcessor.class, SecurityGroupProcessor.class, VpcProcessor.class})
 public class DataPlaneProcessor extends AbstractProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(DataPlaneProcessor.class);

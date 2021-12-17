@@ -18,6 +18,8 @@ package com.futurewei.alcor.portmanager.processor;
 import com.futurewei.alcor.portmanager.util.ReflectionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -30,9 +32,13 @@ public class ProcessorManager {
     private static List<IProcessor> processors = new ArrayList<>();
     private static Map<Class, IProcessor> processorMap = new HashMap<>();
 
-    private void buildProcessChain() {
+    @Autowired
+    private AbstractProcessorChainManager processorChainManager;
+
+    public void buildProcessChain(Set<Class<?>> processorClasses) {
         LOG.info("Build process chain: ");
 
+        processors.removeIf(processor -> processorClasses.contains(processor.getClass()));
         if (processors.isEmpty()) {
             LOG.warn("Processor number is 0");
             return;
@@ -80,7 +86,7 @@ public class ProcessorManager {
             instanceProcessor(subClass);
         }
 
-        buildProcessChain();
+        processorChainManager.buildProcessChain(this);
 
         LOG.info("ProcessorManager init success");
     }
@@ -97,3 +103,4 @@ public class ProcessorManager {
         return processors;
     }
 }
+
