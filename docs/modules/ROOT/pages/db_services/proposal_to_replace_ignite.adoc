@@ -1,0 +1,144 @@
+= Proposal to replace Ignite as Datastore in Alcor
+Prasad Kommoju pkommoju@futurewei.com
+2021-12-13
+:toc: right
+:imagesdir: ../../images
+
+== Overview
+
+In view of stability, performance and usability problems presented by Ignite a search for a better alternative is in order. This document captures crucial properties of a few alternatives, these properties are hoped to solve the current problems with Ignite and not introduce some new problems of their own.
+
+All of the alternatives considered are open sourced.
+
+== Questions about new data store features
+* Should it be partitioned: If partitioning and replication are not considered availability of the services is impacted but opens up many more choices, including the simple embedded data stores. Is this an option?
+* If partitioning is not considered, then how to scale a given micro-service?
+* Is secondary index access a critical feature?
+* Is eventual consistency a tolerable trade off?
+* Since many objects used in Alcor represent a Network or components of a network, a Network/Graph database suggests itself as a natural choice. But it changing the data model means a bigger code change and more time. Is this an option worth evaluating at this time?
+
+== Embeddable and other databases to consider
+. H2
+. SQLite
+. UnQLite
+. Redis
+. Radison
+
+. https://www.nutanix.dev/2021/10/04/chakrdb-a-distributed-rocksdb-born-in-the-cloud-part-1/
+
+. https://engineering.fb.com/2021/08/06/core-data/zippydb/
+
+. https://www.infoq.com/news/2021/09/microstream-5-is-open-source/
+
+. etcd
+
+. gigaspaces
+
+. whitedb
+
+
+
+== RocksDB
+
+RocksDB is a very good KV, used by many other open/closed source projects and products as the storage engine.
+
+=== Strengths
+. Implementation in C++. No Garbage collection related issues.
+. Solid and stable implementation, used by many products as storage engine.
+. Good performance
+. Optimized for SSD
+. Embedded mode.
+
+
+=== Weaknesses
+
+. The interface is very low level forcing the user code to know and use locks, iterators, key comparators etc.,
+. No support for secondary key access. Search will be fast only when search is on the key fields. All other searches will use linear search and will be much slower.
+. No support for automatic Replication. This affects availability, the application will be forced to deal with fail overs by application managed replication.
+. Not a distributed system thus not horizontally scaleable.
+. Limit on transaction size.
+
+== Microstream
+It is an im-memory Object Graph cache with persistence. Claims to be extremely fast.
+
+=== Streangths
+. Like Java Native persistence
+
+=== Weaknesses
+. Documentation is not detailed enough
+. Transcations are atomic per each store operation. This is a serious problem.
+
+
+== ArangoDB
+=== Strengths
+. Implementation in C++. No Garbage collection related issues.
+. Multi model data store, including KV.
+. Easy deployment
+
+=== Weaknesses
+. Not as popular as Hazlecast
+. Uses RocksDB for storage
+
+
+== Hazlecast
+
+=== Strengths
+. Very popular
+
+=== Weaknesses
+. Unknown
+
+== OrientDB
+
+=== Strengths
+=== Weaknesses
+
+
+
+== Comparision
+|===
+|Database       |RocksDB         |ArangoDB        |Hazlecast|OrientDB|Microstream
+|Feature        |                |                |         |        |           
+|License        |BSD             |Apache 2        |Apache 2 |Apache 2|EPL 2      
+|Data Model     |KV              |M/G/KV/SE/D/J/FT|KV/DG    |G/KV    |KV/G      
+|Implementation |C++             |C++             |Java     |Java    |Java       
+|Access         |C++/Java API    |AQL/GQL/Java    |Java/Rest|Java    |Java       
+|Partitioning   |No (1)          |Yes             |Yes      |Yes     |Yes        
+|Replication    |No (2)          |Yes             |Yes      |Yes     |Yes       
+|Transactions   |Yes             |Yes             |1pc, 2pc |Yes     |No (3)         
+|Concurrency    |Yes             |Yes             |Yes      |Yes     |Yes        
+|ACID           |Yes             |Configurable    |IC - EC  |No      |Yes        
+|Secondary Index|No              |Yes             |Yes      |Yes     |No         
+|InMemory/Embed |Yes (I/E)       |Yes             |Yes      |?       |Yes        
+|Persistence    |Yes             |Yes             |Yes      |Yes     |Yes        
+|SQL            |No              |No              |No (AQL) |SQL Like|No         
+|===
+
+* NOTES
+** License
+*** EPL: Eclipse Public License
+** Footnotes
+*** 1. Single node partitioning only, no distribution
+*** 2. No native replication but APIs to enable it.
+*** 3. Each store by it self is atomic and multiple objects can be stored in one operation but this is not the same as envolping multiple store operations as an atomic operation.
+
+
+** Data model
+*** D: Document
+*** DG: In memory Datagrid
+*** J: JSON
+*** M: Multi Model
+*** G: Graph
+*** KV: Key-Value
+*** FT: Full Text
+
+** ACID
+*** IC: Immediate Consistency
+*** EC: Eventual Consistency
+
+** Transactions
+*** 1pc: One phase commit
+
+*** 2pc: Two phase commit
+
+
