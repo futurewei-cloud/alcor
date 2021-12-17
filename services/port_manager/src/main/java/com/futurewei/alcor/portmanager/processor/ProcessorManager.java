@@ -33,7 +33,7 @@ public class ProcessorManager {
     private static Map<Class, IProcessor> processorMap = new HashMap<>();
 
     @Autowired
-    private IProcessorChainManager processorChainManager;
+    private AbstractProcessorChainManager processorChainManager;
 
     public void buildProcessChain(Set<Class<?>> processorClasses) {
         LOG.info("Build process chain: ");

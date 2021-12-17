@@ -15,31 +15,11 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.portmanager.processor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 @Component
 @ConditionalOnProperty(prefix = "protobuf.goal-state-message", name = "version", havingValue = "101")
-public class ProcessorChainManager implements IProcessorChainManager {
-    private static final Logger LOG = LoggerFactory.getLogger(ProcessorManager.class);
+public class ProcessorChainManager extends AbstractProcessorChainManager {
 
-    Set<Class<?>> classes = new HashSet<>();
-
-    @Override
-    public void buildProcessChain(ProcessorManager processorManager) {
-        if (this.getClass().isAnnotationPresent(AfterProcessor.class)) {
-            Class<?>[] processor = this.getClass().getAnnotation(AfterProcessor.class).exclude();
-            classes = new HashSet<Class<?>>(Arrays.asList(processor));
-        }
-        LOG.info("Build process chain: ");
-
-        processorManager.buildProcessChain(classes);
-    }
 }
