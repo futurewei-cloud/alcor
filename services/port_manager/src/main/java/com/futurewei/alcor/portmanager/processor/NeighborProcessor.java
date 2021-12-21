@@ -23,7 +23,8 @@ import com.futurewei.alcor.web.entity.port.PortEntity;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class NeighborProcessor {
+@AfterProcessor(PortProcessor.class)
+public class NeighborProcessor extends AbstractProcessor {
     private void fetchPortNeighborCallback(IRestRequest request) {
         Map<String, NeighborInfo> neighborInfoMap = ((FetchPortNeighborRequest) request).getNeighborInfos();
         if (neighborInfoMap == null || neighborInfoMap.size() == 0) {
@@ -53,16 +54,18 @@ public class NeighborProcessor {
                 fetchPortNeighborRequest, this::fetchPortNeighborCallback);
     }
 
-
+    @Override
     void createProcess(PortContext context) {
         getNeighbors(context, context.getPortEntities());
     }
 
+    @Override
     void updateProcess(PortContext context) {
         PortEntity portEntity = context.getNewPortEntity();
         getNeighbors(context, Collections.singletonList(portEntity));
     }
 
+    @Override
     void deleteProcess(PortContext context) {
         getNeighbors(context, context.getPortEntities());
     }

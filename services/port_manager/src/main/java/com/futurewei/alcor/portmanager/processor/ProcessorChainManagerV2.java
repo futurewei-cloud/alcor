@@ -8,19 +8,19 @@ Copyright(c) 2020 Futurewei Cloud
     to whom the Software is furnished to do so, subject to the following conditions:
 
     The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-    
+
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package com.futurewei.alcor.portmanager.processor;
 
-import java.lang.annotation.*;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Component;
 
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-public @interface AfterProcessor {
-    Class<?>[] value();
-    Class<?>[] exclude() default Object.class;
+@Component
+@AfterProcessor(value = {Object.class}, exclude = {NeighborProcessor.class})
+@ConditionalOnProperty(prefix = "protobuf.goal-state-message", name = "version", havingValue = "102")
+public class ProcessorChainManagerV2 extends AbstractProcessorChainManager {
+
 }
