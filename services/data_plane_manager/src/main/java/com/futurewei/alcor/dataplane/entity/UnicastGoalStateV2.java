@@ -103,4 +103,15 @@ public class UnicastGoalStateV2 {
         unicastGoalStateByte.setGoalStateByte(this.goalState.toByteArray());
         return unicastGoalStateByte;
     }
+
+    public GoalStateV2Byte getGoalStateByte() {
+        GoalStateV2Byte goalStateV2Byte = new GoalStateV2Byte();
+        goalStateV2Byte.setGoalStateByte(this.goalState.toByteArray());
+        return goalStateV2Byte;
+    }
+
+    public GoalStateV2String getGoalStateString() {
+        GoalStateV2String goalStateV2String = new GoalStateV2String(this.goalState.toString());
+        return goalStateV2String;
+    }
 }

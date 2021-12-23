@@ -35,7 +35,7 @@ public class Config {
   @Value("${dataplane.grpc.port}")
   public int port;
 
-  @Value("50002")
+  @Value("${dataplane.grpc.topic-port}")
   public int topicGrpcPort;
 
   @Value("${grpc.min-threads: 100}")

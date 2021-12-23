@@ -25,8 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
-@Repository
-@ComponentScan(value = "com.futurewei.alcor.common.db")
 public class NodeTopicCache {
     private ICache<String, NodeTopicInfo> nodeTopicInfoICache;
 

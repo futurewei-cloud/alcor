@@ -42,7 +42,7 @@ import java.util.Map;
 
 //@Component
 @Service("pulsarDataPlaneClient")
-@ConditionalOnProperty(prefix = "mq", name = "mode", havingValue = "vpc")
+@ConditionalOnProperty(prefix = "protobuf.goal-state-message", name = "version", havingValue = "101")
 public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, MulticastGoalState>  {
     private static final Logger LOG = LoggerFactory.getLogger(DataPlaneClientImpl.class);
 

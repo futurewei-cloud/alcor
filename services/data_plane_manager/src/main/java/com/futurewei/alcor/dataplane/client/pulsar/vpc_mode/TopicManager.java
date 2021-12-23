@@ -47,11 +47,14 @@ public class TopicManager {
     private NodeSubscribeClient nodeSubscribeClient;
 
     public static String generateTopicByVpcId(String vpcId) {
+        if (vpcId == null) {
+            vpcId = "9192a4d4-ffff-4ece-b3f0-8d36e3d88038";
+        }
         return vpcId;
     }
 
     public static String generateKeyByNodeIp(String nodeIp) {
-        int hashCode = Murmur3_32Hash.getInstance().makeHash(nodeIp.getBytes(StandardCharsets.UTF_8));
+        int hashCode = Murmur3_32Hash.getInstance().makeHash(nodeIp.getBytes(StandardCharsets.UTF_8)) % 65536;
         return Integer.toString(hashCode);
     }
 

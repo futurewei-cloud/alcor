@@ -18,17 +18,10 @@
 
 package com.futurewei.alcor.dataplane.client.pulsar.vpc_mode;
 
-import com.futurewei.alcor.dataplane.cache.VpcTopicCache;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
-import com.futurewei.alcor.dataplane.client.NodeSubscribeClient;
-import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalStateV2;
-import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
-import com.futurewei.alcor.schema.Subscribeinfoprovisioner;
 import com.futurewei.alcor.web.entity.dataplane.MulticastGoalStateByte;
-import com.futurewei.alcor.web.entity.dataplane.UnicastGoalStateByte;
-import com.futurewei.alcor.web.entity.topic.VpcTopicInfo;
 import org.apache.pulsar.client.api.BatcherBuilder;
 import org.apache.pulsar.client.api.HashingScheme;
 import org.apache.pulsar.client.api.Producer;
@@ -37,12 +30,14 @@ import org.apache.pulsar.client.impl.schema.JSONSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
+@Service("pulsarDataPlaneClient")
+@ConditionalOnProperty(prefix = "protobuf.goal-state-message", name = "version", havingValue = "102")
 public class DataPlaneClientImplV2  implements DataPlaneClient<UnicastGoalStateV2, MulticastGoalStateV2> {
     private static final Logger LOG = LoggerFactory.getLogger(DataPlaneClientImpl.class);
 
@@ -100,8 +95,9 @@ public class DataPlaneClientImplV2  implements DataPlaneClient<UnicastGoalStateV
         for (UnicastGoalStateV2 unicastGoalState : unicastGoalStates) {
 
             String unicastTopic = TopicManager.generateTopicByVpcId(unicastGoalState.getVpcId());
-            String unicastKey = TopicManager.generateKeyByNodeIp(unicastGoalState.getHostIp());
-            topicManager.sendSubscribeInfo(unicastGoalState.getHostIp(), unicastTopic, unicastKey);
+            String unicastKey = unicastGoalState.getHostIp();
+            String unicastKeyHash = TopicManager.generateKeyByNodeIp(unicastGoalState.getHostIp());
+//            topicManager.sendSubscribeInfo(unicastGoalState.getHostIp(), unicastTopic, unicastKeyHash);
 
 //            TODO: The generation of topic and key needs to be replace by following methods
 //            VpcTopicInfo vpcTopicInfo = topicManager.getTopicInfoByVpcId(unicastGoalState.getVpcId());
@@ -109,15 +105,15 @@ public class DataPlaneClientImplV2  implements DataPlaneClient<UnicastGoalStateV
 //            String unicastKey = vpcTopicInfo.getSubscribeMapping().get(unicastGoalState.getHostIp());
 
             try {
-                Producer<UnicastGoalStateByte> producer = pulsarClient
-                        .newProducer(JSONSchema.of(UnicastGoalStateByte.class))
+                Producer<byte[]> producer = pulsarClient
+                        .newProducer()
                         .topic(unicastTopic)
                         .batcherBuilder(BatcherBuilder.KEY_BASED)
                         .hashingScheme(HashingScheme.Murmur3_32Hash)
                         .create();
                 producer.newMessage()
                         .key(unicastKey)
-                        .value(unicastGoalState.getUnicastGoalStateByte())
+                        .value(unicastGoalState.getGoalState().toByteArray())
                         .send();
             } catch (Exception e) {
                 LOG.error("Send unicastGoalStates to topic:{} failed: ", unicastTopic, e);

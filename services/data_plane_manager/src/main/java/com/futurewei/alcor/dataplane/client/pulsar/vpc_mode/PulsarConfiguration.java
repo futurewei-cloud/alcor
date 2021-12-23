@@ -23,8 +23,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-//@ConditionalOnProperty(prefix = "mq", name = "type", havingValue = "pulsar")
-@ConditionalOnProperty(prefix = "mq", name = "mode", havingValue = "group-node")
+@ConditionalOnProperty(prefix = "mq", name = "mode", havingValue = "vpc")
 public class PulsarConfiguration {
     @Value("${pulsar.url}")
     private String pulsarUrl;
