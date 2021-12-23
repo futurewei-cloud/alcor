@@ -18,7 +18,7 @@ package com.futurewei.alcor.dataplane.service.impl;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.dataplane.cache.NeighborCache;
 import com.futurewei.alcor.dataplane.cache.PortHostInfoCache;
-import com.futurewei.alcor.dataplane.cache.SubnetPortsCache;
+import com.futurewei.alcor.dataplane.cache.SubnetPortsCacheV2;
 import com.futurewei.alcor.dataplane.entity.*;
 import com.futurewei.alcor.dataplane.exception.NeighborInfoNotFound;
 import com.futurewei.alcor.dataplane.exception.PortFixedIpNotFound;
@@ -29,7 +29,6 @@ import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortHostInfo;
-import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
 import com.futurewei.alcor.web.entity.route.InternalSubnetRoutingTable;
 import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +44,7 @@ public class NeighborService extends ResourceService {
     private PortHostInfoCache portHostInfoCache;
 
     @Autowired
-    private SubnetPortsCache subnetPortsCache;
+    private SubnetPortsCacheV2 subnetPortsCache;
 
     @Autowired
     private NeighborCache neighborCache;

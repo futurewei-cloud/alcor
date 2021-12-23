@@ -44,14 +44,10 @@ public class LocalCacheImpl implements LocalCache {
     private SubnetPortsCache subnetPortsCache;
 
     @Autowired
-    private PortHostInfoCache portHostInfoCache;
-
-    @Autowired
     private NodeInfoCache nodeInfoCache;
 
     @Override
     public void setSubnetPorts(NetworkConfiguration networkConfig) throws Exception {
-
         List<InternalPortEntity> portEntities = networkConfig.getPortEntities();
         if (portEntities == null) {
             return;
@@ -74,7 +70,6 @@ public class LocalCacheImpl implements LocalCache {
                 portHostInfo.setPortId(portEntity.getId());
                 portHostInfo.setHostIp(portEntity.getBindingHostIP());
                 portHostInfo.setHostId(portEntity.getBindingHostId());
-                portHostInfo.setSubnetId(subnetId);
 
                 InternalSubnetPorts subnetPorts = subnetPortsMap.get(subnetId);
                 if (subnetPorts == null) {
@@ -90,6 +85,7 @@ public class LocalCacheImpl implements LocalCache {
                     subnetPorts.setVpcId(subnetEntity.getVpcId());
                     subnetPorts.setTunnelId(subnetEntity.getTunnelId());
                     subnetPorts.setDhcpEnable(subnetEntity.getDhcpEnable());
+                    subnetPorts.setPorts(new ArrayList<>());
 
                     List<InternalRouterInfo> routers = networkConfig.getInternalRouterInfos();
                     if (routers != null && routers.size() > 0) {
@@ -110,13 +106,14 @@ public class LocalCacheImpl implements LocalCache {
 
                     subnetPortsMap.put(subnetId, subnetPorts);
                 }
+
+                subnetPorts.getPorts().add(portHostInfo);
             }
         }
 
         for (Map.Entry<String, InternalSubnetPorts> entry: subnetPortsMap.entrySet()) {
             subnetPortsCache.updateSubnetPorts(entry.getValue());
         }
-
     }
 
     private InternalSubnetEntity getSubnetEntity(NetworkConfiguration networkConfig, String subnetId) throws Exception {
