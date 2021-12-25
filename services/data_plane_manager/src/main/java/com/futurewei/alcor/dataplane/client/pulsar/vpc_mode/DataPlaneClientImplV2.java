@@ -95,7 +95,7 @@ public class DataPlaneClientImplV2  implements DataPlaneClient<UnicastGoalStateV
             String unicastKeyHash = TopicManager.generateKeyByNodeIp(unicastGoalState.getHostIp());
             topicManager.sendSubscribeInfo(unicastGoalState.getHostIp(), unicastTopic, unicastKeyHash);
 
-//            TODO: The generation of topic and key needs to be replace by following methods
+//            TODO: The generation of topic and key needs to be replace by getting from caches as follows
 //            VpcTopicInfo vpcTopicInfo = topicManager.getTopicInfoByVpcId(unicastGoalState.getVpcId());
 //            String unicastTopic = vpcTopicInfo.getTopicName();
 //            String unicastKey = vpcTopicInfo.getSubscribeMapping().get(unicastGoalState.getHostIp());
