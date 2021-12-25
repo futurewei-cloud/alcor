@@ -15,6 +15,7 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.dataplane.client.pulsar.vpc_mode;
 
+import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.dataplane.cache.LocalCache;
 import com.futurewei.alcor.dataplane.cache.VpcTopicCache;
 import com.futurewei.alcor.dataplane.client.NodeSubscribeClient;
@@ -46,47 +47,8 @@ public class TopicManager {
     @Autowired
     private NodeSubscribeClient nodeSubscribeClient;
 
-    public static String generateTopicByVpcId(String vpcId) {
-        if (vpcId == null) {
-            vpcId = "9192a4d4-ffff-4ece-b3f0-8d36e3d88038";
-        }
-        return vpcId;
-    }
-
-    public static String generateKeyByNodeIp(String nodeIp) {
-        int hashCode = Murmur3_32Hash.getInstance().makeHash(nodeIp.getBytes(StandardCharsets.UTF_8)) % 65536;
-        return Integer.toString(hashCode);
-    }
-
     public VpcTopicInfo getTopicInfoByVpcId(String vpcId) throws Exception {
-        VpcTopicInfo vpcTopicInfo = vpcTopicCache.getTopicInfoByVpcId(vpcId);
-        if (vpcTopicInfo == null) {
-            vpcTopicInfo = new VpcTopicInfo(TopicManager.generateTopicByVpcId(vpcId));
-            try {
-                vpcTopicCache.addTopicMapping(
-                        vpcId,
-                        vpcTopicInfo
-                );
-            } catch (Exception e) {
-
-            }
-        }
-
-//        if (multicastKey == null || StringUtils.isEmpty(multicastKey)) {
-//            multicastKey = topicManager.generateKeyByNodeId(new ArrayList<>(multicastGoalState.getHostIps()).get(multiGsIndex));
-//
-//            try {
-//                vpcTopicCache.addSubscribedNodeForVpcId(
-//                        multicastGoalState.getVpcIds().get(multiGsIndex),
-//                        new ArrayList<>(multicastGoalState.getHostIps()).get(multiGsIndex),
-//                        multicastKey
-//                );
-//            } catch (Exception e) {
-//
-//            }
-//        }
-
-        return vpcTopicInfo;
+        return vpcTopicCache.getTopicInfoByVpcId(vpcId);
     }
 
     public void sendSubscribeInfo(String hostIp, String topic, String key) throws Exception {
@@ -102,4 +64,15 @@ public class TopicManager {
         nodeSubscribeClient.asyncSendSubscribeInfos(infoMap);
     }
 
+    public static String generateTopicByVpcId(String vpcId) {
+        if (vpcId == null) {
+            vpcId = "9192a4d4-ffff-4ece-b3f0-8d36e3d88038";
+        }
+        return vpcId;
+    }
+
+    public static String generateKeyByNodeIp(String nodeIp) {
+        int hashCode = Murmur3_32Hash.getInstance().makeHash(nodeIp.getBytes(StandardCharsets.UTF_8)) % 65536;
+        return Integer.toString(hashCode);
+    }
 }

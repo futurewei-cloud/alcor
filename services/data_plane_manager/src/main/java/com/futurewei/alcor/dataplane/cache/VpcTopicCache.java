@@ -2,13 +2,17 @@ package com.futurewei.alcor.dataplane.cache;
 
 import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
+import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.dataplane.client.pulsar.vpc_mode.TopicManager;
 import com.futurewei.alcor.web.entity.topic.VpcTopicInfo;
+import org.apache.pulsar.common.util.Murmur3_32Hash;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,12 +41,38 @@ public class VpcTopicCache {
 
     @DurationStatistics
     public VpcTopicInfo getTopicInfoByVpcId(String vpcId) throws Exception {
-        return vpcTopicInfoICache.get(vpcId);
+        try (Transaction tx = vpcTopicInfoICache.getTransaction().start()) {
+            VpcTopicInfo vpcTopicInfo = vpcTopicInfoICache.get(vpcId);
+            if (vpcTopicInfo == null) {
+                vpcTopicInfo = new VpcTopicInfo(TopicManager.generateTopicByVpcId(vpcId));
+                vpcTopicInfoICache.put(
+                            vpcId,
+                            vpcTopicInfo
+                    );
+            }
+            tx.commit();
+            return vpcTopicInfoICache.get(vpcId);
+        }
     }
 
     @DurationStatistics
     public String getTopicNameByVpcId(String vpcId) throws Exception {
-        return vpcTopicInfoICache.get(vpcId).getTopicName();
+        try (Transaction tx = vpcTopicInfoICache.getTransaction().start()) {
+            VpcTopicInfo vpcTopicInfo = vpcTopicInfoICache.get(vpcId);
+            String topicName = null;
+            if (vpcTopicInfo == null) {
+                topicName = TopicManager.generateTopicByVpcId(vpcId);
+                vpcTopicInfo = new VpcTopicInfo(topicName);
+                vpcTopicInfoICache.put(
+                        vpcId,
+                        vpcTopicInfo
+                );
+            } else {
+                topicName = vpcTopicInfo.getTopicName();
+            }
+            tx.commit();
+            return topicName;
+        }
     }
 
     @DurationStatistics

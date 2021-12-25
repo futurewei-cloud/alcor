@@ -51,28 +51,24 @@ public class DataPlaneClientImplV2  implements DataPlaneClient<UnicastGoalStateV
         List<String> failedHosts = new ArrayList<>();
 
         for (int multiGsIndex = 0; multiGsIndex < multicastGoalState.getVpcIds().size(); multiGsIndex++) {
-
-
             String multicastTopic = TopicManager.generateTopicByVpcId(multicastGoalState.getVpcIds().get(multiGsIndex));
             String multicastKey = TopicManager.generateKeyByNodeIp(new ArrayList<>(multicastGoalState.getHostIps()).get(multiGsIndex));
             topicManager.sendSubscribeInfo(new ArrayList<>(multicastGoalState.getHostIps()).get(multiGsIndex), multicastTopic, multicastKey);
 
-//            TODO: The generation of topic and key needs to be replace by following methods
+//            TODO: The generation of topic and key needs to be replace by getting from caches as follows
 //            VpcTopicInfo vpcTopicInfo = topicManager.getTopicInfoByVpcId(multicastGoalState.getVpcIds().get(multiGsIndex));
 //            String multicastTopic = vpcTopicInfo.getTopicName();
 //            String multicastKey = vpcTopicInfo.getSubscribeMapping().get(new ArrayList<>(multicastGoalState.getHostIps()).get(multiGsIndex));
-
-
             try {
-                Producer<MulticastGoalStateByte> producer = pulsarClient
-                        .newProducer(JSONSchema.of(MulticastGoalStateByte.class))
+                Producer<byte []> producer = pulsarClient
+                        .newProducer()
                         .topic(multicastTopic)
                         .batcherBuilder(BatcherBuilder.KEY_BASED)
                         .hashingScheme(HashingScheme.Murmur3_32Hash)
                         .create();
                 producer.newMessage()
                         .key(multicastKey)
-                        .value(multicastGoalState.getMulticastGoalStateByte())
+                        .value(multicastGoalState.getGoalState().toByteArray())
                         .send();
             } catch (Exception e) {
                 LOG.error("Send multicastGoalState to topic:{} failed: ", multicastTopic, e);
@@ -97,7 +93,7 @@ public class DataPlaneClientImplV2  implements DataPlaneClient<UnicastGoalStateV
             String unicastTopic = TopicManager.generateTopicByVpcId(unicastGoalState.getVpcId());
             String unicastKey = unicastGoalState.getHostIp();
             String unicastKeyHash = TopicManager.generateKeyByNodeIp(unicastGoalState.getHostIp());
-//            topicManager.sendSubscribeInfo(unicastGoalState.getHostIp(), unicastTopic, unicastKeyHash);
+            topicManager.sendSubscribeInfo(unicastGoalState.getHostIp(), unicastTopic, unicastKeyHash);
 
 //            TODO: The generation of topic and key needs to be replace by following methods
 //            VpcTopicInfo vpcTopicInfo = topicManager.getTopicInfoByVpcId(unicastGoalState.getVpcId());
