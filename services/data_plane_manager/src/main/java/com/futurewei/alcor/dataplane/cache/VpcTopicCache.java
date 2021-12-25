@@ -121,8 +121,11 @@ public class VpcTopicCache {
 
     @DurationStatistics
     public void addSubscribedNodeForVpcId(String nodeId, String vpcId, String key) throws Exception {
-        VpcTopicInfo vpcTopicInfo = vpcTopicInfoICache.get(vpcId);
-        vpcTopicInfo.getSubscribeMapping().put(nodeId, key);
-        vpcTopicInfoICache.put(vpcId, vpcTopicInfo);
+        try (Transaction tx = vpcTopicInfoICache.getTransaction().start()) {
+            VpcTopicInfo vpcTopicInfo = vpcTopicInfoICache.get(vpcId);
+            vpcTopicInfo.getSubscribeMapping().put(nodeId, key);
+            vpcTopicInfoICache.put(vpcId, vpcTopicInfo);
+            tx.commit();
+        }
     }
 }
