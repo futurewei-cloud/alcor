@@ -386,6 +386,7 @@ public class NeighborService extends ResourceService {
 
         Set<String> routerIds = subnetPortsCache.getInternalSubnetRouterMap(networkConfiguration).values().stream().collect(Collectors.toSet());
         String vpcid = unicastGoalStateV2.getGoalStateBuilder().getVpcStatesMap().values().stream().map(vpcState -> vpcState.getConfiguration().getId()).findFirst().orElse(null);
+        multicastGoalStateV2.addVpcId(vpcid);
         routerIds.parallelStream().forEach(routerId -> {
             try {
                 Collection<InternalSubnetPorts> internalSubnetPorts  = subnetPortsCache.getSubnetPortsByRouterId(routerId).values();
@@ -441,6 +442,7 @@ public class NeighborService extends ResourceService {
             return;
         }
         String vpcid = subnetPortsCache.getSubnetPorts(subnetId).getVpcId();
+        multicastGoalState.addVpcId(vpcid);
         portHostInfoCache.getPortHostInfos(subnetId)
                 .forEach(portState -> unicastGoalStates.put(portState.getHostIp(), new UnicastGoalStateV2(portState.getHostIp(), Goalstate.GoalStateV2.newBuilder())));
         Subnet.SubnetState subnetState = subnetService.buildSubnetState(subnetId).build();
@@ -483,6 +485,7 @@ public class NeighborService extends ResourceService {
 
         subnetStateMap.put(subnetId, subnetState);
         for (UnicastGoalStateV2 unicastGoalStateV2 : unicastGoalStates.values()) {
+            unicastGoalStateV2.setVpcId(vpcid);
             unicastGoalStateV2.getGoalStateBuilder().putAllNeighborStates(neighborStateMap);
             unicastGoalStateV2.getGoalStateBuilder().putAllSubnetStates(subnetStateMap);
             Router.RouterConfiguration.Builder routerConfigurationBuilder = multicastGoalState.getGoalStateBuilder().getRouterStatesMap().get(routerId).getConfiguration().toBuilder();

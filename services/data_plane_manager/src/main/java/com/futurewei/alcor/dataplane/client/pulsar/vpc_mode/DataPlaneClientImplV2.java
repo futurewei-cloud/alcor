@@ -38,7 +38,7 @@ import java.util.List;
 
 @Service("pulsarDataPlaneClient")
 @ConditionalOnProperty(prefix = "protobuf.goal-state-message", name = "version", havingValue = "102")
-public class DataPlaneClientImplV2  implements DataPlaneClient<UnicastGoalStateV2, MulticastGoalStateV2> {
+public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2, MulticastGoalStateV2> {
     private static final Logger LOG = LoggerFactory.getLogger(DataPlaneClientImpl.class);
 
     @Autowired
@@ -49,7 +49,12 @@ public class DataPlaneClientImplV2  implements DataPlaneClient<UnicastGoalStateV
 
     private List<String> createGoalState(MulticastGoalStateV2 multicastGoalState) throws Exception {
         List<String> failedHosts = new ArrayList<>();
-        if (multicastGoalState.getVpcIds() != null) {
+        if (multicastGoalState != null &&
+                multicastGoalState.getHostIps().size() != 0 &&
+                multicastGoalState.getGoalState() != null) {
+            if (multicastGoalState.getVpcIds() == null) {
+                throw new Exception("The VpcIds of multicast goalState is null.");
+            }
             for (int multiGsIndex = 0; multiGsIndex < multicastGoalState.getVpcIds().size(); multiGsIndex++) {
                 String multicastTopic = TopicManager.generateTopicByVpcId(multicastGoalState.getVpcIds().get(multiGsIndex));
                 String multicastKey = TopicManager.generateKeyByNodeIp(new ArrayList<>(multicastGoalState.getHostIps()).get(multiGsIndex));
@@ -60,7 +65,7 @@ public class DataPlaneClientImplV2  implements DataPlaneClient<UnicastGoalStateV
 //            String multicastTopic = vpcTopicInfo.getTopicName();
 //            String multicastKey = vpcTopicInfo.getSubscribeMapping().get(new ArrayList<>(multicastGoalState.getHostIps()).get(multiGsIndex));
                 try {
-                    Producer<byte []> producer = pulsarClient
+                    Producer<byte[]> producer = pulsarClient
                             .newProducer()
                             .topic(multicastTopic)
                             .batcherBuilder(BatcherBuilder.KEY_BASED)
@@ -81,6 +86,7 @@ public class DataPlaneClientImplV2  implements DataPlaneClient<UnicastGoalStateV
                         multicastTopic, multicastGoalState);
             }
         }
+
         return failedHosts;
     }
 
@@ -89,7 +95,9 @@ public class DataPlaneClientImplV2  implements DataPlaneClient<UnicastGoalStateV
         List<String> failedHosts = new ArrayList<>();
 
         for (UnicastGoalStateV2 unicastGoalState : unicastGoalStates) {
-
+            if (unicastGoalState.getVpcId() == null) {
+                throw new Exception("The VpcId of unicast goalState is null.");
+            }
             String unicastTopic = TopicManager.generateTopicByVpcId(unicastGoalState.getVpcId());
             String unicastKey = unicastGoalState.getHostIp();
             String unicastKeyHash = TopicManager.generateKeyByNodeIp(unicastGoalState.getHostIp());

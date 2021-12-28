@@ -65,9 +65,6 @@ public class TopicManager {
     }
 
     public static String generateTopicByVpcId(String vpcId) {
-        if (vpcId == null) {
-            vpcId = "9192a4d4-ffff-4ece-b3f0-8d36e3d88038";
-        }
         return vpcId;
     }
 

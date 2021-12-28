@@ -57,12 +57,26 @@ public class MulticastGoalStateV2 {
         this.hostIps = hostIps;
     }
 
+    public void addHostIp(String hostIp) {
+        if (this.hostIps == null) {
+            this.hostIps = new HashSet<>();
+        }
+        this.hostIps.add(hostIp);
+    }
+
     public List<String> getVpcIds() {
         return vpcIds;
     }
 
     public void setVpcIds(List<String> vpcIds) {
         this.vpcIds = vpcIds;
+    }
+
+    public void addVpcId(String vpcId) {
+        if (this.vpcIds == null) {
+            vpcIds = new ArrayList<String>();
+        }
+        this.vpcIds.add(vpcId);
     }
 
     public List<String> getTopics() {
