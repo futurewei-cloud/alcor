@@ -334,6 +334,7 @@ public class NeighborService extends ResourceService {
 
         multicastGoalStateV2.getGoalStateBuilder().putAllSubnetStates(unicastGoalStateV2.getGoalStateBuilder().getSubnetStatesMap());
         multicastGoalStateV2.getGoalStateBuilder().putAllRouterStates(unicastGoalStateV2.getGoalStateBuilder().getRouterStatesMap());
+        multicastGoalStateV2.addVpcId(portStates.iterator().next().getConfiguration().getVpcId());
 
         portStates.parallelStream().forEach(portState -> {
             List<String> subnetIds = portState.getConfiguration().getFixedIpsList().stream().map(fixedIp -> fixedIp.getSubnetId()).collect(Collectors.toList());

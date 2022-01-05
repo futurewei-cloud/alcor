@@ -19,7 +19,7 @@ import com.futurewei.alcor.common.db.Transaction;
 import com.futurewei.alcor.dataplane.cache.LocalCache;
 import com.futurewei.alcor.dataplane.cache.VpcTopicCache;
 import com.futurewei.alcor.dataplane.client.NodeSubscribeClient;
-import com.futurewei.alcor.schema.Subscribeinfoprovisioner;
+import com.futurewei.alcor.schema.Subscribeinfoprovisioner.NodeSubscribeInfo;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.topic.VpcTopicInfo;
 import org.apache.kafka.common.protocol.types.Field;
@@ -47,29 +47,50 @@ public class TopicManager {
     @Autowired
     private NodeSubscribeClient nodeSubscribeClient;
 
-    public VpcTopicInfo getTopicInfoByVpcId(String vpcId) throws Exception {
-        return vpcTopicCache.getTopicInfoByVpcId(vpcId);
+    public NodeSubscribeInfo getNodeSubscribeInfoByVpcId(String vpcId, String hostIp) throws Exception {
+        NodeSubscribeInfo nodeSubscribeInfo = vpcTopicCache.getNodeSubscribeInfoByVpcId(vpcId, hostIp);
+        if (nodeSubscribeInfo == null) {
+            String topic = this.generateTopicByVpcId(vpcId);
+            String key = this.generateKeyByHostIp(hostIp);
+            vpcTopicCache.addSubscribedNodeForVpc(
+                    vpcId,
+                    this.generateTopicByVpcId(vpcId),
+                    hostIp,
+                    this.generateKeyByHostIp(hostIp)
+            );
+            this.sendSubscribeInfo(
+                    hostIp,
+                    topic,
+                    this.generateHashKeyByKey(key)
+            );
+            NodeSubscribeInfo.Builder nodeSubscribeInfoBuilder = NodeSubscribeInfo.newBuilder();
+            nodeSubscribeInfoBuilder.setTopic(topic);
+            nodeSubscribeInfoBuilder.setKey(key);
+            return nodeSubscribeInfoBuilder.build();
+        }
+        return nodeSubscribeInfo;
     }
 
     public void sendSubscribeInfo(String hostIp, String topic, String key) throws Exception {
-        Subscribeinfoprovisioner.NodeSubscribeInfo.Builder infoBuilder = Subscribeinfoprovisioner.NodeSubscribeInfo.newBuilder();
-        infoBuilder.setSubscribeOperationValue(1);
+        NodeSubscribeInfo.Builder infoBuilder = NodeSubscribeInfo.newBuilder();
+        infoBuilder.setSubscribeOperationValue(0);
         infoBuilder.setTopic(topic);
-        infoBuilder.setKey(key);
+        infoBuilder.setKey(this.generateHashKeyByKey(key));
         Map infoMap = new HashMap<>();
-        infoMap.put(
-                hostIp,
-                infoBuilder.build()
-        );
+        infoMap.put(hostIp, infoBuilder.build());
         nodeSubscribeClient.asyncSendSubscribeInfos(infoMap);
     }
 
-    public static String generateTopicByVpcId(String vpcId) {
+    public String generateTopicByVpcId(String vpcId) {
         return vpcId;
     }
 
-    public static String generateKeyByNodeIp(String nodeIp) {
-        int hashCode = Murmur3_32Hash.getInstance().makeHash(nodeIp.getBytes(StandardCharsets.UTF_8)) % 65536;
+    public String generateKeyByHostIp(String hostIp) {
+        return hostIp;
+    }
+
+    public String generateHashKeyByKey(String key) {
+        int hashCode = Murmur3_32Hash.getInstance().makeHash(key.getBytes(StandardCharsets.UTF_8)) % 65536;
         return Integer.toString(hashCode);
     }
 }

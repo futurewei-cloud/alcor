@@ -21,7 +21,9 @@ package com.futurewei.alcor.dataplane.client.pulsar.vpc_mode;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalStateV2;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
+import com.futurewei.alcor.schema.Subscribeinfoprovisioner.NodeSubscribeInfo;
 import com.futurewei.alcor.web.entity.dataplane.MulticastGoalStateByte;
+import com.futurewei.alcor.web.entity.topic.VpcTopicInfo;
 import org.apache.pulsar.client.api.BatcherBuilder;
 import org.apache.pulsar.client.api.HashingScheme;
 import org.apache.pulsar.client.api.Producer;
@@ -56,14 +58,17 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
                 throw new Exception("The VpcIds of multicast goalState is null.");
             }
             for (int multiGsIndex = 0; multiGsIndex < multicastGoalState.getVpcIds().size(); multiGsIndex++) {
-                String multicastTopic = TopicManager.generateTopicByVpcId(multicastGoalState.getVpcIds().get(multiGsIndex));
-                String multicastKey = TopicManager.generateKeyByNodeIp(new ArrayList<>(multicastGoalState.getHostIps()).get(multiGsIndex));
-                topicManager.sendSubscribeInfo(new ArrayList<>(multicastGoalState.getHostIps()).get(multiGsIndex), multicastTopic, multicastKey);
+//                String multicastTopic = TopicManager.generateTopicByVpcId(multicastGoalState.getVpcIds().get(multiGsIndex));
+//                String multicastKey = TopicManager.generateKeyByNodeIp(new ArrayList<>(multicastGoalState.getHostIps()).get(multiGsIndex));
+//                topicManager.sendSubscribeInfo(new ArrayList<>(multicastGoalState.getHostIps()).get(multiGsIndex), multicastTopic, multicastKey);
 
 //            TODO: The generation of topic and key needs to be replace by getting from caches as follows
-//            VpcTopicInfo vpcTopicInfo = topicManager.getTopicInfoByVpcId(multicastGoalState.getVpcIds().get(multiGsIndex));
-//            String multicastTopic = vpcTopicInfo.getTopicName();
-//            String multicastKey = vpcTopicInfo.getSubscribeMapping().get(new ArrayList<>(multicastGoalState.getHostIps()).get(multiGsIndex));
+                NodeSubscribeInfo nodeSubscribeInfo = topicManager.getNodeSubscribeInfoByVpcId(
+                        multicastGoalState.getVpcIds().get(multiGsIndex),
+                        new ArrayList<>(multicastGoalState.getHostIps()).get(multiGsIndex)
+                );
+                String multicastTopic = nodeSubscribeInfo.getTopic();
+                String multicastKey = nodeSubscribeInfo.getKey();
                 try {
                     Producer<byte[]> producer = pulsarClient
                             .newProducer()
@@ -98,15 +103,10 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
             if (unicastGoalState.getVpcId() == null) {
                 throw new Exception("The VpcId of unicast goalState is null.");
             }
-            String unicastTopic = TopicManager.generateTopicByVpcId(unicastGoalState.getVpcId());
-            String unicastKey = unicastGoalState.getHostIp();
-            String unicastKeyHash = TopicManager.generateKeyByNodeIp(unicastGoalState.getHostIp());
-            topicManager.sendSubscribeInfo(unicastGoalState.getHostIp(), unicastTopic, unicastKeyHash);
 
-//            TODO: The generation of topic and key needs to be replace by getting from caches as follows
-//            VpcTopicInfo vpcTopicInfo = topicManager.getTopicInfoByVpcId(unicastGoalState.getVpcId());
-//            String unicastTopic = vpcTopicInfo.getTopicName();
-//            String unicastKey = vpcTopicInfo.getSubscribeMapping().get(unicastGoalState.getHostIp());
+            NodeSubscribeInfo nodeSubscribeInfo = topicManager.getNodeSubscribeInfoByVpcId(unicastGoalState.getVpcId(), unicastGoalState.getHostIp());
+            String unicastTopic = nodeSubscribeInfo.getTopic();
+            String unicastKey = nodeSubscribeInfo.getKey();
 
             try {
                 Producer<byte[]> producer = pulsarClient

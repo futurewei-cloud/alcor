@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PathManagerService {
-    private static boolean USE_GRPC = true;
+    private static boolean USE_GRPC = false;
 
     public boolean isFastPath() {
         return USE_GRPC;

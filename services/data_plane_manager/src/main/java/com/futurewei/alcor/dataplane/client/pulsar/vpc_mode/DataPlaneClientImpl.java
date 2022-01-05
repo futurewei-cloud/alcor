@@ -42,7 +42,7 @@ import java.util.Map;
 
 @Service("pulsarDataPlaneClient")
 @ConditionalOnProperty(prefix = "protobuf.goal-state-message", name = "version", havingValue = "101")
-public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, MulticastGoalState>  {
+public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, MulticastGoalState> {
     private static final Logger LOG = LoggerFactory.getLogger(DataPlaneClientImpl.class);
 
     @Autowired
@@ -51,40 +51,16 @@ public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, Mu
     @Autowired
     private VpcTopicCache vpcTopicCache;
 
+    @Autowired
+    private TopicManager topicManager;
+
     private List<String> createGoalState(MulticastGoalState multicastGoalState) throws Exception {
         List<String> failedHosts = new ArrayList<>();
 
         for (int multiGsIndex = 0; multiGsIndex < multicastGoalState.getHostIps().size(); multiGsIndex++) {
-            VpcTopicInfo vpcTopicInfo = vpcTopicCache.getTopicInfoByVpcId(multicastGoalState.getHostIps().get(multiGsIndex));
-            if (vpcTopicInfo == null) {
-                vpcTopicInfo = new VpcTopicInfo(TopicManager.generateTopicByVpcId(multicastGoalState.getHostIps().get(multiGsIndex)));
-                try {
-                    vpcTopicCache.addTopicMapping(
-                            multicastGoalState.getHostIps().get(multiGsIndex),
-                            vpcTopicInfo
-                    );
-                } catch (Exception e) {
-
-                }
-            }
-            String multicastTopic = vpcTopicInfo.getTopicName();
-
-
-            String multicastKey = vpcTopicInfo.getSubscribeMapping().get(multicastGoalState.getHostIps().get(multiGsIndex));
-
-            if (multicastKey == null || StringUtils.isEmpty(multicastKey)) {
-                multicastKey = TopicManager.generateKeyByNodeIp(multicastGoalState.getHostIps().get(multiGsIndex));
-
-                try {
-                    vpcTopicCache.addSubscribedNodeForVpcId(
-                            multicastGoalState.getHostIps().get(multiGsIndex),
-                            multicastGoalState.getHostIps().get(multiGsIndex),
-                            multicastKey
-                    );
-                } catch (Exception e) {
-
-                }
-            }
+            String multicastTopic = topicManager.generateTopicByVpcId(multicastGoalState.getHostIps().get(multiGsIndex));
+            String multicastKey = topicManager.generateKeyByHostIp(new ArrayList<>(multicastGoalState.getHostIps()).get(multiGsIndex));
+            topicManager.sendSubscribeInfo(new ArrayList<>(multicastGoalState.getHostIps()).get(multiGsIndex), multicastTopic, multicastKey);
 
             try {
                 Producer<MulticastGoalStateByte> producer = pulsarClient
@@ -116,34 +92,9 @@ public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, Mu
         List<String> failedHosts = new ArrayList<>();
 
         for (UnicastGoalState unicastGoalState : unicastGoalStates) {
-            VpcTopicInfo vpcTopicInfo = vpcTopicCache.getTopicInfoByVpcId(unicastGoalState.getHostIp());
-            if (vpcTopicInfo == null) {
-                vpcTopicInfo = new VpcTopicInfo(TopicManager.generateTopicByVpcId(unicastGoalState.getHostIp()));
-                try {
-                    vpcTopicCache.addTopicMapping(
-                            unicastGoalState.getHostIp(),
-                            vpcTopicInfo
-                    );
-                } catch (Exception e) {
-
-                }
-            }
-            String unicastTopic = vpcTopicInfo.getTopicName();
-
-            String unicastKey = vpcTopicInfo.getSubscribeMapping().get(unicastGoalState.getHostIp());
-            if (unicastKey == null || StringUtils.isEmpty(unicastKey)) {
-                unicastKey = TopicManager.generateKeyByNodeIp(unicastGoalState.getHostIp());
-
-                try {
-                    vpcTopicCache.addSubscribedNodeForVpcId(
-                            unicastGoalState.getHostIp(),
-                            unicastGoalState.getHostIp(),
-                            unicastKey
-                    );
-                } catch (Exception e) {
-
-                }
-            }
+            String unicastTopic = topicManager.generateTopicByVpcId(unicastGoalState.getHostIp());
+            String unicastKey = topicManager.generateKeyByHostIp(unicastGoalState.getHostIp());
+            topicManager.sendSubscribeInfo(unicastGoalState.getHostIp(), unicastTopic, unicastKey);
 
             try {
                 Producer<UnicastGoalStateByte> producer = pulsarClient
