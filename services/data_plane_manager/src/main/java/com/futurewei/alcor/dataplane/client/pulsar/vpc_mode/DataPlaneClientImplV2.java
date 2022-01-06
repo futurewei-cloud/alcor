@@ -58,17 +58,19 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
                 throw new Exception("The VpcIds of multicast goalState is null.");
             }
             for (int multiGsIndex = 0; multiGsIndex < multicastGoalState.getVpcIds().size(); multiGsIndex++) {
-//                String multicastTopic = TopicManager.generateTopicByVpcId(multicastGoalState.getVpcIds().get(multiGsIndex));
-//                String multicastKey = TopicManager.generateKeyByNodeIp(new ArrayList<>(multicastGoalState.getHostIps()).get(multiGsIndex));
+//                String multicastTopic = topicManager.generateTopicByVpcId(multicastGoalState.getVpcIds().get(multiGsIndex));
+//                String multicastKey = topicManager.generateKeyByHostIp(new ArrayList<>(multicastGoalState.getHostIps()).get(multiGsIndex));
 //                topicManager.sendSubscribeInfo(new ArrayList<>(multicastGoalState.getHostIps()).get(multiGsIndex), multicastTopic, multicastKey);
 
 //            TODO: The generation of topic and key needs to be replace by getting from caches as follows
+
                 NodeSubscribeInfo nodeSubscribeInfo = topicManager.getNodeSubscribeInfoByVpcId(
                         multicastGoalState.getVpcIds().get(multiGsIndex),
                         new ArrayList<>(multicastGoalState.getHostIps()).get(multiGsIndex)
                 );
                 String multicastTopic = nodeSubscribeInfo.getTopic();
                 String multicastKey = nodeSubscribeInfo.getKey();
+
                 try {
                     Producer<byte[]> producer = pulsarClient
                             .newProducer()
@@ -103,6 +105,11 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
             if (unicastGoalState.getVpcId() == null) {
                 throw new Exception("The VpcId of unicast goalState is null.");
             }
+
+//            String unicastTopic = topicManager.generateTopicByVpcId(unicastGoalState.getVpcId());
+//            String unicastKey = topicManager.generateKeyByHostIp(unicastGoalState.getHostIp());
+//            String unicastKeyHash = topicManager.generateHashKeyByKey(unicastKey);
+//            topicManager.sendSubscribeInfo(unicastGoalState.getHostIp(), unicastTopic, unicastKeyHash);
 
             NodeSubscribeInfo nodeSubscribeInfo = topicManager.getNodeSubscribeInfoByVpcId(unicastGoalState.getVpcId(), unicastGoalState.getHostIp());
             String unicastTopic = nodeSubscribeInfo.getTopic();
