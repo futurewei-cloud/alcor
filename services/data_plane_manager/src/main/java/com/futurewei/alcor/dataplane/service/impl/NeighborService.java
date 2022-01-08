@@ -338,7 +338,6 @@ public class NeighborService extends ResourceService {
 
         multicastGoalStateV2.getGoalStateBuilder().putAllSubnetStates(unicastGoalStateV2.getGoalStateBuilder().getSubnetStatesMap());
         multicastGoalStateV2.getGoalStateBuilder().putAllRouterStates(unicastGoalStateV2.getGoalStateBuilder().getRouterStatesMap());
-        multicastGoalStateV2.addVpcId(portStates.iterator().next().getConfiguration().getVpcId());
         portStates.parallelStream().forEach(portState -> {
             List<String> subnetIds = portState.getConfiguration().getFixedIpsList().stream().map(fixedIp -> fixedIp.getSubnetId()).collect(Collectors.toList());
 
@@ -353,6 +352,11 @@ public class NeighborService extends ResourceService {
                                 multicastGoalStateV2.getGoalStateBuilder().putNeighborStates(neighborState.getConfiguration().getId(), neighborState);
                             } else {
                                 multicastGoalStateV2.getHostIps().add(portHostInfo.getHostIp());
+                                try {
+                                    multicastGoalStateV2.addHostVpcPair(portHostInfo.getHostIp(), portState.getConfiguration().getVpcId());
+                                } catch (Exception e) {
+
+                                }
                                 neighborStateMap.put(neighborState.getConfiguration().getId(), neighborState);
                             }
                         } catch (Exception e) {
@@ -393,7 +397,6 @@ public class NeighborService extends ResourceService {
         if (vpcid == null) {
             throw new VpcIdNotFound();
         }
-        multicastGoalStateV2.addVpcId(vpcid);
         routerIds.parallelStream().forEach(routerId -> {
             try {
                 Collection<InternalSubnetPorts> internalSubnetPorts  = subnetPortsCache.getSubnetPortsByRouterId(routerId).values();
@@ -405,8 +408,10 @@ public class NeighborService extends ResourceService {
                                 Neighbor.NeighborState neighborState = buildNeighborState(NeighborEntry.NeighborType.L3, portHostInfo, networkConfiguration.getOpType(), vpcid);
                                 if (subnetIds.contains(internalSubnetPort.getSubnetId()) && ips.contains(portHostInfo.getPortIp())) {
                                     multicastGoalStateV2.getGoalStateBuilder().putNeighborStates(neighborState.getConfiguration().getId(), neighborState);
+                                    multicastGoalStateV2.addHostVpcPair(portHostInfo.getHostIp(), vpcid);
                                 } else {
                                     multicastGoalStateV2.getHostIps().add(portHostInfo.getHostIp());
+                                    multicastGoalStateV2.addHostVpcPair(portHostInfo.getHostIp(), vpcid);
                                     neighborStateMap.put(neighborState.getConfiguration().getId(), neighborState);
                                     subnetStateMap.put(internalSubnetPort.getSubnetId(), subnetService.buildSubnetState(internalSubnetPort.getSubnetId()).build());
                                     if (!unicastGoalStateV2.getGoalStateBuilder().getSubnetStatesMap().containsKey(internalSubnetPort.getSubnetId())){
@@ -449,9 +454,18 @@ public class NeighborService extends ResourceService {
             return;
         }
         String vpcid = subnetPortsCache.getSubnetPorts(subnetId).getVpcId();
-        multicastGoalState.addVpcId(vpcid);
+        if (vpcid == null) {
+            throw new VpcIdNotFound();
+        }
         portHostInfoCache.getPortHostInfos(subnetId)
-                .forEach(portState -> unicastGoalStates.put(portState.getHostIp(), new UnicastGoalStateV2(portState.getHostIp(), Goalstate.GoalStateV2.newBuilder())));
+                .forEach(portState -> {
+                    unicastGoalStates.put(portState.getHostIp(), new UnicastGoalStateV2(portState.getHostIp(), Goalstate.GoalStateV2.newBuilder()));
+                    try {
+                        multicastGoalState.addHostVpcPair(portState.getHostIp(), vpcid);
+                    } catch (Exception e) {
+
+                    }
+                });
         Subnet.SubnetState subnetState = subnetService.buildSubnetState(subnetId).build();
         Collection<InternalSubnetPorts> internalSubnetPorts  = subnetPortsCache.getSubnetPortsByRouterId(routerId).values();
         for (InternalSubnetPorts internalSubnetPort : internalSubnetPorts) {
