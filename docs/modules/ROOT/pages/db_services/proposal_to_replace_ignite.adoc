@@ -41,27 +41,28 @@ All of the alternatives considered are open sourced.
 
 == Comparision
 |===
-|Database       |RocksDB         |ArangoDB        |Hazlecast   |OrientDB|Microstream|Ehcache    | Ignite    |Etcd
-|Feature        |                |                |            |        |           |           |           |
-|License        |BSD             |Apache 2        |Apache 2    |Apache 2|EPL 2      |Apache 2   |Apache2    |Apache2
-|Data Model     |KV              |M/G/KV/SE/D/J/FT|KV/DG       |G/KV    |KV/G       |KV         |KV         |KV
-|Implementation |C++             |C++             |Java        |Java    |Java       |Java       |Java       |Java
-|Access         |C++/Java API    |AQL/GQL/Java    |Java/Rest   |Java    |Java       |Java       |Java, Rest |Java
-|Partitioning   |No (1)          |Yes             |Yes         |Yes     |Yes        |Yes        |Yes        |Yes
-|Replication    |No (2)          |Yes             |Yes         |Yes     |Yes        |Yes (3)    |Yes        |Yes
-|Transactions   |Yes             |Yes             |1pc, 2pc    |Yes     |No (4)     |Yes        |Yes        |Yes
-|Concurrency    |Yes             |Yes             |Yes         |Yes     |Yes        |Yes        |Yes        |Yes
-|ACID           |Yes             |Configurable    |IC - EC     |No      |Yes        |Yes        |Yes        |Yes
-|Secondary Index|No              |Yes             |Yes         |Yes     |No         |Yes        |Yes        |?
-|InMemory/Embed |Yes (I/E)       |Yes             |Yes         |?       |Yes        |Yes        |No         |?
-|Persistence    |Yes             |Yes             |Yes         |Yes     |Yes        |Yes        |Yes        |Yes
-|Watch/PubSub   |?               |?               |?           |?       |?          |Yes        |Yes        |Yes
-|SQL            |No              |No              |No (AQL)    |SQL Like|No         |No         |Yes        |?
-|Dependencies   |None            |??              |?           |?       |?          |No         |Many       |?
-|Footprint      |Small           |Small           |Medium/Large|Small   |Small      |Small      |Large      |?
-|Ease of use    |Simple          |?               |Not Simple  |Simple  |Simple (?) |Simple (?) |Not Simple |?
-|Documentation  |?               |?               |?           |?       |?          |Not good   |Not good   |?
-|Request size(5)|?               |?               |?           |?       |?          |?          |?          |?
+|Database       |RocksDB         |ArangoDB        |Hazlecast   |OrientDB|Microstream|Ehcache    | Ignite       |Etcd
+|Feature        |                |                |            |        |           |           |              |
+|License        |BSD             |Apache 2        |Apache 2    |Apache 2|EPL 2      |Apache 2   |Apache2       |Apache2
+|Data Model     |KV              |M/G/KV/SE/D/J/FT|KV/DG       |G/KV    |KV/G       |KV         |KV            |KV
+|Implementation |C++             |C++             |Java        |Java    |Java       |Java       |Java          |Go
+|Access         |C++/Java API    |AQL/GQL/Java    |Java/Rest   |Java    |Java       |Java       |Java, Rest    |gRPC/Java (8)
+|Partitioning   |No (1)          |Yes             |Yes         |Yes     |Yes        |Yes        |Yes           |Yes
+|Replication    |No (2)          |Yes             |Yes         |Yes     |Yes        |Yes (3)    |Yes           |Yes
+|Transactions   |Yes             |Yes             |1pc, 2pc    |Yes     |No (4)     |Yes        |Yes           |Yes (9)
+|Concurrency    |Yes             |Yes             |Yes         |Yes     |Yes        |Yes        |Yes           |Yes
+|ACID           |Yes             |Configurable    |IC - EC     |No      |Yes        |Yes        |Yes           |Yes
+|Secondary Index|No              |Yes             |Yes         |Yes     |No         |Yes        |Yes           |?
+|InMemory/Embed |Yes (I/E)       |Yes             |Yes         |?       |Yes        |Yes        |No            |?
+|Persistence    |Yes             |Yes             |Yes         |Yes     |Yes        |Yes        |Yes (v 2.11.1)|Yes
+|Watch/PubSub   |?               |?               |?           |?       |?          |Yes        |Yes           |Yes
+|SQL            |No              |No              |No (AQL)    |SQL Like|No         |No         |Yes           |?
+|Dependencies   |None            |??              |?           |?       |?          |No         |Many          |?
+|Footprint      |Small           |Small           |Medium/Large|Small   |Small      |Small      |Large         |?
+|Ease of use    |Simple          |?               |Not Simple  |Simple  |Simple (?) |Simple (?) |Not Simple    |?
+|Documentation  |?               |?               |?           |?       |?          |Not good   |Not good      |?
+|Request size(5)|?               |?               |?           |?       |?          |?          |?             |1.5MB (DC)
+|Maximum size(6)|?               |?               |?           |?       |?          |?          |?             |2GB - 8GB (7)
 |===
 
 * NOTES
@@ -74,7 +75,11 @@ All of the alternatives considered are open sourced.
 *** 2. No native replication but APIs to enable it.
 *** 3. Not transparent to client in that some configuration is required.
 *** 4. Each store by it self is atomic and multiple objects can be stored in one operation but this is not the same as envolping multiple store operations as an atomic operation.
-*** 5. Request size is the recomonded or allowed maximum size of one PUT/GET/POST request payload size.
+*** 5. Request size is the recommended, default, or maximum allowed size of one PUT/GET/POST request payload size.
+*** 6. Maximum database size.
+*** 7. 2GB default, 8GB Maximum suggested size.
+*** 8. Requies client side serialization and deserialization to and from ByteSequence.
+*** 9. Not easy to use. The if().Then().Else()... paradigm makes it difficult to mix DB operations and Java code.
 
 
 ** Data model
@@ -95,33 +100,40 @@ All of the alternatives considered are open sourced.
 
 *** 2pc: Two phase commit
 
-== Redisson
+** Request Size
+*** D: Default
+*** DC: Default but configurable
+
+== Breif notes about the data stores
+
+=== Redisson
 Based on Redis, provides Transactions. Supports asynchronous execution.
 
-=== Strengths
+==== Strengths
 . Transactions
 . Asynchronous execution
 . Partitioning but only available in PRO version
 
-=== Weaknesses
+==== Weaknesses
 
 
-== LMDB
+=== LMDB
 Small memory footprint embedded KV store. It is used in OpenLDAP.
 
-=== Strengths
+==== Strengths
 . Widely used
 . Transactions, Concurrency, B+Tree indexing
 . One benchmark claims handling 10,000 concurrent client connections without any performance degradation
 
-== Weaknesses
+==== Weaknesses
 . Mapping Java objects to JSON could impose serialization/de-serialization cost.
+. More on limitations: https://github.com/mozilla/rkv/issues/49
+. Stopped evaluation because of ByteBuffer <-> Object mapping problems.
 
-
-== RocksDB
+=== RocksDB
 RocksDB is a very good KV, used by many other open/closed source projects and products as the storage engine.
 
-=== Strengths
+==== Strengths
 . Implementation in C++. No Garbage collection related issues.
 . Solid and stable implementation, used by many products as storage engine.
 . Good performance
@@ -129,7 +141,7 @@ RocksDB is a very good KV, used by many other open/closed source projects and pr
 . Embedded mode.
 
 
-=== Weaknesses
+==== Weaknesses
 
 . The interface is very low level forcing the user code to know and use locks, iterators, key comparators etc.,
 . No support for secondary key access. Search will be fast only when search is on the key fields. All other searches will use linear search and will be much slower.
@@ -148,29 +160,30 @@ It is an im-memory Object Graph cache with persistence. Claims to be extremely f
 . Transcations are atomic per each store operation. This is a serious problem.
 
 
-== ArangoDB
-=== Strengths
+=== ArangoDB
+==== Strengths
 . Implementation in C++. No Garbage collection related issues.
 . Multi model data store, including KV.
 . Easy deployment
 
-=== Weaknesses
+==== Weaknesses
 . Not as popular as Hazlecast
 . Uses RocksDB for storage
 
 
-== Hazlecast
+=== Hazlecast
 
-=== Strengths
+==== Strengths
 . Very popular
 
-=== Weaknesses
+==== Weaknesses
 . Unknown
 
-== OrientDB
+=== OrientDB
 
-=== Strengths
-=== Weaknesses
+==== Strengths
+
+==== Weaknesses
 
 
 == Strategy to handle required but missing features
