@@ -309,7 +309,7 @@ public class GoalStateClientImpl implements GoalStateClient {
             Goalstate.GoalStateV2 goalState = hostGoalState.getGoalState();
 
             long after_get_goalState = System.currentTimeMillis();
-            logger.log(Level.INFO, "Sending GS with size " + goalState.getSerializedSize() + " to Host " + hostIp + " as follows | " + goalState.toString());
+            logger.log(Level.FINE, "Sending GS with size " + goalState.getSerializedSize() + " to Host " + hostIp + " as follows | " + goalState.toString());
 
             requestObserver.onNext(goalState);
             long after_onNext = System.currentTimeMillis();
