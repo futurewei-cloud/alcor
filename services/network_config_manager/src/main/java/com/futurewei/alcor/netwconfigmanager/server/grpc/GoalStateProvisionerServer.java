@@ -229,7 +229,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     Set<String> processedResourceIds = new HashSet<>();
 
                     long end = System.currentTimeMillis();
-                    logger.log(Level.FINE, "pushGoalStatesStream : finished putting GS into cache, elapsed time in milliseconds: " + + (end-start));
+                    logger.log(Level.INFO, "pushGoalStatesStream : finished putting GS into cache, elapsed time in milliseconds: " + + (end-start));
                     Span filterSendGsSpan = tracer.buildSpan(serverFilterSendGsSpanName).asChildOf(span.context()).start();
                     Scope filterCscope = tracer.scopeManager().activate(filterSendGsSpan);
 
@@ -254,7 +254,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                                     .build();
                     responseObserver.onNext(reply);
                     long end1 = System.currentTimeMillis();
-                    logger.log(Level.FINE, "pushGoalStatesStream : Replied to DPM, from received to replied, elapsed time in milliseconds: " + + (end1-end));
+                    logger.log(Level.INFO, "pushGoalStatesStream : Replied to DPM, from received to replied, elapsed time in milliseconds: " + + (end1-end));
                     replyDPMSpan.finish();
                     span.finish();
                     logger.log(Level.INFO, "[pushGoalStatesStream] Child span after finish: "+span.toString());
