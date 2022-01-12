@@ -1,0 +1,130 @@
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ignite-alcor-ncm
+roleRef:
+  kind: ClusterRole
+  name: ignite-alcor-ncm
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - kind: ServiceAccount
+    name: ignite-alcor-ncm
+    namespace: ignite-alcor-ncm
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ignite-alcor-ncm
+  namespace: ignite-alcor-ncm
+rules:
+  - apiGroups:
+      - ""
+    resources: # Here are resources you can access
+      - pods
+      - endpoints
+    verbs: # That is what you can do with them
+      - get
+      - list
+      - watch
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ignite-alcor-ncm
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ignite-alcor-ncm
+  namespace: ignite-alcor-ncm
+---
+apiVersion: v1
+kind: Service
+metadata:
+  # The name must be equal to TcpDiscoveryKubernetesIpFinder.serviceName
+  name: ignite-alcor-ncm-service
+  # The name must be equal to TcpDiscoveryKubernetesIpFinder.namespaceName
+  namespace: ignite-alcor-ncm
+  labels:
+    app: ignite-alcor-ncm
+spec:
+  type: LoadBalancer
+  ports:
+    - name: rest
+      port: 8080
+      targetPort: 8080
+    - name: sql
+      port: 10805
+      targetPort: 10800
+    - name: thinclients
+      port: 10900
+      targetPort: 10900
+  selector:
+    app: ignite-alcor-ncm
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: ignite-alcor-ncm
+  name: ignite-alcor-ncm
+  namespace: ignite-alcor-ncm
+spec:
+  selector:
+    matchLabels:
+      app: ignite-alcor-ncm
+  serviceName: ignite-alcor-ncm-service
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ignite-alcor-ncm
+    spec:
+      serviceAccountName: ignite-alcor-ncm
+      containers:
+        - name: ignite-alcor-ncm-node
+          image: ignite_alcor:lib8
+          imagePullPolicy: IfNotPresent
+          #resources:
+            #requests:
+              #cpu: "16"
+          env:
+            - name: OPTION_LIBS
+              value: ignite-kubernetes,ignite-rest-http
+            - name: CONFIG_URI
+              value: https://raw.githubusercontent.com/pkommoju/alcor/dpm_ncm_own_db/kubernetes/db/ignite/ignite_ncm_config.xml
+            - name: IGNITE_QUIET
+              value: "false"
+            - name: JVM_OPTS
+              value: "-Djava.net.preferIPv4Stack=true"
+            #- name: JVM_OPTS
+              #value: "-Djava.net.preferIPv4Stack=true
+                      #-server 
+                      #-Xms20g
+                      #-Xmx20g
+                      #-XX:+AlwaysPreTouch
+                      #-XX:+UseG1GC
+                      #-XX:+ScavengeBeforeFullGC
+                      #-XX:+DisableExplicitGC"
+          ports:
+            - name: port8080
+              containerPort: 8080
+            - name: port11211
+              containerPort: 11211 # REST port number.
+            - name: port47100
+              containerPort: 47100 # communication SPI port number.
+            - name: port47500
+              containerPort: 47500 # discovery SPI port number.
+            - name: port49112
+              containerPort: 49112 # JMX port number.
+            - name: port10800
+              containerPort: 10800 # SQL port number.
+            - name: port10900
+              containerPort: 10900 # Thin clients port number.
+          volumeMounts:
+            - name: ignite-alcor-ncm-config-volume
+              mountPath: /opt/ncm
+      volumes:
+        - name: ignite-alcor-ncm-config-volume
+          hostPath: 
+            path: /root/work/ncm
