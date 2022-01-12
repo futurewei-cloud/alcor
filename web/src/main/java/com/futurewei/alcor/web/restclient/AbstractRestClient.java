@@ -29,7 +29,8 @@ abstract class AbstractRestClient {
     RestTemplate restTemplate;
 
     public AbstractRestClient(RestTemplateBuilder restTemplateBuilder) {
-        this.restTemplate = restTemplateBuilder.build();
+        this.restTemplate = restTemplateBuilder.setConnectTimeout(Duration.ofSeconds(300)).setReadTimeout(Duration.ofSeconds(300)).build();
+        
     }
 
     <T> T getForObject(String url, Class<T> tClass) throws Exception {
