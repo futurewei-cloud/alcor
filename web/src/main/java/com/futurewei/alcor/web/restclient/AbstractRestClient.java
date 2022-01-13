@@ -29,7 +29,7 @@ abstract class AbstractRestClient {
     RestTemplate restTemplate;
 
     public AbstractRestClient(RestTemplateBuilder restTemplateBuilder) {
-        this.restTemplate = restTemplateBuilder.setConnectTimeout(Duration.ofSeconds(300)).setReadTimeout(Duration.ofSeconds(300)).build();
+        this.restTemplate = restTemplateBuilder.setConnectTimeout(Duration.ofSeconds(600)).setReadTimeout(Duration.ofSeconds(600)).build();
         
     }
 
