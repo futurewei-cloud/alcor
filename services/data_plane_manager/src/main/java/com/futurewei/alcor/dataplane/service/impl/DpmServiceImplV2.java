@@ -15,15 +15,12 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.dataplane.service.impl;
 
-import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.common.db.Transaction;
-import com.futurewei.alcor.common.tracer.Tracer;
 import com.futurewei.alcor.dataplane.cache.*;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.client.ZetaGatewayClient;
 import com.futurewei.alcor.dataplane.config.Config;
 import com.futurewei.alcor.dataplane.entity.*;
-import com.futurewei.alcor.dataplane.exception.NeighborInfoNotFound;
 import com.futurewei.alcor.dataplane.exception.PortBindingHostIpNotFound;
 import com.futurewei.alcor.dataplane.exception.UnknownResourceType;
 import com.futurewei.alcor.dataplane.service.DpmService;
@@ -44,9 +41,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.futurewei.alcor.dataplane.service.impl.ResourceService.FORMAT_REVISION_NUMBER;
-import static com.futurewei.alcor.dataplane.service.impl.ResourceService.HOST_DVR_MAC;
 
 @Service
 @ConditionalOnProperty(prefix = "protobuf.goal-state-message", name = "version", havingValue = "102")
@@ -70,7 +64,7 @@ public class DpmServiceImplV2 implements DpmService {
     private VpcGatewayInfoCache gatewayInfoCache;
 
     @Autowired
-    private SubnetPortsCache subnetPortsCache;
+    private SubnetPortsCacheV2 subnetPortsCache;
 
     @Autowired
     private DataPlaneClient<UnicastGoalStateV2, MulticastGoalStateV2> grpcDataPlaneClient;

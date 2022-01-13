@@ -16,6 +16,7 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.portmanager.controller;
 
 import com.futurewei.alcor.portmanager.config.UnitTestConfig;
+import com.futurewei.alcor.portmanager.repo.IPortRepository;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
 import com.futurewei.alcor.web.entity.ip.IpAddrUpdateRequest;
 import com.futurewei.alcor.web.entity.node.NodeInfo;
@@ -67,7 +68,7 @@ public class MockRestClientAndRepository {
     private RouterManagerRestClient routerManagerRestClient;
 
     @MockBean
-    private PortRepository portRepository;
+    private IPortRepository portRepository;
 
     @BeforeEach
     protected void mockRestClientsAndRepositoryOperations() throws Exception {
@@ -144,9 +145,6 @@ public class MockRestClientAndRepository {
 
         Mockito.when(portRepository.findAllPortEntities(anyMap()))
                 .thenReturn(portStates);
-
-        Mockito.when(portRepository.getPortNeighbors(UnitTestConfig.vpcId))
-                .thenReturn(buildPortNeighbors(UnitTestConfig.portId1));
 
         Mockito.when(portRepository.getNeighbors(UnitTestConfig.vpcId))
                 .thenReturn(buildNeighbors());

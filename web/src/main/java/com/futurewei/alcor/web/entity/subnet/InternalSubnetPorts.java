@@ -50,7 +50,6 @@ public class InternalSubnetPorts {
         this.tunnelId = tunnelId;
         this.dhcpEnable = dhcpEnable;
         this.routerId = routerId;
-        this.ports = ports;
     }
 
     public InternalSubnetPorts(String subnetId, String gatewayPortId, String gatewayPortIp, String gatewayPortMac,
@@ -66,6 +65,7 @@ public class InternalSubnetPorts {
         this.tunnelId = tunnelId;
         this.dhcpEnable = dhcpEnable;
         this.routerId = routerId;
+        this.ports = ports;
     }
 
     public String getSubnetId() {
