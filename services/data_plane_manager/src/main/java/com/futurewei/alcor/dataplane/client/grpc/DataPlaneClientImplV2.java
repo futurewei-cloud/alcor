@@ -304,7 +304,9 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
                         .setType(Common.ResourceType.SUBNET)
                         .setId(key)
                         .build();
-                hostResourceBuilder.addResources(subnetResourceIdType);
+                if (!goalStateBuilder.getHostResourcesMap().containsKey(unicastGoalStateV2.getHostIp()) || !goalStateBuilder.getHostResourcesMap().get(unicastGoalStateV2.getHostIp()).getResourcesList().stream().anyMatch(resourceIdType -> resourceIdType.getId().equals(key))) {
+                    hostResourceBuilder.addResources(subnetResourceIdType);
+                }
             });
             goalStateBuilder.putAllSubnetStates(goalStateV2.getSubnetStatesMap());
         }
