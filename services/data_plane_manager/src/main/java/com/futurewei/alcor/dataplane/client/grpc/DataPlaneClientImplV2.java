@@ -73,7 +73,7 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         }
         doSendGoalState(goalStateBuilder.build(), finishLatch, results);
 
-        if (!finishLatch.await(1, TimeUnit.MINUTES)) {
+        if (!finishLatch.await(5, TimeUnit.MINUTES)) {
             LOG.warn("Send goal states can not finish within 1 minutes");
             return Arrays.asList("Send goal states can not finish within 1 minutes");
         }
@@ -343,6 +343,7 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         }
 
         if (goalStateV2.getNeighborStatesCount() > 0) {
+            /*
             goalStateV2.getNeighborStatesMap().keySet().forEach(key -> {
                 Goalstate.ResourceIdType neighborGroupResourceIdType = Goalstate.ResourceIdType.newBuilder()
                         .setType(Common.ResourceType.NEIGHBOR)
@@ -350,8 +351,12 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
                         .build();
                 hostResourceBuilder.addResources(neighborGroupResourceIdType);
             });
+
+             */
             goalStateBuilder.putAllNeighborStates(goalStateV2.getNeighborStatesMap());
         }
+
+
 
         if (goalStateV2.getRouterStatesCount() > 0) {
             goalStateV2.getRouterStatesMap().entrySet().forEach(entry -> {
@@ -401,7 +406,10 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
             hostResourceBuilder1.addAllResources(goalStateBuilder.getHostResourcesMap().get(unicastGoalStateV2.getHostIp()).getResourcesList());
             goalStateBuilder.putHostResources(unicastGoalStateV2.getHostIp(), hostResourceBuilder1.build());
         } else {
-            goalStateBuilder.putHostResources(unicastGoalStateV2.getHostIp(), hostResourceBuilder.build());
+            Goalstate.HostResources.Builder hostResourceBuilder1 = Goalstate.HostResources.newBuilder();
+            hostResourceBuilder1.addAllResources(hostResourceBuilder.getResourcesList());
+            hostResourceBuilder1.addAllResources(unicastGoalStateV2.getGoalState().getHostResourcesMap().get(unicastGoalStateV2.getHostIp()).getResourcesList());
+            goalStateBuilder.putHostResources(unicastGoalStateV2.getHostIp(), hostResourceBuilder1.build());
         }
         return goalStateBuilder;
     }

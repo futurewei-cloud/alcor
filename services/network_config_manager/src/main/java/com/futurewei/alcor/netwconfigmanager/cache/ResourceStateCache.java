@@ -25,6 +25,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Repository;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -49,6 +50,11 @@ public class ResourceStateCache <K, V>{
     @DurationStatistics
     public Map<String, Object> getResourceStates() throws Exception {
         return this.hostResourceStates.getAll();
+    }
+
+    @DurationStatistics
+    public Map<String, Object> getResourceStates(Set<String> resourceIds) throws Exception {
+        return this.hostResourceStates.getAll(resourceIds);
     }
 
     @DurationStatistics
