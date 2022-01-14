@@ -304,9 +304,11 @@ public class GoalStateClientImpl implements GoalStateClient {
             Set<String> resourceIds = goalState.getHostResourcesMap().get(hostIp).getResourcesList().stream().filter(resourceIdType -> resourceIdType.getType().equals(Common.ResourceType.NEIGHBOR)).map(resourceIdType -> resourceIdType.getId()).collect(Collectors.toSet());
             Goalstate.GoalStateV2.Builder goalstateBuilder = Goalstate.GoalStateV2.newBuilder();
             goalstateBuilder.mergeFrom(goalState);
-            Map<String, Neighbor.NeighborState> neighborStateMap = resourceStateCache.getResourceStates(resourceIds);
-            if (neighborStateMap.size() > 0) {
-                goalstateBuilder.putAllNeighborStates(neighborStateMap);
+            if (goalstateBuilder.getPortStatesCount() > 0) {
+                Map<String, Neighbor.NeighborState> neighborStateMap = resourceStateCache.getResourceStates(resourceIds);
+                if (neighborStateMap.size() > 0) {
+                    goalstateBuilder.putAllNeighborStates(neighborStateMap);
+                }
             }
             long after_get_goalState = System.currentTimeMillis();
             logger.log(Level.FINE, "Sending GS with size " + goalState.getSerializedSize() + " to Host " + hostIp + " as follows | " + goalstateBuilder.build());
