@@ -305,7 +305,9 @@ public class GoalStateClientImpl implements GoalStateClient {
             Goalstate.GoalStateV2.Builder goalstateBuilder = Goalstate.GoalStateV2.newBuilder();
             goalstateBuilder.mergeFrom(goalState);
             Map<String, Neighbor.NeighborState> neighborStateMap = resourceStateCache.getResourceStates(resourceIds);
-
+            if (neighborStateMap.size() > 0) {
+                goalstateBuilder.putAllNeighborStates(neighborStateMap);
+            }
             long after_get_goalState = System.currentTimeMillis();
             logger.log(Level.FINE, "Sending GS with size " + goalState.getSerializedSize() + " to Host " + hostIp + " as follows | " + goalstateBuilder.build());
 
