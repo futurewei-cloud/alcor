@@ -42,6 +42,7 @@ import java.util.stream.Collectors;
 @Repository
 @ComponentScan(value = "com.futurewei.alcor.common.db")
 public class NodeInfoCache {
+    private static final Logger LOG = LoggerFactory.getLogger();
     private ICache<String, NodeInfo> nodeInfoCache;
 
     @Autowired
@@ -60,12 +61,14 @@ public class NodeInfoCache {
     @DurationStatistics
     public void addNodeInfo(NodeInfo nodeInfo) throws Exception {
         nodeInfoCache.put(nodeInfo.getId(), nodeInfo);
+        LOG.log(Level.FINE, "NCM_DEBUG: Added node with id : " + nodeInfo.getId());
     }
 
     @DurationStatistics
     public void addNodeInfoBulk(List<NodeInfo> nodeInfos) throws Exception {
         Map<String, NodeInfo> nodeInfoMap = nodeInfos.stream().collect(Collectors.toMap(NodeInfo::getId, Function.identity()));
         nodeInfoCache.putAll(nodeInfoMap);
+        LOG.log(Level.FINE, "NCM_DEBUG: Added bulk nodes");
     }
 
     @DurationStatistics
