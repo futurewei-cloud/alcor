@@ -4,7 +4,7 @@ metadata:
   name: ncm-configmap
 data:
   application.properties: |
-    dataplane.grpc.port = 50001
+    network-configuration.grpc.port = 50001
     dataplane.isovs=true
     spring.redis.host=localhost
     spring.redis.port=6380
@@ -87,10 +87,10 @@ metadata:
   labels:
     name: netwconfigmanager-service
 spec:
-  type: ClusterIP
+  type: NodePort
   ports:
-    - port: 50001
-      protocol: TCP
-      targetPort: 50001
+    - port: 9014
+      targetPort: 8080
+      nodePort: 30014
   selector:
     app: netwconfigmanager
