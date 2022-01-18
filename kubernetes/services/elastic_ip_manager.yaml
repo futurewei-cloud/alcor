@@ -5,7 +5,7 @@ metadata:
 data:
   application.properties: |
     microservices.port.service.url=http://portmanager-service.default.svc.cluster.local:9006
-    ignite.namespace=ignite-alcor
+    ignite.kubeNamespace=ignite-alcor
     ignite.kubeServiceName=ignite-alcor-service
     ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
     ignite.port=10800

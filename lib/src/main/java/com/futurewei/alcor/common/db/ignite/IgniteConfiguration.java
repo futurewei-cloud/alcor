@@ -56,8 +56,8 @@ public class IgniteConfiguration {
     @Value("${ignite.host}")
     private String host;
 
-    @Value("${ignite.namespace}")
-    private String namespace;
+    @Value("${ignite.kubeNamespace}")
+    private String kubeNamespace;
 
     @Value("${ignite.kubeServiceName}")
     private String kubeServiceName;
@@ -116,7 +116,7 @@ public class IgniteConfiguration {
         IgniteClient igniteClient = null;
 
         try {
-            igniteClient = Ignition.startClient(cfg);
+            igniteClient = Ignition.startClient(ccfg);
         } catch (ClientException e) {
             logger.log(Level.WARNING, "Start client failed:" + e.getMessage());
         } catch (Exception e) {

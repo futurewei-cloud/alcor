@@ -4,7 +4,7 @@ metadata:
   name: quota-configmap
 data:
   application.properties: |
-    ignite.namespace=ignite-alcor
+    ignite.kubeNamespace=ignite-alcor
     ignite.kubeServiceName=ignite-alcor-service
     ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
     ignite.port=10800

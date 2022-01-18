@@ -15,7 +15,7 @@ data:
     grpc.number-of-warmups-per-channel = 1
     grpc.monitor-hosts = 0.0.0.0,0.0.0.1
     protobuf.goal-state-message.version = 102
-    ignite.namespace=ignite-alcor
+    ignite.kubeNamespace=ignite-alcor
     ignite.kubeServiceName=ignite-alcor-service
     ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
     ignite.port=10800
