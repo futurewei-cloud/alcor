@@ -30,6 +30,14 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
   
   sleep 40s
   
+  kubectl exec -it ignite-alcor-dpm-0 -n ignite-alcor-dpm -c ignite-alcor-dpm-node -- /opt/ignite/apache-ignite/bin/control.sh --activate
+
+  sleep 10s
+
+  kubectl exec -it ignite-alcor-ncm-0 -n ignite-alcor-ncm -c ignite-alcor-ncm-node -- /opt/ignite/apache-ignite/bin/control.sh --activate
+
+  sleep 10s
+
   kubectl exec -it ignite-alcor-0 -n ignite-alcor -c ignite-alcor-node -- /opt/ignite/apache-ignite/bin/control.sh --activate
   
   sleep 10s
