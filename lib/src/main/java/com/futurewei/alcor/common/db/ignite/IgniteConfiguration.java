@@ -106,7 +106,7 @@ public class IgniteConfiguration {
          * This eliminates the bottleneck, allowing the application to scale more easily.
          */
         KubernetesConnectionConfiguration kcfg = new KubernetesConnectionConfiguration();
-        kcfg.setNamespace(namespace);
+        kcfg.setNamespace(kubeNamespace);
         kcfg.setServiceName(kubeServiceName);
         kcfg.setDiscoveryPort(port);
 
