@@ -26,7 +26,7 @@ chmod +x /root/alcor/kubernetes/deleteYaml.sh
 
 cd /root
 echo "***** Download and build images on each Node *****" 2>&1 | tee -a ~/alcor_logs/alcor.log
-./deploy-alcor-nodes.sh update-alcor4.sh alcor-nodes-ips
+./deploy-alcor-nodes.sh update-alcor.sh alcor-nodes-ips
 
 echo "***** Deploy Aclor Cluster *****" 2>&1 | tee -a ~/alcor_logs/alcor.log
 cd /root/alcor/kubernetes/
@@ -34,7 +34,17 @@ chmod +x /root/alcor/kubernetes/createYaml.sh
 /root/alcor/kubernetes/createYaml.sh 2>&1 | tee -a ~/alcor_logs/alcor.log
 cd /root
 
-sleep 30s
+numberOfRnningPods="foo"
+numberOfAllPods="bar"
+
+while [ "$numberOfRnningPods" != "$numberOfAllPods" ];
+do
+  sleep 10s
+  numberOfRnningPods=$(kubectl get pods -A --field-selector=status.phase=Running | wc -l)
+  numberOfAllPods=$(kubectl get pods -A | wc -l)
+  echo "$numberOfRnningPods"
+  echo "$numberOfAllPods"
+done
 
 echo "***** Alcor Microservices Status *****" 2>&1 | tee -a ~/alcor_logs/alcor.log
 kubectl get pods -A 2>&1 | tee -a ~/alcor_logs/alcor.log
