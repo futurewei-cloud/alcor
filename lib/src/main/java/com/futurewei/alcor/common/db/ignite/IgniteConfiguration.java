@@ -17,7 +17,8 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.common.db.ignite;
 
 import com.futurewei.alcor.common.db.ICacheFactory;
-import com.futurewei.alcor.common.db.IDistributedLockFactory;
+import org.apache.ignite.client.ThinClientKubernetesAddressFinder;
+import org.apache.ignite.kubernetes.configuration.KubernetesConnectionConfiguration;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import org.apache.ignite.Ignite;
@@ -54,6 +55,12 @@ public class IgniteConfiguration {
 
     @Value("${ignite.host}")
     private String host;
+
+    @Value("${ignite.serviceName}")
+    private String serviceName;
+
+    @Value("${ignite.namespace}")
+    private String namespace;
 
     @Value("${ignite.port}")
     private Integer port;
@@ -98,16 +105,13 @@ public class IgniteConfiguration {
          * With partition awareness in place, the thin client can directly route queries and operations to the primary nodes that own the data required for the queries.
          * This eliminates the bottleneck, allowing the application to scale more easily.
          */
-        cfg.setAddresses(host + ":" + port)
-                .setPartitionAwarenessEnabled(true);
+        KubernetesConnectionConfiguration kcfg = new KubernetesConnectionConfiguration();
+        kcfg.setNamespace(namespace);
+        kcfg.setServiceName(serviceName);
+        kcfg.setDiscoveryPort(port);
 
-        if (keyStorePath != null && keyStorePassword != null &&
-                trustStorePath != null && trustStorePassword != null) {
-            cfg.setSslClientCertificateKeyStorePath(keyStorePath)
-                    .setSslClientCertificateKeyStorePassword(keyStorePassword)
-                    .setSslTrustCertificateKeyStorePath(trustStorePath)
-                    .setSslTrustCertificateKeyStorePassword(trustStorePassword);
-        }
+        ClientConfiguration ccfg = new ClientConfiguration();
+        ccfg.setAddressesFinder(new ThinClientKubernetesAddressFinder(kcfg));
 
         IgniteClient igniteClient = null;
 

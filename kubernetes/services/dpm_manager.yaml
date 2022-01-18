@@ -26,6 +26,8 @@ data:
     #logging.file.name=data-plane-manager.log
     logging.level.root=DEBUG
 
+    ignite.namespace=ignite-alcor
+    ignite.serviceName=ignite-alcor-service
     ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
     ignite.port=10800
     ignite.thin.client.enable=true

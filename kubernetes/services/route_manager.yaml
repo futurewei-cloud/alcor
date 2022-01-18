@@ -9,6 +9,8 @@ data:
     microservices.dpm.service.url=http://dataplanemanager-service.default.svc.cluster.local:9010
     microservices.port.service.url=http://portmanager-service.default.svc.cluster.local:9006
     ignite.thin.client.enable=true
+    ignite.namespace=ignite-alcor
+    ignite.serviceName=ignite-alcor-service
     ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
     ignite.port=10800
     logging.level.root=DEBUG
