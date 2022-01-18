@@ -6,7 +6,7 @@ data:
   application.properties: |
     ignite.thin.client.enable=true
     ignite.namespace=ignite-alcor-ip
-    ignite.serviceName=ignite-alcor-ip-service
+    ignite.kubeServiceName=ignite-alcor-ip-service
     ignite.host=ignite-alcor-ip-service.ignite-alcor-ip.svc.cluster.local
     ignite.port=10801
     logging.level.root=DEBUG

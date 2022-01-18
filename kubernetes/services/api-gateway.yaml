@@ -9,7 +9,7 @@ data:
     logging.level.org.springframework.cloud=DEBUG
     logging.level.com.github.tomakehurst.wiremock=TRACE
     ignite.namespace=ignite-alcor
-    ignite.serviceName=ignite-alcor-service
+    ignite.kubeServiceName=ignite-alcor-service
     ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
     ignite.port=10800
     ignite.thin.client.enable=true

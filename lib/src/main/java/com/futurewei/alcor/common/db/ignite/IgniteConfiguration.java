@@ -56,11 +56,11 @@ public class IgniteConfiguration {
     @Value("${ignite.host}")
     private String host;
 
-    @Value("${ignite.serviceName}")
-    private String serviceName;
-
     @Value("${ignite.namespace}")
     private String namespace;
+
+    @Value("${ignite.kubeServiceName}")
+    private String kubeServiceName;
 
     @Value("${ignite.port}")
     private Integer port;
@@ -107,7 +107,7 @@ public class IgniteConfiguration {
          */
         KubernetesConnectionConfiguration kcfg = new KubernetesConnectionConfiguration();
         kcfg.setNamespace(namespace);
-        kcfg.setServiceName(serviceName);
+        kcfg.setServiceName(kubeServiceName);
         kcfg.setDiscoveryPort(port);
 
         ClientConfiguration ccfg = new ClientConfiguration();
