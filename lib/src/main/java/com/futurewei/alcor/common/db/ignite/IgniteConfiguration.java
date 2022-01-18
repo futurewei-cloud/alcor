@@ -56,10 +56,10 @@ public class IgniteConfiguration {
     @Value("${ignite.host}")
     private String host;
 
-    @Value("${ignite.kubeNamespace}")
+    @Value("${ignite.kubeNamespace:localhost}")
     private String kubeNamespace;
 
-    @Value("${ignite.kubeServiceName}")
+    @Value("${ignite.kubeServiceName:ignite}")
     private String kubeServiceName;
 
     @Value("${ignite.port}")
@@ -113,10 +113,26 @@ public class IgniteConfiguration {
         ClientConfiguration ccfg = new ClientConfiguration();
         ccfg.setAddressesFinder(new ThinClientKubernetesAddressFinder(kcfg));
 
+        cfg.setAddresses(host + ":" + port)
+                .setPartitionAwarenessEnabled(true);
+
+        if (keyStorePath != null && keyStorePassword != null &&
+                trustStorePath != null && trustStorePassword != null) {
+            cfg.setSslClientCertificateKeyStorePath(keyStorePath)
+                    .setSslClientCertificateKeyStorePassword(keyStorePassword)
+                    .setSslTrustCertificateKeyStorePath(trustStorePath)
+                    .setSslTrustCertificateKeyStorePassword(trustStorePassword);
+        }
+
         IgniteClient igniteClient = null;
 
         try {
-            igniteClient = Ignition.startClient(ccfg);
+            if (host.equals("localhost")) {
+                igniteClient = Ignition.startClient(cfg);
+            } else {
+                igniteClient = Ignition.startClient(ccfg);
+            }
+
         } catch (ClientException e) {
             logger.log(Level.WARNING, "Start client failed:" + e.getMessage());
         } catch (Exception e) {
