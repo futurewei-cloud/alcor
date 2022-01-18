@@ -108,7 +108,6 @@ public class IgniteConfiguration {
         KubernetesConnectionConfiguration kcfg = new KubernetesConnectionConfiguration();
         kcfg.setNamespace(kubeNamespace);
         kcfg.setServiceName(kubeServiceName);
-        kcfg.setDiscoveryPort(port);
 
         ClientConfiguration ccfg = new ClientConfiguration();
         ccfg.setAddressesFinder(new ThinClientKubernetesAddressFinder(kcfg));
