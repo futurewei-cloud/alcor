@@ -4,7 +4,7 @@ metadata:
   name: ncm-configmap
 data:
   application.properties: |
-    network-configuration.grpc.port = 50001
+    dataplane.grpc.port = 50001
     dataplane.isovs=true
     spring.redis.host=localhost
     spring.redis.port=6380
@@ -71,7 +71,7 @@ spec:
           imagePullPolicy: IfNotPresent
           command: ["java", "-jar", "/app/AlcorNetworkConfigManager-0.1.0.jar", "--spring.config.location=/etc/ncm/application.properties"]
           ports:
-            - containerPort: 50001
+            - containerPort: 8080
               protocol: TCP
           volumeMounts:
             - name: ncm-volume
