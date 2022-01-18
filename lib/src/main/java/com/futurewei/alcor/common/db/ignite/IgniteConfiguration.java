@@ -112,7 +112,7 @@ public class IgniteConfiguration {
         System.out.println("kubeServiceName" + kubeServiceName);
 
         ClientConfiguration ccfg = new ClientConfiguration();
-        ccfg.setAddressesFinder(new ThinClientKubernetesAddressFinder(kcfg, port));
+        ccfg.setAddressesFinder(new ThinClientKubernetesAddressFinder(kcfg));
 
         cfg.setAddresses(host + ":" + port)
                 .setPartitionAwarenessEnabled(true);
