@@ -348,7 +348,7 @@ public class NeighborService extends ResourceService {
                 try {
                     Collection<PortHostInfo> portHostInfos = portHostInfoCache.getPortHostInfos(subnetId);
 
-                    portHostInfos.parallelStream().forEach(portHostInfo -> {
+                    portHostInfos.stream().forEach(portHostInfo -> {
                         try {
                             if (ips.contains(portHostInfo.getPortIp())) {
                                 Neighbor.NeighborState neighborState = buildNeighborState(NeighborEntry.NeighborType.L2, portHostInfo, operationType, portState.getConfiguration().getVpcId());
