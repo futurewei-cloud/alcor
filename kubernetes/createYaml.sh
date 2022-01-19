@@ -36,8 +36,8 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
     sleep 10s
     numberOfRnningPods=$(kubectl get pods -A --field-selector=status.phase=Running | wc -l)
     numberOfAllPods=$(kubectl get pods -A | wc -l)
-    echo "$numberOfRnningPods"
-    echo "$numberOfAllPods"
+    echo "numberOfRnningPods: " "$numberOfRnningPods"
+    echo "numberOfAllPods: " "$numberOfAllPods"
   done
 
   kubectl exec -it ignite-alcor-0 -n ignite-alcor -c ignite-alcor-node -- /opt/ignite/apache-ignite/bin/control.sh --activate
