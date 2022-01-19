@@ -28,32 +28,36 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
   
   echo "Create yaml files done"
   
-  sleep 40s
-  
+  numberOfRnningPods="foo"
+  numberOfAllPods="bar"
+
+  while [ "$numberOfRnningPods" != "$numberOfAllPods" ];
+  do
+    sleep 10s
+    numberOfRnningPods=$(kubectl get pods -A --field-selector=status.phase=Running | wc -l)
+    numberOfAllPods=$(kubectl get pods -A | wc -l)
+    echo "numberOfRnningPods: " "$numberOfRnningPods"
+    echo "numberOfAllPods: " "$numberOfAllPods"
+  done
+
   kubectl exec -it ignite-alcor-0 -n ignite-alcor -c ignite-alcor-node -- /opt/ignite/apache-ignite/bin/control.sh --activate
-  
-  sleep 10s
-  
   kubectl exec -it ignite-alcor-ip-0 -n ignite-alcor-ip -c ignite-alcor-ip-node -- /opt/ignite/apache-ignite/bin/control.sh --activate
-  
-  sleep 10s
-  
   kubectl exec -it ignite-alcor-mac-0 -n ignite-alcor-mac -c ignite-alcor-mac-node -- /opt/ignite/apache-ignite/bin/control.sh --activate
-  
-  sleep 10s
-  
   kubectl exec -it ignite-alcor-port-0 -n ignite-alcor-port -c ignite-alcor-port-node -- /opt/ignite/apache-ignite/bin/control.sh --activate
+  
+  
   #cd apache-ignite/bin/
   #./control.sh --activate
 
-
+  echo "ignite cluster has been activated"
+  
   for d in services/*.yaml;
   do
       kubectl create -f $d
-      echo "Create ignite yaml -  $d completed"
+      echo "Create services yaml -  $d completed"
   done
   
-  echo "ignite cluster has been activated"
+  echo "Cluster has been created"
 
 elif [[ "$OSTYPE" == "darwin"* ]]; then
   echo "Install prerequisites in Mac OSX"
