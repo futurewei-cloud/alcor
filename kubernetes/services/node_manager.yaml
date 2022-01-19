@@ -49,6 +49,7 @@ spec:
       labels:
         app: nodemanager
     spec:
+      serviceAccountName: ignite-alcor
       volumes:
         - name: node-volume
           configMap:

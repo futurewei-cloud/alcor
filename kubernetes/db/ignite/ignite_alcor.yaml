@@ -1,16 +1,3 @@
-kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: ignite-alcor
-roleRef:
-  kind: ClusterRole
-  name: ignite-alcor
-  apiGroup: rbac.authorization.k8s.io
-subjects:
-  - kind: ServiceAccount
-    name: ignite-alcor
-    namespace: ignite-alcor
----
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -27,16 +14,18 @@ rules:
       - list
       - watch
 ---
-apiVersion: v1
-kind: Namespace
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: ignite-alcor
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
+roleRef:
+  kind: ClusterRole
   name: ignite-alcor
-  namespace: ignite-alcor
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - kind: ServiceAccount
+    name: ignite-alcor
+    namespace: ignite-alcor
 ---
 apiVersion: v1
 kind: Service

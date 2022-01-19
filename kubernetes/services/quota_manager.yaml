@@ -49,6 +49,7 @@ spec:
       labels:
         app: quotamanager
     spec:
+      serviceAccountName: ignite-alcor
       volumes:
         - name: quota-volume
           configMap:

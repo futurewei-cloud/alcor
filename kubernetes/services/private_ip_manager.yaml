@@ -37,6 +37,7 @@ spec:
       labels:
         app: ipmanager
     spec:
+      serviceAccountName: ignite-alcor-ip
       volumes:
         - name: ip-volume
           configMap:

@@ -60,6 +60,7 @@ spec:
       labels:
         app: netwconfigmanager
     spec:
+      serviceAccountName: ignite-alcor
       volumes:
         - name: ncm-volume
           configMap:

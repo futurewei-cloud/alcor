@@ -72,6 +72,7 @@ spec:
       labels:
         app: apimanager
     spec:
+      serviceAccountName: ignite-alcor
       volumes:
         - name: api-volume
           configMap:

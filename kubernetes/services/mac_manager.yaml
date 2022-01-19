@@ -46,6 +46,7 @@ spec:
       labels:
         app: macmanager
     spec:
+      serviceAccountName: ignite-alcor-mac
       volumes:
         - name: mac-volume
           configMap:

@@ -51,6 +51,7 @@ spec:
       labels:
         app: portmanager
     spec:
+      serviceAccountName: ignite-alcor-port
       volumes:
         - name: port-volume
           configMap:

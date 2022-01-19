@@ -45,6 +45,7 @@ spec:
       labels:
         app: gatewaymanager
     spec:
+      serviceAccountName: ignite-alcor
       volumes:
         - name: gateway-volume
           configMap:

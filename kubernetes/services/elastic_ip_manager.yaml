@@ -37,6 +37,7 @@ spec:
       labels:
         app: eipmanager
     spec:
+      serviceAccountName: ignite-alcor
       volumes:
         - name: eip-volume
           configMap:

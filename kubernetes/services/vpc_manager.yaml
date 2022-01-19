@@ -46,6 +46,7 @@ spec:
       labels:
         app: vpcmanager
     spec:
+      serviceAccountName: ignite-alcor
       volumes:
         - name: vpc-volume
           configMap:

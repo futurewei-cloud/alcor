@@ -79,6 +79,7 @@ spec:
       labels:
         app: dataplanemanager
     spec:
+      serviceAccountName: ignite-alcor
       volumes:
         - name: dpm-volume
           configMap:
