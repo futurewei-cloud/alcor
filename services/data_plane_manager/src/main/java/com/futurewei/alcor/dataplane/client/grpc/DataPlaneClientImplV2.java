@@ -73,7 +73,7 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         }
         doSendGoalState(goalStateBuilder.build(), finishLatch, results);
 
-        if (!finishLatch.await(5, TimeUnit.MINUTES)) {
+        if (!finishLatch.await(10, TimeUnit.MINUTES)) {
             LOG.warn("Send goal states can not finish within 1 minutes");
             return Arrays.asList("Send goal states can not finish within 1 minutes");
         }
