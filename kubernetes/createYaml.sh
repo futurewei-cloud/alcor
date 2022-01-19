@@ -28,6 +28,7 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
   
   echo "Create yaml files done"
   
+
   numberOfRnningPods="foo"
   numberOfAllPods="bar"
 
@@ -44,6 +45,8 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
   kubectl exec -it ignite-alcor-ip-0 -n ignite-alcor-ip -c ignite-alcor-ip-node -- /opt/ignite/apache-ignite/bin/control.sh --activate
   kubectl exec -it ignite-alcor-mac-0 -n ignite-alcor-mac -c ignite-alcor-mac-node -- /opt/ignite/apache-ignite/bin/control.sh --activate
   kubectl exec -it ignite-alcor-port-0 -n ignite-alcor-port -c ignite-alcor-port-node -- /opt/ignite/apache-ignite/bin/control.sh --activate
+  kubectl exec -it ignite-alcor-dpm-0 -n ignite-alcor-dpm -c ignite-alcor-dpm-node -- /opt/ignite/apache-ignite/bin/control.sh --activate
+  kubectl exec -it ignite-alcor-ncm-0 -n ignite-alcor-ncm -c ignite-alcor-ncm-node -- /opt/ignite/apache-ignite/bin/control.sh --activate
   
   
   #cd apache-ignite/bin/
