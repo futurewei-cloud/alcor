@@ -1,3 +1,14 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ignite-alcor
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ignite-alcor
+  namespace: ignite-alcor
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
