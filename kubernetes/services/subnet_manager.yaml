@@ -48,7 +48,7 @@ spec:
       labels:
         app: subnetmanager
     spec:
-      serviceAccountName: ignite-alcor
+      serviceAccountName: alcor-account
       volumes:
         - name: subnet-volume
           configMap:

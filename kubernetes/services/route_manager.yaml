@@ -45,7 +45,7 @@ spec:
       labels:
         app: routemanager
     spec:
-      serviceAccountName: ignite-alcor
+      serviceAccountName: alcor-account
       volumes:
         - name: route-volume
           configMap:

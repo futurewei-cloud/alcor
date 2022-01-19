@@ -37,7 +37,7 @@ spec:
       labels:
         app: sgmanager
     spec:
-      serviceAccountName: ignite-alcor
+      serviceAccountName: alcor-account
       volumes:
         - name: sg-volume
           configMap:
