@@ -348,21 +348,17 @@ public class NeighborService extends ResourceService {
                 try {
                     Collection<PortHostInfo> portHostInfos = portHostInfoCache.getPortHostInfos(subnetId);
 
-                    portHostInfos.parallelStream().forEach(portHostInfo -> {
+                    portHostInfos.stream().forEach(portHostInfo -> {
                         try {
-                            Goalstate.ResourceIdType resourceIdType = getRourceIdType(NEIGHBOR_STATE_PREFIX + portHostInfo.getPortId());
                             if (ips.contains(portHostInfo.getPortIp())) {
                                 Neighbor.NeighborState neighborState = buildNeighborState(NeighborEntry.NeighborType.L2, portHostInfo, operationType, portState.getConfiguration().getVpcId());
                                 neighborStateMap.put(NEIGHBOR_STATE_PREFIX + neighborState.getConfiguration().getId(), neighborState);
-                                if (resourceIdType != null) {
-                                    multicastHostResourceBuilder.addResources(resourceIdType);
-                                }
+                                multicastHostResourceBuilder.addResources(getRourceIdType(NEIGHBOR_STATE_PREFIX + portHostInfo.getPortId()));
                             } else {
                                 multicastGoalStateV2.getHostIps().add(portHostInfo.getHostIp());
                             }
-                            if (resourceIdType != null) {
-                                unicastHostResourceBuilder.addResources(resourceIdType);
-                            }
+                            unicastHostResourceBuilder.addResources(getRourceIdType(NEIGHBOR_STATE_PREFIX + portHostInfo.getPortId()));
+
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
