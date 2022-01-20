@@ -265,12 +265,13 @@ public class DpmServiceImplV2 implements DpmService {
             u.setGoalStateBuilder(null);
         });
 
-        if (pathManagerService.isFastPath()) {
-            failedHosts.addAll(grpcDataPlaneClient.sendGoalStates(new ArrayList<>(unicastGoalStates.values()), multicastGoalState));
-        } else {
-            failedHosts.addAll(pulsarDataPlaneClient.sendGoalStates(new ArrayList<>(unicastGoalStates.values()), multicastGoalState));
+        if (unicastGoalStates.size() != 0) {
+            if (pathManagerService.isFastPath()) {
+                failedHosts.addAll(grpcDataPlaneClient.sendGoalStates(new ArrayList<>(unicastGoalStates.values()), multicastGoalState));
+            } else {
+                failedHosts.addAll(pulsarDataPlaneClient.sendGoalStates(new ArrayList<>(unicastGoalStates.values()), multicastGoalState));
+            }
         }
-
         return failedHosts;
     }
 
