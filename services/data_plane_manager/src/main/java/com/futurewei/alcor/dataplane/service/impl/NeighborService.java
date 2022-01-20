@@ -408,7 +408,7 @@ public class NeighborService extends ResourceService {
                 for (InternalSubnetPorts internalSubnetPort : internalSubnetPorts) {
                     try {
                         Collection<PortHostInfo> portHostInfos = portHostInfoCache.getPortHostInfos(internalSubnetPort.getSubnetId());
-                        portHostInfos.parallelStream().forEach(portHostInfo -> {
+                        portHostInfos.stream().forEach(portHostInfo -> {
                             try {
                                 if (subnetIds.contains(internalSubnetPort.getSubnetId()) && ips.contains(portHostInfo.getPortIp())) {
                                     Neighbor.NeighborState neighborState = buildNeighborState(NeighborEntry.NeighborType.L3, portHostInfo, networkConfiguration.getOpType(), vpcid);
@@ -472,7 +472,7 @@ public class NeighborService extends ResourceService {
         for (InternalSubnetPorts internalSubnetPort : internalSubnetPorts) {
             try {
                 Collection<PortHostInfo> portHostInfos = portHostInfoCache.getPortHostInfos(internalSubnetPort.getSubnetId());
-                portHostInfos.parallelStream().forEach(portHostInfo -> {
+                portHostInfos.stream().forEach(portHostInfo -> {
                     try {
                         if (subnetId.equals(internalSubnetPort.getSubnetId())) {
                             multicastHostResourceBuilder.addResources(getRourceIdType(NEIGHBOR_STATE_PREFIX + portHostInfo.getPortId()));
