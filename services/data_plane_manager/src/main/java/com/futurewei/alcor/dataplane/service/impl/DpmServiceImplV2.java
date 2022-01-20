@@ -248,6 +248,8 @@ public class DpmServiceImplV2 implements DpmService {
      * @throws Exception Process exceptions and send exceptions
      */
     private List<String> processNeighborConfiguration(NetworkConfiguration networkConfig) throws Exception {
+        List<String> failedHosts = new ArrayList<>();
+
         Map<String, String> subnetIdRouterIdMap = subnetPortsCache.getInternalSubnetRouterMap(networkConfig);
         subnetPortsCache.attacheRouter(subnetIdRouterIdMap);
         Map<String, UnicastGoalStateV2> unicastGoalStates = new HashMap<>();
@@ -264,10 +266,12 @@ public class DpmServiceImplV2 implements DpmService {
         });
 
         if (pathManagerService.isFastPath()) {
-            return pulsarDataPlaneClient.sendGoalStates(new ArrayList<>(unicastGoalStates.values()), multicastGoalState);
+            failedHosts.addAll(grpcDataPlaneClient.sendGoalStates(new ArrayList<>(unicastGoalStates.values()), multicastGoalState));
+        } else {
+            failedHosts.addAll(pulsarDataPlaneClient.sendGoalStates(new ArrayList<>(unicastGoalStates.values()), multicastGoalState));
         }
 
-        return grpcDataPlaneClient.sendGoalStates(new ArrayList<>(unicastGoalStates.values()), multicastGoalState);
+        return failedHosts;
     }
 
     private List<String> processSecurityGroupConfiguration(NetworkConfiguration networkConfig) throws Exception {
