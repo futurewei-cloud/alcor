@@ -3,14 +3,11 @@
 <!-- 
 MIT License
 Copyright(c) 2020 Futurewei Cloud
-
     Permission is hereby granted,
     free of charge, to any person obtaining a copy of this software and associated documentation files(the "Software"), to deal in the Software without restriction,
     including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and / or sell copies of the Software, and to permit persons
     to whom the Software is furnished to do so, subject to the following conditions
-
     The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. -->
@@ -24,7 +21,7 @@ Copyright(c) 2020 Futurewei Cloud
         http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-   <bean id="grid.cfg" class="org.apache.ignite.configuration.IgniteConfiguration">
+   <bean class="org.apache.ignite.configuration.IgniteConfiguration">
 
       <!-- Explicitly enable peer class loading. -->
       <property name="peerClassLoadingEnabled" value="true" />
@@ -37,9 +34,7 @@ Copyright(c) 2020 Futurewei Cloud
                   <property name="persistenceEnabled" value="true"/>
                </bean>
             </property>
-            <property name="storagePath" value="/opt/storage"/>
-            <property name="walPath" value="/db/wal"/>
-            <property name="walArchivePath" value="/db/wal/archive"/>
+            <property name="storagePath" value="/opt/dpm"/>
          </bean>
       </property>
 
@@ -47,14 +42,48 @@ Copyright(c) 2020 Futurewei Cloud
          <list>
             <bean class="org.apache.ignite.configuration.CacheConfiguration">
                <!-- Set the cache name. -->
-               <property name="name" value="com.futurewei.alcor.web.entity.vpc.VpcEntity"/>
+               <property name="name" value="com.futurewei.alcor.dataplane.entity.InternalPorts"/>
                <!-- Set the cache mode. -->
                <property name="atomicityMode" value="TRANSACTIONAL"/>
                <!-- Other cache parameters. -->
                <property name="cacheMode" value="PARTITIONED"/>
             </bean>
 
+            <bean class="org.apache.ignite.configuration.CacheConfiguration">
+               <!-- Set the cache name. -->
+               <property name="name" value="com.futurewei.alcor.dataplane.entity.InternalSubnets"/>
+               <!-- Set the cache mode. -->
+               <property name="atomicityMode" value="TRANSACTIONAL"/>
+               <!-- Other cache parameters. -->
+               <property name="cacheMode" value="PARTITIONED"/>
+            </bean>
 
+            <bean class="org.apache.ignite.configuration.CacheConfiguration">
+               <!-- Set the cache name. -->
+               <property name="name" value="com.futurewei.alcor.dataplane.entity.InternalSubnetPorts"/>
+               <!-- Set the cache mode. -->
+               <property name="atomicityMode" value="TRANSACTIONAL"/>
+               <!-- Other cache parameters. -->
+               <property name="cacheMode" value="PARTITIONED"/>
+            </bean>
+
+            <bean class="org.apache.ignite.configuration.CacheConfiguration">
+               <!-- Set the cache name. -->
+               <property name="name" value="com.futurewei.alcor.dataplane.entity.GatewayInfo"/>
+               <!-- Set the cache mode. -->
+               <property name="atomicityMode" value="TRANSACTIONAL"/>
+               <!-- Other cache parameters. -->
+               <property name="cacheMode" value="PARTITIONED"/>
+            </bean>
+
+            <bean class="org.apache.ignite.configuration.CacheConfiguration">
+               <!-- Set the cache name. -->
+               <property name="name" value="com.futurewei.alcor.dataplane.entity.VpcResourceMeta"/>
+               <!-- Set the cache mode. -->
+               <property name="atomicityMode" value="TRANSACTIONAL"/>
+               <!-- Other cache parameters. -->
+               <property name="cacheMode" value="PARTITIONED"/>
+            </bean>
          </list>
       </property>
 
@@ -66,16 +95,8 @@ Copyright(c) 2020 Futurewei Cloud
                    Enables Kubernetes IP finder and setting custom namespace and service names.
                -->
                <bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.kubernetes.TcpDiscoveryKubernetesIpFinder">
-                  <property name="ipFinder">
-                     <bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.kubernetes.TcpDiscoveryKubernetesIpFinder">
-                        <constructor-arg>
-                           <bean class="org.apache.ignite.kubernetes.configuration.KubernetesConnectionConfiguration">
-                              <property name="serviceName" value="ignite-alcor-service"/>
-                              <property name="namespace" value="ignite-alcor"/>
-                           </bean>
-                        </constructor-arg>
-                     </bean>
-                  </property>
+                  <property name="serviceName" value="ignite-alcor-dpm-service"/>
+                  <property name="namespace" value="ignite-alcor-dpm"/>
                </bean>
             </property>
          </bean>

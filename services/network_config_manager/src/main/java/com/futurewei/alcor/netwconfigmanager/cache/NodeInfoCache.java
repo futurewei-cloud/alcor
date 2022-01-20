@@ -42,6 +42,7 @@ import java.util.stream.Collectors;
 @Repository
 @ComponentScan(value = "com.futurewei.alcor.common.db")
 public class NodeInfoCache {
+    private static final Logger LOG = LoggerFactory.getLogger();
     private ICache<String, NodeInfo> nodeInfoCache;
 
     @Autowired

@@ -15,6 +15,7 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.portmanager.processor;
 
+import com.futurewei.alcor.portmanager.repo.IPortRepository;
 import com.futurewei.alcor.portmanager.repo.PortRepository;
 import com.futurewei.alcor.portmanager.request.RequestManager;
 import com.futurewei.alcor.web.entity.ip.IpAddrUpdateRequest;
@@ -31,7 +32,7 @@ public class PortContext {
     private PortConfigCache portConfigCache;
     private NetworkConfig networkConfig;
     private String projectId;
-    private PortRepository portRepository;
+    private IPortRepository portRepository;
     private RequestManager requestManager;
     private List<PortEntity> unassignedIpPorts;
     private Map<String, PortEntity.FixedIp> hasIpFixedIps;
@@ -52,7 +53,7 @@ public class PortContext {
 
     }
 
-    public PortContext(PortConfigCache portConfigCache, String projectId, PortRepository portRepository) {
+    public PortContext(PortConfigCache portConfigCache, String projectId, IPortRepository portRepository) {
         this.portConfigCache = portConfigCache;
         this.projectId = projectId;
         this.portRepository = portRepository;
@@ -84,7 +85,7 @@ public class PortContext {
         this.projectId = projectId;
     }
 
-    public PortRepository getPortRepository() {
+    public IPortRepository getPortRepository() {
         return portRepository;
     }
 

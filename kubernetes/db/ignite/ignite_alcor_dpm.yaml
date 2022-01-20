@@ -12,22 +12,24 @@
 #     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 #     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-apiVersion: v1
-kind: Namespace
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: ignite-alcor
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: ignite-alcor
-  namespace: ignite-alcor
+  name: ignite-alcor-dpm
+roleRef:
+  kind: ClusterRole
+  name: ignite-alcor-dpm
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - kind: ServiceAccount
+    name: ignite-alcor-dpm
+    namespace: ignite-alcor-dpm
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: ignite-alcor
-  namespace: ignite-alcor
+  name: ignite-alcor-dpm
+  namespace: ignite-alcor-dpm
 rules:
   - apiGroups:
       - ""
@@ -39,28 +41,26 @@ rules:
       - list
       - watch
 ---
-kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
+apiVersion: v1
+kind: Namespace
 metadata:
-  name: ignite-alcor
-roleRef:
-  kind: ClusterRole
-  name: ignite-alcor
-  apiGroup: rbac.authorization.k8s.io
-subjects:
-  - kind: ServiceAccount
-    name: ignite-alcor
-    namespace: ignite-alcor
+  name: ignite-alcor-dpm
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ignite-alcor-dpm
+  namespace: ignite-alcor-dpm
 ---
 apiVersion: v1
 kind: Service
 metadata:
   # The name must be equal to TcpDiscoveryKubernetesIpFinder.serviceName
-  name: ignite-alcor-service
+  name: ignite-alcor-dpm-service
   # The name must be equal to TcpDiscoveryKubernetesIpFinder.namespaceName
-  namespace: ignite-alcor
+  namespace: ignite-alcor-dpm
   labels:
-    app: ignite-alcor
+    app: ignite-alcor-dpm
 spec:
   type: LoadBalancer
   ports:
@@ -68,35 +68,35 @@ spec:
       port: 8080
       targetPort: 8080
     - name: sql
-      port: 10800
+      port: 10804
       targetPort: 10800
     - name: thinclients
       port: 10900
       targetPort: 10900
   selector:
-    app: ignite-alcor
+    app: ignite-alcor-dpm
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    app: ignite-alcor
-  name: ignite-alcor
-  namespace: ignite-alcor
+    app: ignite-alcor-dpm
+  name: ignite-alcor-dpm
+  namespace: ignite-alcor-dpm
 spec:
   selector:
     matchLabels:
-      app: ignite-alcor
-  serviceName: ignite-alcor-service
-  replicas: 3
+      app: ignite-alcor-dpm
+  serviceName: ignite-alcor-dpm-service
+  replicas: 1
   template:
     metadata:
       labels:
-        app: ignite-alcor
+        app: ignite-alcor-dpm
     spec:
-      serviceAccountName: ignite-alcor
+      serviceAccountName: ignite-alcor-dpm
       containers:
-        - name: ignite-alcor-node
+        - name: ignite-alcor-dpm-node
           image: ignite_alcor:lib8
           imagePullPolicy: IfNotPresent
           #resources:
@@ -106,7 +106,8 @@ spec:
             - name: OPTION_LIBS
               value: ignite-kubernetes,ignite-rest-http
             - name: CONFIG_URI
-              value: https://raw.githubusercontent.com/futurewei-cloud/alcor/master/kubernetes/db/ignite/ignite_config.xml
+              # value : https://raw.githubusercontent.com/pkommoju/alcor/dpm_ncm_own_db/kubernetes/db/ignite/ignite_dpm_config.xml
+              value: https://raw.githubusercontent.com/futurewei-cloud/alcor/master/kubernetes/db/ignite/ignite_dpm_config.xml
             - name: IGNITE_QUIET
               value: "false"
             - name: JVM_OPTS
@@ -136,31 +137,9 @@ spec:
             - name: port10900
               containerPort: 10900 # Thin clients port number.
           volumeMounts:
-            - name: ignite-alcor-config-volume
-              mountPath: /opt/storage
-            #- name: ignite-alcor-wal-volume
-              #mountPath: /db/wal
-            #- name: ignite-alcor-walArchive-volume
-              #mountPath: /db/wal/archive
+            - name: ignite-alcor-dpm-config-volume
+              mountPath: /opt/dpm
       volumes:
-        - name: ignite-alcor-config-volume
+        - name: ignite-alcor-dpm-config-volume
           hostPath: 
-            path: /root/work/storage
-        #- name: ignite-alcor-wal-volume
-          #hostPath: 
-            #path: /root/work/db
-        #- name: ignite-alcor-walArchive-volume
-          #hostPath: 
-            #path: /root/work/db/archive
-            
-          #persistentVolumeClaim:
-            #claimName: ignite-alcor
-  #volumeClaimTemplates:
-  #- metadata:
-      #name: ignite-alcor-config-volume
-    #spec:
-      #accessModes: [ "ReadWriteOnce" ]
-      #storageClassName: "ignite-persistence-storage-class"
-      #resources:
-        #requests:
-          #storage: 1Gi
+            path: /root/work/dpm
