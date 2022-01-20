@@ -99,42 +99,12 @@ public class IgniteConfiguration {
     }
 
     private IgniteClient getThinIgniteClient() {
-        ClientConfiguration cfg = new ClientConfiguration();
-
-        /***
-         * With partition awareness in place, the thin client can directly route queries and operations to the primary nodes that own the data required for the queries.
-         * This eliminates the bottleneck, allowing the application to scale more easily.
-         */
-        KubernetesConnectionConfiguration kcfg = new KubernetesConnectionConfiguration();
-        kcfg.setNamespace(kubeNamespace);
-        kcfg.setServiceName(kubeServiceName);
-        System.out.println("kcfg.getMaster()" + kcfg.getMaster());
-        System.out.println("kcfg.getAccountToken()" + kcfg.getAccountToken());
-        System.out.println("kubeNamespace" + kubeNamespace);
-        System.out.println("kubeServiceName" + kubeServiceName);
-
-
-        ClientConfiguration ccfg = new ClientConfiguration();
-        ccfg.setAddressesFinder(new ThinClientKubernetesAddressFinder(kcfg));
-
-        cfg.setAddresses(host + ":" + port)
-                .setPartitionAwarenessEnabled(true);
-
-        if (keyStorePath != null && keyStorePassword != null &&
-                trustStorePath != null && trustStorePassword != null) {
-            cfg.setSslClientCertificateKeyStorePath(keyStorePath)
-                    .setSslClientCertificateKeyStorePassword(keyStorePassword)
-                    .setSslTrustCertificateKeyStorePath(trustStorePath)
-                    .setSslTrustCertificateKeyStorePassword(trustStorePassword);
-        }
-
         IgniteClient igniteClient = null;
-
         try {
             if (host.equals("localhost")) {
-                igniteClient = Ignition.startClient(cfg);
+                igniteClient = getHostThinIgniteClient();
             } else {
-                igniteClient = Ignition.startClient(ccfg);
+                igniteClient = getKubernetesThinIgniteClient();
             }
 
         } catch (ClientException e) {
@@ -146,6 +116,37 @@ public class IgniteConfiguration {
         Assert.notNull(igniteClient, "IgniteClient is null");
 
         return igniteClient;
+    }
+
+    private IgniteClient getHostThinIgniteClient() {
+        ClientConfiguration cfg = new ClientConfiguration();
+
+        /***
+         * With partition awareness in place, the thin client can directly route queries and operations to the primary nodes that own the data required for the queries.
+         * This eliminates the bottleneck, allowing the application to scale more easily.
+         */
+        cfg.setAddresses(host + ":" + port)
+                .setPartitionAwarenessEnabled(true);
+
+        if (keyStorePath != null && keyStorePassword != null &&
+                trustStorePath != null && trustStorePassword != null) {
+            cfg.setSslClientCertificateKeyStorePath(keyStorePath)
+                    .setSslClientCertificateKeyStorePassword(keyStorePassword)
+                    .setSslTrustCertificateKeyStorePath(trustStorePath)
+                    .setSslTrustCertificateKeyStorePassword(trustStorePassword);
+        }
+
+        return Ignition.startClient(cfg);
+    }
+
+    private IgniteClient getKubernetesThinIgniteClient() {
+        KubernetesConnectionConfiguration kcfg = new KubernetesConnectionConfiguration();
+        kcfg.setNamespace(kubeNamespace);
+        kcfg.setServiceName(kubeServiceName);
+
+        ClientConfiguration ccfg = new ClientConfiguration();
+        ccfg.setAddressesFinder(new ThinClientKubernetesAddressFinder(kcfg));
+        return Ignition.startClient(ccfg);
     }
 
     private Ignite getIgniteClient(String instanceName) {
