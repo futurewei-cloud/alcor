@@ -15,21 +15,21 @@
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: ignite-alcor
+  name: ignite-alcor-ncm
 roleRef:
   kind: ClusterRole
-  name: ignite-alcor
+  name: ignite-alcor-ncm
   apiGroup: rbac.authorization.k8s.io
 subjects:
   - kind: ServiceAccount
-    name: ignite-alcor
-    namespace: ignite-alcor
+    name: ignite-alcor-ncm
+    namespace: ignite-alcor-ncm
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: ignite-alcor
-  namespace: ignite-alcor
+  name: ignite-alcor-ncm
+  namespace: ignite-alcor-ncm
 rules:
   - apiGroups:
       - ""
@@ -44,23 +44,23 @@ rules:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: ignite-alcor
+  name: ignite-alcor-ncm
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: ignite-alcor
-  namespace: ignite-alcor
+  name: ignite-alcor-ncm
+  namespace: ignite-alcor-ncm
 ---
 apiVersion: v1
 kind: Service
 metadata:
   # The name must be equal to TcpDiscoveryKubernetesIpFinder.serviceName
-  name: ignite-alcor-service
+  name: ignite-alcor-ncm-service
   # The name must be equal to TcpDiscoveryKubernetesIpFinder.namespaceName
-  namespace: ignite-alcor
+  namespace: ignite-alcor-ncm
   labels:
-    app: ignite-alcor
+    app: ignite-alcor-ncm
 spec:
   type: LoadBalancer
   ports:
@@ -68,35 +68,35 @@ spec:
       port: 8080
       targetPort: 8080
     - name: sql
-      port: 10800
+      port: 10805
       targetPort: 10800
     - name: thinclients
       port: 10900
       targetPort: 10900
   selector:
-    app: ignite-alcor
+    app: ignite-alcor-ncm
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    app: ignite-alcor
-  name: ignite-alcor
-  namespace: ignite-alcor
+    app: ignite-alcor-ncm
+  name: ignite-alcor-ncm
+  namespace: ignite-alcor-ncm
 spec:
   selector:
     matchLabels:
-      app: ignite-alcor
-  serviceName: ignite-alcor-service
-  replicas: 3
+      app: ignite-alcor-ncm
+  serviceName: ignite-alcor-ncm-service
+  replicas: 1
   template:
     metadata:
       labels:
-        app: ignite-alcor
+        app: ignite-alcor-ncm
     spec:
-      serviceAccountName: ignite-alcor
+      serviceAccountName: ignite-alcor-ncm
       containers:
-        - name: ignite-alcor-node
+        - name: ignite-alcor-ncm-node
           image: ignite_alcor:lib8
           imagePullPolicy: IfNotPresent
           #resources:
@@ -106,7 +106,8 @@ spec:
             - name: OPTION_LIBS
               value: ignite-kubernetes,ignite-rest-http
             - name: CONFIG_URI
-              value: https://raw.githubusercontent.com/futurewei-cloud/alcor/master/kubernetes/db/ignite/ignite_config.xml
+              #value: https://raw.githubusercontent.com/pkommoju/alcor/dpm_ncm_own_db/kubernetes/db/ignite/ignite_ncm_config.xml
+              value: https://raw.githubusercontent.com/futurewei-cloud/alcor/master/kubernetes/db/ignite/ignite_ncm_config.xml
             - name: IGNITE_QUIET
               value: "false"
             - name: JVM_OPTS
@@ -136,31 +137,9 @@ spec:
             - name: port10900
               containerPort: 10900 # Thin clients port number.
           volumeMounts:
-            - name: ignite-alcor-config-volume
-              mountPath: /opt/storage
-            #- name: ignite-alcor-wal-volume
-              #mountPath: /db/wal
-            #- name: ignite-alcor-walArchive-volume
-              #mountPath: /db/wal/archive
+            - name: ignite-alcor-ncm-config-volume
+              mountPath: /opt/ncm
       volumes:
-        - name: ignite-alcor-config-volume
+        - name: ignite-alcor-ncm-config-volume
           hostPath: 
-            path: /root/work/storage
-        #- name: ignite-alcor-wal-volume
-          #hostPath: 
-            #path: /root/work/db
-        #- name: ignite-alcor-walArchive-volume
-          #hostPath: 
-            #path: /root/work/db/archive
-            
-          #persistentVolumeClaim:
-            #claimName: ignite-alcor
-  #volumeClaimTemplates:
-  #- metadata:
-      #name: ignite-alcor-config-volume
-    #spec:
-      #accessModes: [ "ReadWriteOnce" ]
-      #storageClassName: "ignite-persistence-storage-class"
-      #resources:
-        #requests:
-          #storage: 1Gi
+            path: /root/work/ncm

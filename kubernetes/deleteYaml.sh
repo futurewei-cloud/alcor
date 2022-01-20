@@ -104,6 +104,19 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
   kubectl delete services gatewaymanager-service
   kubectl delete deployment gatewaymanager
 
+  kubectl delete clusterrolebinding ignite-alcor-dpm
+  kubectl delete clusterrole ignite-alcor-dpm
+  kubectl delete serviceaccounts ignite-alcor-dpm -n ignite-alcor-dpm
+  kubectl delete services ignite-alcor-dpm-service -n ignite-alcor-dpm
+  kubectl delete StatefulSet ignite-alcor-dpm -n ignite-alcor-dpm
+  kubectl delete namespaces ignite-alcor-dpm
+
+  kubectl delete clusterrolebinding ignite-alcor-ncm
+  kubectl delete clusterrole ignite-alcor-ncm
+  kubectl delete serviceaccounts ignite-alcor-ncm -n ignite-alcor-ncm
+  kubectl delete services ignite-alcor-ncm-service -n ignite-alcor-ncm
+  kubectl delete StatefulSet ignite-alcor-ncm -n ignite-alcor-ncm
+  kubectl delete namespaces ignite-alcor-ncm
 
 elif [[ "$OSTYPE" == "darwin"* ]]; then
   echo "Install prerequisites in Mac OSX"
