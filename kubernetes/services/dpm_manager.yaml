@@ -48,6 +48,7 @@ data:
     microservices.netwconfigmanager.service.url=netwconfigmanager-service
     microservices.zeta.management.url=http://10.213.43.90
     microservices.gateway.service.url=http://gatewaymanager-service.default.svc.cluster.local:9015
+    microservices.connectTimeout=5
     zetaGateway.check.timeout = 30
     zetaGateway.check.interval = 2
 

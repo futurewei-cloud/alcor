@@ -30,6 +30,7 @@ import io.grpc.stub.StreamObserver;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
@@ -61,6 +62,9 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
     // prints out UUID and time, when sending a GoalState to any of the monitorHosts
     private ArrayList<String> monitorHosts;
 
+    @Value("${microservices.connectTimeout:5}")
+    private String connectTimeout;
+
     private ConcurrentHashMap<String, ArrayList<GrpcChannelStub>> hostIpGrpcChannelStubMap;
 
     @Override
@@ -73,9 +77,9 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         }
         doSendGoalState(goalStateBuilder.build(), finishLatch, results);
 
-        if (!finishLatch.await(15, TimeUnit.MINUTES)) {
-            LOG.warn("Send goal states can not finish within 1 minutes");
-            return Arrays.asList("Send goal states can not finish within 1 minutes");
+        if (!finishLatch.await(Integer.parseInt(connectTimeout), TimeUnit.MINUTES)) {
+            LOG.warn("Send goal states can not finish within %s minutes", connectTimeout);
+            return Arrays.asList("Send goal states can not finish within %s minutes", connectTimeout);
         }
         return results;
     }
