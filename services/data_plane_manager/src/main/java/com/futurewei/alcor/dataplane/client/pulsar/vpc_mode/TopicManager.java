@@ -67,7 +67,6 @@ public class TopicManager {
                 SendTopicInfoRollback sendTopicInfoRollback = new SendTopicInfoRollback(vpcId, hostIp);
                 handleException(sendTopicInfoRollback);
             }
-
         }
         return nodeSubscribeInfo;
     }
