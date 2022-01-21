@@ -135,6 +135,7 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
                         .topic(topic)
                         .enableBatching(false)
                         .create();
+
                 producer.send(functionUnicastGoalStateV2.getUnicastGoalStateByte());
             } catch (Exception e) {
                 LOG.error("Send unicastGoalStates to topic:{} failed: ", topic, e);
