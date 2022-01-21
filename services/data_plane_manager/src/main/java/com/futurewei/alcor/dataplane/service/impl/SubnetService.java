@@ -157,6 +157,8 @@ public class SubnetService extends ResourceService {
     {
         InternalSubnetPorts subnetEntity = subnetPortsCacheV2.getSubnetPorts(subnetId);
         if (subnetEntity != null) {
+            unicastGoalState.setVpcId(subnetEntity.getVpcId());
+            multicastGoalState.addVpcId(subnetEntity.getVpcId());
             if (unicastGoalState.getGoalStateBuilder().getSubnetStatesMap().entrySet().stream()
                     .filter(e -> e.getKey().equals(subnetEntity.getSubnetId()))
                     .findFirst().orElse(null) == null)

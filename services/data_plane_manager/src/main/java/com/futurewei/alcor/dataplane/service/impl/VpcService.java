@@ -106,6 +106,7 @@ public class VpcService extends ResourceService {
             vpcStateBuilder.setOperationType(Common.OperationType.INFO);
             vpcStateBuilder.setConfiguration(vpcConfigBuilder.build());
             Vpc.VpcState vpcState = vpcStateBuilder.build();
+            unicastGoalState.setVpcId(vpcEntity.getId());
             unicastGoalState.getGoalStateBuilder().putVpcStates(vpcState.getConfiguration().getId(), vpcState);
         }
     }
