@@ -414,7 +414,8 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         } else {
             Goalstate.HostResources.Builder hostResourceBuilder1 = Goalstate.HostResources.newBuilder();
             hostResourceBuilder1.addAllResources(hostResourceBuilder.getResourcesList());
-            if (unicastGoalStateV2.getGoalState().getHostResourcesMap().get(unicastGoalStateV2.getHostIp()).getResourcesList().size() > 0) {
+            if (unicastGoalStateV2.getGoalState().getHostResourcesMap().containsKey(unicastGoalStateV2.getHostIp()) &&
+                    unicastGoalStateV2.getGoalState().getHostResourcesMap().get(unicastGoalStateV2.getHostIp()).getResourcesList().size() > 0) {
                 hostResourceBuilder1.addAllResources(unicastGoalStateV2.getGoalState().getHostResourcesMap().get(unicastGoalStateV2.getHostIp()).getResourcesList());
             }
             goalStateBuilder.putHostResources(unicastGoalStateV2.getHostIp(), hostResourceBuilder1.build());
