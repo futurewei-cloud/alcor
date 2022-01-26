@@ -17,7 +17,6 @@
  */
 
 package com.futurewei.alcor.dataplane.client.grpc;
-
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.config.Config;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalStateV2;
@@ -33,10 +32,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
-
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @Service("grpcDataPlaneClient")
@@ -62,7 +59,7 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
     // prints out UUID and time, when sending a GoalState to any of the monitorHosts
     private ArrayList<String> monitorHosts;
 
-    @Value("${microservices.connectTimeout:5}")
+    @Value("${microservices.connectTimeout:300}")
     private String connectTimeout;
 
     private ConcurrentHashMap<String, ArrayList<GrpcChannelStub>> hostIpGrpcChannelStubMap;
@@ -77,9 +74,9 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         }
         doSendGoalState(goalStateBuilder.build(), finishLatch, results);
 
-        if (!finishLatch.await(Integer.parseInt(connectTimeout), TimeUnit.MINUTES)) {
-            LOG.warn("Send goal states can not finish within %s minutes", connectTimeout);
-            return Arrays.asList("Send goal states can not finish within %s minutes", connectTimeout);
+        if (!finishLatch.await(Integer.parseInt(connectTimeout), TimeUnit.SECONDS)) {
+            LOG.warn("Send goal states can not finish within %s seconds", connectTimeout);
+            return Arrays.asList("Send goal states can not finish within %s seconds", connectTimeout);
         }
         return results;
     }
