@@ -62,7 +62,7 @@ public class NeighborService extends ResourceService {
     public Neighbor.NeighborState buildNeighborState(NeighborEntry.NeighborType type, NeighborInfo neighborInfo, Common.OperationType operationType) throws Exception {
         Neighbor.NeighborConfiguration.Builder neighborConfigBuilder = Neighbor.NeighborConfiguration.newBuilder();
         neighborConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
-        neighborConfigBuilder.setId(neighborInfo.getPortId()); // TODO: We are going to need this per latest ACA change
+        neighborConfigBuilder.setId(neighborInfo.getPortId());
         neighborConfigBuilder.setVpcId(neighborInfo.getVpcId());
         //neighborConfigBuilder.setName();
         neighborConfigBuilder.setMacAddress(neighborInfo.getPortMac());
@@ -89,7 +89,7 @@ public class NeighborService extends ResourceService {
     public Neighbor.NeighborState buildNeighborState(NeighborEntry.NeighborType type, PortHostInfo portHostInfo, Common.OperationType operationType, String vpcId) throws Exception {
         Neighbor.NeighborConfiguration.Builder neighborConfigBuilder = Neighbor.NeighborConfiguration.newBuilder();
         neighborConfigBuilder.setRevisionNumber(FORMAT_REVISION_NUMBER);
-        neighborConfigBuilder.setId(portHostInfo.getPortId()); // TODO: We are going to need this per latest ACA change
+        neighborConfigBuilder.setId(portHostInfo.getPortId());
         neighborConfigBuilder.setVpcId(vpcId);
         //neighborConfigBuilder.setName();
         neighborConfigBuilder.setMacAddress(portHostInfo.getPortMac());

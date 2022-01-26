@@ -53,7 +53,7 @@ public class IgniteConfiguration {
 
     private static final String THICK_CLIENT = "ThickClient";
 
-    @Value("${ignite.host}")
+    @Value("${ignite.host:localhost}")
     private String host;
 
     @Value("${ignite.kubeNamespace:localhost}")
@@ -143,6 +143,7 @@ public class IgniteConfiguration {
         KubernetesConnectionConfiguration kcfg = new KubernetesConnectionConfiguration();
         kcfg.setNamespace(kubeNamespace);
         kcfg.setServiceName(kubeServiceName);
+
 
         ClientConfiguration ccfg = new ClientConfiguration();
         ccfg.setAddressesFinder(new ThinClientKubernetesAddressFinder(kcfg));

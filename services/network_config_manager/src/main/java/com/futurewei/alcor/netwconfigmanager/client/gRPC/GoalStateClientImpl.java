@@ -22,6 +22,7 @@ import com.futurewei.alcor.netwconfigmanager.cache.ResourceStateCache;
 import com.futurewei.alcor.netwconfigmanager.client.GoalStateClient;
 import com.futurewei.alcor.netwconfigmanager.config.Config;
 import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
+import com.futurewei.alcor.netwconfigmanager.service.ResourceInfo;
 import com.futurewei.alcor.schema.*;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
@@ -53,7 +54,6 @@ import io.opentracing.Tracer;
 import io.opentracing.contrib.grpc.TracingClientInterceptor;
 
 @Service("grpcGoalStateClient")
-@ComponentScan(value = "com.futurewei.alcor.netwconfigmanager.cache")
 public class GoalStateClientImpl implements GoalStateClient {
     private static final Logger logger = LoggerFactory.getLogger();
 
@@ -62,7 +62,7 @@ public class GoalStateClientImpl implements GoalStateClient {
     private final ExecutorService executor;
 
     @Autowired
-    private ResourceStateCache resourceStateCache;
+    private ResourceInfo resourceInfo;
 
     // each host_ip should have this amount of gRPC channels
     @Value("${grpc.number-of-channels-per-host:1}")
@@ -306,7 +306,7 @@ public class GoalStateClientImpl implements GoalStateClient {
             Goalstate.GoalStateV2.Builder goalstateBuilder = Goalstate.GoalStateV2.newBuilder();
             goalstateBuilder.mergeFrom(goalState);
             if (isAttache || goalstateBuilder.getPortStatesCount() > 0) {
-                Map<String, Neighbor.NeighborState> neighborStateMap = resourceStateCache.getResourceStates(resourceIds);
+                Map<String, Neighbor.NeighborState> neighborStateMap = resourceInfo.getNeighborStates(resourceIds);
                 if (neighborStateMap.size() > 0) {
                     goalstateBuilder.putAllNeighborStates(neighborStateMap);
                 }
