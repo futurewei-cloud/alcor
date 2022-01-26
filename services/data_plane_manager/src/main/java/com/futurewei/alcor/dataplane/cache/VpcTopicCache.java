@@ -77,4 +77,16 @@ public class VpcTopicCache {
             tx.commit();
         }
     }
+
+    @DurationStatistics
+    public void deleteNodeSubscribeInfo(String vpcId, String hostIp) throws Exception {
+        try (Transaction tx = vpcTopicInfoICache.getTransaction().start()) {
+            VpcTopicInfo vpcTopicInfo = vpcTopicInfoICache.get(vpcId);
+            if (vpcTopicInfo != null) {
+                vpcTopicInfo.getSubscribeMapping().remove(hostIp);
+            }
+            vpcTopicInfoICache.put(vpcId, vpcTopicInfo);
+            tx.commit();
+        }
+    }
 }

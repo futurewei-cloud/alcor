@@ -15,24 +15,18 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.dataplane.client.pulsar.vpc_mode;
 
-import com.futurewei.alcor.common.db.Transaction;
-import com.futurewei.alcor.dataplane.cache.LocalCache;
 import com.futurewei.alcor.dataplane.cache.VpcTopicCache;
 import com.futurewei.alcor.dataplane.client.NodeSubscribeClient;
+import com.futurewei.alcor.dataplane.rollback.SendTopicInfoRollback;
 import com.futurewei.alcor.schema.Subscribeinfoprovisioner.NodeSubscribeInfo;
-import com.futurewei.alcor.web.entity.port.PortEntity;
-import com.futurewei.alcor.web.entity.topic.VpcTopicInfo;
-import org.apache.kafka.common.protocol.types.Field;
 import org.apache.pulsar.common.util.Murmur3_32Hash;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,23 +44,29 @@ public class TopicManager {
     public NodeSubscribeInfo getNodeSubscribeInfoByVpcId(String vpcId, String hostIp) throws Exception {
         NodeSubscribeInfo nodeSubscribeInfo = vpcTopicCache.getNodeSubscribeInfoByVpcId(vpcId, hostIp);
         if (nodeSubscribeInfo == null) {
-            String topic = this.generateTopicByVpcId(vpcId);
-            String key = this.generateKeyByHostIp(hostIp);
-            vpcTopicCache.addSubscribedNodeForVpc(
-                    vpcId,
-                    this.generateTopicByVpcId(vpcId),
-                    hostIp,
-                    this.generateKeyByHostIp(hostIp)
-            );
-            this.sendSubscribeInfo(
-                    hostIp,
-                    topic,
-                    this.generateHashKeyByKey(key)
-            );
-            NodeSubscribeInfo.Builder nodeSubscribeInfoBuilder = NodeSubscribeInfo.newBuilder();
-            nodeSubscribeInfoBuilder.setTopic(topic);
-            nodeSubscribeInfoBuilder.setKey(key);
-            return nodeSubscribeInfoBuilder.build();
+            try {
+                String topic = this.generateTopicByVpcId(vpcId);
+                String key = this.generateKeyByHostIp(hostIp);
+                vpcTopicCache.addSubscribedNodeForVpc(
+                        vpcId,
+                        this.generateTopicByVpcId(vpcId),
+                        hostIp,
+                        this.generateKeyByHostIp(hostIp)
+                );
+                this.sendSubscribeInfo(
+                        hostIp,
+                        topic,
+                        this.generateHashKeyByKey(key)
+                );
+                NodeSubscribeInfo.Builder nodeSubscribeInfoBuilder = NodeSubscribeInfo.newBuilder();
+                nodeSubscribeInfoBuilder.setTopic(topic);
+                nodeSubscribeInfoBuilder.setKey(key);
+                return nodeSubscribeInfoBuilder.build();
+            } catch (Exception e) {
+                LOG.error("{} node subscribe topic failed for VPC {}", hostIp, vpcId);
+                SendTopicInfoRollback sendTopicInfoRollback = new SendTopicInfoRollback(vpcId, hostIp);
+                handleException(sendTopicInfoRollback);
+            }
         }
         return nodeSubscribeInfo;
     }
@@ -92,5 +92,13 @@ public class TopicManager {
     public String generateHashKeyByKey(String key) {
         int hashCode = Murmur3_32Hash.getInstance().makeHash(key.getBytes(StandardCharsets.UTF_8)) % 65536;
         return Integer.toString(hashCode);
+    }
+
+    private void handleException(SendTopicInfoRollback sendTopicInfoRollback) {
+        try {
+            sendTopicInfoRollback.doRollback();
+        } catch (Exception e) {
+            LOG.error("{} roll back failed: {}", sendTopicInfoRollback, e);
+        }
     }
 }
