@@ -143,6 +143,8 @@ public class IgniteConfiguration {
         KubernetesConnectionConfiguration kcfg = new KubernetesConnectionConfiguration();
         kcfg.setNamespace(kubeNamespace);
         kcfg.setServiceName(kubeServiceName);
+        logger.log(Level.FINE, "Ignite namespace: " + kubeNamespace);
+        logger.log(Level.FINE, "Ignite service name: " + kubeServiceName);
 
 
         ClientConfiguration ccfg = new ClientConfiguration();
