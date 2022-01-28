@@ -23,7 +23,7 @@ import com.futurewei.alcor.web.entity.dataplane.MulticastGoalStateByte;
 
 import java.util.*;
 
-public class MulticastGoalStateV2 {
+public class MulticastGoalStateV2{
     private Set<String> hostIps;
     private Map<String, Set<String>> hostVpcMap;
 
