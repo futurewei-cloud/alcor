@@ -31,17 +31,21 @@ public class MulticastGoalStateV2 {
     private GoalStateV2.Builder goalStateBuilder;
 
     public MulticastGoalStateV2() {
-        hostIps = new HashSet<>();
-        goalStateBuilder = GoalStateV2.newBuilder();
+        this.hostIps = new HashSet<>();
+        this.goalStateBuilder = GoalStateV2.newBuilder();
+        this.hostVpcMap = new HashMap<>();
     }
 
     public MulticastGoalStateV2(GoalStateV2 goalState) {
+        this.hostIps = new HashSet<>();
         this.goalState = goalState;
+        this.hostVpcMap = new HashMap<>();
     }
 
     public MulticastGoalStateV2(Set<String> hostIps, GoalStateV2 goalState) {
         this.hostIps = hostIps;
         this.goalState = goalState;
+        this.hostVpcMap = new HashMap<>();
     }
 
     public MulticastGoalStateV2(Set<String> hostIps, Map<String, Set<String>> hostVpcMap, GoalStateV2 goalState) {
@@ -83,8 +87,8 @@ public class MulticastGoalStateV2 {
         if (vpcId == null) {
             throw new VpcIdNotFound();
         }
-        if (hostVpcMap.get(hostIp) == null) {
-            hostVpcMap.put(hostIp, new HashSet<String>());
+        if (this.hostVpcMap.get(hostIp) == null) {
+            this.hostVpcMap.put(hostIp, new HashSet<String>());
         }
         this.hostVpcMap.get(hostIp).add(vpcId);
     }
