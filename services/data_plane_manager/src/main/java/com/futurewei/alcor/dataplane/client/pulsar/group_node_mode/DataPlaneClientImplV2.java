@@ -17,9 +17,7 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.dataplane.client.pulsar.group_node_mode;
 import com.futurewei.alcor.dataplane.cache.NodeTopicCache;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
-import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
-import com.futurewei.alcor.dataplane.entity.MulticastGoalStateV2;
-import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
+import com.futurewei.alcor.dataplane.entity.*;
 import com.futurewei.alcor.dataplane.exception.GroupTopicNotFound;
 import com.futurewei.alcor.dataplane.exception.MulticastTopicNotFound;
 import com.futurewei.alcor.web.entity.dataplane.MulticastGoalStateByte;
@@ -83,8 +81,10 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
             String multicastTopic = entry.getKey();
             List<String> groupTopics = entry.getValue();
 
-//            multicastGoalState.setNextTopics(groupTopics);
-            multicastGoalState.setTopics(groupTopics);
+            FunctionMulticastGoalStateV2 functionMulticastGoalStateV2 = new FunctionMulticastGoalStateV2(
+                    multicastGoalState.getGoalState(),
+                    groupTopics
+            );
 
             try {
                 Producer<MulticastGoalStateByte> producer = pulsarClient
@@ -93,7 +93,7 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
                         .enableBatching(false)
                         .create();
 
-                producer.send(multicastGoalState.getMulticastGoalStateByte());
+                producer.send(functionMulticastGoalStateV2.getMulticastGoalStateByte());
             } catch (Exception e) {
                 LOG.error("Send multicastGoalState to topic:{} failed: ", multicastTopic, e);
                 failedHosts.addAll(multicastGoalState.getHostIps());
@@ -121,8 +121,11 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
 
             String topic = nextTopic;
             String unicastTopic = nodeTopicCache.getNodeTopicInfoByNodeIp(unicastGoalState.getHostIp()).getUnicastTopic();
+
+            FunctionUnicastGoalStateV2 functionUnicastGoalStateV2 = new FunctionUnicastGoalStateV2(unicastGoalState.getGoalState());
+
             if (!StringUtils.isEmpty(unicastTopic)) {
-                unicastGoalState.setTopic(nextTopic);
+                functionUnicastGoalStateV2.setTopic(nextTopic);
                 topic = unicastTopic;
             }
 
@@ -132,7 +135,8 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
                         .topic(topic)
                         .enableBatching(false)
                         .create();
-                producer.send(unicastGoalState.getUnicastGoalStateByte());
+
+                producer.send(functionUnicastGoalStateV2.getUnicastGoalStateByte());
             } catch (Exception e) {
                 LOG.error("Send unicastGoalStates to topic:{} failed: ", topic, e);
                 failedHosts.add(unicastGoalState.getHostIp());
