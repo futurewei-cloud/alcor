@@ -13,7 +13,7 @@ Copyright(c) 2020 Futurewei Cloud
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-package com.futurewei.alcor.dataplane.client.pulsar;
+package com.futurewei.alcor.dataplane.client.pulsar.vpc_mode;
 
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
@@ -23,7 +23,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConditionalOnProperty(prefix = "mq", name = "type", havingValue = "pulsar")
+@ConditionalOnProperty(prefix = "mq", name = "mode", havingValue = "vpc")
 public class PulsarConfiguration {
     @Value("${pulsar.url}")
     private String pulsarUrl;

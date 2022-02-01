@@ -16,6 +16,7 @@ Copyright(c) 2020 Futurewei Cloud
 
 package com.futurewei.alcor.dataplane.entity;
 
+import com.futurewei.alcor.dataplane.exception.VpcIdNotFound;
 import com.futurewei.alcor.schema.Goalstate.GoalStateV2;
 import com.futurewei.alcor.web.entity.dataplane.MulticastGoalStateByte;
 
@@ -24,7 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class MulticastGoalStateV2 {
+public class MulticastGoalStateV2{
     private Set<String> hostIps;
     private List<String> vpcIds;
     private List<String> topics;
@@ -57,12 +58,32 @@ public class MulticastGoalStateV2 {
         this.hostIps = hostIps;
     }
 
+    public void addHostIp(String hostIp) {
+        if (this.hostIps == null) {
+            this.hostIps = new HashSet<>();
+        }
+        this.hostIps.add(hostIp);
+    }
+
     public List<String> getVpcIds() {
         return vpcIds;
     }
 
-    public void setVpcIds(List<String> vpcIds) {
+    public void setVpcIds (List<String> vpcIds) throws Exception {
+        if (vpcIds == null) {
+            throw new VpcIdNotFound();
+        }
         this.vpcIds = vpcIds;
+    }
+
+    public void addVpcId(String vpcId) throws Exception {
+        if (vpcId == null) {
+            throw new VpcIdNotFound();
+        }
+        if (this.vpcIds == null) {
+            vpcIds = new ArrayList<String>();
+        }
+        this.vpcIds.add(vpcId);
     }
 
     public List<String> getTopics() {

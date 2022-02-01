@@ -19,6 +19,8 @@ metadata:
 data:
   application.properties: |
     ignite.thin.client.enable=true
+    ignite.kubeNamespace=ignite-alcor
+    ignite.kubeServiceName=ignite-alcor-service
     ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
     ignite.port=10800
     logging.level.root=debug
@@ -58,6 +60,7 @@ spec:
       labels:
         app: vpcmanager
     spec:
+      serviceAccountName: alcor-account
       volumes:
         - name: vpc-volume
           configMap:

@@ -46,7 +46,6 @@ import java.util.stream.Collectors;
 @ConditionalOnProperty(prefix = "protobuf.goal-state-message", name = "version", havingValue = "102")
 public class DpmServiceImplV2 implements DpmService {
     private static final Logger LOG = LoggerFactory.getLogger(DpmServiceImplV2.class);
-    private static final boolean USE_PULSAR_CLIENT = false;
 
     private int goalStateMessageVersion;
     private DataPlaneManagerRestClient dataPlaneManagerRestClient;
@@ -98,6 +97,9 @@ public class DpmServiceImplV2 implements DpmService {
 
     @Autowired
     private RouterSubnetsCache routerSubnetsCache;
+
+    @Autowired
+    private PathManagerService pathManagerService;
 
     @Autowired
     private PortHostInfoCache portHostInfoCache;
@@ -207,11 +209,7 @@ public class DpmServiceImplV2 implements DpmService {
                 zetaGatewayClient.enableZetaGatewayForPort(portEntity);
             }
 
-            boolean fastPath = true;
-            if (portEntity.getFastPath() != null && portEntity.getFastPath() == false) {
-                fastPath = portEntity.getFastPath();
-            }
-            if (fastPath) {
+            if (pathManagerService.isFastPath(portEntity)) {
                 if (!grpcHostPortEntities.containsKey(portEntity.getBindingHostIP())) {
                     grpcHostPortEntities.put(portEntity.getBindingHostIP(), new ArrayList<>());
                 }
@@ -250,6 +248,8 @@ public class DpmServiceImplV2 implements DpmService {
      * @throws Exception Process exceptions and send exceptions
      */
     private List<String> processNeighborConfiguration(NetworkConfiguration networkConfig) throws Exception {
+        List<String> failedHosts = new ArrayList<>();
+
         Map<String, String> subnetIdRouterIdMap = subnetPortsCache.getInternalSubnetRouterMap(networkConfig);
         subnetPortsCache.attacheRouter(subnetIdRouterIdMap);
         Map<String, UnicastGoalStateV2> unicastGoalStates = new HashMap<>();
@@ -265,11 +265,14 @@ public class DpmServiceImplV2 implements DpmService {
             u.setGoalStateBuilder(null);
         });
 
-        if (USE_PULSAR_CLIENT) {
-            return pulsarDataPlaneClient.sendGoalStates(new ArrayList<>(unicastGoalStates.values()), multicastGoalState);
+        if (unicastGoalStates.size() != 0) {
+            if (pathManagerService.isFastPath()) {
+                failedHosts.addAll(grpcDataPlaneClient.sendGoalStates(new ArrayList<>(unicastGoalStates.values()), multicastGoalState));
+            } else {
+                failedHosts.addAll(pulsarDataPlaneClient.sendGoalStates(new ArrayList<>(unicastGoalStates.values()), multicastGoalState));
+            }
         }
-
-        return grpcDataPlaneClient.sendGoalStates(new ArrayList<>(unicastGoalStates.values()), multicastGoalState);
+        return failedHosts;
     }
 
     private List<String> processSecurityGroupConfiguration(NetworkConfiguration networkConfig) throws Exception {
@@ -312,6 +315,7 @@ public class DpmServiceImplV2 implements DpmService {
                         //return new ArrayList<>();
                         continue;
                     }
+
                     Set<String> ips = new HashSet<>();
                     subnetRoutingTable.getRoutingRules().forEach(routingRule -> {ips.add(routingRule.getNextHopIp());});
                     List<Neighbor.NeighborState> neighbors = neighborService.getAllNeighbors(ips) ;
@@ -358,7 +362,6 @@ public class DpmServiceImplV2 implements DpmService {
                 }).collect(Collectors.toList());
 
         //TODO: Merge UnicastGoalState with the same content, build MulticastGoalState
-
         return grpcDataPlaneClient.sendGoalStates(unicastGoalStates);
     }
 

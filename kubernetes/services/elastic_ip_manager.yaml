@@ -19,6 +19,8 @@ metadata:
 data:
   application.properties: |
     microservices.port.service.url=http://portmanager-service.default.svc.cluster.local:9006
+    ignite.kubeNamespace=ignite-alcor
+    ignite.kubeServiceName=ignite-alcor-service
     ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
     ignite.port=10800
     ignite.thin.client.enable=true
@@ -49,6 +51,7 @@ spec:
       labels:
         app: eipmanager
     spec:
+      serviceAccountName: alcor-account
       volumes:
         - name: eip-volume
           configMap:

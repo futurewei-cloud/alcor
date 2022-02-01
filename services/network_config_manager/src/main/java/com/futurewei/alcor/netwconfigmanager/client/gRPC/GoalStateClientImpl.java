@@ -18,13 +18,12 @@ package com.futurewei.alcor.netwconfigmanager.client.gRPC;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.stats.DurationStatistics;
+import com.futurewei.alcor.netwconfigmanager.cache.ResourceStateCache;
 import com.futurewei.alcor.netwconfigmanager.client.GoalStateClient;
 import com.futurewei.alcor.netwconfigmanager.config.Config;
 import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
-import com.futurewei.alcor.schema.Common;
-import com.futurewei.alcor.schema.GoalStateProvisionerGrpc;
-import com.futurewei.alcor.schema.Goalstate;
-import com.futurewei.alcor.schema.Goalstateprovisioner;
+import com.futurewei.alcor.netwconfigmanager.service.ResourceInfo;
+import com.futurewei.alcor.schema.*;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -45,6 +44,7 @@ import io.opentracing.contrib.tracerresolver.TracerResolver;
 import io.opentracing.util.GlobalTracer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.concurrent.*;
@@ -55,14 +55,14 @@ import io.opentracing.contrib.grpc.TracingClientInterceptor;
 
 @Service("grpcGoalStateClient")
 public class GoalStateClientImpl implements GoalStateClient {
-
-    private static GoalStateClientImpl instance = null;
-
     private static final Logger logger = LoggerFactory.getLogger();
 
     private int hostAgentPort;
 
     private final ExecutorService executor;
+
+    @Autowired
+    private ResourceInfo resourceInfo;
 
     // each host_ip should have this amount of gRPC channels
     @Value("${grpc.number-of-channels-per-host:1}")
@@ -79,14 +79,7 @@ public class GoalStateClientImpl implements GoalStateClient {
 
     private final Tracer tracer;
 
-    @DurationStatistics
-    public static GoalStateClientImpl getInstance(int numberOfGrpcChannelPerHost, int numberOfWarmupsPerChannel, ArrayList<String> monitorHosts) {
-        if (instance == null) {
-            instance = new GoalStateClientImpl(numberOfGrpcChannelPerHost, numberOfWarmupsPerChannel, monitorHosts);
-        }
-        return instance;
-    }
-
+    @Autowired
     public GoalStateClientImpl(@Value("${grpc.number-of-channels-per-host:1}") int numberOfGrpcChannelPerHost, @Value("${grpc.number-of-warmups-per-channel:1}") int numberOfWarmupsPerChannel, @Value("")ArrayList<String> monitorHosts) {
 
         if ((this.numberOfGrpcChannelPerHost = numberOfGrpcChannelPerHost) < 1) {
@@ -135,12 +128,12 @@ public class GoalStateClientImpl implements GoalStateClient {
         logger.log(Level.INFO, "Host goal states size: " + hostGoalStates.values().size());
         List<String> replies = new ArrayList<>();
 
+        boolean isAttache = !hostGoalStates.values().parallelStream().anyMatch(hostGoalState -> hostGoalState.getGoalState().getPortStatesCount() > 0);
         for (HostGoalState hostGoalState : hostGoalStates.values()) {
-            doSendGoalState(hostGoalState, finishLatch, replies);
+            doSendGoalState(hostGoalState, finishLatch, replies, isAttache);
         }
 
-
-        if (!finishLatch.await(1, TimeUnit.MINUTES)) {
+        if (!finishLatch.await(5, TimeUnit.MINUTES)) {
             logger.log(Level.WARNING, "Send goal states can not finish within 1 minutes");
             return Arrays.asList("Send goal states can not finish within 1 minutes");
         }
@@ -148,6 +141,8 @@ public class GoalStateClientImpl implements GoalStateClient {
             return replies;
         }
         return new ArrayList<>();
+
+
     }
 
     @DurationStatistics
@@ -261,7 +256,7 @@ public class GoalStateClientImpl implements GoalStateClient {
 
     }
 
-    private void doSendGoalState(HostGoalState hostGoalState, CountDownLatch finishLatch, List<String> replies) throws InterruptedException {
+    private void doSendGoalState(HostGoalState hostGoalState, CountDownLatch finishLatch, List<String> replies, boolean isAttache) throws InterruptedException {
         String hostIp = hostGoalState.getHostIp();
         logger.log(Level.FINE, "Setting up a channel to ACA on: " + hostIp);
         long start = System.currentTimeMillis();
@@ -307,11 +302,19 @@ public class GoalStateClientImpl implements GoalStateClient {
         try {
             long before_get_goalState = System.currentTimeMillis();
             Goalstate.GoalStateV2 goalState = hostGoalState.getGoalState();
-
+            Set<String> resourceIds = goalState.getHostResourcesMap().get(hostIp).getResourcesList().stream().filter(resourceIdType -> resourceIdType.getType().equals(Common.ResourceType.NEIGHBOR)).map(resourceIdType -> resourceIdType.getId()).collect(Collectors.toSet());
+            Goalstate.GoalStateV2.Builder goalstateBuilder = Goalstate.GoalStateV2.newBuilder();
+            goalstateBuilder.mergeFrom(goalState);
+            if (isAttache || goalstateBuilder.getPortStatesCount() > 0) {
+                Map<String, Neighbor.NeighborState> neighborStateMap = resourceInfo.getNeighborStates(resourceIds);
+                if (neighborStateMap.size() > 0) {
+                    goalstateBuilder.putAllNeighborStates(neighborStateMap);
+                }
+            }
             long after_get_goalState = System.currentTimeMillis();
-            logger.log(Level.INFO, "Sending GS with size " + goalState.getSerializedSize() + " to Host " + hostIp + " as follows | " + goalState.toString());
+            logger.log(Level.FINE, "Sending GS with size " + goalState.getSerializedSize() + " to Host " + hostIp + " as follows | " + goalstateBuilder.build());
 
-            requestObserver.onNext(goalState);
+            requestObserver.onNext(goalstateBuilder.build());
             long after_onNext = System.currentTimeMillis();
             logger.log(Level.FINE, "[doSendGoalState] Get goalstatev2 from HostGoalState in milliseconds: " + (after_get_goalState - before_get_goalState));
             logger.log(Level.FINE, "[doSendGoalState] Call onNext in milliseconds: " + (after_onNext - after_get_goalState));
@@ -329,6 +332,8 @@ public class GoalStateClientImpl implements GoalStateClient {
             logger.log(Level.WARNING, "[doSendGoalState] Sending GS, but error happened | " + e.getMessage());
             requestObserver.onError(e);
             throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         // Mark the end of requests
         logger.log(Level.INFO, "Sending GS to Host " + hostIp + " is completed");

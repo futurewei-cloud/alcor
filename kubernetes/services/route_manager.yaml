@@ -24,6 +24,8 @@ data:
     microservices.port.service.url=http://portmanager-service.default.svc.cluster.local:9006
     protobuf.goal-state-message.version = 102
     ignite.thin.client.enable=true
+    ignite.kubeNamespace=ignite-alcor
+    ignite.kubeServiceName=ignite-alcor-service
     ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
     ignite.port=10800
     logging.level.root=DEBUG
@@ -58,6 +60,7 @@ spec:
       labels:
         app: routemanager
     spec:
+      serviceAccountName: alcor-account
       volumes:
         - name: route-volume
           configMap:

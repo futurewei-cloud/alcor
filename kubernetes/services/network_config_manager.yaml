@@ -29,7 +29,11 @@ data:
     grpc.number-of-warmups-per-channel = 1
     grpc.monitor-hosts = 0.0.0.0,0.0.0.1
     protobuf.goal-state-message.version = 102
+
+    ignite.kubeNamespace=ignite-alcor-ncm
+    ignite.kubeServiceName=ignite-alcor-ncm-service
     ignite.host=ignite-alcor-ncm-service.ignite-alcor-ncm.svc.cluster.local
+
     ignite.port=10800
     ignite.thin.client.enable=true
     #ignite.key-store-path=keystore.jks
@@ -72,6 +76,7 @@ spec:
       labels:
         app: netwconfigmanager
     spec:
+      serviceAccountName: alcor-account
       volumes:
         - name: ncm-volume
           configMap:

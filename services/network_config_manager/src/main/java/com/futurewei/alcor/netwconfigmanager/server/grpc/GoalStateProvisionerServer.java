@@ -236,7 +236,6 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     // filter neighbor/SG update, and send them down to target ACA
                     try {
                         Map<String, HostGoalState> filteredGoalStates = NetworkConfigManagerUtil.filterNeighbors(hostGoalStates);
-                        GoalStateClient grpcGoalStateClient = GoalStateClientImpl.getInstance(numberOfGrpcChannelPerHost, numberOfWarmupsPerChannel, monitorHosts);
 
                         //TODO use filteredGoalStates
                         grpcGoalStateClient.sendGoalStates(hostGoalStates);
@@ -368,7 +367,6 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                 Span sendGsSpan = tracer.buildSpan(onDemandSendGsSpanName).asChildOf(span.context()).start();
                 Scope sendCscope = tracer.scopeManager().activate(sendGsSpan);
 
-                GoalStateClient grpcGoalStateClient = GoalStateClientImpl.getInstance(numberOfGrpcChannelPerHost, numberOfWarmupsPerChannel, monitorHosts);
                 end = System.currentTimeMillis();
                 logger.log(Level.FINE, "requestGoalStates : Pushing GS with UUID: " + state_request_uuid + " at: " + end);
                 grpcGoalStateClient.sendGoalStates(hostGoalStates);

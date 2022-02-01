@@ -19,7 +19,6 @@ import com.futurewei.alcor.common.http.RestTemplateConfig;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Import;
 import org.springframework.web.client.RestTemplate;
-
 import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,6 +29,15 @@ abstract class AbstractRestClient {
 
     public AbstractRestClient(RestTemplateBuilder restTemplateBuilder) {
         this.restTemplate = restTemplateBuilder.build();
+    }
+
+    public AbstractRestClient(RestTemplateBuilder restTemplateBuilder, int connectTimeout, int readTimeout) {
+        if (connectTimeout == 100) {
+            this.restTemplate = restTemplateBuilder.build();
+        } else {
+            this.restTemplate = restTemplateBuilder.setConnectTimeout(Duration.ofSeconds(connectTimeout)).setReadTimeout(Duration.ofSeconds(readTimeout)).build();
+        }
+
     }
 
     <T> T getForObject(String url, Class<T> tClass) throws Exception {

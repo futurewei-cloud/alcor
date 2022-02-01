@@ -8,17 +8,18 @@ Copyright(c) 2020 Futurewei Cloud
     to whom the Software is furnished to do so, subject to the following conditions:
 
     The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-    
+
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-package com.futurewei.alcor.dataplane.client.pulsar;
 
+package com.futurewei.alcor.dataplane.client.pulsar.group_node_mode;
 import com.futurewei.alcor.dataplane.cache.NodeTopicCache;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalState;
-import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
+import com.futurewei.alcor.dataplane.entity.MulticastGoalStateV2;
+import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
 import com.futurewei.alcor.dataplane.exception.GroupTopicNotFound;
 import com.futurewei.alcor.dataplane.exception.MulticastTopicNotFound;
 import com.futurewei.alcor.web.entity.dataplane.MulticastGoalStateByte;
@@ -38,10 +39,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Service("pulsarDataPlaneClient")
-@ConditionalOnProperty(prefix = "protobuf.goal-state-message", name = "version", havingValue = "101")
-public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, MulticastGoalState> {
-    private static final Logger LOG = LoggerFactory.getLogger(DataPlaneClientImpl.class);
+public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2, MulticastGoalStateV2> {
+    private static final Logger LOG = LoggerFactory.getLogger(DataPlaneClientImplV2.class);
+
 
     @Autowired
     private PulsarClient pulsarClient;
@@ -74,16 +74,17 @@ public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, Mu
         return multicastTopics;
     }
 
-    private List<String> createGoalState(MulticastGoalState multicastGoalState) throws Exception {
+    private List<String> createGoalState(MulticastGoalStateV2 multicastGoalState) throws Exception {
         List<String> failedHosts = new ArrayList<>();
 
-        Map<String, List<String>> multicastTopics = getMulticastTopics(multicastGoalState.getHostIps());
+        Map<String, List<String>> multicastTopics = getMulticastTopics(new ArrayList<>(multicastGoalState.getHostIps()));
 
         for (Map.Entry<String, List<String>> entry: multicastTopics.entrySet()) {
             String multicastTopic = entry.getKey();
             List<String> groupTopics = entry.getValue();
 
-            multicastGoalState.setNextTopics(groupTopics);
+//            multicastGoalState.setNextTopics(groupTopics);
+            multicastGoalState.setTopics(groupTopics);
 
             try {
                 Producer<MulticastGoalStateByte> producer = pulsarClient
@@ -108,10 +109,10 @@ public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, Mu
     }
 
     @Override
-    public List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates) throws Exception {
+    public List<String> sendGoalStates(List<UnicastGoalStateV2> unicastGoalStates) throws Exception {
         List<String> failedHosts = new ArrayList<>();
 
-        for (UnicastGoalState unicastGoalState: unicastGoalStates) {
+        for (UnicastGoalStateV2 unicastGoalState: unicastGoalStates) {
             String nextTopic = nodeTopicCache.getNodeTopicInfoByNodeIp(unicastGoalState.getHostIp()).getGroupTopic();
             if (StringUtils.isEmpty(nextTopic)) {
                 LOG.error("Can not find next topic by host ip:{}", unicastGoalState.getHostIp());
@@ -121,7 +122,7 @@ public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, Mu
             String topic = nextTopic;
             String unicastTopic = nodeTopicCache.getNodeTopicInfoByNodeIp(unicastGoalState.getHostIp()).getUnicastTopic();
             if (!StringUtils.isEmpty(unicastTopic)) {
-                unicastGoalState.setNextTopic(nextTopic);
+                unicastGoalState.setTopic(nextTopic);
                 topic = unicastTopic;
             }
 
@@ -146,7 +147,7 @@ public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, Mu
     }
 
     @Override
-    public List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates, MulticastGoalState multicastGoalState) throws Exception {
+    public List<String> sendGoalStates(List<UnicastGoalStateV2> unicastGoalStates, MulticastGoalStateV2 multicastGoalState) throws Exception {
         List<String> failedHosts = new ArrayList<>();
 
         failedHosts.addAll(sendGoalStates(unicastGoalStates));

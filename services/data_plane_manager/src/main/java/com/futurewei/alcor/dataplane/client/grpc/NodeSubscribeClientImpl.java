@@ -41,7 +41,7 @@ public class NodeSubscribeClientImpl implements NodeSubscribeClient {
 
     @Autowired
     public NodeSubscribeClientImpl(Config globalConfig) {
-        this.grpcPort = globalConfig.port;
+        this.grpcPort = globalConfig.topicGrpcPort;
         this.executor = new ThreadPoolExecutor(globalConfig.grpcMinThreads,
                 globalConfig.grpcMaxThreads,
                 50,
