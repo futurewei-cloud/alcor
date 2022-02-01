@@ -16,26 +16,31 @@
  * /
  */
 
-package com.futurewei.alcor.dataplane.client.pulsar;
+package com.futurewei.alcor.dataplane.rollback;
 
-import com.futurewei.alcor.dataplane.client.DataPlaneClient;
-import com.futurewei.alcor.dataplane.entity.MulticastGoalStateV2;
-import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Service;
+import com.futurewei.alcor.dataplane.cache.VpcTopicCache;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
+public class SendTopicInfoRollback implements Rollback{
 
-@Service("pulsarDataPlaneClient")
-@ConditionalOnProperty(prefix = "protobuf.goal-state-message", name = "version", havingValue = "102")
-public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2, MulticastGoalStateV2> {
-    @Override
-    public List<String> sendGoalStates(List<UnicastGoalStateV2> unicastGoalStates) throws Exception {
-        return null;
+    @Autowired
+    private VpcTopicCache vpcTopicCache;
+
+    private String vpcId;
+
+    private String hostIp;
+
+    public SendTopicInfoRollback(String vpcId, String hostIp) {
+        this.vpcId = vpcId;
+        this.hostIp = hostIp;
+    }
+
+    private void deleteTopicInfo(String vpcId, String hostIp) throws Exception{
+        vpcTopicCache.deleteNodeSubscribeInfo(vpcId, hostIp);
     }
 
     @Override
-    public List<String> sendGoalStates(List<UnicastGoalStateV2> unicastGoalStates, MulticastGoalStateV2 multicastGoalState) throws Exception {
-        return null;
+    public void doRollback() throws Exception {
+        deleteTopicInfo(vpcId, hostIp);
     }
 }

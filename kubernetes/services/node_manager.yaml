@@ -20,6 +20,8 @@ data:
   application.properties: |
     spring.redis.host=localhost
     spring.redis.port=6380
+    ignite.kubeNamespace=ignite-alcor
+    ignite.kubeServiceName=ignite-alcor-service
     ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
     ignite.port=10800
     ignite.thin.client.enable=true
@@ -61,6 +63,7 @@ spec:
       labels:
         app: nodemanager
     spec:
+      serviceAccountName: alcor-account
       volumes:
         - name: node-volume
           configMap:
