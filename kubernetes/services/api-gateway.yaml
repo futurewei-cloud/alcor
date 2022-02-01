@@ -13,6 +13,41 @@
 #     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: alcor-account
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: alcor-servcie
+  namespace: alcor-servcie
+rules:
+  - apiGroups:
+      - ""
+    resources: # Here are resources you can access
+      - pods
+      - endpoints
+    verbs: # That is what you can do with them
+      - get
+      - list
+      - watch
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: alcor-servcie
+roleRef:
+  kind: ClusterRole
+  name: alcor-servcie
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - kind: ServiceAccount
+    name: alcor-account
+    namespace: default
+---
+apiVersion: v1
 kind: ConfigMap
 metadata:
   name: api-configmap
@@ -22,6 +57,8 @@ data:
     logging.level.org.springframework.web=DEBUG
     logging.level.org.springframework.cloud=DEBUG
     logging.level.com.github.tomakehurst.wiremock=TRACE
+    ignite.kubeNamespace=ignite-alcor
+    ignite.kubeServiceName=ignite-alcor-service
     ignite.host=ignite-alcor-service.ignite-alcor.svc.cluster.local
     ignite.port=10800
     ignite.thin.client.enable=true
@@ -84,6 +121,7 @@ spec:
       labels:
         app: apimanager
     spec:
+      serviceAccountName: alcor-account
       volumes:
         - name: api-volume
           configMap:

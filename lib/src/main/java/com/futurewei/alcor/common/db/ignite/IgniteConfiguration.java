@@ -17,7 +17,8 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.common.db.ignite;
 
 import com.futurewei.alcor.common.db.ICacheFactory;
-import com.futurewei.alcor.common.db.IDistributedLockFactory;
+import org.apache.ignite.client.ThinClientKubernetesAddressFinder;
+import org.apache.ignite.kubernetes.configuration.KubernetesConnectionConfiguration;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import org.apache.ignite.Ignite;
@@ -52,8 +53,14 @@ public class IgniteConfiguration {
 
     private static final String THICK_CLIENT = "ThickClient";
 
-    @Value("${ignite.host}")
+    @Value("${ignite.host:localhost}")
     private String host;
+
+    @Value("${ignite.kubeNamespace:localhost}")
+    private String kubeNamespace;
+
+    @Value("${ignite.kubeServiceName:ignite}")
+    private String kubeServiceName;
 
     @Value("${ignite.port}")
     private Integer port;
@@ -92,6 +99,26 @@ public class IgniteConfiguration {
     }
 
     private IgniteClient getThinIgniteClient() {
+        IgniteClient igniteClient = null;
+        try {
+            if (host.equals("localhost")) {
+                igniteClient = getHostThinIgniteClient();
+            } else {
+                igniteClient = getKubernetesThinIgniteClient();
+            }
+
+        } catch (ClientException e) {
+            logger.log(Level.WARNING, "Start client failed:" + e.getMessage());
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Unexpected failure:" + e.getMessage());
+        }
+
+        Assert.notNull(igniteClient, "IgniteClient is null");
+
+        return igniteClient;
+    }
+
+    private IgniteClient getHostThinIgniteClient() {
         ClientConfiguration cfg = new ClientConfiguration();
 
         /***
@@ -109,19 +136,20 @@ public class IgniteConfiguration {
                     .setSslTrustCertificateKeyStorePassword(trustStorePassword);
         }
 
-        IgniteClient igniteClient = null;
+        return Ignition.startClient(cfg);
+    }
 
-        try {
-            igniteClient = Ignition.startClient(cfg);
-        } catch (ClientException e) {
-            logger.log(Level.WARNING, "Start client failed:" + e.getMessage());
-        } catch (Exception e) {
-            logger.log(Level.WARNING, "Unexpected failure:" + e.getMessage());
-        }
+    private IgniteClient getKubernetesThinIgniteClient() {
+        KubernetesConnectionConfiguration kcfg = new KubernetesConnectionConfiguration();
+        kcfg.setNamespace(kubeNamespace);
+        kcfg.setServiceName(kubeServiceName);
+        logger.log(Level.FINE, "Ignite namespace: " + kubeNamespace);
+        logger.log(Level.FINE, "Ignite service name: " + kubeServiceName);
 
-        Assert.notNull(igniteClient, "IgniteClient is null");
 
-        return igniteClient;
+        ClientConfiguration ccfg = new ClientConfiguration();
+        ccfg.setAddressesFinder(new ThinClientKubernetesAddressFinder(kcfg));
+        return Ignition.startClient(ccfg);
     }
 
     private Ignite getIgniteClient(String instanceName) {
