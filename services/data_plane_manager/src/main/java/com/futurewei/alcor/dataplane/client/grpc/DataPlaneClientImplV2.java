@@ -17,7 +17,6 @@
  */
 
 package com.futurewei.alcor.dataplane.client.grpc;
-
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.config.Config;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalStateV2;
@@ -30,12 +29,11 @@ import io.grpc.stub.StreamObserver;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
-
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @Service("grpcDataPlaneClient")
@@ -61,6 +59,9 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
     // prints out UUID and time, when sending a GoalState to any of the monitorHosts
     private ArrayList<String> monitorHosts;
 
+    @Value("${microservices.connectTimeout:300}")
+    private String connectTimeout;
+
     private ConcurrentHashMap<String, ArrayList<GrpcChannelStub>> hostIpGrpcChannelStubMap;
 
     @Override
@@ -73,9 +74,9 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         }
         doSendGoalState(goalStateBuilder.build(), finishLatch, results);
 
-        if (!finishLatch.await(1, TimeUnit.MINUTES)) {
-            LOG.warn("Send goal states can not finish within 1 minutes");
-            return Arrays.asList("Send goal states can not finish within 1 minutes");
+        if (!finishLatch.await(Integer.parseInt(connectTimeout), TimeUnit.SECONDS)) {
+            LOG.warn("Send goal states can not finish within %s seconds", connectTimeout);
+            return Arrays.asList("Send goal states can not finish within %s seconds", connectTimeout);
         }
         return results;
     }
@@ -304,7 +305,9 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
                         .setType(Common.ResourceType.SUBNET)
                         .setId(key)
                         .build();
-                hostResourceBuilder.addResources(subnetResourceIdType);
+                if (!goalStateBuilder.getHostResourcesMap().containsKey(unicastGoalStateV2.getHostIp()) || !goalStateBuilder.getHostResourcesMap().get(unicastGoalStateV2.getHostIp()).getResourcesList().stream().anyMatch(resourceIdType -> resourceIdType.getId().equals(key))) {
+                    hostResourceBuilder.addResources(subnetResourceIdType);
+                }
             });
             goalStateBuilder.putAllSubnetStates(goalStateV2.getSubnetStatesMap());
         }
@@ -343,6 +346,7 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         }
 
         if (goalStateV2.getNeighborStatesCount() > 0) {
+            /*
             goalStateV2.getNeighborStatesMap().keySet().forEach(key -> {
                 Goalstate.ResourceIdType neighborGroupResourceIdType = Goalstate.ResourceIdType.newBuilder()
                         .setType(Common.ResourceType.NEIGHBOR)
@@ -350,8 +354,12 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
                         .build();
                 hostResourceBuilder.addResources(neighborGroupResourceIdType);
             });
+
+             */
             goalStateBuilder.putAllNeighborStates(goalStateV2.getNeighborStatesMap());
         }
+
+
 
         if (goalStateV2.getRouterStatesCount() > 0) {
             goalStateV2.getRouterStatesMap().entrySet().forEach(entry -> {
@@ -401,7 +409,13 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
             hostResourceBuilder1.addAllResources(goalStateBuilder.getHostResourcesMap().get(unicastGoalStateV2.getHostIp()).getResourcesList());
             goalStateBuilder.putHostResources(unicastGoalStateV2.getHostIp(), hostResourceBuilder1.build());
         } else {
-            goalStateBuilder.putHostResources(unicastGoalStateV2.getHostIp(), hostResourceBuilder.build());
+            Goalstate.HostResources.Builder hostResourceBuilder1 = Goalstate.HostResources.newBuilder();
+            hostResourceBuilder1.addAllResources(hostResourceBuilder.getResourcesList());
+            if (unicastGoalStateV2.getGoalState().getHostResourcesMap().containsKey(unicastGoalStateV2.getHostIp()) &&
+                    unicastGoalStateV2.getGoalState().getHostResourcesMap().get(unicastGoalStateV2.getHostIp()).getResourcesList().size() > 0) {
+                hostResourceBuilder1.addAllResources(unicastGoalStateV2.getGoalState().getHostResourcesMap().get(unicastGoalStateV2.getHostIp()).getResourcesList());
+            }
+            goalStateBuilder.putHostResources(unicastGoalStateV2.getHostIp(), hostResourceBuilder1.build());
         }
         return goalStateBuilder;
     }

@@ -20,6 +20,8 @@ data:
   application.properties: |
     spring.redis.host=localhost
     spring.redis.port=6380
+    ignite.kubeNamespace=ignite-alcor-mac
+    ignite.kubeServiceName=ignite-alcor-mac-service
     ignite.host=ignite-alcor-mac-service.ignite-alcor-mac.svc.cluster.local
     ignite.port=10803
     ignite.thin.client.enable=true
@@ -58,6 +60,7 @@ spec:
       labels:
         app: macmanager
     spec:
+      serviceAccountName: alcor-account
       volumes:
         - name: mac-volume
           configMap:

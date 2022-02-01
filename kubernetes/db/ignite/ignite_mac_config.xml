@@ -49,8 +49,16 @@ Copyright(c) 2020 Futurewei Cloud
                    Enables Kubernetes IP finder and setting custom namespace and service names.
                -->
                <bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.kubernetes.TcpDiscoveryKubernetesIpFinder">
-                  <property name="serviceName" value="ignite-alcor-mac-service"/>
-                  <property name="namespace" value="ignite-alcor-mac"/>
+                  <property name="ipFinder">
+                     <bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.kubernetes.TcpDiscoveryKubernetesIpFinder">
+                        <constructor-arg>
+                           <bean class="org.apache.ignite.kubernetes.configuration.KubernetesConnectionConfiguration">
+                              <property name="serviceName" value="ignite-alcor-mac-service"/>
+                              <property name="namespace" value="ignite-alcor-mac"/>
+                           </bean>
+                        </constructor-arg>
+                     </bean>
+                  </property>
                </bean>
             </property>
          </bean>

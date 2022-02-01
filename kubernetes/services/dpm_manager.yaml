@@ -19,6 +19,7 @@ metadata:
 data:
   application.properties: |
     dataplane.grpc.port = 50001
+    dataplane.grpc.topic-port = 50002
     dataplane.isovs=true
     # the zipkin host should be YOURS
     # spring.zipkin.base-url=http://10.213.43.187:9411
@@ -40,7 +41,11 @@ data:
     #logging.file.name=data-plane-manager.log
     logging.level.root=INFO
 
+
+    ignite.kubeNamespace=ignite-alcor-dpm
+    ignite.kubeServiceName=ignite-alcor-dpm-service
     ignite.host=ignite-alcor-dpm-service.ignite-alcor-dpm.svc.cluster.local
+
     ignite.port=10800
     ignite.thin.client.enable=true
     #ignite.key-store-path=keystore.jks
@@ -49,7 +54,8 @@ data:
     #ignite.trust-store-password=123456
 
     mq.type=pulsar
-    pulsar.url=pulsar://127.0.0.1:6650
+    mq.mode=vpc
+    pulsar.url=pulsar://localhost:6650
     pulsar.unicast.topic=unicast-topic1
     host.ip.to.group.topic.map=group-topic1:192.168.131.131,10.10.10.11 group-topic2:192.168.131.131,11.11.11.12
     group.topic.to.multicast.topic.map=multicast-topic1:group-topic1,group-topic3 multicast-topic2:group-topic2,group-topic4
@@ -60,6 +66,7 @@ data:
     microservices.netwconfigmanager.service.url=netwconfigmanager-service
     microservices.zeta.management.url=http://10.213.43.90
     microservices.gateway.service.url=http://gatewaymanager-service.default.svc.cluster.local:9015
+    microservices.connectTimeout=300
     zetaGateway.check.timeout = 30
     zetaGateway.check.interval = 2
 
@@ -91,6 +98,7 @@ spec:
       labels:
         app: dataplanemanager
     spec:
+      serviceAccountName: alcor-account
       volumes:
         - name: dpm-volume
           configMap:

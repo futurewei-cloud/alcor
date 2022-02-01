@@ -19,6 +19,8 @@ metadata:
 data:
   application.properties: |
     ignite.thin.client.enable=true
+    ignite.kubeNamespace=ignite-alcor-ip
+    ignite.kubeServiceName=ignite-alcor-ip-service
     ignite.host=ignite-alcor-ip-service.ignite-alcor-ip.svc.cluster.local
     ignite.port=10801
     logging.level.root=INFO
@@ -49,6 +51,7 @@ spec:
       labels:
         app: ipmanager
     spec:
+      serviceAccountName: alcor-account
       volumes:
         - name: ip-volume
           configMap:

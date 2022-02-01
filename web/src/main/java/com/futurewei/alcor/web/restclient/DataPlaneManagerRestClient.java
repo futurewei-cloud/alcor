@@ -51,8 +51,8 @@ public class DataPlaneManagerRestClient extends AbstractRestClient {
     @Value("${microservices.zeta.management.url:#{\"\"}}")
     private String zetaManagerUrl;
 
-    public DataPlaneManagerRestClient(RestTemplateBuilder restTemplateBuilder) {
-        super(restTemplateBuilder);
+    public DataPlaneManagerRestClient(RestTemplateBuilder restTemplateBuilder, @Value("${microservices.connectTimeout:100}") String connectTimeout, @Value("${microservices.readTimeout:100}") String readTimeout) {
+        super(restTemplateBuilder, Integer.parseInt(connectTimeout), Integer.parseInt(readTimeout));
     }
 
     @DurationStatistics

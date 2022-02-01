@@ -57,7 +57,9 @@ public class NetworkConfigManagerUtil {
                         hostGoalState.getGoalStateBuilder().putPortStates(resourceId, goalState.getPortStatesOrThrow(resourceId));
                         break;
                     case NEIGHBOR:
-                        hostGoalState.getGoalStateBuilder().putNeighborStates(resourceId, goalState.getNeighborStatesOrThrow(resourceId));
+                        if (goalState.containsNeighborStates(resourceId)) {
+                            hostGoalState.getGoalStateBuilder().putNeighborStates(resourceId, goalState.getNeighborStatesMap().get(resourceId));
+                        }
                         break;
                     case SECURITYGROUP:
                         hostGoalState.getGoalStateBuilder().putSecurityGroupStates(resourceId, goalState.getSecurityGroupStatesOrThrow(resourceId));

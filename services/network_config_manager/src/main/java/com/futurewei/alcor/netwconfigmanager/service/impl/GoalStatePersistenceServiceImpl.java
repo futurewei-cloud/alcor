@@ -32,10 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.logging.Level;
 
 @Service
@@ -88,9 +85,13 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
         return hostGoalStates;
     }
 
+    public Map<String, Neighbor.NeighborState> getNeighborStates(Set<String> resourceIds) throws Exception {
+        return resourceStateCache.getResourceStates(resourceIds);
+    }
+
     @Override
     @DurationStatistics
-    public synchronized boolean updateGoalState(String hostId, HostGoalState hostGoalState) throws Exception {
+    public boolean updateGoalState(String hostId, HostGoalState hostGoalState) throws Exception {
 
         // TODO: Use Ignite transaction here
 
