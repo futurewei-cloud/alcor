@@ -214,7 +214,6 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     Span storeGsSpan = tracer.buildSpan(serverStoreGsSpanName).asChildOf(span.context()).start();
                     Scope storageCscope = tracer.scopeManager().activate(storeGsSpan);
 
-
                     //store the goal state in cache
                     Map<String, HostGoalState> hostGoalStates = new HashMap<>();
                     try {
@@ -225,9 +224,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                     }
 
                     storeGsSpan.finish();
-
                     Set<String> processedResourceIds = new HashSet<>();
-
                     long end = System.currentTimeMillis();
                     logger.log(Level.FINE, "pushGoalStatesStream : finished putting GS into cache, elapsed time in milliseconds: " + + (end-start));
                     Span filterSendGsSpan = tracer.buildSpan(serverFilterSendGsSpanName).asChildOf(span.context()).start();
@@ -238,6 +235,7 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                         Map<String, HostGoalState> filteredGoalStates = NetworkConfigManagerUtil.filterNeighbors(hostGoalStates);
 
                         //TODO use filteredGoalStates
+                        goalStatePersistenceService.patchNeighbors(hostGoalStates);
                         grpcGoalStateClient.sendGoalStates(hostGoalStates);
                     } catch (Exception e) {
                         e.printStackTrace();
