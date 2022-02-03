@@ -451,8 +451,10 @@ public class NeighborService extends ResourceService {
                 e.printStackTrace();
             }
         });
+        unicastHostResourceBuilder.addAllResources(unicastGoalStateV2.getGoalStateBuilder().getHostResourcesMap().get(unicastGoalStateV2.getHostIp()).getResourcesList());
         unicastGoalStateV2.getGoalStateBuilder().putHostResources(unicastGoalStateV2.getHostIp(), unicastHostResourceBuilder.build());
         for (String hostIp : multicastGoalStateV2.getHostIps()) {
+            multicastHostResourceBuilder.addAllResources(multicastGoalStateV2.getGoalStateBuilder().getHostResourcesMap().get(hostIp).getResourcesList());
             multicastGoalStateV2.getGoalStateBuilder().putHostResources(hostIp, multicastHostResourceBuilder.build());
         }
         unicastGoalStateV2.getGoalStateBuilder().putAllNeighborStates(neighborStateMap);
