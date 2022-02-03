@@ -18,33 +18,20 @@ package com.futurewei.alcor.netwconfigmanager.client.gRPC;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 import com.futurewei.alcor.common.stats.DurationStatistics;
-import com.futurewei.alcor.netwconfigmanager.cache.ResourceStateCache;
 import com.futurewei.alcor.netwconfigmanager.client.GoalStateClient;
 import com.futurewei.alcor.netwconfigmanager.config.Config;
 import com.futurewei.alcor.netwconfigmanager.entity.HostGoalState;
-import com.futurewei.alcor.netwconfigmanager.service.ResourceInfo;
 import com.futurewei.alcor.schema.*;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
-import io.grpc.netty.shaded.io.netty.channel.epoll.EpollEventLoopGroup;
-import io.grpc.netty.shaded.io.netty.channel.epoll.EpollSocketChannel;
-import io.grpc.stub.ClientCallStreamObserver;
-import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import io.jaegertracing.Configuration;
-import io.jaegertracing.internal.JaegerTracer;
 import io.jaegertracing.internal.samplers.ConstSampler;
-import io.lettuce.core.dynamic.annotation.Param;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import io.opentracing.Scope;
-import io.opentracing.Span;
-import io.opentracing.contrib.tracerresolver.TracerResolver;
 import io.opentracing.util.GlobalTracer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.concurrent.*;
@@ -60,10 +47,7 @@ public class GoalStateClientImpl implements GoalStateClient {
     private int hostAgentPort;
 
     private final ExecutorService executor;
-
-    @Autowired
-    private ResourceInfo resourceInfo;
-
+    
     // each host_ip should have this amount of gRPC channels
     @Value("${grpc.number-of-channels-per-host:1}")
     private int numberOfGrpcChannelPerHost;
