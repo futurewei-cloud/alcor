@@ -47,7 +47,7 @@ public class GoalStateClientImpl implements GoalStateClient {
     private int hostAgentPort;
 
     private final ExecutorService executor;
-    
+
     // each host_ip should have this amount of gRPC channels
     @Value("${grpc.number-of-channels-per-host:1}")
     private int numberOfGrpcChannelPerHost;

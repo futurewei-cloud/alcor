@@ -235,7 +235,6 @@ public class GoalStateProvisionerServer implements NetworkConfigServer {
                         Map<String, HostGoalState> filteredGoalStates = NetworkConfigManagerUtil.filterNeighbors(hostGoalStates);
 
                         //TODO use filteredGoalStates
-                        goalStatePersistenceService.patchNeighbors(hostGoalStates);
                         grpcGoalStateClient.sendGoalStates(hostGoalStates);
                     } catch (Exception e) {
                         e.printStackTrace();

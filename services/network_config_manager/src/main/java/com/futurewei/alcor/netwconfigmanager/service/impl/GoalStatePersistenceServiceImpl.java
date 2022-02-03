@@ -82,16 +82,17 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
                 }
             }
             hostResourceMetadataCache.commit();
+            patchNeighbors(hostGoalStates);
         }
         return hostGoalStates;
     }
 
     public void patchNeighbors(Map<String, HostGoalState> hostGoalStates) throws Exception {
         boolean isAttache = !hostGoalStates.values().parallelStream().anyMatch(hostGoalState -> hostGoalState.getGoalState().getPortStatesCount() > 0);
-        for (HostGoalState hostGoalState : hostGoalStates.values()) {
-            if (isAttache || hostGoalState.getGoalState().getPortStatesCount() > 0) {
-                String hostIp = hostGoalState.getHostIp();
-                Goalstate.GoalStateV2 goalState = hostGoalState.getGoalState();
+        for (Map.Entry<String, HostGoalState> hostGoalState : hostGoalStates.entrySet()) {
+            if (isAttache || hostGoalState.getValue().getGoalState().getPortStatesCount() > 0) {
+                String hostIp = hostGoalState.getValue().getHostIp();
+                Goalstate.GoalStateV2 goalState = hostGoalState.getValue().getGoalState();
                 Set<String> resourceIds = goalState.getHostResourcesMap().get(hostIp).getResourcesList().stream().filter(resourceIdType -> resourceIdType.getType().equals(Common.ResourceType.NEIGHBOR)).map(resourceIdType -> resourceIdType.getId()).collect(Collectors.toSet());
                 Goalstate.GoalStateV2.Builder goalstateBuilder = Goalstate.GoalStateV2.newBuilder();
                 goalstateBuilder.mergeFrom(goalState);
@@ -99,7 +100,7 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
                 if (neighborStateMap.size() > 0) {
                     goalstateBuilder.putAllNeighborStates(neighborStateMap);
                 }
-                hostGoalStates.put(hostIp, new HostGoalState(hostIp, goalstateBuilder.build()));
+                hostGoalStates.put(hostGoalState.getKey(), new HostGoalState(hostIp, goalstateBuilder.build()));
             }
         }
     }
