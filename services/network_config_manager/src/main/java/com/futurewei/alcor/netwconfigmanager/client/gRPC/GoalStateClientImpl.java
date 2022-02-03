@@ -128,9 +128,8 @@ public class GoalStateClientImpl implements GoalStateClient {
         logger.log(Level.INFO, "Host goal states size: " + hostGoalStates.values().size());
         List<String> replies = new ArrayList<>();
 
-        boolean isAttache = !hostGoalStates.values().parallelStream().anyMatch(hostGoalState -> hostGoalState.getGoalState().getPortStatesCount() > 0);
         for (HostGoalState hostGoalState : hostGoalStates.values()) {
-            doSendGoalState(hostGoalState, finishLatch, replies, isAttache);
+            doSendGoalState(hostGoalState, finishLatch, replies);
         }
 
         if (!finishLatch.await(5, TimeUnit.MINUTES)) {
@@ -256,7 +255,7 @@ public class GoalStateClientImpl implements GoalStateClient {
 
     }
 
-    private void doSendGoalState(HostGoalState hostGoalState, CountDownLatch finishLatch, List<String> replies, boolean isAttache) throws InterruptedException {
+    private void doSendGoalState(HostGoalState hostGoalState, CountDownLatch finishLatch, List<String> replies) throws InterruptedException {
         String hostIp = hostGoalState.getHostIp();
         logger.log(Level.FINE, "Setting up a channel to ACA on: " + hostIp);
         long start = System.currentTimeMillis();
@@ -302,19 +301,10 @@ public class GoalStateClientImpl implements GoalStateClient {
         try {
             long before_get_goalState = System.currentTimeMillis();
             Goalstate.GoalStateV2 goalState = hostGoalState.getGoalState();
-            Set<String> resourceIds = goalState.getHostResourcesMap().get(hostIp).getResourcesList().stream().filter(resourceIdType -> resourceIdType.getType().equals(Common.ResourceType.NEIGHBOR)).map(resourceIdType -> resourceIdType.getId()).collect(Collectors.toSet());
-            Goalstate.GoalStateV2.Builder goalstateBuilder = Goalstate.GoalStateV2.newBuilder();
-            goalstateBuilder.mergeFrom(goalState);
-            if (isAttache || goalstateBuilder.getPortStatesCount() > 0) {
-                Map<String, Neighbor.NeighborState> neighborStateMap = resourceInfo.getNeighborStates(resourceIds);
-                if (neighborStateMap.size() > 0) {
-                    goalstateBuilder.putAllNeighborStates(neighborStateMap);
-                }
-            }
             long after_get_goalState = System.currentTimeMillis();
-            logger.log(Level.FINE, "Sending GS with size " + goalState.getSerializedSize() + " to Host " + hostIp + " as follows | " + goalstateBuilder.build());
+            logger.log(Level.FINE, "Sending GS with size " + goalState.getSerializedSize() + " to Host " + hostIp + " as follows | " + goalState);
 
-            requestObserver.onNext(goalstateBuilder.build());
+            requestObserver.onNext(goalState);
             long after_onNext = System.currentTimeMillis();
             logger.log(Level.FINE, "[doSendGoalState] Get goalstatev2 from HostGoalState in milliseconds: " + (after_get_goalState - before_get_goalState));
             logger.log(Level.FINE, "[doSendGoalState] Call onNext in milliseconds: " + (after_onNext - after_get_goalState));
