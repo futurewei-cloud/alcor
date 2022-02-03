@@ -22,14 +22,16 @@ import com.futurewei.alcor.web.entity.dataplane.UnicastGoalStateByte;
 public class UnicastGoalStateV2 {
     private String hostIp;
     private String vpcId;
-    private String topic;
-    private String subTopic;
 
     private GoalStateV2 goalState;
     private GoalStateV2.Builder goalStateBuilder;
 
     public UnicastGoalStateV2() {
         goalStateBuilder = GoalStateV2.newBuilder();
+    }
+
+    public UnicastGoalStateV2(GoalStateV2 goalState) {
+        this.goalState = goalState;
     }
 
     public UnicastGoalStateV2(String hostIp, GoalStateV2 goalState) {
@@ -64,22 +66,6 @@ public class UnicastGoalStateV2 {
         this.vpcId = vpcId;
     }
 
-    public String getTopic() {
-        return topic;
-    }
-
-    public void setTopic(String topic) {
-        this.topic = topic;
-    }
-
-    public String getSubTopic() {
-        return subTopic;
-    }
-
-    public void setSubTopic(String subTopic) {
-        this.subTopic = subTopic;
-    }
-
     public GoalStateV2 getGoalState() {
         return goalState;
     }
@@ -94,13 +80,5 @@ public class UnicastGoalStateV2 {
 
     public void setGoalStateBuilder(GoalStateV2.Builder goalStateBuilder) {
         this.goalStateBuilder = goalStateBuilder;
-    }
-
-    public UnicastGoalStateByte getUnicastGoalStateByte() {
-        UnicastGoalStateByte unicastGoalStateByte = new UnicastGoalStateByte();
-        unicastGoalStateByte.setNextTopic(this.topic);
-        unicastGoalStateByte.setNextSubTopic(this.subTopic);
-        unicastGoalStateByte.setGoalStateByte(this.goalState.toByteArray());
-        return unicastGoalStateByte;
     }
 }

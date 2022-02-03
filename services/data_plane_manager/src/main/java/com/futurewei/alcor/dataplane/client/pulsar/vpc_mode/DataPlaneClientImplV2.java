@@ -37,6 +37,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Service("pulsarDataPlaneClient")
 @ConditionalOnProperty(prefix = "protobuf.goal-state-message", name = "version", havingValue = "102")
@@ -54,37 +56,35 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         if (multicastGoalState != null &&
                 multicastGoalState.getHostIps().size() != 0 &&
                 multicastGoalState.getGoalState() != null) {
-            if (multicastGoalState.getVpcIds() == null) {
-                throw new Exception("The VpcIds of multicast goalState is null.");
-            }
-            for (int multiGsIndex = 0; multiGsIndex < multicastGoalState.getVpcIds().size(); multiGsIndex++) {
-                NodeSubscribeInfo nodeSubscribeInfo = topicManager.getNodeSubscribeInfoByVpcId(
-                        multicastGoalState.getVpcIds().get(multiGsIndex),
-                        new ArrayList<>(multicastGoalState.getHostIps()).get(multiGsIndex)
-                );
-                String multicastTopic = nodeSubscribeInfo.getTopic();
-                String multicastKey = nodeSubscribeInfo.getKey();
+            Map<String, Set<String>> hostVpcMap = multicastGoalState.getHostVpcMap();
+            for (Map.Entry<String, Set<String>> hostVpcPair : hostVpcMap.entrySet()) {
+                String hostIp = hostVpcPair.getKey();
+                for (String vpcId : hostVpcPair.getValue()) {
+                    NodeSubscribeInfo nodeSubscribeInfo = topicManager.getNodeSubscribeInfoByVpcId(vpcId, hostIp);
+                    String multicastTopic = nodeSubscribeInfo.getTopic();
+                    String multicastKey = nodeSubscribeInfo.getKey();
 
-                try {
-                    Producer<byte[]> producer = pulsarClient
-                            .newProducer()
-                            .topic(multicastTopic)
-                            .batcherBuilder(BatcherBuilder.KEY_BASED)
-                            .hashingScheme(HashingScheme.Murmur3_32Hash)
-                            .create();
-                    producer.newMessage()
-                            .key(multicastKey)
-                            .value(multicastGoalState.getGoalState().toByteArray())
-                            .send();
-                } catch (Exception e) {
-                    LOG.error("Send multicastGoalState to topic:{} failed: ", multicastTopic, e);
-                    failedHosts.addAll(multicastGoalState.getHostIps());
-                    continue;
+                    try {
+                        Producer<byte[]> producer = pulsarClient
+                                .newProducer()
+                                .topic(multicastTopic)
+                                .batcherBuilder(BatcherBuilder.KEY_BASED)
+                                .hashingScheme(HashingScheme.Murmur3_32Hash)
+                                .create();
+                        producer.newMessage()
+                                .key(multicastKey)
+                                .value(multicastGoalState.getGoalState().toByteArray())
+                                .send();
+                    } catch (Exception e) {
+                        LOG.error("Send multicastGoalState to topic:{} failed: ", multicastTopic, e);
+                        failedHosts.addAll(multicastGoalState.getHostIps());
+                        continue;
+                    }
+
+                    LOG.info("Send multicastGoalState to topic:{} success, " +
+                                    " unicastGoalStates: {}",
+                            multicastTopic, multicastGoalState);
                 }
-
-                LOG.info("Send multicastGoalState to topic:{} success, " +
-                                " unicastGoalStates: {}",
-                        multicastTopic, multicastGoalState);
             }
         }
 
