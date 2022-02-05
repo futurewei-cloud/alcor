@@ -26,6 +26,7 @@ import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
+@Configuration
 public class PathManagerService {
     @Autowired
     private VpcSubnetsCache vpcSubnetsCache;
@@ -48,12 +50,12 @@ public class PathManagerService {
     private static boolean USE_GRPC = true;
 
     @Value("${path.mode}")
-    private static String PATH_MODE;
+    private String PATH_MODE;
 
-    @Value("${UPPER_VPC_SIZE}")
-    private static int UPPER_VPC_SIZE;
-    @Value("${LOWER_VPC_SIZE}")
-    private static int LOWER_VPC_SIZE;
+    @Value("${path.UPPER_VPC_SIZE}")
+    private int UPPER_VPC_SIZE;
+    @Value("${path.LOWER_VPC_SIZE}")
+    private int LOWER_VPC_SIZE;
 
     public boolean isFastPath() {
         return USE_GRPC;
@@ -79,9 +81,6 @@ public class PathManagerService {
 
         String vpcId = portEntity.getVpcId();
 
-        // Get the current path for this path
-        boolean currentPath = vpcPathCache.getCurrentPathByVpcId(vpcId);
-
         // Get VPC size - number of ports
         AtomicInteger atomicNumberOfPorts = new AtomicInteger();
         List<String> subnetIds;
@@ -97,12 +96,29 @@ public class PathManagerService {
 
         int numberOfPorts = atomicNumberOfPorts.get();
 
+        // Get the current path for this path
+        boolean currentPath;
+        try {
+            currentPath = vpcPathCache.getCurrentPathByVpcId(vpcId);
+        } catch (NullPointerException e) {
+            if (numberOfPorts > UPPER_VPC_SIZE) {
+                vpcPathCache.setPath(vpcId, USE_GRPC);
+                return USE_GRPC;
+            } else {
+                vpcPathCache.setPath(vpcId, !USE_GRPC);
+                return !USE_GRPC;
+            }
+
+        } catch (Exception e) {
+            throw e;
+        }
+
         // Path switch logic
         boolean chosenPath;
 
         if (currentPath == USE_GRPC) {
             if (numberOfPorts > UPPER_VPC_SIZE) {
-                chosenPath = USE_GRPC;
+                chosenPath = !USE_GRPC;
             } else {
                 chosenPath = USE_GRPC;
             }
