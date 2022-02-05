@@ -18,18 +18,106 @@
 
 package com.futurewei.alcor.dataplane.service.impl;
 
+import com.futurewei.alcor.dataplane.cache.SubnetPortsCacheV2;
+import com.futurewei.alcor.dataplane.cache.VpcPathCache;
+import com.futurewei.alcor.dataplane.cache.VpcSubnetsCache;
+import com.futurewei.alcor.dataplane.exception.InvalidPathModeException;
 import com.futurewei.alcor.web.entity.port.PortEntity;
+import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class PathManagerService {
+    @Autowired
+    private VpcSubnetsCache vpcSubnetsCache;
+
+    @Autowired
+    private SubnetPortsCacheV2 subnetPortsCache;
+
+    @Autowired
+    private VpcPathCache vpcPathCache;
+
     private static boolean USE_GRPC = true;
+
+    @Value("${path.mode}")
+    private static String PATH_MODE;
+
+    @Value("${UPPER_VPC_SIZE}")
+    private static int UPPER_VPC_SIZE;
+    @Value("${LOWER_VPC_SIZE}")
+    private static int LOWER_VPC_SIZE;
 
     public boolean isFastPath() {
         return USE_GRPC;
     }
 
-    public boolean isFastPath(PortEntity portEntity) {
-        return USE_GRPC;
+    public boolean isFastPath(PortEntity portEntity) throws Exception{
+        switch (PATH_MODE) {
+            case "GRPC":
+                return USE_GRPC;
+            case "MQ":
+                return !USE_GRPC;
+            case "MIXED":
+                return choosePath(portEntity);
+            default:
+                throw new InvalidPathModeException();
+        }
+    }
+
+    private boolean choosePath(PortEntity portEntity) throws Exception{
+        if (portEntity == null) {
+            return USE_GRPC;
+        }
+
+        String vpcId = portEntity.getVpcId();
+
+        // Get the current path for this path
+        boolean currentPath = vpcPathCache.getCurrentPathByVpcId(vpcId);
+
+        // Get VPC size - number of ports
+        AtomicInteger atomicNumberOfPorts = new AtomicInteger();
+        List<String> subnetIds;
+        subnetIds = vpcSubnetsCache.getVpcSubnets(vpcId).getSubnetIds();
+        subnetIds.stream().forEach(subnetId -> {
+            try {
+                InternalSubnetPorts internalSubnetPorts = subnetPortsCache.getSubnetPorts(subnetId);
+                atomicNumberOfPorts.addAndGet(internalSubnetPorts.getPorts().size());
+            } catch (Exception e) {
+
+            }
+        });
+
+        int numberOfPorts = atomicNumberOfPorts.get();
+
+        // Path switch logic
+        boolean chosenPath;
+
+        if (currentPath == USE_GRPC) {
+            if (numberOfPorts > UPPER_VPC_SIZE) {
+                chosenPath = USE_GRPC;
+            } else {
+                chosenPath = USE_GRPC;
+            }
+        } else {
+            if (numberOfPorts < LOWER_VPC_SIZE) {
+                chosenPath = USE_GRPC;
+            } else {
+                chosenPath = !USE_GRPC;
+            }
+        }
+
+        if (! currentPath == chosenPath) {
+            vpcPathCache.setPath(vpcId, chosenPath);
+        }
+
+        return chosenPath;
     }
 }
