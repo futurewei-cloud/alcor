@@ -309,7 +309,7 @@ public class NeighborService extends ResourceService {
             }
 
             if (!multicastGoalState.getHostIps().contains(neighborInfo2.getHostIp())) {
-                multicastGoalState.getHostIps().add(neighborInfo2.getHostIp());
+                multicastGoalState.addHostVpcPair(neighborInfo2.getHostIp(), neighborInfo2.getVpcId());
             }
 
             if (!neighborInfoSet.contains(neighborInfo1)) {
@@ -357,12 +357,7 @@ public class NeighborService extends ResourceService {
                                 neighborStateMap.put(NEIGHBOR_STATE_L2_PREFIX + neighborState.getConfiguration().getId(), neighborState);
                                 multicastHostResourceBuilder.addResources(getRourceIdType(NEIGHBOR_STATE_L2_PREFIX + portHostInfo.getPortId()));
                             } else {
-                                multicastGoalStateV2.getHostIps().add(portHostInfo.getHostIp());
-                                try {
-                                    multicastGoalStateV2.addHostVpcPair(portHostInfo.getHostIp(), portState.getConfiguration().getVpcId());
-                                } catch (Exception e) {
-
-                                }
+                                multicastGoalStateV2.addHostVpcPair(portHostInfo.getHostIp(), portState.getConfiguration().getVpcId());
                             }
                             unicastHostResourceBuilder.addResources(getRourceIdType(NEIGHBOR_STATE_L2_PREFIX + portHostInfo.getPortId()));
 
@@ -425,7 +420,6 @@ public class NeighborService extends ResourceService {
                                     neighborStateMap.put(NEIGHBOR_STATE_L3_PREFIX + neighborState.getConfiguration().getId(), neighborState);
                                     multicastHostResourceBuilder.addResources(getRourceIdType(NEIGHBOR_STATE_L3_PREFIX + portHostInfo.getPortId()));
                                 } else {
-                                    multicastGoalStateV2.getHostIps().add(portHostInfo.getHostIp());
                                     multicastGoalStateV2.addHostVpcPair(portHostInfo.getHostIp(), vpcid);
                                     subnetStateMap.put(internalSubnetPort.getSubnetId(), subnetService.buildSubnetState(internalSubnetPort.getSubnetId()).build());
                                     if (!unicastGoalStateV2.getGoalStateBuilder().getSubnetStatesMap().containsKey(internalSubnetPort.getSubnetId())){
@@ -482,11 +476,6 @@ public class NeighborService extends ResourceService {
         portHostInfoCache.getPortHostInfos(subnetId)
                 .forEach(portState -> {
                     unicastGoalStates.put(portState.getHostIp(), new UnicastGoalStateV2(portState.getHostIp(), Goalstate.GoalStateV2.newBuilder()));
-                    try {
-                        multicastGoalState.addHostVpcPair(portState.getHostIp(), vpcid);
-                    } catch (Exception e) {
-
-                    }
                 });
         Subnet.SubnetState subnetState = subnetService.buildSubnetState(subnetId).build();
         Collection<InternalSubnetPorts> internalSubnetPorts  = subnetPortsCache.getSubnetPortsByRouterId(routerId).values();
@@ -507,7 +496,7 @@ public class NeighborService extends ResourceService {
                                 multicastGoalState.getGoalStateBuilder().putSubnetStates(subnetId, subnetState);
                             }
                         } else {
-                            multicastGoalState.getHostIps().add(portHostInfo.getHostIp());
+                            multicastGoalState.addHostVpcPair(portHostInfo.getHostIp(), vpcid);
                             unicastHostResourceBuilder.addResources(getRourceIdType(NEIGHBOR_STATE_L3_PREFIX + portHostInfo.getPortId()));
                             if (!subnetStateMap.containsKey(subnetId)) {
                                 Router.RouterConfiguration.SubnetRoutingTable.Builder subnetRoutingTableBuilder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
