@@ -67,7 +67,7 @@ public class PathManagerService {
                 return USE_GRPC;
             case "MQ":
                 return !USE_GRPC;
-            case "MIXED":
+            case "AUTO":
                 return choosePath(portEntity);
             default:
                 throw new InvalidPathModeException();
@@ -80,6 +80,8 @@ public class PathManagerService {
         }
 
         String vpcId = portEntity.getVpcId();
+
+        // TODO: Pending to calculate by the cache service
 
         // Get VPC size - number of ports
         AtomicInteger atomicNumberOfPorts = new AtomicInteger();
@@ -103,10 +105,10 @@ public class PathManagerService {
         } catch (NullPointerException e) {
             if (numberOfPorts > UPPER_VPC_SIZE) {
                 vpcPathCache.setPath(vpcId, USE_GRPC);
-                return USE_GRPC;
+                return !USE_GRPC;
             } else {
                 vpcPathCache.setPath(vpcId, !USE_GRPC);
-                return !USE_GRPC;
+                return USE_GRPC;
             }
 
         } catch (Exception e) {
