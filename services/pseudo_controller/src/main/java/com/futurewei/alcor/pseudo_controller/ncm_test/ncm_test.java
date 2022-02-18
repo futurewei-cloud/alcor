@@ -49,6 +49,7 @@ import io.opentracing.Tracer;
 import io.opentracing.contrib.grpc.TracingClientInterceptor;
 import org.awaitility.Awaitility;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -61,6 +62,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @Component
+@ComponentScan(value = "com.futurewei.alcor.pseudo_controller")
 public class ncm_test {
     @Value("${node_one_ip:ip_one}")
     String aca_node_one_ip;
