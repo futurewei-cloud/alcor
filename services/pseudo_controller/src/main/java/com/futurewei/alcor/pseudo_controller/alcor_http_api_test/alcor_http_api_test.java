@@ -11,6 +11,35 @@ Copyright(c) 2020 Futurewei Cloud
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+/*
+    This is the code testing the Alcor HTTP APIs, currently support APIs:
+1. createVPC
+2. createSubnet
+3. createPort
+
+Params:
+1. vpm_ip
+2. vpm_port
+3. snm_ip
+4. snm_port
+5. pm_ip
+6. pm_port
+7. vpc_cidr_slash
+8. tenant_amount
+9. project_amount_per_tenant
+10. vpc_amount_per_project
+11. subnet_amount_per_vpc
+12. test_vpc_api = true
+13. test_subnet_api = true
+14. test_port_api = true
+15. call_api_rate = 100
+
+    the number of ports will be based on the vpc_cidr_slash and subnet_amount_per_vpc, for example, if vpc_cidr_slash
+    is 8, then the network cidr becomes 10.0.0.0/8, which has 2^(32-8) IPs, and say we have subnet_amount_per_vpc = 1024,
+    which is 2^10, then each subnet will have 2^(32-8-10) = 16384 ports, minus the two IPs(first and last in subnet cidr)
+    reserved by Alcor.
+*/
+
 package com.futurewei.alcor.pseudo_controller.alcor_http_api_test;
 
 import com.google.common.util.concurrent.RateLimiter;
@@ -82,11 +111,6 @@ public class alcor_http_api_test {
     */
     @Value("${subnet_amount_per_vpc:2}")
     int subnet_amount_per_vpc;
-    /*
-        port_amount_per_subnet, each subnet can have multiple ports.
-    */
-    @Value("${port_amount_per_subnet:3}")
-    int port_amount_per_subnet;
     @Value("${test_vpc_api:false}")
     Boolean test_vpc_api;
     @Value("${test_subnet_api:false}")
@@ -102,8 +126,7 @@ public class alcor_http_api_test {
                 + tenant_amount + " tenants, \n"
                 + project_amount_per_tenant + " projects for each tenant, \n"
                 + vpc_amount_per_project + " VPCs for each project, \n"
-                + subnet_amount_per_vpc + " subnets for each VPC, \n"
-                + port_amount_per_subnet + " ports for each subnet.");
+                + subnet_amount_per_vpc + " subnets for each VPC, \n");
         ArrayList<String> tenant_uuids = new ArrayList<>();
         SortedMap<String, ArrayList<String>> tenant_projects = new TreeMap<>();
         SortedMap<String, ArrayList<JSONObject>> project_vpcs = new TreeMap<>();
@@ -147,9 +170,8 @@ public class alcor_http_api_test {
 
                     /*
                         1. Generate all port IPs from VPC CIDR range.
-                        2. If port_amount_per_subnet > len(port_ips), port_amount_per_subnet = len(port_ips)
-                        3. Divide port IPs into groups based on subnet_amount_per_vpc;
-                        4. Each group is a subnet, calculate subnet CIDR and form its subnet payload and ports payload
+                        2. Divide port IPs into groups based on subnet_amount_per_vpc;
+                        3. Each group is a subnet, calculate subnet CIDR and form its subnet payload and ports payload
                     */
                     if (null == vpc_port_ips){
                         try {
@@ -397,7 +419,7 @@ public class alcor_http_api_test {
                 long call_port_api_end_time = System.currentTimeMillis();
                 System.out.println("Total amount of calling createPort API " + port_call_amount +
                         " times, finished "+ ( port_call_amount - latch.getCount())
-                        + " times, succeeded" + create_port_success_count.get() + " times, at the rate of "
+                        + " times, succeeded " + create_port_success_count.get() + " times, at the rate of "
                         + call_api_rate + "/second, it took "
                         + (call_port_api_end_time - call_port_api_start_time) + " milliseconds");
             } catch (InterruptedException e) {
