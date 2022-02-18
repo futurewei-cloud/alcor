@@ -42,7 +42,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
-@ComponentScan(value = "com.futurewei.alcor.pseudo_controller")
 public class alcor_http_api_test {
     @Value("${vpm_ip:192.168.0.0}")
     String vpm_ip;

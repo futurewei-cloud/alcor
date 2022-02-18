@@ -62,7 +62,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @Component
-@ComponentScan(value = "com.futurewei.alcor.pseudo_controller")
 public class ncm_test {
     @Value("${node_one_ip:ip_one}")
     String aca_node_one_ip;
