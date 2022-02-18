@@ -184,7 +184,7 @@ public class alcor_http_api_test {
                             IPAddressSeqRange subnet_range = subnet_start_ip_address.toSequentialRange(subnet_end_ip_address);
                             IPAddress blocks[] = subnet_range.spanWithPrefixBlocks();
                             String subnet_cidr = blocks[0].toString();
-                            System.out.println("Subnet cidr = " + subnet_cidr);
+//                            System.out.println("Subnet cidr = " + subnet_cidr);
                             String current_subnet_id = UUID.randomUUID().toString();
                             JSONObject subnet_payload = new JSONObject();
                             JSONObject subnet = new JSONObject();
