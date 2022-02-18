@@ -193,7 +193,7 @@ public class alcor_http_api_test {
                     /*
                         Create subnet payload based on vpc payload
                     */
-                    if (test_subnet_api){
+                    if (test_subnet_api && null != vpc_port_ips){
                         ArrayList<JSONObject> current_vpc_subnets = new ArrayList<>();
                         System.out.println("Generating subnets");
                         for (int l = 0 ; l < subnet_amount_per_vpc ; l ++){

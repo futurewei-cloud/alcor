@@ -685,9 +685,9 @@ public class ncm_test {
 
         @Override
         public void run() {
-            Vector<String> cmd_list = new Vector<>();
+//            Vector<String> cmd_list = new Vector<>();
             System.out.println("Need to execute this command concurrently: [" + this.command_to_run + "]");
-            cmd_list.add(this.command_to_run);
+//            cmd_list.add(this.command_to_run);
 //        pseudo_controller.execute_ssh_commands(cmd_list, host, user_name, password);
             executeBashCommand(command_to_run);
         }
