@@ -48,6 +48,7 @@ public class PathManagerService {
     private VpcPathCache vpcPathCache;
 
     private static boolean USE_GRPC = true;
+    private static boolean USE_MQ = false;
 
     @Value("${path.mode}")
     private String PATH_MODE;
@@ -103,11 +104,14 @@ public class PathManagerService {
         try {
             currentPath = vpcPathCache.getCurrentPathByVpcId(vpcId);
         } catch (NullPointerException e) {
+            // Handle new VPC
             if (numberOfPorts > UPPER_VPC_SIZE) {
-                vpcPathCache.setPath(vpcId, USE_GRPC);
-                return !USE_GRPC;
+                // For large VPC size
+                vpcPathCache.setPath(vpcId, USE_MQ);
+                return USE_MQ;
             } else {
-                vpcPathCache.setPath(vpcId, !USE_GRPC);
+                // For small VPC size
+                vpcPathCache.setPath(vpcId, USE_GRPC);
                 return USE_GRPC;
             }
 
@@ -119,16 +123,19 @@ public class PathManagerService {
         boolean chosenPath;
 
         if (currentPath == USE_GRPC) {
+            // Current path is gRPC
             if (numberOfPorts > UPPER_VPC_SIZE) {
-                chosenPath = !USE_GRPC;
+                // For large VPC size
+                chosenPath = USE_MQ;
             } else {
                 chosenPath = USE_GRPC;
             }
         } else {
+            // Current path is MQ
             if (numberOfPorts < LOWER_VPC_SIZE) {
                 chosenPath = USE_GRPC;
             } else {
-                chosenPath = !USE_GRPC;
+                chosenPath = USE_MQ;
             }
         }
 
