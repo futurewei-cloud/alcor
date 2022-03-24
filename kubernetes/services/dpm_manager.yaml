@@ -80,6 +80,12 @@ data:
     opentracing.jaeger.enable-b3-propagation=true
     opentracing.jaeger.service-name=alcor-dpm
 
+    ####Path switch configuration####
+    path.mode=GRPC
+    #"GRPC", "MQ", "AUTO" are available.
+    path.UPPER_VPC_SIZE = 1000
+    path.LOWER_VPC_SIZE = 100
+
 ---
 apiVersion: apps/v1
 kind: Deployment
