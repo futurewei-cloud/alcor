@@ -163,9 +163,9 @@ files:
   variants:
     - default
 
-- path: /root/dataplanemanager-0.1.0-SNAPSHOT.jar
+- path: /root/gatewaymanager-0.1.0-SNAPSHOT.jar
   generator: copy
-  source: ./target/dataplanemanager-0.1.0-SNAPSHOT.jar
+  source: ./target/gatewaymanager-0.1.0-SNAPSHOT.jar
   
 packages:
   manager: apt
@@ -173,9 +173,11 @@ packages:
   cleanup: true
   sets:
   - packages:
+    - fuse
+    - language-pack-en
     - openssh-client
     - vim
-    - openjdk-11-jre
+    - openjdk-11-jdk
     action: install
 
   repositories:
@@ -191,7 +193,7 @@ actions:
 - trigger: post-files
   action: |-
     #!/bin/bash
-    java -jar /root/dataplanemanager-0.1.0-SNAPSHOT.jar \
+    java -jar /root/gatewaymanager-0.1.0-SNAPSHOT.jar \
     --add-exports=java.base/jdk.internal.misc=ALL-UNNAMED \
     --add-exports=java.base/sun.nio.ch=ALL-UNNAMED \
     --add-exports=java.management/com.sun.jmx.mbeanserver=ALL-UNNAMED \

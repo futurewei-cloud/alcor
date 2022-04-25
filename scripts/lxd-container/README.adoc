@@ -1,0 +1,9 @@
+= Introduction of deployment in LXD
+Min Chen <vanderchen@outlook.com>
+v0.1, 2020-09-18
+:toc: right
+:sectnums:
+:imagesdir: images
+
+== Install the disrtibuilder
+
