@@ -171,9 +171,9 @@ files:
   generator: copy
   source: ./ignite
 
-- path: /etc/systemd/system/dpm.service
+- path: /etc/systemd/system/gm.service
   generator: copy
-  source: ./dpm.service
+  source: ./gm.service
 
 - path: /etc/systemd/system/ignite.service
   generator: copy

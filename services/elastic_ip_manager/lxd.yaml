@@ -173,9 +173,9 @@ files:
 
 - path: /etc/systemd/system/eim.service
   generator: copy
-  source: ./dpm.service
+  source: ./eim.service
 
-- path: /etc/systemd/system/eim.service
+- path: /etc/systemd/system/ignite.service
   generator: copy
   source: ./ignite.service
 
