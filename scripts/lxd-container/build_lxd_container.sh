@@ -17,8 +17,8 @@
 LXD_SCRIPTS_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 ALCOR_ROOT_DIR=$(dirname $(dirname $LXD_SCRIPTS_PATH))
 IGNITE_VERSION="2.10.0"
-# declare -a services_list=(ignite vpm snm rm pim mm pm nm sgm ag dpm eim qm nam ncm gm)
-declare -a services_list=(dpm)
+declare -a services_list=(vpm snm rm pim mm pm nm sgm ag dpm eim qm nam ncm gm)
+declare -a ip_list=(10.92.85.101 10.92.85.102 10.92.85.103 10.92.85.104 10.92.85.105 10.92.85.106 10.92.85.107 10.92.85.108 10.92.85.109 10.92.85.110)
 
 function install_distrobuilder {
     echo "Install distrobuilder dependencis"
@@ -93,12 +93,36 @@ sed -i "s/alcor-service.jar/${3}/g" $1/${2}.service > /dev/null
 cd $1 && \
 cp -rp $LXD_SCRIPTS_PATH/apache-ignite-${IGNITE_VERSION}-bin ignite && \
 $HOME/go/bin/distrobuilder build-lxd lxd.yaml && \
-lxc image import lxd.tar.xz rootfs.squashfs --alias dpm && \
+lxc image import lxd.tar.xz rootfs.squashfs --alias ${2} && \
 rm -rf lxd.tar.xz \
     rootfs.squashfs \
     *.service \
     ignite && \
 echo
+}
+
+function config_alcor_service_url () {
+  sed -i -E "s/('microservices.vpc.service.url'.+)name(.+'9001/')/\1'=http://10.92.85.101:'\2/"  ${1}/src/main/resources/application.properties
+  sed -i -E "s/('microservices.subnet.service.url'.+)name(.+'9002/')/\1'=http://10.92.85.102'\2/"  ${1}/src/main/resources/application.properties
+  sed -i -E "s/('microservices.route.service.url'.+)name(.+'9003/')/\1'=http://10.92.85.103'\2/"  ${1}/src/main/resources/application.properties
+  sed -i -E "s/('microservices.port.service.url'.+)name(.+'9006/')/\1'=http://10.92.85.104'\2/"  ${1}/src/main/resources/application.properties
+  sed -i -E "s/('microservices.sg.service.url'.+)name(.+'9008/')/\1'=http://0.92.85.105'\2/"  ${1}/src/main/resources/application.properties
+  sed -i -E "s/('microservices.elasticip.service.url'.+)name(.+'9011/')/\1'=http://10.92.85.106'\2/"  ${1}/src/main/resources/application.properties
+  sed -i -E "s/('microservices.quota.service.url'.+)name(.+'9012/')/\1'=http://10.92.85.107'\2/"  ${1}/src/main/resources/application.properties
+  sed -i -E "s/('microservices.dpm.service.url'.+)name(.+'9010/')/\1'=http://10.92.85.108'\2/"  ${1}/src/main/resources/application.properties
+}
+
+function config_alcor_container_url () {
+    count=0
+    echo "Starting Alcor LXD containers\n"
+    for i in "${!services_list[@]}"; do
+        lxc stop "${services_list[$i]}"
+        lxc network attach $1 "${services_list[$i]}" eth0 eth0
+        lxc config device set "${services_list[$i]}" eth0 ipv4.address "${ip_list[$i]}"
+        lxc start "${services_list[$i]}"
+        if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
+    done
+    echo -e "\n$count services started...\n"
 }
 
 function build_alcor_lxd_images_with_db {
@@ -199,8 +223,17 @@ function stop_lxd_containers {
     count=0
     echo "Stoping and Deleting Alcor LXD containers\n"
     for service in ${services_list[@]}; do
-        lxc stop $service $service
-        lxc delete $service
+        lxc stop $servicebash
+        if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
+    done
+    echo -e "\n$count services stoped and deleted...\n"
+}
+
+function delete_lxd_containers {
+    count=0
+    echo "Stoping and Deleting Alcor LXD containers\n"
+    for service in ${services_list[@]}; do
+        lxc delete $service        
         if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
     done
     echo -e "\n$count services stoped and deleted...\n"
@@ -217,14 +250,15 @@ function delete_lxd_images {
     echo -e "\n$count services images stoped...\n"
 }
 
-while getopts "iIbsdD" opt; do
+
+
+while getopts "iIbsrdD" opt; do
 case $opt in
   i)
     install_distrobuilder
     ;;
   I)
     init_lxd
-    install_distrobuilder
     ;;
   b)
     build_alcor_lxd_images_with_db
@@ -232,8 +266,11 @@ case $opt in
   s)
     start_lxd_containers
     ;;
-  d)
+  r)
     stop_lxd_containers
+    ;;
+  d)
+    delete_lxd_containers
     ;;
   D)
     delete_lxd_images
