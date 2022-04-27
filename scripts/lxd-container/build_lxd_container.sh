@@ -240,5 +240,15 @@ case $opt in
     ;;
   \?)
     echo "Invalid arguements"
+    ;;
 esac
 done
+
+if [ $OPTIND -eq 1 ]; then
+  echo "Build and start containers"
+  stop_lxd_containers
+  delete_lxd_images
+  build_alcor_lxd_images_with_db
+  start_lxd_containers
+fi
+shift $((OPTIND-1))
