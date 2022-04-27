@@ -220,7 +220,9 @@ function delete_lxd_images {
 while getopts "ibsdD" opt; do
 case $opt in
   i)
-    echo "Download dependencis"
+    install_distrobuilder
+    ;;
+  I)
     init_lxd
     install_distrobuilder
     ;;
