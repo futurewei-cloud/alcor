@@ -171,9 +171,9 @@ files:
   generator: copy
   source: ./ignite
 
-- path: /etc/systemd/system/sm.service
+- path: /etc/systemd/system/snm.service
   generator: copy
-  source: ./sm.service
+  source: ./snm.service
 
 - path: /etc/systemd/system/ignite.service
   generator: copy

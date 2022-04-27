@@ -118,62 +118,62 @@ function build_alcor_lxd_images_with_db {
     #build images
 
     echo "#1 Creating vpc_manager lxd image"
-    build_alcor_image $ALCOR_ROOT_DIR/services/services/vpc_manager vpm vpcmanager-0.1.0-SNAPSHOT.jar
+    build_alcor_image $ALCOR_ROOT_DIR/services/vpc_manager vpm vpcmanager-0.1.0-SNAPSHOT.jar
     echo
 
     echo "#2 Creating subnet_manager lxd image"
-    build_alcor_image $ALCOR_ROOT_DIR/services/services/subnet_manager snm subnetmanager-0.1.0-SNAPSHOT.jar
+    build_alcor_image $ALCOR_ROOT_DIR/services/subnet_manager snm subnetmanager-0.1.0-SNAPSHOT.jar
     echo
 
     echo "#3 Creating route_manager lxd image"
-    build_alcor_image $ALCOR_ROOT_DIR/services/services/route_manager rm routemanager-0.1.0-SNAPSHOT.jar
+    build_alcor_image $ALCOR_ROOT_DIR/services/route_manager rm routemanager-0.1.0-SNAPSHOT.jar
     echo
 
     echo "#4 Creating private_ip_manager lxd image"
-    build_alcor_image $ALCOR_ROOT_DIR/services/services/subnet_manager pim subnetmanager-0.1.0-SNAPSHOT.jar
+    build_alcor_image $ALCOR_ROOT_DIR/services/subnet_manager pim subnetmanager-0.1.0-SNAPSHOT.jar
     echo
 
     echo "#5 Creating mac_manager lxd image"
-    build_alcor_image $ALCOR_ROOT_DIR/services/services/mac_manager mm macmanager-0.1.0-SNAPSHOT.jar
+    build_alcor_image $ALCOR_ROOT_DIR/services/mac_manager mm macmanager-0.1.0-SNAPSHOT.jar
     echo
 
     echo "#6 Creating port_manger lxd image"
-    build_alcor_image $ALCOR_ROOT_DIR/services/services/port_manager pm portmanager-0.1.0-SNAPSHOT.jar
+    build_alcor_image $ALCOR_ROOT_DIR/services/port_manager pm portmanager-0.1.0-SNAPSHOT.jar
     echo
 
     echo "#7 Creating node_manager lxd image"
-    build_alcor_image $ALCOR_ROOT_DIR/services/services/node_manager nm nodemanager-0.1.0-SNAPSHOT.jar
+    build_alcor_image $ALCOR_ROOT_DIR/services/node_manager nm nodemanager-0.1.0-SNAPSHOT.jar
     echo
 
     echo "#8 Creating security_group_manager lxd image"
-    build_alcor_image $ALCOR_ROOT_DIR/services/services/security_group_manager sgm securitygroupmanager-0.1.0-SNAPSHOT.jar
+    build_alcor_image $ALCOR_ROOT_DIR/services/security_group_manager sgm securitygroupmanager-0.1.0-SNAPSHOT.jar
     echo
 
     echo "#9 Creating api_gateway lxd image"
-    build_alcor_image $ALCOR_ROOT_DIR/services/services/api_gateway ag apigateway-0.1.0-SNAPSHOT.jar
+    build_alcor_image $ALCOR_ROOT_DIR/services/api_gateway ag apigateway-0.1.0-SNAPSHOT.jar
     echo
 
     echo "#10 Creating data_plane_manager lxd image\n"
     build_alcor_image $ALCOR_ROOT_DIR/services/data_plane_manager dpm dataplanemanager-0.1.0-SNAPSHOT.jar
 
     echo "#11 Creating elastic_ip_manager lxd image"
-    build_alcor_image $ALCOR_ROOT_DIR/services/services/elastic_ip_manager eim elastic_ip_manager-0.1.0-SNAPSHOT.jar
+    build_alcor_image $ALCOR_ROOT_DIR/services/elastic_ip_manager eim elastic_ip_manager-0.1.0-SNAPSHOT.jar
     echo
 
     echo "#12 Creating quoto_manager lxd image"
-    build_alcor_image $ALCOR_ROOT_DIR/services/services/quota_manager qm quotamanager-0.1.0-SNAPSHOT.jar
+    build_alcor_image $ALCOR_ROOT_DIR/services/quota_manager qm quotamanager-0.1.0-SNAPSHOT.jar
     echo
 
     echo "#13 Creating network_acl_manager lxd image"
-    build_alcor_image $ALCOR_ROOT_DIR/services/services/network_acl_manager nam networkaclmanager-0.1.0-SNAPSHOT.jar
+    build_alcor_image $ALCOR_ROOT_DIR/services/network_acl_manager nam networkaclmanager-0.1.0-SNAPSHOT.jar
     echo
 
     echo "#14 Creating network_acl_manager lxd image"
-    build_alcor_image $ALCOR_ROOT_DIR/services/services/network_config_manager ncm networkconfigmanager-0.1.0-SNAPSHOT.jar
+    build_alcor_image $ALCOR_ROOT_DIR/services/network_config_manager ncm networkconfigmanager-0.1.0-SNAPSHOT.jar
     echo
 
     echo "#15 Creating gateway_manager lxd image"
-    build_alcor_image $ALCOR_ROOT_DIR/services/services/gateway_manager gm gatewaymanager-0.1.0-SNAPSHOT.jar
+    build_alcor_image $ALCOR_ROOT_DIR/services/gateway_manager gm gatewaymanager-0.1.0-SNAPSHOT.jar
     echo
 
     rm -rf $LXD_SCRIPTS_PATH/apache-ignite-2.10.0-bin
@@ -240,7 +240,3 @@ case $opt in
     echo "Invalid arguements"
 esac
 done
-
-# install_distrobuilder
-build_alcor_lxd_images_with_db
-start_lxd_containers
