@@ -217,7 +217,7 @@ function delete_lxd_images {
     echo -e "\n$count services images stoped...\n"
 }
 
-while getopts "ibsdD" opt; do
+while getopts "iIbsdD" opt; do
 case $opt in
   i)
     install_distrobuilder
