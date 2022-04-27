@@ -163,21 +163,31 @@ files:
   variants:
     - default
 
-- path: /root/dataplanemanager-0.1.0-SNAPSHOT.jar
+- path: /root/vpcmanager-0.1.0-SNAPSHOT.jar
   generator: copy
-  source: ./target/dataplanemanager-0.1.0-SNAPSHOT.jar
-  
+  source: ./target/vpcmanager-0.1.0-SNAPSHOT.jar
+
+- path: /root/ignite
+  generator: copy
+  source: ./ignite
+
+- path: /etc/systemd/system/vpm.service
+  generator: copy
+  source: ./vpm.service
+
+- path: /etc/systemd/system/ignite.service
+  generator: copy
+  source: ./ignite.service
+
 packages:
   manager: apt
   update: true
   cleanup: true
   sets:
   - packages:
-    - fuse
-    - language-pack-en
     - openssh-client
     - vim
-    - openjdk-11-jdk
+    - openjdk-11-jre
     action: install
 
   repositories:
@@ -188,20 +198,17 @@ packages:
       deb http://security.ubuntu.com/ubuntu {{ image.release }}-security main restricted universe multiverse
     architectures:
     - amd64
-    
-actions:
-- trigger: post-files
-  action: |-
-    #!/bin/bash
-    java -jar /root/dataplanemanager-0.1.0-SNAPSHOT.jar \
-    --add-exports=java.base/jdk.internal.misc=ALL-UNNAMED \
-    --add-exports=java.base/sun.nio.ch=ALL-UNNAMED \
-    --add-exports=java.management/com.sun.jmx.mbeanserver=ALL-UNNAMED \
-    --add-exports=jdk.internal.jvmstat/sun.jvmstat.monitor=ALL-UNNAMED \
-    --add-exports=java.base/sun.reflect.generics.reflectiveObjects=ALL-UNNAMED \
-    --illegal-access=permit
-  types:
-  - vm
+
+# TODO: actions part is provided by official but not working
+# actions:
+# - trigger: post-files
+#   action: |-
+#     #!/bin/bash
+#     chmod +x /root/ignite/bin/ignite.sh
+#     systemctl daemon-reload
+#     systemctl enable ignite
+#     systemctl enable dpm
+
 
 mappings:
   architecture_map: debian

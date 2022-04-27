@@ -16,7 +16,9 @@
 
 LXD_SCRIPTS_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 ALCOR_ROOT_DIR=$(dirname $(dirname $LXD_SCRIPTS_PATH))
-declare -a services_list=(ignite vpm snm rm pim mm pm nm sgm ag dpm eim qm nam ncm gm)
+IGNITE_VERSION="2.10.0"
+# declare -a services_list=(ignite vpm snm rm pim mm pm nm sgm ag dpm eim qm nam ncm gm)
+declare -a services_list=(dpm)
 
 function install_distrobuilder {
     echo "Install distrobuilder dependencis"
@@ -39,86 +41,206 @@ function install_distrobuilder {
     rm -rf distrobuilder
 }
 
-function build_alcor_with_db_lxd_image {
-    echo "Build Alcor LXD container"
+function init_lxd {
+    echo "Install LXD"
     apt install -y lxd && \
     lxd init
+}
+
+function build_alcor_image () {
+tee -a $1/ignite.service > /dev/null <<EOF
+[Unit]
+Description=Apache Ignite Daemon
+After=syslog.target network.target
+Wants=network.target
+
+[Service]
+Type=simple
+ExecStart=/root/ignite/bin/ignite.sh
+RestartSec=1min
+KillMode=control-group
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+tee -a  $1/${2}.service > /dev/null <<EOF
+[Unit]
+Description=alcor-service Daemon
+After=syslog.target network.target
+Wants=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/java -jar /root/alcor-service.jar \
+    --add-exports=java.base/jdk.internal.misc=ALL-UNNAMED \
+    --add-exports=java.base/sun.nio.ch=ALL-UNNAMED \
+    --add-exports=java.management/com.sun.jmx.mbeanserver=ALL-UNNAMED \
+    --add-exports=jdk.internal.jvmstat/sun.jvmstat.monitor=ALL-UNNAMED \
+    --add-exports=java.base/sun.reflect.generics.reflectiveObjects=ALL-UNNAMED \
+    --illegal-access=permit
+RestartSec=1min
+KillMode=control-group
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sed -i "s/alcor-service.jar/${3}/g" $1/${2}.service > /dev/null
+
+cd $1 && \
+cp -rp $LXD_SCRIPTS_PATH/apache-ignite-${IGNITE_VERSION}-bin ignite && \
+$HOME/go/bin/distrobuilder build-lxd lxd.yaml && \
+lxc image import lxd.tar.xz rootfs.squashfs --alias dpm && \
+rm -rf lxd.tar.xz \
+    rootfs.squashfs \
+    *.service \
+    ignite && \
+echo
+}
+
+function build_alcor_lxd_images_with_db {
+    echo "Build Alcor LXD container"
+
+    apt install -y zip
+
     cd ${ALCOR_ROOT_DIR}
     mvn -Dmaven.test.skip=true -DskipTests clean package install
+    
+    # download Apache Ignite
+    cd ${LXD_SCRIPTS_PATH}
+    wget https://archive.apache.org/dist/ignite/${IGNITE_VERSION}/apache-ignite-${IGNITE_VERSION}-bin.zip
+    unzip apache-ignite-${IGNITE_VERSION}-bin.zip
+    rm apache-ignite-${IGNITE_VERSION}-bin.zip
 
     #build images
 
-    # echo "#0 Creating ignite lxd image"
-    # docker build -t ignite -f $ALCOR_ROOT_DIR/lib/ignite.Dockerfile $ALCOR_ROOT_DIR/lib
-    # echo
-
-    # echo "#1 Creating vpc_manager lxd image"
-    # cd $ALCOR_ROOT_DIR/services/vpc_manager
-    # ./$HOME/go/bin/distrobuilder build-lxd aca-lxd.yaml
-    # lxc image import lxd.tar.xz rootfs.squashfs --alias vpm
-    # rm -rf lxd.tar.xz rootfs.squashfs
-    # echo
-
-    # echo "#2 Creating subnet_manager image with port 9002"
-    # docker build -t snm $ALCOR_ROOT_DIR/services/subnet_manager/
-    # echo
-
-    # echo "#3 Creating route_manager image with port 9003"
-    # docker build -t rm $ALCOR_ROOT_DIR/services/route_manager/
-    # echo
-
-    # echo "#4 Creating private_ip_manager image with port 9004"
-    # docker build -t pim $ALCOR_ROOT_DIR/services/private_ip_manager/
-    # echo
-
-    # echo "#5 Creating mac_manager image with port 9005"
-    # docker build -t mm $ALCOR_ROOT_DIR/services/mac_manager/
-    # echo
-
-    # echo "#6 Creating port_manger image with port 9006"
-    # docker build -t pm $ALCOR_ROOT_DIR/services/port_manager/
-    # echo
-
-    # echo "#7 Creating node_manager image with port 9007"
-    # docker build -t nm $ALCOR_ROOT_DIR/services/node_manager/
-    # echo
-
-    # echo "#8 Creating security_group_manager image with port 9008"
-    # docker build -t sgm $ALCOR_ROOT_DIR/services/security_group_manager/
-    # echo
-
-    # echo "#9 Creating api_gateway image with port 9009"
-    # docker build -t ag $ALCOR_ROOT_DIR/services/api_gateway/
-    # echo
-
-    echo "#10 Creating data_plane_manager lxd image"
-    cd $ALCOR_ROOT_DIR/services/data_plane_manager/
-    ./$HOME/go/bin/distrobuilder build-lxd aca-lxd.yaml
-    lxc image import lxd.tar.xz rootfs.squashfs --alias dpm
+    echo "#1 Creating vpc_manager lxd image"
+    build_alcor_image $ALCOR_ROOT_DIR/services/services/vpc_manager vpm vpcmanager-0.1.0-SNAPSHOT.jar
     echo
 
-    # echo "#11 Creating elastic_ip_manager image with port 9011"
-    # docker build -t eim $ALCOR_ROOT_DIR/services/elastic_ip_manager/
-    # echo
+    echo "#2 Creating subnet_manager lxd image"
+    build_alcor_image $ALCOR_ROOT_DIR/services/services/subnet_manager snm subnetmanager-0.1.0-SNAPSHOT.jar
+    echo
 
-    # echo "#12 Creating quoto_manager image with port 9012"
-    # docker build -t qm $ALCOR_ROOT_DIR/services/quota_manager/
-    # echo
+    echo "#3 Creating route_manager lxd image"
+    build_alcor_image $ALCOR_ROOT_DIR/services/services/route_manager rm routemanager-0.1.0-SNAPSHOT.jar
+    echo
 
-    # echo "#13 Creating network_acl_manager image with port 9013"
-    # docker build -t nam $ALCOR_ROOT_DIR/services/network_acl_manager/
-    # echo
+    echo "#4 Creating private_ip_manager lxd image"
+    build_alcor_image $ALCOR_ROOT_DIR/services/services/subnet_manager pim subnetmanager-0.1.0-SNAPSHOT.jar
+    echo
 
-    # echo "#14 Creating network_acl_manager image with port 9014"
-    # docker build -t ncm $ALCOR_ROOT_DIR/services/network_config_manager/
-    # echo
+    echo "#5 Creating mac_manager lxd image"
+    build_alcor_image $ALCOR_ROOT_DIR/services/services/mac_manager mm macmanager-0.1.0-SNAPSHOT.jar
+    echo
 
-    # echo "#15 Creating gateway_manager image with port 9015"
-    # docker build -t gm $ALCOR_ROOT_DIR/services/gateway_manager/
-    # echo
+    echo "#6 Creating port_manger lxd image"
+    build_alcor_image $ALCOR_ROOT_DIR/services/services/port_manager pm portmanager-0.1.0-SNAPSHOT.jar
+    echo
 
+    echo "#7 Creating node_manager lxd image"
+    build_alcor_image $ALCOR_ROOT_DIR/services/services/node_manager nm nodemanager-0.1.0-SNAPSHOT.jar
+    echo
+
+    echo "#8 Creating security_group_manager lxd image"
+    build_alcor_image $ALCOR_ROOT_DIR/services/services/security_group_manager sgm securitygroupmanager-0.1.0-SNAPSHOT.jar
+    echo
+
+    echo "#9 Creating api_gateway lxd image"
+    build_alcor_image $ALCOR_ROOT_DIR/services/services/api_gateway ag apigateway-0.1.0-SNAPSHOT.jar
+    echo
+
+    echo "#10 Creating data_plane_manager lxd image\n"
+    build_alcor_image $ALCOR_ROOT_DIR/services/data_plane_manager dpm dataplanemanager-0.1.0-SNAPSHOT.jar
+
+    echo "#11 Creating elastic_ip_manager lxd image"
+    build_alcor_image $ALCOR_ROOT_DIR/services/services/elastic_ip_manager eim elastic_ip_manager-0.1.0-SNAPSHOT.jar
+    echo
+
+    echo "#12 Creating quoto_manager lxd image"
+    build_alcor_image $ALCOR_ROOT_DIR/services/services/quota_manager qm quotamanager-0.1.0-SNAPSHOT.jar
+    echo
+
+    echo "#13 Creating network_acl_manager lxd image"
+    build_alcor_image $ALCOR_ROOT_DIR/services/services/network_acl_manager nam networkaclmanager-0.1.0-SNAPSHOT.jar
+    echo
+
+    echo "#14 Creating network_acl_manager lxd image"
+    build_alcor_image $ALCOR_ROOT_DIR/services/services/network_config_manager ncm networkconfigmanager-0.1.0-SNAPSHOT.jar
+    echo
+
+    echo "#15 Creating gateway_manager lxd image"
+    build_alcor_image $ALCOR_ROOT_DIR/services/services/gateway_manager gm gatewaymanager-0.1.0-SNAPSHOT.jar
+    echo
+
+    rm -rf $LXD_SCRIPTS_PATH/apache-ignite-2.10.0-bin
 }
 
+function start_lxd_containers {
+    count=0
+    echo "Starting Alcor LXD containers\n"
+    for service in ${services_list[@]}; do
+        lxc launch $service $service
+        sleep 5
+        lxc exec $service -- bash -c "chmod +x /root/ignite/bin/ignite.sh"
+        lxc exec $service -- bash -c "systemctl enable ignite"
+        lxc exec $service -- bash -c "systemctl enable $service"
+        lxc exec $service -- bash -c "systemctl start ignite"
+        lxc exec $service -- bash -c "systemctl start $service"
+        if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
+    done
+    echo -e "\n$count services started...\n"
+}
+
+function stop_lxd_containers {
+    count=0
+    echo "Stoping and Deleting Alcor LXD containers\n"
+    for service in ${services_list[@]}; do
+        lxc stop $service $service
+        lxc delete $service
+        if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
+    done
+    echo -e "\n$count services stoped and deleted...\n"
+}
+
+function delete_lxd_images {
+    count=0
+    echo "Deleting Alcor LXD images\n"
+    for service in ${services_list[@]}; do
+        lxc stop $service $service
+        lxc delete $service
+        if [[ $? -eq 0 ]]; then count=$((count + 1)); fi
+    done
+    echo -e "\n$count services images stoped...\n"
+}
+
+while getopts "ibsdD" opt; do
+case $opt in
+  i)
+    echo "Download dependencis"
+    init_lxd
+    install_distrobuilder
+    ;;
+  b)
+    build_alcor_lxd_images_with_db
+    ;;
+  s)
+    start_lxd_containers
+    ;;
+  d)
+    stop_lxd_containers
+    ;;
+  D)
+    delete_lxd_images
+    ;;
+  \?)
+    echo "Invalid arguements"
+esac
+done
 
 # install_distrobuilder
-build_alcor_with_db_lxd_image
+build_alcor_lxd_images_with_db
+start_lxd_containers
