@@ -89,6 +89,12 @@ public class ncm_test {
     int whether_to_create_containers_and_ping = CREATE_CONTAINER_AND_PING;
     @Value("${number_of_vpcs:1}")
     int number_of_vpcs;
+
+    @Value("${test_against_arion:false}")
+    Boolean test_against_aroin;
+    @Value("${arion_wing_ips:[]}")
+    String[] arion_wing_ips;
+
     static String docker_ps_cmd = "docker ps";
     static String vpc_id_1 = "2b08a5bc-b718-11ea-b3de-111111111112";
     static String port_ip_template = "11111111-b718-11ea-b3de-";
@@ -119,6 +125,7 @@ public class ncm_test {
     }
 
     public void run_test_against_ncm(){
+        System.out.println("Test against Arion: " + test_against_aroin + " , Arion Wing IPs: " + arion_wing_ips);
 
         System.out.println("There are "+ number_of_vpcs+" VPCs, ACA node one has "+ ports_to_generate_on_aca_node_one + " ports per VPC;\nACA node two has "+ports_to_generate_on_aca_node_two+" ports per VPC. \nTotal ports per VPC: "+(ports_to_generate_on_aca_node_one + ports_to_generate_on_aca_node_two));
         generate_ip_macs(ports_to_generate_on_aca_node_one + ports_to_generate_on_aca_node_two);
