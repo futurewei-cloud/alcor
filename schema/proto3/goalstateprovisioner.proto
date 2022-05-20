@@ -36,6 +36,9 @@ service GoalStateProvisioner {
     rpc PushNetworkResourceStates (GoalState) returns (GoalStateOperationReply) {
     }
 
+    rpc PushGoalstates (RoutingRulesRequest) returns (GoalStateOperationReply) {
+    }
+
     // similar to PushGoalStatesStream with streaming GoalStateV2 and streaming GoalStateOperationReply
     // this is for DPM->NCM, and NCM->ACA
     rpc PushGoalStatesStream (stream GoalStateV2) returns (stream GoalStateOperationReply) {
@@ -49,6 +52,22 @@ service GoalStateProvisioner {
     rpc RequestGoalStates (HostRequest) returns (HostRequestReply) {
     }
 
+}
+
+message RoutingRulesRequest {
+    uint32 format_version = 1;
+    string request_id = 2;
+
+    message RoutingRule {
+        OperationType operation_type = 1;
+        string ip = 2;
+        string hostip = 3;
+        string mac = 4;
+        uint32 tunnel_id = 5;
+        string hostmac = 6;
+    }
+
+    repeated RoutingRule routingRules = 3;
 }
 
 message HostRequest {

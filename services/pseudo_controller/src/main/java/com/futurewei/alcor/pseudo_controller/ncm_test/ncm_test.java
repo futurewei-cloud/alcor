@@ -65,8 +65,12 @@ import java.util.concurrent.TimeUnit;
 public class ncm_test {
     @Value("${node_one_ip:ip_one}")
     String aca_node_one_ip;
+    @Value("${node_one_mac:mac_one}")
+    String aca_node_one_mac;
     @Value("${node_two_ip:ip_two}")
     String aca_node_two_ip;
+    @Value("${node_two_mac:mac_two}")
+    String aca_node_two_mac;
     static final int NUMBER_OF_NODES = 2;
     @Value("${ncm_ip:ip_three}")
     String ncm_ip;
@@ -96,6 +100,12 @@ public class ncm_test {
     String[] arion_wing_ips;
     @Value("{arion_wing_macs:[]}")
     String[] arion_wing_macs;
+    @Value("${arion_master_ip:arion_master_ip}")
+    String arion_master_ip;
+    @Value("${arion_rest_port:456}")
+    int arion_master_rest_port;
+    @Value("${arion_grpc_port:456}")
+    int arion_master_grpc_port;
 
     static String docker_ps_cmd = "docker ps";
     static String vpc_id_1 = "2b08a5bc-b718-11ea-b3de-111111111112";
@@ -128,7 +138,8 @@ public class ncm_test {
     }
 
     public void run_test_against_ncm(){
-        System.out.println("Test against Arion: " + test_against_aroin + " , Arion Wing IPs: " + Arrays.toString(arion_wing_ips) + ", Arion Wing Macs: "+ Arrays.toString(arion_wing_macs));
+        System.out.println("Test against Arion: " + test_against_aroin + " , Arion Wing IPs: " + Arrays.toString(arion_wing_ips) + ", Arion Wing Macs: "+ Arrays.toString(arion_wing_macs) +
+                ", ArionMaster IP: " + arion_master_ip + ", Arion Master REST port: " + arion_master_rest_port + ", Arion Master gRPC port: " + arion_master_grpc_port);
         if (arion_wing_ips.length != arion_wing_macs.length) {
             System.out.println("There are " + arion_wing_ips.length + " Wing IPs but there are "+ arion_wing_macs.length + "Wing MACs and the number's don't match. Please check your application.properties. Aborting.");
             return;
@@ -149,8 +160,14 @@ public class ncm_test {
         Goalstate.HostResources.Builder host_resource_builder_node_two = Goalstate.HostResources.newBuilder();
         Goalstate.HostResources.Builder host_resource_builder_node_one_port_one_neighbor = Goalstate.HostResources.newBuilder();
 
+        // a new Goalstate and its builder for Arion master; should have only neigbhor states.
+        Goalstateprovisioner.RoutingRulesRequest.Builder routing_rule_request_builder = Goalstateprovisioner.RoutingRulesRequest.newBuilder();
+        routing_rule_request_builder.setFormatVersion(1);
+        routing_rule_request_builder.setRequestId("arion_routing_rule-" + (System.currentTimeMillis() / 1000L));
+
         for (int vpc_number = 1 ; vpc_number <= number_of_vpcs ; vpc_number ++){
             // generate VPC ID and Subnet ID for the current VPC
+            int current_vpc_tunnel_id = 21 + vpc_number -1;
             String current_vpc_id = vpc_id_1.substring(0, vpc_id_1.length()-3)+String.format("%03d", (vpc_number));
             String current_subnet_id = subnet_id_1.substring(0,  subnet_id_1.length()-3) + String.format("%03d", (vpc_number));
             System.out.println("Current vpc_id: " + current_vpc_id + ", current subnet id: " + current_subnet_id);
@@ -226,28 +243,42 @@ public class ncm_test {
 
                 new_neighborState_builder.setConfiguration(NeighborConfiguration_builder.build());
                 Neighbor.NeighborState neighborState_node_one = new_neighborState_builder.build();
+                if(test_against_aroin){
+                    // We should put the neighbor states into the goalstate to Arion Master.
+                    Goalstateprovisioner.RoutingRulesRequest.RoutingRule.Builder current_routing_rule_builder = Goalstateprovisioner.RoutingRulesRequest.RoutingRule.newBuilder();
+                    current_routing_rule_builder.setOperationType(Common.OperationType.CREATE);
+                    current_routing_rule_builder.setIp(port_ip);
+                    current_routing_rule_builder.setHostip(host_ip);
+                    current_routing_rule_builder.setMac(port_mac);
+                    current_routing_rule_builder.setTunnelId(current_vpc_tunnel_id);
+                    current_routing_rule_builder.setHostmac(host_ip.equals(aca_node_one_ip)? aca_node_one_mac : aca_node_two_mac);
+                    routing_rule_request_builder.addRoutingRules(current_routing_rule_builder.build());
 
-                if (host_ip.equals(aca_node_one_ip)) {
+                }else{
+                    // NOT test against Arion; we should put the neigbhor states into the goalstate to NCM.
+                    if (host_ip.equals(aca_node_one_ip)) {
 
-                    GoalState_builder_one.putPortStates(port_state_one.getConfiguration().getId(), port_state_one);
+                        GoalState_builder_one.putPortStates(port_state_one.getConfiguration().getId(), port_state_one);
 
-                    host_resource_builder_node_one.addResources(port_one_resource_id);
-                    // if this port is on host_one, then it is a neighbor for ports on host_two
+                        host_resource_builder_node_one.addResources(port_one_resource_id);
+                        // if this port is on host_one, then it is a neighbor for ports on host_two
 
-                    GoalState_builder_two.putNeighborStates(neighborState_node_one.getConfiguration().getId(), neighborState_node_one);
-                    Goalstate.ResourceIdType resource_id_type_neighbor_node_one = Goalstate.ResourceIdType.newBuilder().
-                            setType(Common.ResourceType.NEIGHBOR).setId(neighborState_node_one.getConfiguration().getId()).build();
-                    host_resource_builder_node_two.addResources(resource_id_type_neighbor_node_one);
-                } else {
-                    GoalState_builder_two.putPortStates(port_state_one.getConfiguration().getId(), port_state_one);
+                        GoalState_builder_two.putNeighborStates(neighborState_node_one.getConfiguration().getId(), neighborState_node_one);
+                        Goalstate.ResourceIdType resource_id_type_neighbor_node_one = Goalstate.ResourceIdType.newBuilder().
+                                setType(Common.ResourceType.NEIGHBOR).setId(neighborState_node_one.getConfiguration().getId()).build();
+                        host_resource_builder_node_two.addResources(resource_id_type_neighbor_node_one);
+                    } else {
+                        GoalState_builder_two.putPortStates(port_state_one.getConfiguration().getId(), port_state_one);
 
-                    host_resource_builder_node_two.addResources(port_one_resource_id);
-                    // if this port is on host_two, then it is a neighbor for ports on host_one
-                    GoalState_builder_two.putNeighborStates(neighborState_node_one.getConfiguration().getId(), neighborState_node_one);
-                    Goalstate.ResourceIdType resource_id_type_neighbor_node_one = Goalstate.ResourceIdType.newBuilder().
-                            setType(Common.ResourceType.NEIGHBOR).setId(neighborState_node_one.getConfiguration().getId()).build();
-                    host_resource_builder_node_one_port_one_neighbor.addResources(resource_id_type_neighbor_node_one);
+                        host_resource_builder_node_two.addResources(port_one_resource_id);
+                        // if this port is on host_two, then it is a neighbor for ports on host_one
+                        GoalState_builder_two.putNeighborStates(neighborState_node_one.getConfiguration().getId(), neighborState_node_one);
+                        Goalstate.ResourceIdType resource_id_type_neighbor_node_one = Goalstate.ResourceIdType.newBuilder().
+                                setType(Common.ResourceType.NEIGHBOR).setId(neighborState_node_one.getConfiguration().getId()).build();
+                        host_resource_builder_node_one_port_one_neighbor.addResources(resource_id_type_neighbor_node_one);
+                    }
                 }
+
 //                System.out.println("Finished port state for port [" + port_ip + "] on host: [" + host_ip + "]");
             }
 
@@ -314,7 +345,7 @@ public class ncm_test {
             subnet_configuration_builder.setVpcId(current_vpc_id);
             subnet_configuration_builder.setId(current_subnet_id);
             subnet_configuration_builder.setCidr("10.0.0.0/24");
-            subnet_configuration_builder.setTunnelId(21 + vpc_number -1);
+            subnet_configuration_builder.setTunnelId(current_vpc_tunnel_id);
             subnet_configuration_builder.setGateway(Subnet.SubnetConfiguration.Gateway.newBuilder().setIpAddress("0.0.0.0").setMacAddress("6c:dd:ee:0:0:40").build());
 
             new_subnet_states.setConfiguration(subnet_configuration_builder.build());
@@ -353,16 +384,14 @@ public class ncm_test {
             vpc_configuration_builder.setProjectId(project_id);
             vpc_configuration_builder.setRevisionNumber(2);
 
-            new_vpc_states.setConfiguration(vpc_configuration_builder.build());
-            Vpc.VpcState vpc_state_for_both_nodes = new_vpc_states.build();
-
             // put gateway information in the goalstates.
             if (test_against_aroin){
                 Gateway.GatewayState.Builder new_gateway_state_builder = Gateway.GatewayState.newBuilder();
                 new_gateway_state_builder.setOperationType(Common.OperationType.CREATE);
-
                 Gateway.GatewayConfiguration.Builder gateway_configuration_builder = Gateway.GatewayConfiguration.newBuilder();
-                gateway_configuration_builder.setId("tc-gateway-"+vpc_number);
+                String current_gateway_id = "tc-gateway-"+vpc_number;
+                vpc_configuration_builder.addGatewayIds(current_gateway_id);
+                gateway_configuration_builder.setId(current_gateway_id);
                 gateway_configuration_builder.setRequestId("tc-gateway-request-"+vpc_number);
                 gateway_configuration_builder.setGatewayType(Gateway.GatewayType.ZETA);
                 Gateway.GatewayConfiguration.zeta.Builder zeta_builder = Gateway.GatewayConfiguration.zeta.newBuilder();
@@ -378,7 +407,19 @@ public class ncm_test {
                     System.out.println("Adding GW destination with IP: " + current_arion_wing_ip + " and MAC:"+current_arion_wing_mac);
                 }
                 new_gateway_state_builder.setConfiguration(gateway_configuration_builder.build());
+                Gateway.GatewayState current_gateway_state_for_both_nodes = new_gateway_state_builder.build();
+                GoalState_builder_one.putGatewayStates(current_gateway_state_for_both_nodes.getConfiguration().getId(),current_gateway_state_for_both_nodes);
+                GoalState_builder_two.putGatewayStates(current_gateway_state_for_both_nodes.getConfiguration().getId(), current_gateway_state_for_both_nodes);
+                Goalstate.ResourceIdType gateway_resource_id_type = Goalstate.ResourceIdType.newBuilder().setType(Common.ResourceType.GATEWAY).setId(current_gateway_state_for_both_nodes.getConfiguration().getId()).build();
+                host_resource_builder_node_one.addResources(gateway_resource_id_type);
+                host_resource_builder_node_two.addResources(gateway_resource_id_type);
+                host_resource_builder_node_one_port_one_neighbor.addResources(gateway_resource_id_type);
             }
+
+            new_vpc_states.setConfiguration(vpc_configuration_builder.build());
+            Vpc.VpcState vpc_state_for_both_nodes = new_vpc_states.build();
+
+
 
             GoalState_builder_one.putSubnetStates(subnet_state_for_both_nodes.getConfiguration().getId(), subnet_state_for_both_nodes);
 //        GoalState_builder_one.putSubnetStates(subnet_state_for_both_nodes_two.getConfiguration().getId(), subnet_state_for_both_nodes_two);
@@ -404,6 +445,8 @@ public class ncm_test {
             host_resource_builder_node_one_port_one_neighbor.addResources(vpc_resource_id_type);
         }
 
+        // build the GroutingRuleRequest, to be sent to Arion Master
+        Goalstateprovisioner.RoutingRulesRequest routing_rule_request = routing_rule_request_builder.build();
 
         GoalState_builder_one.putHostResources(aca_node_one_ip, host_resource_builder_node_one.build());
         GoalState_builder_two.putHostResources(aca_node_two_ip, host_resource_builder_node_two.build());
@@ -486,6 +529,47 @@ public class ncm_test {
         span.finish();
         System.out.println("[Test Controller] Child span after finish: "+span.toString());
 
+        if (test_against_aroin){
+            Span arion_span;
+            System.out.println("Now send the Routing Rule messages to Arion Master via gRPC");
+            ManagedChannel arion_channel = ManagedChannelBuilder.forAddress(arion_master_ip, arion_master_grpc_port).usePlaintext().build();
+            GoalStateProvisionerGrpc.GoalStateProvisionerStub arion_stub = GoalStateProvisionerGrpc.newStub(tracingClientInterceptor.intercept(arion_channel));
+            if(parentSpan != null){
+                arion_span = tracer.buildSpan("alcor-tc-send-gs").asChildOf(parentSpan.context()).start();
+                System.out.println("[Test Controller] Got parent span: "+parentSpan.toString());
+            }else{
+                arion_span = tracer.buildSpan("alcor-tc-send-gs").start();
+            }
+            System.out.println("Constructed channel and span.");
+            System.out.println("[Test Controller] Built child span: "+span.toString());
+            Scope arion_scope = tracer.scopeManager().activate(span);
+            span.log("random log line for Arion.");
+            StreamObserver<Goalstateprovisioner.GoalStateOperationReply> arion_message_observer = new StreamObserver<>() {
+                @Override
+                public void onNext(Goalstateprovisioner.GoalStateOperationReply value) {
+                    finished_sending_goalstate_hosts_count ++ ;
+                    System.out.println("FROM ARION: onNext function with this GoalStateOperationReply: \n" + value.toString() + "\n");
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                    System.out.println("FROM ARION: onError function with this GoalStateOperationReply: \n" + t.getMessage() + "\n");
+                }
+
+                @Override
+                public void onCompleted() {
+                    System.out.println("FROM ARION: onCompleted");
+                }
+            };
+            System.out.println("FOR ARION: Created GoalStateOperationReply observer class");
+            /*io.grpc.stub.StreamObserver<Goalstateprovisioner.RoutingRulesRequest> arion_response_observer = */ arion_stub.pushGoalstates(routing_rule_request, arion_message_observer);
+            System.out.println("FOR ARION: Connected the observers");
+
+            System.out.println("FOR ARION: After calling onNext");
+
+            System.out.println("For ARION: Wait no longer than 6000 seconds until Routing Rules are sent to Arion Master.");
+            Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == (NUMBER_OF_NODES + 1) );
+        }
 
 //        System.out.println("Try to send gsv1 to the host!");
 //
