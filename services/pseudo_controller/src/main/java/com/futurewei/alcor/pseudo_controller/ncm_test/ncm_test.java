@@ -94,6 +94,8 @@ public class ncm_test {
     Boolean test_against_aroin;
     @Value("${arion_wing_ips:[]}")
     String[] arion_wing_ips;
+    @Value("{arion_wing_macs:[]}")
+    String[] arion_wing_macs;
 
     static String docker_ps_cmd = "docker ps";
     static String vpc_id_1 = "2b08a5bc-b718-11ea-b3de-111111111112";
@@ -117,6 +119,7 @@ public class ncm_test {
     static ExecutorService backgroundPingExecutor = Executors.newFixedThreadPool(1);
     static final int DO_EXECUTE_BACKGROUND_PING = 1;
     static int finished_sending_goalstate_hosts_count = 0;
+    static int arion_port_inbound_operation = 8300;
 
     static final int DEFAULT_VLAN_ID = 1;
 
@@ -125,8 +128,11 @@ public class ncm_test {
     }
 
     public void run_test_against_ncm(){
-        System.out.println("Test against Arion: " + test_against_aroin + " , Arion Wing IPs: " + arion_wing_ips);
-
+        System.out.println("Test against Arion: " + test_against_aroin + " , Arion Wing IPs: " + Arrays.toString(arion_wing_ips) + ", Arion Wing Macs: "+ Arrays.toString(arion_wing_macs));
+        if (arion_wing_ips.length != arion_wing_macs.length) {
+            System.out.println("There are " + arion_wing_ips.length + " Wing IPs but there are "+ arion_wing_macs.length + "Wing MACs and the number's don't match. Please check your application.properties. Aborting.");
+            return;
+        }
         System.out.println("There are "+ number_of_vpcs+" VPCs, ACA node one has "+ ports_to_generate_on_aca_node_one + " ports per VPC;\nACA node two has "+ports_to_generate_on_aca_node_two+" ports per VPC. \nTotal ports per VPC: "+(ports_to_generate_on_aca_node_one + ports_to_generate_on_aca_node_two));
         generate_ip_macs(ports_to_generate_on_aca_node_one + ports_to_generate_on_aca_node_two);
         create_containers_on_both_hosts_concurrently();
@@ -349,6 +355,30 @@ public class ncm_test {
 
             new_vpc_states.setConfiguration(vpc_configuration_builder.build());
             Vpc.VpcState vpc_state_for_both_nodes = new_vpc_states.build();
+
+            // put gateway information in the goalstates.
+            if (test_against_aroin){
+                Gateway.GatewayState.Builder new_gateway_state_builder = Gateway.GatewayState.newBuilder();
+                new_gateway_state_builder.setOperationType(Common.OperationType.CREATE);
+
+                Gateway.GatewayConfiguration.Builder gateway_configuration_builder = Gateway.GatewayConfiguration.newBuilder();
+                gateway_configuration_builder.setId("tc-gateway-"+vpc_number);
+                gateway_configuration_builder.setRequestId("tc-gateway-request-"+vpc_number);
+                gateway_configuration_builder.setGatewayType(Gateway.GatewayType.ZETA);
+                Gateway.GatewayConfiguration.zeta.Builder zeta_builder = Gateway.GatewayConfiguration.zeta.newBuilder();
+                zeta_builder.setPortInbandOperation(arion_port_inbound_operation);
+                gateway_configuration_builder.setZetaInfo(zeta_builder.build());
+                for(int i = 0 ; i < arion_wing_ips.length ; i ++){
+                    String current_arion_wing_ip = arion_wing_ips[i];
+                    String current_arion_wing_mac = arion_wing_macs[i];
+                    Gateway.GatewayConfiguration.destination.Builder destination_builder = Gateway.GatewayConfiguration.destination.newBuilder();
+                    destination_builder.setIpAddress(current_arion_wing_ip);
+                    destination_builder.setMacAddress(current_arion_wing_mac);
+                    gateway_configuration_builder.addDestinations(destination_builder.build());
+                    System.out.println("Adding GW destination with IP: " + current_arion_wing_ip + " and MAC:"+current_arion_wing_mac);
+                }
+                new_gateway_state_builder.setConfiguration(gateway_configuration_builder.build());
+            }
 
             GoalState_builder_one.putSubnetStates(subnet_state_for_both_nodes.getConfiguration().getId(), subnet_state_for_both_nodes);
 //        GoalState_builder_one.putSubnetStates(subnet_state_for_both_nodes_two.getConfiguration().getId(), subnet_state_for_both_nodes_two);
