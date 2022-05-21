@@ -573,7 +573,7 @@ public class ncm_test {
             HttpGet getConnection = new HttpGet(arion_master_restful_url);
             try {
                 HttpResponse default_setup_response = c.execute(getConnection);
-                System.out.println("Get this /default_setup response: " + default_setup_response.toString());
+                System.out.println("Get this /default_setup status code: " + default_setup_response.getStatusLine().getStatusCode() + "\nresponse: " + default_setup_response.toString());
             } catch (IOException e) {
                 System.out.println("FROM ARION: Got error when calling /default_setup: " + e.getMessage() + ", aborting...");
                 e.printStackTrace();

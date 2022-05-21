@@ -555,7 +555,7 @@ public class alcor_http_api_test {
                     "application/json"));
             post.setEntity(s);
             HttpResponse httpResponse = c.execute(post);
-
+            System.out.println("Posting at " + url + " returned this status code: " + httpResponse.getStatusLine().getStatusCode());
             // Get the input stream
             HttpEntity response_entity = httpResponse.getEntity();
 
