@@ -51,6 +51,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.awaitility.Awaitility;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -568,7 +569,7 @@ public class ncm_test {
         if (test_against_aroin){
             System.out.println("Calling ArionMster at " + arion_master_restful_url + " for /default_setup.");
 
-            HttpClient c = new DefaultHttpClient();
+            HttpClient c = HttpClientBuilder.create().build();
             HttpGet getConnection = new HttpGet(arion_master_restful_url);
             try {
                 HttpResponse default_setup_response = c.execute(getConnection);
