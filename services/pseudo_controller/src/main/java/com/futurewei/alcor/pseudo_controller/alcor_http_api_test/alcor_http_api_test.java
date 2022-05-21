@@ -60,7 +60,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -542,7 +541,7 @@ public class alcor_http_api_test {
         */
     }
 
-    private JSONObject call_post_api_with_json(String url, JSONObject parameter){
+    public static JSONObject call_post_api_with_json(String url, JSONObject parameter){
 //        System.out.println("Calling URL: " + url);
         JSONObject response_json = null;
         HttpClient c = new DefaultHttpClient();

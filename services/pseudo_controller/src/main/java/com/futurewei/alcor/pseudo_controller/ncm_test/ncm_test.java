@@ -47,12 +47,21 @@ import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.grpc.TracingClientInterceptor;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.awaitility.Awaitility;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
@@ -60,6 +69,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import com.futurewei.alcor.pseudo_controller.alcor_http_api_test.alcor_http_api_test;
 
 @Component
 public class ncm_test {
@@ -130,8 +140,8 @@ public class ncm_test {
     static final int DO_EXECUTE_BACKGROUND_PING = 1;
     static int finished_sending_goalstate_hosts_count = 0;
     static int arion_port_inbound_operation = 8300;
-
     static final int DEFAULT_VLAN_ID = 1;
+    static JSONObject arion_data_json_object;
 
     public ncm_test(){
         System.out.println("Start of NCM Test!");
@@ -143,6 +153,18 @@ public class ncm_test {
         if (arion_wing_ips.length != arion_wing_macs.length) {
             System.out.println("There are " + arion_wing_ips.length + " Wing IPs but there are "+ arion_wing_macs.length + "Wing MACs and the number's don't match. Please check your application.properties. Aborting.");
             return;
+        }
+        String arion_master_restful_url = arion_master_ip+arion_master_rest_port;
+        if(test_against_aroin){
+            InputStream is = com.futurewei.alcor.pseudo_controller.pseudo_controller.class.getResourceAsStream("arion_data.json");
+            JSONParser jsonParser = new JSONParser();
+            try {
+                arion_data_json_object = (JSONObject)jsonParser.parse(new InputStreamReader(is, "UTF-8"));
+            }catch (IOException | ParseException e ){
+                System.out.println("Unable to read from json data file: " + e.getMessage() + "\nAborting...");
+                return;
+            }
+            setup_arion_gateway_cluster_and_nodes();
         }
         System.out.println("There are "+ number_of_vpcs+" VPCs, ACA node one has "+ ports_to_generate_on_aca_node_one + " ports per VPC;\nACA node two has "+ports_to_generate_on_aca_node_two+" ports per VPC. \nTotal ports per VPC: "+(ports_to_generate_on_aca_node_one + ports_to_generate_on_aca_node_two));
         generate_ip_macs(ports_to_generate_on_aca_node_one + ports_to_generate_on_aca_node_two);
@@ -443,6 +465,20 @@ public class ncm_test {
             host_resource_builder_node_one.addResources(vpc_resource_id_type);
             host_resource_builder_node_two.addResources(vpc_resource_id_type);
             host_resource_builder_node_one_port_one_neighbor.addResources(vpc_resource_id_type);
+
+            if(test_against_aroin){
+                JSONObject current_vpc_json_object = new JSONObject();
+                current_vpc_json_object.put("vpc_id", current_vpc_id);
+                //VNI == Tunnel ID
+                current_vpc_json_object.put("vni", current_vpc_tunnel_id);
+                JSONObject current_vpc_response = alcor_http_api_test.call_post_api_with_json(arion_master_restful_url + "/vpc", current_vpc_json_object);
+                System.out.println("Setup VPC: " + current_vpc_id + " response: " + current_vpc_response.toJSONString() + "\nsleep 5 seconds before the next VPC...");
+                try {
+                    TimeUnit.SECONDS.sleep(5);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         // build the GroutingRuleRequest, to be sent to Arion Master
@@ -530,6 +566,18 @@ public class ncm_test {
         System.out.println("[Test Controller] Child span after finish: "+span.toString());
 
         if (test_against_aroin){
+            System.out.println("Calling ArionMster at " + arion_master_restful_url + " for /default_setup.");
+
+            HttpClient c = new DefaultHttpClient();
+            HttpGet getConnection = new HttpGet(arion_master_restful_url);
+            try {
+                HttpResponse default_setup_response = c.execute(getConnection);
+                System.out.println("Get this /default_setup response: " + default_setup_response.toString());
+            } catch (IOException e) {
+                System.out.println("FROM ARION: Got error when calling /default_setup: " + e.getMessage() + ", aborting...");
+                e.printStackTrace();
+                return;
+            }
             Span arion_span;
             System.out.println("Now send the Routing Rule messages to Arion Master via gRPC");
             ManagedChannel arion_channel = ManagedChannelBuilder.forAddress(arion_master_ip, arion_master_grpc_port).usePlaintext().build();
@@ -638,6 +686,31 @@ public class ncm_test {
             System.out.println("I can't sleep!!!!");
 
         }
+    }
+
+    // Send the ZGC_data and NODE_data to Arion Master, in order to set up gateway cluster and gateway nodes.
+    public void setup_arion_gateway_cluster_and_nodes(){
+        JSONObject cluster_data = (JSONObject) arion_data_json_object.get("ZGC_data");
+        String arion_master_restful_url = arion_master_ip+arion_master_rest_port;
+        JSONObject cluster_response = alcor_http_api_test.call_post_api_with_json(arion_master_restful_url+"/gatewaycluster", cluster_data );
+        System.out.println("Setup Gateway Cluster response: " + cluster_response.toJSONString() + "\nSleep 10 seconds before setting up Arion Nodes...");
+        try {
+            TimeUnit.SECONDS.sleep(10);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        JSONArray nodes = (JSONArray) arion_data_json_object.get("NODE_data");
+        for(int i = 0 ; i < nodes.size(); i ++){
+            JSONObject current_node = (JSONObject) nodes.get(i);
+            JSONObject current_node_response = alcor_http_api_test.call_post_api_with_json(arion_master_restful_url+"/arionnode", current_node);
+            System.out.println("Setup Gateway Node " + i + " response: " + current_node_response.toJSONString() + "\nSleeping 10 seconds before setting up the next Arion Node...");
+            try {
+                TimeUnit.SECONDS.sleep(5);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        return;
     }
 
     // Generates IP/MAC for host_many_per_host, and inserts them into the hashmap
