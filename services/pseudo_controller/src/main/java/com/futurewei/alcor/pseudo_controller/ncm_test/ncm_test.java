@@ -157,7 +157,7 @@ public class ncm_test {
         }
         String arion_master_restful_url = arion_master_ip+arion_master_rest_port;
         if(test_against_aroin){
-            InputStream is = com.futurewei.alcor.pseudo_controller.pseudo_controller.class.getResourceAsStream("arion_data.json");
+            InputStream is = com.futurewei.alcor.pseudo_controller.pseudo_controller.class.getResourceAsStream("/arion_data.json");
             JSONParser jsonParser = new JSONParser();
             try {
                 arion_data_json_object = (JSONObject)jsonParser.parse(new InputStreamReader(is, "UTF-8"));
@@ -692,7 +692,7 @@ public class ncm_test {
     // Send the ZGC_data and NODE_data to Arion Master, in order to set up gateway cluster and gateway nodes.
     public void setup_arion_gateway_cluster_and_nodes(){
         JSONObject cluster_data = (JSONObject) arion_data_json_object.get("ZGC_data");
-        String arion_master_restful_url = arion_master_ip+arion_master_rest_port;
+        String arion_master_restful_url = arion_master_ip + ":" + arion_master_rest_port;
         JSONObject cluster_response = alcor_http_api_test.call_post_api_with_json(arion_master_restful_url+"/gatewaycluster", cluster_data );
         System.out.println("Setup Gateway Cluster response: " + cluster_response.toJSONString() + "\nSleep 10 seconds before setting up Arion Nodes...");
         try {
