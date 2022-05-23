@@ -117,6 +117,8 @@ public class ncm_test {
     int arion_master_rest_port;
     @Value("${arion_grpc_port:456}")
     int arion_master_grpc_port;
+    @Value("${arion_dp_controller_ip:arion_dp_controller_ip}")
+    String arion_dp_controller_ip;
 
     static String docker_ps_cmd = "docker ps";
     static String vpc_id_1 = "2b08a5bc-b718-11ea-b3de-111111111112";
@@ -150,7 +152,7 @@ public class ncm_test {
 
     public void run_test_against_ncm(){
         System.out.println("Test against Arion: " + test_against_aroin + " , Arion Wing IPs: " + Arrays.toString(arion_wing_ips) + ", Arion Wing Macs: "+ Arrays.toString(arion_wing_macs) +
-                ", ArionMaster IP: " + arion_master_ip + ", Arion Master REST port: " + arion_master_rest_port + ", Arion Master gRPC port: " + arion_master_grpc_port);
+                ", ArionMaster IP: " + arion_master_ip + ", Arion Master REST port: " + arion_master_rest_port + ", Arion Master gRPC port: " + arion_master_grpc_port + ", Arion DP Controller IP: " + arion_dp_controller_ip);
         if (arion_wing_ips.length != arion_wing_macs.length) {
             System.out.println("There are " + arion_wing_ips.length + " Wing IPs but there are "+ arion_wing_macs.length + "Wing MACs and the number's don't match. Please check your application.properties. Aborting.");
             return;
@@ -567,20 +569,9 @@ public class ncm_test {
         System.out.println("[Test Controller] Child span after finish: "+span.toString());
 
         if (test_against_aroin){
-            System.out.println("Calling ArionMster at " + arion_master_restful_url + " for /default_setup.");
-
-            HttpClient c = HttpClientBuilder.create().build();
-            HttpGet getConnection = new HttpGet(arion_master_restful_url);
-            try {
-                HttpResponse default_setup_response = c.execute(getConnection);
-                System.out.println("Get this /default_setup status code: " + default_setup_response.getStatusLine().getStatusCode() + "\nresponse: " + default_setup_response.toString());
-            } catch (IOException e) {
-                System.out.println("FROM ARION: Got error when calling /default_setup: " + e.getMessage() + ", aborting...");
-                e.printStackTrace();
-                return;
-            }
             Span arion_span;
             System.out.println("Now send the Routing Rule messages to Arion Master via gRPC");
+            String arion_address_without_http = arion_master_ip.replaceAll("http://", "");
             ManagedChannel arion_channel = ManagedChannelBuilder.forAddress(arion_master_ip, arion_master_grpc_port).usePlaintext().build();
             GoalStateProvisionerGrpc.GoalStateProvisionerStub arion_stub = GoalStateProvisionerGrpc.newStub(tracingClientInterceptor.intercept(arion_channel));
             if(parentSpan != null){
@@ -616,6 +607,20 @@ public class ncm_test {
 
             System.out.println("FOR ARION: After calling onNext");
 
+            System.out.println("For ARION: Wait no longer than 6000 seconds until Routing Rules are sent to Arion Master.");
+            Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == (NUMBER_OF_NODES + 1) );
+            System.out.println("Calling Arion DP Controller at " + arion_dp_controller_ip + " for /default_setup.");
+
+            HttpClient c = HttpClientBuilder.create().build();
+            HttpGet getConnection = new HttpGet(arion_dp_controller_ip);
+            try {
+                HttpResponse default_setup_response = c.execute(getConnection);
+                System.out.println("Get this /default_setup status code: " + default_setup_response.getStatusLine().getStatusCode() + "\nresponse: " + default_setup_response.toString());
+            } catch (IOException e) {
+                System.out.println("FROM ARION: Got error when calling /default_setup: " + e.getMessage() + ", aborting...");
+                e.printStackTrace();
+                return;
+            }
             System.out.println("For ARION: Wait no longer than 6000 seconds until Routing Rules are sent to Arion Master.");
             Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == (NUMBER_OF_NODES + 1) );
         }
