@@ -572,7 +572,7 @@ public class ncm_test {
             Span arion_span;
             System.out.println("Now send the Routing Rule messages to Arion Master via gRPC");
             String arion_address_without_http = arion_master_ip.replaceAll("http://", "");
-            ManagedChannel arion_channel = ManagedChannelBuilder.forAddress(arion_master_ip, arion_master_grpc_port).usePlaintext().build();
+            ManagedChannel arion_channel = ManagedChannelBuilder.forAddress(arion_address_without_http, arion_master_grpc_port).usePlaintext().build();
             GoalStateProvisionerGrpc.GoalStateProvisionerStub arion_stub = GoalStateProvisionerGrpc.newStub(tracingClientInterceptor.intercept(arion_channel));
             if(parentSpan != null){
                 arion_span = tracer.buildSpan("alcor-tc-send-gs").asChildOf(parentSpan.context()).start();
