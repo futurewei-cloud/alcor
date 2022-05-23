@@ -155,7 +155,7 @@ public class ncm_test {
             System.out.println("There are " + arion_wing_ips.length + " Wing IPs but there are "+ arion_wing_macs.length + "Wing MACs and the number's don't match. Please check your application.properties. Aborting.");
             return;
         }
-        String arion_master_restful_url = arion_master_ip+arion_master_rest_port;
+        String arion_master_restful_url = arion_master_ip+":"+arion_master_rest_port;
         if(test_against_aroin){
             InputStream is = com.futurewei.alcor.pseudo_controller.pseudo_controller.class.getResourceAsStream("/arion_data.json");
             JSONParser jsonParser = new JSONParser();
