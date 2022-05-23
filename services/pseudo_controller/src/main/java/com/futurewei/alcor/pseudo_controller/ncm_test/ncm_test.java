@@ -109,7 +109,7 @@ public class ncm_test {
     Boolean test_against_aroin;
     @Value("${arion_wing_ips:[]}")
     String[] arion_wing_ips;
-    @Value("{arion_wing_macs:[]}")
+    @Value("${arion_wing_macs:[]}")
     String[] arion_wing_macs;
     @Value("${arion_master_ip:arion_master_ip}")
     String arion_master_ip;
@@ -161,7 +161,7 @@ public class ncm_test {
             JSONParser jsonParser = new JSONParser();
             try {
                 arion_data_json_object = (JSONObject)jsonParser.parse(new InputStreamReader(is, "UTF-8"));
-            }catch (IOException | ParseException e ){
+            }catch (IOException | NullPointerException | ParseException e ){
                 System.out.println("Unable to read from json data file: " + e.getMessage() + "\nAborting...");
                 return;
             }
