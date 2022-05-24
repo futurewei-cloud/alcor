@@ -34,6 +34,7 @@ Params:
 package com.futurewei.alcor.pseudo_controller.ncm_test;
 
 import com.futurewei.alcor.schema.*;
+import com.futurewei.arion.schema.*;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
@@ -186,7 +187,7 @@ public class ncm_test {
         Goalstate.HostResources.Builder host_resource_builder_node_one_port_one_neighbor = Goalstate.HostResources.newBuilder();
 
         // a new Goalstate and its builder for Arion master; should have only neigbhor states.
-        Goalstateprovisioner.RoutingRulesRequest.Builder routing_rule_request_builder = Goalstateprovisioner.RoutingRulesRequest.newBuilder();
+        com.futurewei.arion.schema.Goalstateprovisioner.RoutingRulesRequest.Builder routing_rule_request_builder = com.futurewei.arion.schema.Goalstateprovisioner.RoutingRulesRequest.newBuilder();
         routing_rule_request_builder.setFormatVersion(1);
         routing_rule_request_builder.setRequestId("arion_routing_rule-" + (System.currentTimeMillis() / 1000L));
 
@@ -270,8 +271,8 @@ public class ncm_test {
                 Neighbor.NeighborState neighborState_node_one = new_neighborState_builder.build();
                 if(test_against_aroin){
                     // We should put the neighbor states into the goalstate to Arion Master.
-                    Goalstateprovisioner.RoutingRulesRequest.RoutingRule.Builder current_routing_rule_builder = Goalstateprovisioner.RoutingRulesRequest.RoutingRule.newBuilder();
-                    current_routing_rule_builder.setOperationType(Common.OperationType.CREATE);
+                    com.futurewei.arion.schema.Goalstateprovisioner.RoutingRulesRequest.RoutingRule.Builder current_routing_rule_builder = com.futurewei.arion.schema.Goalstateprovisioner.RoutingRulesRequest.RoutingRule.newBuilder();
+                    current_routing_rule_builder.setOperationType(com.futurewei.arion.schema.Common.OperationType.CREATE);
                     current_routing_rule_builder.setIp(port_ip);
                     current_routing_rule_builder.setHostip(host_ip);
                     current_routing_rule_builder.setMac(port_mac);
@@ -485,7 +486,7 @@ public class ncm_test {
         }
 
         // build the GroutingRuleRequest, to be sent to Arion Master
-        Goalstateprovisioner.RoutingRulesRequest routing_rule_request = routing_rule_request_builder.build();
+        com.futurewei.arion.schema.Goalstateprovisioner.RoutingRulesRequest routing_rule_request = routing_rule_request_builder.build();
 
         GoalState_builder_one.putHostResources(aca_node_one_ip, host_resource_builder_node_one.build());
         GoalState_builder_two.putHostResources(aca_node_two_ip, host_resource_builder_node_two.build());
@@ -573,7 +574,7 @@ public class ncm_test {
             System.out.println("Now send the Routing Rule messages to Arion Master via gRPC");
             String arion_address_without_http = arion_master_ip.replaceAll("http://", "");
             ManagedChannel arion_channel = ManagedChannelBuilder.forAddress(arion_address_without_http, arion_master_grpc_port).usePlaintext().build();
-            GoalStateProvisionerGrpc.GoalStateProvisionerStub arion_stub = GoalStateProvisionerGrpc.newStub(tracingClientInterceptor.intercept(arion_channel));
+            com.futurewei.arion.schema.GoalStateProvisionerGrpc.GoalStateProvisionerStub arion_stub = com.futurewei.arion.schema.GoalStateProvisionerGrpc.newStub(tracingClientInterceptor.intercept(arion_channel));
             if(parentSpan != null){
                 arion_span = tracer.buildSpan("alcor-tc-send-gs").asChildOf(parentSpan.context()).start();
                 System.out.println("[Test Controller] Got parent span: "+parentSpan.toString());
@@ -584,9 +585,9 @@ public class ncm_test {
             System.out.println("[Test Controller] Built child span: "+span.toString());
             Scope arion_scope = tracer.scopeManager().activate(span);
             span.log("random log line for Arion.");
-            StreamObserver<Goalstateprovisioner.GoalStateOperationReply> arion_message_observer = new StreamObserver<>() {
+            StreamObserver<com.futurewei.arion.schema.Goalstateprovisioner.GoalStateOperationReply> arion_message_observer = new StreamObserver<>() {
                 @Override
-                public void onNext(Goalstateprovisioner.GoalStateOperationReply value) {
+                public void onNext(com.futurewei.arion.schema.Goalstateprovisioner.GoalStateOperationReply value) {
                     finished_sending_goalstate_hosts_count ++ ;
                     System.out.println("FROM ARION: onNext function with this GoalStateOperationReply: \n" + value.toString() + "\n");
                 }
