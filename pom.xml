@@ -63,7 +63,15 @@ Copyright(c) 2020 Futurewei Cloud
         <module>services/pseudo_controller</module>
     </modules>
     <packaging>pom</packaging>
-
+    <dependencyManagement>
+      <dependencies>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-core</artifactId>
+            <version>1.23.0</version>
+        </dependency>
+       </dependencies>
+    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>com.futurewei.arion</groupId>
