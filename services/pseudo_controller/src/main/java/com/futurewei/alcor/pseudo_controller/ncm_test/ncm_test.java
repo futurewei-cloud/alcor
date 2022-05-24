@@ -43,10 +43,10 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import io.jaegertracing.Configuration;
 import io.jaegertracing.internal.samplers.ConstSampler;
-import io.opentracing.Scope;
-import io.opentracing.Span;
-import io.opentracing.Tracer;
-import io.opentracing.contrib.grpc.TracingClientInterceptor;
+//import io.opentracing.Scope;
+//import io.opentracing.Span;
+//import io.opentracing.Tracer;
+//import io.opentracing.contrib.grpc.TracingClientInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -512,30 +512,30 @@ public class ncm_test {
                 .withSampler(samplerConfiguration)
                 .withReporter(reporterConfiguration);
 
-        Tracer tracer = configuration.getTracer();
-        System.out.println("[Test Controller] Got this global tracer: "+tracer.toString());
+//        Tracer tracer = configuration.getTracer();
+//        System.out.println("[Test Controller] Got this global tracer: "+tracer.toString());
 
-        TracingClientInterceptor tracingClientInterceptor = TracingClientInterceptor
-                .newBuilder()
-                .withTracer(tracer)
-                .withVerbosity()
-                .withStreaming()
-                .build();
+//        TracingClientInterceptor tracingClientInterceptor = TracingClientInterceptor
+//                .newBuilder()
+//                .withTracer(tracer)
+//                .withVerbosity()
+//                .withStreaming()
+//                .build();
 
         ManagedChannel channel = ManagedChannelBuilder.forAddress(ncm_ip, ncm_port).usePlaintext().build();
         System.out.println("Constructed channel");
-        com.futurewei.alcor.schema.GoalStateProvisionerGrpc.GoalStateProvisionerStub stub = com.futurewei.alcor.schema.GoalStateProvisionerGrpc.newStub(tracingClientInterceptor.intercept(channel));
-        Span parentSpan = tracer.activeSpan();
-        Span span;
-        if(parentSpan != null){
-            span = tracer.buildSpan("alcor-tc-send-gs").asChildOf(parentSpan.context()).start();
-            System.out.println("[Test Controller] Got parent span: "+parentSpan.toString());
-        }else{
-            span = tracer.buildSpan("alcor-tc-send-gs").start();
-        }
-        System.out.println("[Test Controller] Built child span: "+span.toString());
-        Scope cscope = tracer.scopeManager().activate(span);
-        span.log("abcdefg");
+        com.futurewei.alcor.schema.GoalStateProvisionerGrpc.GoalStateProvisionerStub stub = com.futurewei.alcor.schema.GoalStateProvisionerGrpc.newStub(/*tracingClientInterceptor.intercept*/(channel));
+//        Span parentSpan = tracer.activeSpan();
+//        Span span;
+//        if(parentSpan != null){
+//            span = tracer.buildSpan("alcor-tc-send-gs").asChildOf(parentSpan.context()).start();
+//            System.out.println("[Test Controller] Got parent span: "+parentSpan.toString());
+//        }else{
+//            span = tracer.buildSpan("alcor-tc-send-gs").start();
+//        }
+//        System.out.println("[Test Controller] Built child span: "+span.toString());
+//        Scope cscope = tracer.scopeManager().activate(span);
+//        span.log("abcdefg");
         System.out.println("Created stub");
         StreamObserver<com.futurewei.alcor.schema.Goalstateprovisioner.GoalStateOperationReply> message_observer = new StreamObserver<>() {
             @Override
@@ -565,25 +565,25 @@ public class ncm_test {
 
         System.out.println("Wait no longer than 6000 seconds until both goalstates are sent to both hosts.");
         Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == NUMBER_OF_NODES);
-        span.finish();
-        System.out.println("[Test Controller] Child span after finish: "+span.toString());
+//        span.finish();
+//        System.out.println("[Test Controller] Child span after finish: "+span.toString());
 
         if (test_against_aroin){
-            Span arion_span;
+//            Span arion_span;
             System.out.println("Now send the Routing Rule messages to Arion Master via gRPC");
             String arion_address_without_http = arion_master_ip.replaceAll("http://", "");
             ManagedChannel arion_channel = ManagedChannelBuilder.forAddress(arion_address_without_http, arion_master_grpc_port).usePlaintext().build();
-            com.futurewei.arion.schema.GoalStateProvisionerGrpc.GoalStateProvisionerStub arion_stub = com.futurewei.arion.schema.GoalStateProvisionerGrpc.newStub(tracingClientInterceptor.intercept(arion_channel));
-            if(parentSpan != null){
-                arion_span = tracer.buildSpan("alcor-tc-send-gs").asChildOf(parentSpan.context()).start();
-                System.out.println("[Test Controller] Got parent span: "+parentSpan.toString());
-            }else{
-                arion_span = tracer.buildSpan("alcor-tc-send-gs").start();
-            }
-            System.out.println("Constructed channel and span.");
-            System.out.println("[Test Controller] Built child span: "+span.toString());
-            Scope arion_scope = tracer.scopeManager().activate(span);
-            span.log("random log line for Arion.");
+            com.futurewei.arion.schema.GoalStateProvisionerGrpc.GoalStateProvisionerStub arion_stub = com.futurewei.arion.schema.GoalStateProvisionerGrpc.newStub(/*tracingClientInterceptor.intercept*/(arion_channel));
+//            if(parentSpan != null){
+//                arion_span = tracer.buildSpan("alcor-tc-send-gs").asChildOf(parentSpan.context()).start();
+//                System.out.println("[Test Controller] Got parent span: "+parentSpan.toString());
+//            }else{
+//                arion_span = tracer.buildSpan("alcor-tc-send-gs").start();
+//            }
+//            System.out.println("Constructed channel and span.");
+//            System.out.println("[Test Controller] Built child span: "+span.toString());
+//            Scope arion_scope = tracer.scopeManager().activate(span);
+//            span.log("random log line for Arion.");
             StreamObserver<com.futurewei.arion.schema.Goalstateprovisioner.GoalStateOperationReply> arion_message_observer = new StreamObserver<>() {
                 @Override
                 public void onNext(com.futurewei.arion.schema.Goalstateprovisioner.GoalStateOperationReply value) {
