@@ -34,7 +34,6 @@ Params:
 package com.futurewei.alcor.pseudo_controller.ncm_test;
 
 import com.futurewei.alcor.schema.*;
-import com.futurewei.arion.schema.*;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
@@ -180,11 +179,11 @@ public class ncm_test {
         System.out.println("Trying to build the GoalStateV2 for " + (ports_to_generate_on_aca_node_one + ports_to_generate_on_aca_node_two) + " Ports");
 
 
-        Goalstate.GoalStateV2.Builder GoalState_builder_one = Goalstate.GoalStateV2.newBuilder();
-        Goalstate.GoalStateV2.Builder GoalState_builder_two = Goalstate.GoalStateV2.newBuilder();
-        Goalstate.HostResources.Builder host_resource_builder_node_one = Goalstate.HostResources.newBuilder();
-        Goalstate.HostResources.Builder host_resource_builder_node_two = Goalstate.HostResources.newBuilder();
-        Goalstate.HostResources.Builder host_resource_builder_node_one_port_one_neighbor = Goalstate.HostResources.newBuilder();
+        com.futurewei.alcor.schema.Goalstate.GoalStateV2.Builder GoalState_builder_one = com.futurewei.alcor.schema.Goalstate.GoalStateV2.newBuilder();
+        com.futurewei.alcor.schema.Goalstate.GoalStateV2.Builder GoalState_builder_two = com.futurewei.alcor.schema.Goalstate.GoalStateV2.newBuilder();
+        com.futurewei.alcor.schema.Goalstate.HostResources.Builder host_resource_builder_node_one = com.futurewei.alcor.schema.Goalstate.HostResources.newBuilder();
+        com.futurewei.alcor.schema.Goalstate.HostResources.Builder host_resource_builder_node_two = com.futurewei.alcor.schema.Goalstate.HostResources.newBuilder();
+        com.futurewei.alcor.schema.Goalstate.HostResources.Builder host_resource_builder_node_one_port_one_neighbor = com.futurewei.alcor.schema.Goalstate.HostResources.newBuilder();
 
         // a new Goalstate and its builder for Arion master; should have only neigbhor states.
         com.futurewei.arion.schema.Goalstateprovisioner.RoutingRulesRequest.Builder routing_rule_request_builder = com.futurewei.arion.schema.Goalstateprovisioner.RoutingRulesRequest.newBuilder();
@@ -220,47 +219,47 @@ public class ncm_test {
                 String port_mac = ip_mac_map.get(port_ip).replaceFirst(mac_port_prefix, current_vpc_mac_prefix);
                 // if it's on node 1, we don't add neighbor info here,
                 // start of setting up port 1 on aca node 1
-                Port.PortState.Builder new_port_states = Port.PortState.newBuilder();
+                com.futurewei.alcor.schema.Port.PortState.Builder new_port_states = com.futurewei.alcor.schema.Port.PortState.newBuilder();
 
-                new_port_states.setOperationType(Common.OperationType.CREATE);
+                new_port_states.setOperationType(com.futurewei.alcor.schema.Common.OperationType.CREATE);
 
                 // fill in port state structs for port 1
-                Port.PortConfiguration.Builder config = new_port_states.getConfigurationBuilder();
+                com.futurewei.alcor.schema.Port.PortConfiguration.Builder config = new_port_states.getConfigurationBuilder();
                 config.
                         setRevisionNumber(2).
-                        setUpdateType(Common.UpdateType.FULL).
+                        setUpdateType(com.futurewei.alcor.schema.Common.UpdateType.FULL).
                         setId(vpc_port_id).
                         setVpcId(current_vpc_id).
                         setName(("tap" + vpc_port_id).substring(0, 14)).
                         setAdminStateUp(true).
                         setMacAddress(port_mac);
-                Port.PortConfiguration.FixedIp.Builder fixedIpBuilder = Port.PortConfiguration.FixedIp.newBuilder();
+                com.futurewei.alcor.schema.Port.PortConfiguration.FixedIp.Builder fixedIpBuilder = com.futurewei.alcor.schema.Port.PortConfiguration.FixedIp.newBuilder();
                 fixedIpBuilder.setSubnetId(current_subnet_id);
                 fixedIpBuilder.setIpAddress(port_ip);
                 config.addFixedIps(fixedIpBuilder.build());
-                Port.PortConfiguration.SecurityGroupId securityGroupId = Port.PortConfiguration.SecurityGroupId.newBuilder().setId("2").build();
+                com.futurewei.alcor.schema.Port.PortConfiguration.SecurityGroupId securityGroupId = com.futurewei.alcor.schema.Port.PortConfiguration.SecurityGroupId.newBuilder().setId("2").build();
                 config.addSecurityGroupIds(securityGroupId);
 
                 new_port_states.setConfiguration(config.build());
 
-                Port.PortState port_state_one = new_port_states.build();
-                Goalstate.ResourceIdType.Builder port_one_resource_Id_builder = Goalstate.ResourceIdType.newBuilder();
+                com.futurewei.alcor.schema.Port.PortState port_state_one = new_port_states.build();
+                com.futurewei.alcor.schema.Goalstate.ResourceIdType.Builder port_one_resource_Id_builder = com.futurewei.alcor.schema.Goalstate.ResourceIdType.newBuilder();
                 port_one_resource_Id_builder.setType(Common.ResourceType.PORT).setId(port_state_one.getConfiguration().getId());
-                Goalstate.ResourceIdType port_one_resource_id = port_one_resource_Id_builder.build();
+                com.futurewei.alcor.schema.Goalstate.ResourceIdType port_one_resource_id = port_one_resource_Id_builder.build();
 
                 // add a new neighbor state with CREATE
-                Neighbor.NeighborState.Builder new_neighborState_builder = Neighbor.NeighborState.newBuilder();
+                com.futurewei.alcor.schema.Neighbor.NeighborState.Builder new_neighborState_builder = com.futurewei.alcor.schema.Neighbor.NeighborState.newBuilder();
                 new_neighborState_builder.setOperationType(Common.OperationType.CREATE);
 
                 // fill in neighbor state structs of port 3
-                Neighbor.NeighborConfiguration.Builder NeighborConfiguration_builder = Neighbor.NeighborConfiguration.newBuilder();
+                com.futurewei.alcor.schema.Neighbor.NeighborConfiguration.Builder NeighborConfiguration_builder = com.futurewei.alcor.schema.Neighbor.NeighborConfiguration.newBuilder();
                 NeighborConfiguration_builder.setRevisionNumber(2);
                 NeighborConfiguration_builder.setVpcId(current_vpc_id);
                 NeighborConfiguration_builder.setId(vpc_port_id + "_n");
                 NeighborConfiguration_builder.setMacAddress(port_mac);
                 NeighborConfiguration_builder.setHostIpAddress(host_ip);
 
-                Neighbor.NeighborConfiguration.FixedIp.Builder neighbor_fixed_ip_builder = Neighbor.NeighborConfiguration.FixedIp.newBuilder();
+                com.futurewei.alcor.schema.Neighbor.NeighborConfiguration.FixedIp.Builder neighbor_fixed_ip_builder = com.futurewei.alcor.schema.Neighbor.NeighborConfiguration.FixedIp.newBuilder();
                 neighbor_fixed_ip_builder.setNeighborType(Neighbor.NeighborType.L2);
                 neighbor_fixed_ip_builder.setSubnetId(current_subnet_id);
                 neighbor_fixed_ip_builder.setIpAddress(port_ip);
@@ -268,7 +267,7 @@ public class ncm_test {
                 NeighborConfiguration_builder.addFixedIps(neighbor_fixed_ip_builder.build());
 
                 new_neighborState_builder.setConfiguration(NeighborConfiguration_builder.build());
-                Neighbor.NeighborState neighborState_node_one = new_neighborState_builder.build();
+                com.futurewei.alcor.schema.Neighbor.NeighborState neighborState_node_one = new_neighborState_builder.build();
                 if(test_against_aroin){
                     // We should put the neighbor states into the goalstate to Arion Master.
                     com.futurewei.arion.schema.Goalstateprovisioner.RoutingRulesRequest.RoutingRule.Builder current_routing_rule_builder = com.futurewei.arion.schema.Goalstateprovisioner.RoutingRulesRequest.RoutingRule.newBuilder();
@@ -290,8 +289,8 @@ public class ncm_test {
                         // if this port is on host_one, then it is a neighbor for ports on host_two
 
                         GoalState_builder_two.putNeighborStates(neighborState_node_one.getConfiguration().getId(), neighborState_node_one);
-                        Goalstate.ResourceIdType resource_id_type_neighbor_node_one = Goalstate.ResourceIdType.newBuilder().
-                                setType(Common.ResourceType.NEIGHBOR).setId(neighborState_node_one.getConfiguration().getId()).build();
+                        com.futurewei.alcor.schema.Goalstate.ResourceIdType resource_id_type_neighbor_node_one = com.futurewei.alcor.schema.Goalstate.ResourceIdType.newBuilder().
+                                setType(com.futurewei.alcor.schema.Common.ResourceType.NEIGHBOR).setId(neighborState_node_one.getConfiguration().getId()).build();
                         host_resource_builder_node_two.addResources(resource_id_type_neighbor_node_one);
                     } else {
                         GoalState_builder_two.putPortStates(port_state_one.getConfiguration().getId(), port_state_one);
@@ -299,8 +298,8 @@ public class ncm_test {
                         host_resource_builder_node_two.addResources(port_one_resource_id);
                         // if this port is on host_two, then it is a neighbor for ports on host_one
                         GoalState_builder_two.putNeighborStates(neighborState_node_one.getConfiguration().getId(), neighborState_node_one);
-                        Goalstate.ResourceIdType resource_id_type_neighbor_node_one = Goalstate.ResourceIdType.newBuilder().
-                                setType(Common.ResourceType.NEIGHBOR).setId(neighborState_node_one.getConfiguration().getId()).build();
+                        com.futurewei.alcor.schema.Goalstate.ResourceIdType resource_id_type_neighbor_node_one = com.futurewei.alcor.schema.Goalstate.ResourceIdType.newBuilder().
+                                setType(com.futurewei.alcor.schema.Common.ResourceType.NEIGHBOR).setId(neighborState_node_one.getConfiguration().getId()).build();
                         host_resource_builder_node_one_port_one_neighbor.addResources(resource_id_type_neighbor_node_one);
                     }
                 }
@@ -361,22 +360,22 @@ public class ncm_test {
 //        host_resource_builder_node_two.addResources(resource_id_type_router_node_two);
 //        host_resource_builder_node_one.addResources(resource_id_type_router_node_two);
             // fill in subnet state structs
-            Subnet.SubnetState.Builder new_subnet_states = Subnet.SubnetState.newBuilder();
+            com.futurewei.alcor.schema.Subnet.SubnetState.Builder new_subnet_states = com.futurewei.alcor.schema.Subnet.SubnetState.newBuilder();
 
-            new_subnet_states.setOperationType(Common.OperationType.INFO);
+            new_subnet_states.setOperationType(com.futurewei.alcor.schema.Common.OperationType.INFO);
 
-            Subnet.SubnetConfiguration.Builder subnet_configuration_builder = Subnet.SubnetConfiguration.newBuilder();
+            com.futurewei.alcor.schema.Subnet.SubnetConfiguration.Builder subnet_configuration_builder = com.futurewei.alcor.schema.Subnet.SubnetConfiguration.newBuilder();
 
             subnet_configuration_builder.setRevisionNumber(2);
             subnet_configuration_builder.setVpcId(current_vpc_id);
             subnet_configuration_builder.setId(current_subnet_id);
             subnet_configuration_builder.setCidr("10.0.0.0/24");
             subnet_configuration_builder.setTunnelId(current_vpc_tunnel_id);
-            subnet_configuration_builder.setGateway(Subnet.SubnetConfiguration.Gateway.newBuilder().setIpAddress("0.0.0.0").setMacAddress("6c:dd:ee:0:0:40").build());
+            subnet_configuration_builder.setGateway(com.futurewei.alcor.schema.Subnet.SubnetConfiguration.Gateway.newBuilder().setIpAddress("0.0.0.0").setMacAddress("6c:dd:ee:0:0:40").build());
 
             new_subnet_states.setConfiguration(subnet_configuration_builder.build());
 
-            Subnet.SubnetState subnet_state_for_both_nodes = new_subnet_states.build();
+            com.futurewei.alcor.schema.Subnet.SubnetState subnet_state_for_both_nodes = new_subnet_states.build();
 
             // fill in subnet state structs
 //        Subnet.SubnetState.Builder new_subnet_states_two = Subnet.SubnetState.newBuilder();
@@ -399,10 +398,10 @@ public class ncm_test {
             // put the new subnet state of subnet 1 into the goalstatev2
 
             // fill in VPC state structs
-            Vpc.VpcState.Builder new_vpc_states = Vpc.VpcState.newBuilder();
-            new_vpc_states.setOperationType(Common.OperationType.INFO);
+            com.futurewei.alcor.schema.Vpc.VpcState.Builder new_vpc_states = com.futurewei.alcor.schema.Vpc.VpcState.newBuilder();
+            new_vpc_states.setOperationType(com.futurewei.alcor.schema.Common.OperationType.INFO);
 
-            Vpc.VpcConfiguration.Builder vpc_configuration_builder = Vpc.VpcConfiguration.newBuilder();
+            com.futurewei.alcor.schema.Vpc.VpcConfiguration.Builder vpc_configuration_builder = com.futurewei.alcor.schema.Vpc.VpcConfiguration.newBuilder();
             vpc_configuration_builder.setCidr("10.0.0.0/16");
             vpc_configuration_builder.setId(current_vpc_id);
             vpc_configuration_builder.setName("test_vpc");
@@ -412,38 +411,38 @@ public class ncm_test {
 
             // put gateway information in the goalstates.
             if (test_against_aroin){
-                Gateway.GatewayState.Builder new_gateway_state_builder = Gateway.GatewayState.newBuilder();
-                new_gateway_state_builder.setOperationType(Common.OperationType.CREATE);
-                Gateway.GatewayConfiguration.Builder gateway_configuration_builder = Gateway.GatewayConfiguration.newBuilder();
+                com.futurewei.alcor.schema.Gateway.GatewayState.Builder new_gateway_state_builder = com.futurewei.alcor.schema.Gateway.GatewayState.newBuilder();
+                new_gateway_state_builder.setOperationType(com.futurewei.alcor.schema.Common.OperationType.CREATE);
+                com.futurewei.alcor.schema.Gateway.GatewayConfiguration.Builder gateway_configuration_builder = com.futurewei.alcor.schema.Gateway.GatewayConfiguration.newBuilder();
                 String current_gateway_id = "tc-gateway-"+vpc_number;
                 vpc_configuration_builder.addGatewayIds(current_gateway_id);
                 gateway_configuration_builder.setId(current_gateway_id);
                 gateway_configuration_builder.setRequestId("tc-gateway-request-"+vpc_number);
-                gateway_configuration_builder.setGatewayType(Gateway.GatewayType.ZETA);
-                Gateway.GatewayConfiguration.zeta.Builder zeta_builder = Gateway.GatewayConfiguration.zeta.newBuilder();
+                gateway_configuration_builder.setGatewayType(com.futurewei.alcor.schema.Gateway.GatewayType.ZETA);
+                com.futurewei.alcor.schema.Gateway.GatewayConfiguration.zeta.Builder zeta_builder = com.futurewei.alcor.schema.Gateway.GatewayConfiguration.zeta.newBuilder();
                 zeta_builder.setPortInbandOperation(arion_port_inbound_operation);
                 gateway_configuration_builder.setZetaInfo(zeta_builder.build());
                 for(int i = 0 ; i < arion_wing_ips.length ; i ++){
                     String current_arion_wing_ip = arion_wing_ips[i];
                     String current_arion_wing_mac = arion_wing_macs[i];
-                    Gateway.GatewayConfiguration.destination.Builder destination_builder = Gateway.GatewayConfiguration.destination.newBuilder();
+                    com.futurewei.alcor.schema.Gateway.GatewayConfiguration.destination.Builder destination_builder = com.futurewei.alcor.schema.Gateway.GatewayConfiguration.destination.newBuilder();
                     destination_builder.setIpAddress(current_arion_wing_ip);
                     destination_builder.setMacAddress(current_arion_wing_mac);
                     gateway_configuration_builder.addDestinations(destination_builder.build());
                     System.out.println("Adding GW destination with IP: " + current_arion_wing_ip + " and MAC:"+current_arion_wing_mac);
                 }
                 new_gateway_state_builder.setConfiguration(gateway_configuration_builder.build());
-                Gateway.GatewayState current_gateway_state_for_both_nodes = new_gateway_state_builder.build();
+                com.futurewei.alcor.schema.Gateway.GatewayState current_gateway_state_for_both_nodes = new_gateway_state_builder.build();
                 GoalState_builder_one.putGatewayStates(current_gateway_state_for_both_nodes.getConfiguration().getId(),current_gateway_state_for_both_nodes);
                 GoalState_builder_two.putGatewayStates(current_gateway_state_for_both_nodes.getConfiguration().getId(), current_gateway_state_for_both_nodes);
-                Goalstate.ResourceIdType gateway_resource_id_type = Goalstate.ResourceIdType.newBuilder().setType(Common.ResourceType.GATEWAY).setId(current_gateway_state_for_both_nodes.getConfiguration().getId()).build();
+                com.futurewei.alcor.schema.Goalstate.ResourceIdType gateway_resource_id_type = com.futurewei.alcor.schema.Goalstate.ResourceIdType.newBuilder().setType(com.futurewei.alcor.schema.Common.ResourceType.GATEWAY).setId(current_gateway_state_for_both_nodes.getConfiguration().getId()).build();
                 host_resource_builder_node_one.addResources(gateway_resource_id_type);
                 host_resource_builder_node_two.addResources(gateway_resource_id_type);
                 host_resource_builder_node_one_port_one_neighbor.addResources(gateway_resource_id_type);
             }
 
             new_vpc_states.setConfiguration(vpc_configuration_builder.build());
-            Vpc.VpcState vpc_state_for_both_nodes = new_vpc_states.build();
+            com.futurewei.alcor.schema.Vpc.VpcState vpc_state_for_both_nodes = new_vpc_states.build();
 
 
 
@@ -454,12 +453,12 @@ public class ncm_test {
             GoalState_builder_one.putVpcStates(vpc_state_for_both_nodes.getConfiguration().getId(), vpc_state_for_both_nodes);
             GoalState_builder_two.putVpcStates(vpc_state_for_both_nodes.getConfiguration().getId(), vpc_state_for_both_nodes);
 
-            Goalstate.ResourceIdType subnet_resource_id_type = Goalstate.ResourceIdType.newBuilder()
-                    .setType(Common.ResourceType.SUBNET).setId(subnet_state_for_both_nodes.getConfiguration().getId()).build();
+            com.futurewei.alcor.schema.Goalstate.ResourceIdType subnet_resource_id_type = com.futurewei.alcor.schema.Goalstate.ResourceIdType.newBuilder()
+                    .setType(com.futurewei.alcor.schema.Common.ResourceType.SUBNET).setId(subnet_state_for_both_nodes.getConfiguration().getId()).build();
 //        Goalstate.ResourceIdType subnet_resource_id_type_two = Goalstate.ResourceIdType.newBuilder()
 //                .setType(Common.ResourceType.SUBNET).setId(subnet_state_for_both_nodes_two.getConfiguration().getId()).build();
 
-            Goalstate.ResourceIdType vpc_resource_id_type = Goalstate.ResourceIdType.newBuilder().setType(Common.ResourceType.VPC).setId(vpc_state_for_both_nodes.getConfiguration().getId()).build();
+            com.futurewei.alcor.schema.Goalstate.ResourceIdType vpc_resource_id_type = com.futurewei.alcor.schema.Goalstate.ResourceIdType.newBuilder().setType(com.futurewei.alcor.schema.Common.ResourceType.VPC).setId(vpc_state_for_both_nodes.getConfiguration().getId()).build();
             host_resource_builder_node_one.addResources(subnet_resource_id_type);
             host_resource_builder_node_two.addResources(subnet_resource_id_type);
             host_resource_builder_node_one_port_one_neighbor.addResources(subnet_resource_id_type);
@@ -491,8 +490,8 @@ public class ncm_test {
         GoalState_builder_one.putHostResources(aca_node_one_ip, host_resource_builder_node_one.build());
         GoalState_builder_two.putHostResources(aca_node_two_ip, host_resource_builder_node_two.build());
         GoalState_builder_two.putHostResources(aca_node_one_ip, host_resource_builder_node_one_port_one_neighbor.build());
-        Goalstate.GoalStateV2 message_one = GoalState_builder_one.build();
-        Goalstate.GoalStateV2 message_two = GoalState_builder_two.build();
+        com.futurewei.alcor.schema.Goalstate.GoalStateV2 message_one = GoalState_builder_one.build();
+        com.futurewei.alcor.schema.Goalstate.GoalStateV2 message_two = GoalState_builder_two.build();
 
 //        System.out.println("Built GoalState successfully, GoalStateV2 content for PORT1: \n" + message_one.toString() + "\n");
 //        System.out.println("Built GoalState successfully, GoalStateV2 content for PORT2: \n" + message_two.toString() + "\n");
@@ -525,7 +524,7 @@ public class ncm_test {
 
         ManagedChannel channel = ManagedChannelBuilder.forAddress(ncm_ip, ncm_port).usePlaintext().build();
         System.out.println("Constructed channel");
-        GoalStateProvisionerGrpc.GoalStateProvisionerStub stub = GoalStateProvisionerGrpc.newStub(tracingClientInterceptor.intercept(channel));
+        com.futurewei.alcor.schema.GoalStateProvisionerGrpc.GoalStateProvisionerStub stub = com.futurewei.alcor.schema.GoalStateProvisionerGrpc.newStub(tracingClientInterceptor.intercept(channel));
         Span parentSpan = tracer.activeSpan();
         Span span;
         if(parentSpan != null){
@@ -538,9 +537,9 @@ public class ncm_test {
         Scope cscope = tracer.scopeManager().activate(span);
         span.log("abcdefg");
         System.out.println("Created stub");
-        StreamObserver<Goalstateprovisioner.GoalStateOperationReply> message_observer = new StreamObserver<>() {
+        StreamObserver<com.futurewei.alcor.schema.Goalstateprovisioner.GoalStateOperationReply> message_observer = new StreamObserver<>() {
             @Override
-            public void onNext(Goalstateprovisioner.GoalStateOperationReply value) {
+            public void onNext(com.futurewei.alcor.schema.Goalstateprovisioner.GoalStateOperationReply value) {
                 finished_sending_goalstate_hosts_count ++ ;
                 System.out.println("onNext function with this GoalStateOperationReply: \n" + value.toString() + "\n");
             }
@@ -556,7 +555,7 @@ public class ncm_test {
             }
         };
         System.out.println("Created GoalStateOperationReply observer class");
-        io.grpc.stub.StreamObserver<Goalstate.GoalStateV2> response_observer = stub.pushGoalStatesStream(message_observer);
+        io.grpc.stub.StreamObserver<com.futurewei.alcor.schema.Goalstate.GoalStateV2> response_observer = stub.pushGoalStatesStream(message_observer);
         System.out.println("Connected the observers");
         response_observer.onNext(message_one);
         response_observer.onNext(message_two);
@@ -610,6 +609,7 @@ public class ncm_test {
 
             System.out.println("For ARION: Wait no longer than 6000 seconds until Routing Rules are sent to Arion Master.");
             Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == (NUMBER_OF_NODES + 1) );
+            /*
             System.out.println("Calling Arion DP Controller at " + arion_dp_controller_ip + " for /default_setup.");
 
             HttpClient c = HttpClientBuilder.create().build();
@@ -623,7 +623,7 @@ public class ncm_test {
                 return;
             }
             System.out.println("For ARION: Wait no longer than 6000 seconds until Routing Rules are sent to Arion Master.");
-            Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == (NUMBER_OF_NODES + 1) );
+            */
         }
 
 //        System.out.println("Try to send gsv1 to the host!");
