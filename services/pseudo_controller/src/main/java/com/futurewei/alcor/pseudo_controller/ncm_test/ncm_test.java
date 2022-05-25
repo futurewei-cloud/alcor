@@ -268,6 +268,17 @@ public class ncm_test {
 
                 new_neighborState_builder.setConfiguration(NeighborConfiguration_builder.build());
                 com.futurewei.alcor.schema.Neighbor.NeighborState neighborState_node_one = new_neighborState_builder.build();
+
+                // Need to include the Port state in all scenarios.
+                if (host_ip.equals(aca_node_one_ip)) {
+                    GoalState_builder_one.putPortStates(port_state_one.getConfiguration().getId(), port_state_one);
+
+                    host_resource_builder_node_one.addResources(port_one_resource_id);
+                } else {
+                    GoalState_builder_two.putPortStates(port_state_one.getConfiguration().getId(), port_state_one);
+
+                    host_resource_builder_node_two.addResources(port_one_resource_id);
+                }
                 if(test_against_aroin){
                     // We should put the neighbor states into the goalstate to Arion Master.
                     com.futurewei.arion.schema.Goalstateprovisioner.RoutingRulesRequest.RoutingRule.Builder current_routing_rule_builder = com.futurewei.arion.schema.Goalstateprovisioner.RoutingRulesRequest.RoutingRule.newBuilder();
@@ -282,10 +293,6 @@ public class ncm_test {
                 }else{
                     // NOT test against Arion; we should put the neigbhor states into the goalstate to NCM.
                     if (host_ip.equals(aca_node_one_ip)) {
-
-                        GoalState_builder_one.putPortStates(port_state_one.getConfiguration().getId(), port_state_one);
-
-                        host_resource_builder_node_one.addResources(port_one_resource_id);
                         // if this port is on host_one, then it is a neighbor for ports on host_two
 
                         GoalState_builder_two.putNeighborStates(neighborState_node_one.getConfiguration().getId(), neighborState_node_one);
@@ -293,9 +300,6 @@ public class ncm_test {
                                 setType(com.futurewei.alcor.schema.Common.ResourceType.NEIGHBOR).setId(neighborState_node_one.getConfiguration().getId()).build();
                         host_resource_builder_node_two.addResources(resource_id_type_neighbor_node_one);
                     } else {
-                        GoalState_builder_two.putPortStates(port_state_one.getConfiguration().getId(), port_state_one);
-
-                        host_resource_builder_node_two.addResources(port_one_resource_id);
                         // if this port is on host_two, then it is a neighbor for ports on host_one
                         GoalState_builder_two.putNeighborStates(neighborState_node_one.getConfiguration().getId(), neighborState_node_one);
                         com.futurewei.alcor.schema.Goalstate.ResourceIdType resource_id_type_neighbor_node_one = com.futurewei.alcor.schema.Goalstate.ResourceIdType.newBuilder().
