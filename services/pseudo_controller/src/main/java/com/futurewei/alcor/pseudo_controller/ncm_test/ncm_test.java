@@ -47,11 +47,13 @@ import io.jaegertracing.internal.samplers.ConstSampler;
 //import io.opentracing.Span;
 //import io.opentracing.Tracer;
 //import io.opentracing.contrib.grpc.TracingClientInterceptor;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
 import org.awaitility.Awaitility;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -65,6 +67,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -479,12 +482,12 @@ public class ncm_test {
                 //VNI == Tunnel ID
                 current_vpc_json_object.put("vni", current_vpc_tunnel_id);
                 JSONObject current_vpc_response = alcor_http_api_test.call_post_api_with_json(arion_master_restful_url + "/vpc", current_vpc_json_object);
-                System.out.println("Setup VPC: " + current_vpc_id + " response: " + current_vpc_response.toJSONString() + "\nsleep 5 seconds before the next VPC...");
-                try {
-                    TimeUnit.SECONDS.sleep(5);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                System.out.println("Setup VPC: " + current_vpc_id + " response: " + current_vpc_response.toJSONString() /*+ "\nsleep 5 seconds before the next VPC..."*/);
+//                try {
+//                    TimeUnit.SECONDS.sleep(5);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
             }
         }
 
@@ -613,21 +616,33 @@ public class ncm_test {
 
             System.out.println("For ARION: Wait no longer than 6000 seconds until Routing Rules are sent to Arion Master.");
             Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == (NUMBER_OF_NODES + 1) );
-            /*
-            System.out.println("Calling Arion DP Controller at " + arion_dp_controller_ip + " for /default_setup.");
+            String default_setup_url = "http://"+ arion_dp_controller_ip + "/default_setup";
+            System.out.println("Calling Arion DP Controller at " + default_setup_url + " for default_setup.");
 
             HttpClient c = HttpClientBuilder.create().build();
-            HttpGet getConnection = new HttpGet(arion_dp_controller_ip);
+            HttpGet getConnection = new HttpGet(default_setup_url);
+            getConnection.setHeader("Content-Type", "application/json");
             try {
                 HttpResponse default_setup_response = c.execute(getConnection);
                 System.out.println("Get this /default_setup status code: " + default_setup_response.getStatusLine().getStatusCode() + "\nresponse: " + default_setup_response.toString());
-            } catch (IOException e) {
+                HttpEntity response_entity = default_setup_response.getEntity();
+
+                String json_string = EntityUtils.toString(response_entity);
+
+                JSONArray gws = (JSONArray) new JSONParser().parse(json_string);;
+                for (int i = 0 ; i < gws.size() ; i ++ ){
+                    JSONObject current_gateway = (JSONObject) gws.get(i);
+                    String gw_ip = (String)current_gateway.get("ip");
+                    String gw_mac = (String)current_gateway.get("mac");
+                    System.out.println("Current Gateway IP:[" + gw_ip + "], Gateway MAC:[" + gw_mac + "]");
+                }
+            } catch (IOException | ParseException e) {
                 System.out.println("FROM ARION: Got error when calling /default_setup: " + e.getMessage() + ", aborting...");
                 e.printStackTrace();
                 return;
             }
             System.out.println("For ARION: Wait no longer than 6000 seconds until Routing Rules are sent to Arion Master.");
-            */
+
         }
 
 //        System.out.println("Try to send gsv1 to the host!");
@@ -704,22 +719,22 @@ public class ncm_test {
         JSONObject cluster_data = (JSONObject) arion_data_json_object.get("ZGC_data");
         String arion_master_restful_url = arion_master_ip + ":" + arion_master_rest_port;
         JSONObject cluster_response = alcor_http_api_test.call_post_api_with_json(arion_master_restful_url+"/gatewaycluster", cluster_data );
-        System.out.println("Setup Gateway Cluster response: " + cluster_response.toJSONString() + "\nSleep 10 seconds before setting up Arion Nodes...");
-        try {
-            TimeUnit.SECONDS.sleep(10);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        System.out.println("Setup Gateway Cluster response: " + cluster_response.toJSONString() + "\nSleep 10 seconds before setting up Arion Nodes...");
+//        try {
+//            TimeUnit.SECONDS.sleep(10);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
         JSONArray nodes = (JSONArray) arion_data_json_object.get("NODE_data");
         for(int i = 0 ; i < nodes.size(); i ++){
             JSONObject current_node = (JSONObject) nodes.get(i);
             JSONObject current_node_response = alcor_http_api_test.call_post_api_with_json(arion_master_restful_url+"/arionnode", current_node);
-            System.out.println("Setup Gateway Node " + i + " response: " + current_node_response.toJSONString() + "\nSleeping 10 seconds before setting up the next Arion Node...");
-            try {
-                TimeUnit.SECONDS.sleep(5);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            System.out.println("Setup Gateway Node " + i + " response: " + current_node_response.toJSONString() /*+ "\nSleeping 10 seconds before setting up the next Arion Node..."*/);
+//            try {
+//                TimeUnit.SECONDS.sleep(5);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
         }
         return;
     }
