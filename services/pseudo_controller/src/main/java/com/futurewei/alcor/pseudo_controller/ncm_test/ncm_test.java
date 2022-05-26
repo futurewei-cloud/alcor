@@ -122,6 +122,7 @@ public class ncm_test {
     int arion_master_grpc_port;
     @Value("${arion_dp_controller_ip:arion_dp_controller_ip}")
     String arion_dp_controller_ip;
+    JSONArray arion_gw_ip_macs;
 
     static String docker_ps_cmd = "docker ps";
     static String vpc_id_1 = "2b08a5bc-b718-11ea-b3de-111111111112";
@@ -170,6 +171,7 @@ public class ncm_test {
                 System.out.println("Unable to read from json data file: " + e.getMessage() + "\nAborting...");
                 return;
             }
+            arion_gw_ip_macs = (JSONArray) arion_data_json_object.get("gws");
             setup_arion_gateway_cluster_and_nodes();
         }
         System.out.println("There are "+ number_of_vpcs+" VPCs, ACA node one has "+ ports_to_generate_on_aca_node_one + " ports per VPC;\nACA node two has "+ports_to_generate_on_aca_node_two+" ports per VPC. \nTotal ports per VPC: "+(ports_to_generate_on_aca_node_one + ports_to_generate_on_aca_node_two));
@@ -429,9 +431,10 @@ public class ncm_test {
                 com.futurewei.alcor.schema.Gateway.GatewayConfiguration.zeta.Builder zeta_builder = com.futurewei.alcor.schema.Gateway.GatewayConfiguration.zeta.newBuilder();
                 zeta_builder.setPortInbandOperation(arion_port_inbound_operation);
                 gateway_configuration_builder.setZetaInfo(zeta_builder.build());
-                for(int i = 0 ; i < arion_wing_ips.length ; i ++){
-                    String current_arion_wing_ip = arion_wing_ips[i];
-                    String current_arion_wing_mac = arion_wing_macs[i];
+                for(int i = 0 ; i < arion_gw_ip_macs.size() ; i ++){
+                    JSONObject current_gw = (JSONObject) arion_gw_ip_macs.get(i);
+                    String current_arion_wing_ip = (String) current_gw.get("ip");
+                    String current_arion_wing_mac = (String) current_gw.get("mac");
                     com.futurewei.alcor.schema.Gateway.GatewayConfiguration.destination.Builder destination_builder = com.futurewei.alcor.schema.Gateway.GatewayConfiguration.destination.newBuilder();
                     destination_builder.setIpAddress(current_arion_wing_ip);
                     destination_builder.setMacAddress(current_arion_wing_mac);
