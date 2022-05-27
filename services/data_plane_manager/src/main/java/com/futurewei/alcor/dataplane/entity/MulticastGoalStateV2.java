@@ -24,49 +24,29 @@ import com.futurewei.alcor.web.entity.dataplane.MulticastGoalStateByte;
 import java.util.*;
 
 public class MulticastGoalStateV2{
-    private Set<String> hostIps;
+    //    Map of <hostIp, vpcId> pair for each GoalState
     private Map<String, Set<String>> hostVpcMap;
 
     private GoalStateV2 goalState;
     private GoalStateV2.Builder goalStateBuilder;
 
     public MulticastGoalStateV2() {
-        this.hostIps = new HashSet<>();
         this.goalStateBuilder = GoalStateV2.newBuilder();
         this.hostVpcMap = new HashMap<>();
     }
 
     public MulticastGoalStateV2(GoalStateV2 goalState) {
-        this.hostIps = new HashSet<>();
         this.goalState = goalState;
         this.hostVpcMap = new HashMap<>();
     }
 
-    public MulticastGoalStateV2(Set<String> hostIps, GoalStateV2 goalState) {
-        this.hostIps = hostIps;
-        this.goalState = goalState;
-        this.hostVpcMap = new HashMap<>();
-    }
-
-    public MulticastGoalStateV2(Set<String> hostIps, Map<String, Set<String>> hostVpcMap, GoalStateV2 goalState) {
-        this.hostIps = hostIps;
+    public MulticastGoalStateV2(Map<String, Set<String>> hostVpcMap, GoalStateV2 goalState) {
         this.hostVpcMap = hostVpcMap;
         this.goalState = goalState;
     }
 
     public Set<String> getHostIps() {
-        return hostIps;
-    }
-
-    public void setHostIps(Set<String> hostIps) {
-        this.hostIps = hostIps;
-    }
-
-    public void addHostIp(String hostIp) {
-        if (this.hostIps == null) {
-            this.hostIps = new HashSet<>();
-        }
-        this.hostIps.add(hostIp);
+        return this.hostVpcMap.keySet();
     }
 
     public Map<String, Set<String>> getHostVpcMap() {

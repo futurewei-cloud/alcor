@@ -16,6 +16,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: route-configmap
+  namespace: default
 data:
   application.properties: |
     microservices.vpc.service.url=http://vpcmanager-service.default.svc.cluster.local:9001
@@ -50,6 +51,7 @@ metadata:
   labels:
     app: routemanager
   name: routemanager
+  namespace: default
 spec:
   selector:
     matchLabels:
@@ -87,6 +89,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: routemanager-service
+  namespace: default
   labels:
     name: routemanager-service
 spec:

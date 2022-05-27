@@ -18,18 +18,131 @@
 
 package com.futurewei.alcor.dataplane.service.impl;
 
+import com.futurewei.alcor.dataplane.cache.SubnetPortsCacheV2;
+import com.futurewei.alcor.dataplane.cache.VpcPathCache;
+import com.futurewei.alcor.dataplane.cache.VpcSubnetsCache;
+import com.futurewei.alcor.dataplane.exception.InvalidPathModeException;
 import com.futurewei.alcor.web.entity.port.PortEntity;
+import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+
 @Service
+@Configuration
 public class PathManagerService {
+    @Autowired
+    private VpcSubnetsCache vpcSubnetsCache;
+
+    @Autowired
+    private SubnetPortsCacheV2 subnetPortsCache;
+
+    @Autowired
+    private VpcPathCache vpcPathCache;
+
     private static boolean USE_GRPC = true;
+    private static boolean USE_MQ = false;
+
+    @Value("${path.mode}")
+    private String PATH_MODE;
+
+    @Value("${path.UPPER_VPC_SIZE}")
+    private int UPPER_VPC_SIZE;
+    @Value("${path.LOWER_VPC_SIZE}")
+    private int LOWER_VPC_SIZE;
 
     public boolean isFastPath() {
         return USE_GRPC;
     }
 
-    public boolean isFastPath(PortEntity portEntity) {
-        return USE_GRPC;
+    public boolean isFastPath(PortEntity portEntity) throws Exception{
+        switch (PATH_MODE) {
+            case "GRPC":
+                return USE_GRPC;
+            case "MQ":
+                return !USE_GRPC;
+            case "AUTO":
+                return choosePath(portEntity);
+            default:
+                throw new InvalidPathModeException();
+        }
+    }
+
+    private boolean choosePath(PortEntity portEntity) throws Exception{
+        if (portEntity == null) {
+            return USE_GRPC;
+        }
+
+        String vpcId = portEntity.getVpcId();
+
+        // TODO: Pending to calculate by the cache service
+
+        // Get VPC size - number of ports
+        AtomicInteger atomicNumberOfPorts = new AtomicInteger();
+        List<String> subnetIds;
+        subnetIds = vpcSubnetsCache.getVpcSubnets(vpcId).getSubnetIds();
+        subnetIds.stream().forEach(subnetId -> {
+            try {
+                InternalSubnetPorts internalSubnetPorts = subnetPortsCache.getSubnetPorts(subnetId);
+                atomicNumberOfPorts.addAndGet(internalSubnetPorts.getPorts().size());
+            } catch (Exception e) {
+
+            }
+        });
+
+        int numberOfPorts = atomicNumberOfPorts.get();
+
+        // Get the current path for this path
+        boolean currentPath;
+        try {
+            currentPath = vpcPathCache.getCurrentPathByVpcId(vpcId);
+        } catch (NullPointerException e) {
+            // Handle new VPC
+            if (numberOfPorts > UPPER_VPC_SIZE) {
+                // For large VPC size
+                vpcPathCache.setPath(vpcId, USE_MQ);
+                return USE_MQ;
+            } else {
+                // For small VPC size
+                vpcPathCache.setPath(vpcId, USE_GRPC);
+                return USE_GRPC;
+            }
+
+        } catch (Exception e) {
+            throw e;
+        }
+
+        // Path switch logic
+        boolean chosenPath;
+
+        if (currentPath == USE_GRPC) {
+            // Current path is gRPC
+            if (numberOfPorts > UPPER_VPC_SIZE) {
+                // For large VPC size
+                chosenPath = USE_MQ;
+            } else {
+                chosenPath = USE_GRPC;
+            }
+        } else {
+            // Current path is MQ
+            if (numberOfPorts < LOWER_VPC_SIZE) {
+                chosenPath = USE_GRPC;
+            } else {
+                chosenPath = USE_MQ;
+            }
+        }
+
+        if (! currentPath == chosenPath) {
+            vpcPathCache.setPath(vpcId, chosenPath);
+        }
+
+        return chosenPath;
     }
 }
