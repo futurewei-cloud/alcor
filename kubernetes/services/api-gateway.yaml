@@ -51,6 +51,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: api-configmap
+  namespace: default
 data:
   application.properties: |
     spring.application.name=alcor-api-gateway
@@ -110,6 +111,7 @@ metadata:
   labels:
     app: apimanager
   name: apimanager
+  namespace: default
 spec:
   selector:
     matchLabels:
@@ -148,6 +150,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: apimanager-service
+  namespace: default
   labels:
     name: apimanager-service
 spec:
