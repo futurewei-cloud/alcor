@@ -63,10 +63,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
@@ -776,8 +773,8 @@ public class ncm_test {
             String container_name = "test" + Integer.toString(i);
             port_ip_to_container_name.put(port_ip, container_name);
             String create_container_cmd = "docker run -itd --name " + container_name + " --net=none --label test=ACA busybox sh";
-            String ovs_docker_add_port_cmd = "ovs-docker add-port br-int eth0 " + container_name + " --ipaddress=" + port_ip + "/16 --macaddress=" + port_mac;
-            String ovs_set_vlan_cmd = "ovs-docker set-vlan br-int eth0 " + container_name + " 1";
+            String ovs_docker_add_port_cmd = "sudo ovs-docker add-port br-int eth0 " + container_name + " --ipaddress=" + port_ip + "/16 --macaddress=" + port_mac;
+            String ovs_set_vlan_cmd = "sudo ovs-docker set-vlan br-int eth0 " + container_name + " 1";
             Vector<String> create_one_container_and_assign_IP_vlax_commands = new Vector<>();
             create_one_container_and_assign_IP_vlax_commands.add(create_container_cmd);
             create_one_container_and_assign_IP_vlax_commands.add(ovs_docker_add_port_cmd);
@@ -845,10 +842,14 @@ public class ncm_test {
                 Channel channel = session.openChannel("exec");
                 ((ChannelExec) channel).setCommand(command);
                 channel.setInputStream(null);
+                OutputStream out = channel.getOutputStream();
                 ((ChannelExec) channel).setErrStream(System.err);
 
                 InputStream in = channel.getInputStream();
+                ((ChannelExec) channel).setPty(true);
                 channel.connect();
+                out.write((host_password + "\n").getBytes());
+                out.flush();
                 byte[] tmp = new byte[1024];
                 while (true) {
                     while (in.available() > 0) {
