@@ -1,14 +1,4 @@
 {
-  "arion_api_ip": "http://10.213.43.90",
-  "aca_nodes": {
-    "ip": [
-      "10.213.43.92",
-      "10.213.43.93"
-    ],
-    "username": "***",
-    "password": "***"
-  },
-  "server_aca_repo_path": "/home/user/src/Github.com/zzxgzgz/alcor-control-agent",
   "ZGC_data": {
     "name": "ZGC_test106",
     "description": "ZGC_test106",
@@ -17,12 +7,6 @@
     "port_ibo": "8300",
     "overlay_type": "vxlan"
   },
-  "VPC_data": [
-    {
-      "vpc_id": "3dda2801-d675-4688-a63f-dcda8d327f61",
-      "vni": "888"
-    }
-  ],
   "gws": [
     {
       "ip": "172.16.17.100",
@@ -47,34 +31,6 @@
     {
       "ip": "172.16.17.105",
       "mac": "82:83:ac:10:11:69"
-    }
-  ],
-  "PORT_data": [
-    {
-      "port_id": "333d4fae-7dec-11d0-a765-00a0c9341120",
-      "vpc_id": "3dda2801-d675-4688-a63f-dcda8d327f61",
-      "ips_port": [
-        {
-          "ip": "10.10.0.92",
-          "vip": ""
-        }
-      ],
-      "mac_port": "cc:dd:ee:ff:11:22",
-      "ip_node": "192.168.20.92",
-      "mac_node": "e8:bd:d1:01:77:ec"
-    },
-    {
-      "port_id": "99976feae-7dec-11d0-a765-00a0c9342230",
-      "vpc_id": "3dda2801-d675-4688-a63f-dcda8d327f61",
-      "ips_port": [
-        {
-          "ip": "10.10.0.93",
-          "vip": ""
-        }
-      ],
-      "mac_port": "6c:dd:ee:ff:11:32",
-      "ip_node": "192.168.20.93",
-      "mac_node": "e8:bd:d1:01:72:c8"
     }
   ],
   "NODE_data": [
@@ -150,6 +106,5 @@
       "inf_zgc": "ens3",
       "mac_zgc": "52:54:00:3e:6c:e8"
     }
-  ],
-  "use_preferred_gw": "ip_address_of_the_gw_or_null"
+  ]
 }
