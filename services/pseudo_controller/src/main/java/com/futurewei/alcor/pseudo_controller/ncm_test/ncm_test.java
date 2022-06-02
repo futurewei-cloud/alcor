@@ -43,10 +43,10 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import io.jaegertracing.Configuration;
 import io.jaegertracing.internal.samplers.ConstSampler;
-//import io.opentracing.Scope;
-//import io.opentracing.Span;
-//import io.opentracing.Tracer;
-//import io.opentracing.contrib.grpc.TracingClientInterceptor;
+import io.opentracing.Scope;
+import io.opentracing.Span;
+import io.opentracing.Tracer;
+import io.opentracing.contrib.grpc.TracingClientInterceptor;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -482,12 +482,7 @@ public class ncm_test {
                 //VNI == Tunnel ID
                 current_vpc_json_object.put("vni", current_vpc_tunnel_id);
                 JSONObject current_vpc_response = alcor_http_api_test.call_post_api_with_json(arion_master_restful_url + "/vpc", current_vpc_json_object);
-                System.out.println("Setup VPC: " + current_vpc_id + " response: " + current_vpc_response.toJSONString() /*+ "\nsleep 5 seconds before the next VPC..."*/);
-//                try {
-//                    TimeUnit.SECONDS.sleep(5);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
+                System.out.println("Setup VPC: " + current_vpc_id + " response: " + current_vpc_response.toJSONString());
             }
         }
 
@@ -519,30 +514,30 @@ public class ncm_test {
                 .withSampler(samplerConfiguration)
                 .withReporter(reporterConfiguration);
 
-//        Tracer tracer = configuration.getTracer();
-//        System.out.println("[Test Controller] Got this global tracer: "+tracer.toString());
+        Tracer tracer = configuration.getTracer();
+        System.out.println("[Test Controller] Got this global tracer: "+tracer.toString());
 
-//        TracingClientInterceptor tracingClientInterceptor = TracingClientInterceptor
-//                .newBuilder()
-//                .withTracer(tracer)
-//                .withVerbosity()
-//                .withStreaming()
-//                .build();
+        TracingClientInterceptor tracingClientInterceptor = TracingClientInterceptor
+                .newBuilder()
+                .withTracer(tracer)
+                .withVerbosity()
+                .withStreaming()
+                .build();
 
         ManagedChannel channel = ManagedChannelBuilder.forAddress(ncm_ip, ncm_port).usePlaintext().build();
         System.out.println("Constructed channel");
-        com.futurewei.alcor.schema.GoalStateProvisionerGrpc.GoalStateProvisionerStub stub = com.futurewei.alcor.schema.GoalStateProvisionerGrpc.newStub(/*tracingClientInterceptor.intercept*/(channel));
-//        Span parentSpan = tracer.activeSpan();
-//        Span span;
-//        if(parentSpan != null){
-//            span = tracer.buildSpan("alcor-tc-send-gs").asChildOf(parentSpan.context()).start();
-//            System.out.println("[Test Controller] Got parent span: "+parentSpan.toString());
-//        }else{
-//            span = tracer.buildSpan("alcor-tc-send-gs").start();
-//        }
-//        System.out.println("[Test Controller] Built child span: "+span.toString());
-//        Scope cscope = tracer.scopeManager().activate(span);
-//        span.log("abcdefg");
+        com.futurewei.alcor.schema.GoalStateProvisionerGrpc.GoalStateProvisionerStub stub = com.futurewei.alcor.schema.GoalStateProvisionerGrpc.newStub(tracingClientInterceptor.intercept(channel));
+        Span parentSpan = tracer.activeSpan();
+        Span span;
+        if(parentSpan != null){
+            span = tracer.buildSpan("alcor-tc-send-gs").asChildOf(parentSpan.context()).start();
+            System.out.println("[Test Controller] Got parent span: "+parentSpan.toString());
+        }else{
+            span = tracer.buildSpan("alcor-tc-send-gs").start();
+        }
+        System.out.println("[Test Controller] Built child span: "+span.toString());
+        Scope cscope = tracer.scopeManager().activate(span);
+        span.log("abcdefg");
         System.out.println("Created stub");
         StreamObserver<com.futurewei.alcor.schema.Goalstateprovisioner.GoalStateOperationReply> message_observer = new StreamObserver<>() {
             @Override
@@ -572,25 +567,25 @@ public class ncm_test {
 
         System.out.println("Wait no longer than 6000 seconds until both goalstates are sent to both hosts.");
         Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == NUMBER_OF_NODES);
-//        span.finish();
-//        System.out.println("[Test Controller] Child span after finish: "+span.toString());
+        span.finish();
+        System.out.println("[Test Controller] Child span after finish: "+span.toString());
 
         if (test_against_aroin){
-//            Span arion_span;
+            Span arion_span;
             System.out.println("Now send the Routing Rule messages to Arion Master via gRPC");
             String arion_address_without_http = arion_master_ip.replaceAll("http://", "");
             ManagedChannel arion_channel = ManagedChannelBuilder.forAddress(arion_address_without_http, arion_master_grpc_port).usePlaintext().build();
             com.futurewei.arion.schema.GoalStateProvisionerGrpc.GoalStateProvisionerStub arion_stub = com.futurewei.arion.schema.GoalStateProvisionerGrpc.newStub(/*tracingClientInterceptor.intercept*/(arion_channel));
-//            if(parentSpan != null){
-//                arion_span = tracer.buildSpan("alcor-tc-send-gs").asChildOf(parentSpan.context()).start();
-//                System.out.println("[Test Controller] Got parent span: "+parentSpan.toString());
-//            }else{
-//                arion_span = tracer.buildSpan("alcor-tc-send-gs").start();
-//            }
-//            System.out.println("Constructed channel and span.");
-//            System.out.println("[Test Controller] Built child span: "+span.toString());
-//            Scope arion_scope = tracer.scopeManager().activate(span);
-//            span.log("random log line for Arion.");
+            if(parentSpan != null){
+                arion_span = tracer.buildSpan("alcor-tc-send-gs").asChildOf(parentSpan.context()).start();
+                System.out.println("[Test Controller] Got parent span: "+parentSpan.toString());
+            }else{
+                arion_span = tracer.buildSpan("alcor-tc-send-gs").start();
+            }
+            System.out.println("Constructed channel and span.");
+            System.out.println("[Test Controller] Built child span: "+span.toString());
+            Scope arion_scope = tracer.scopeManager().activate(span);
+            span.log("random log line for Arion.");
             StreamObserver<com.futurewei.arion.schema.Goalstateprovisioner.GoalStateOperationReply> arion_message_observer = new StreamObserver<>() {
                 @Override
                 public void onNext(com.futurewei.arion.schema.Goalstateprovisioner.GoalStateOperationReply value) {
@@ -609,7 +604,7 @@ public class ncm_test {
                 }
             };
             System.out.println("FOR ARION: Created GoalStateOperationReply observer class");
-            /*io.grpc.stub.StreamObserver<Goalstateprovisioner.RoutingRulesRequest> arion_response_observer = */ arion_stub.pushGoalstates(routing_rule_request, arion_message_observer);
+            arion_stub.pushGoalstates(routing_rule_request, arion_message_observer);
             System.out.println("FOR ARION: Connected the observers");
 
             System.out.println("FOR ARION: After calling onNext");
@@ -644,26 +639,6 @@ public class ncm_test {
             System.out.println("For ARION: Wait no longer than 6000 seconds until Routing Rules are sent to Arion Master.");
 
         }
-
-//        System.out.println("Try to send gsv1 to the host!");
-//
-//        ManagedChannel v1_chan_aca_1 = ManagedChannelBuilder.forAddress(aca_node_one_ip, 50001).usePlaintext().build();
-//        ManagedChannel v1_chan_aca_2 = ManagedChannelBuilder.forAddress(aca_node_two_ip, 50001).usePlaintext().build();
-//
-//        GoalStateProvisionerGrpc.GoalStateProvisionerBlockingStub v1_stub_aca_1 = GoalStateProvisionerGrpc.newBlockingStub(v1_chan_aca_1);
-//        GoalStateProvisionerGrpc.GoalStateProvisionerBlockingStub v1_stub_aca_2 = GoalStateProvisionerGrpc.newBlockingStub(v1_chan_aca_2);
-//
-//
-//        //  try to send gsv1 to the host, to see if the server supports gsv1 or not.
-//        for(int i = 0 ; i < ports_to_generate_on_each_aca_node ; i ++){
-//            System.out.println("Sending the " + i + "th gsv1 to ACA1 at: "+aca_node_one_ip);
-//            Goalstateprovisioner.GoalStateOperationReply reply_v1_aca_1 = v1_stub_aca_1.pushNetworkResourceStates(Goalstate.GoalState.getDefaultInstance());
-//            System.out.println("Received the " + i + "th reply: " + reply_v1_aca_1.toString()+" from ACA1 at: "+aca_node_one_ip);
-//            System.out.println("Sending the " + i + "th gsv1 to ACA2 at: "+aca_node_two_ip);
-//            Goalstateprovisioner.GoalStateOperationReply reply_v1_aca_2 = v1_stub_aca_2.pushNetworkResourceStates(Goalstate.GoalState.getDefaultInstance());
-//            System.out.println("Received the " + i + "th reply: " + reply_v1_aca_2.toString()+" from ACA1 at: "+aca_node_two_ip);
-//        }
-//        System.out.println("Done sending gsv1 to the host!");
 
         System.out.println("After the GRPC call, it's time to do the ping test");
 
@@ -719,22 +694,13 @@ public class ncm_test {
         JSONObject cluster_data = (JSONObject) arion_data_json_object.get("ZGC_data");
         String arion_master_restful_url = arion_master_ip + ":" + arion_master_rest_port;
         JSONObject cluster_response = alcor_http_api_test.call_post_api_with_json(arion_master_restful_url+"/gatewaycluster", cluster_data );
-//        System.out.println("Setup Gateway Cluster response: " + cluster_response.toJSONString() + "\nSleep 10 seconds before setting up Arion Nodes...");
-//        try {
-//            TimeUnit.SECONDS.sleep(10);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+        System.out.println("Setup Gateway Cluster response: " + cluster_response.toJSONString());
+
         JSONArray nodes = (JSONArray) arion_data_json_object.get("NODE_data");
         for(int i = 0 ; i < nodes.size(); i ++){
             JSONObject current_node = (JSONObject) nodes.get(i);
             JSONObject current_node_response = alcor_http_api_test.call_post_api_with_json(arion_master_restful_url+"/arionnode", current_node);
             System.out.println("Setup Gateway Node " + i + " response: " + current_node_response.toJSONString() /*+ "\nSleeping 10 seconds before setting up the next Arion Node..."*/);
-//            try {
-//                TimeUnit.SECONDS.sleep(5);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
         }
         return;
     }
