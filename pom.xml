@@ -26,6 +26,7 @@ Copyright(c) 2020 Futurewei Cloud
     <version>0.1.0-SNAPSHOT</version>
     <name>AlcorController</name>
     <description>Alcor Controller Project</description>
+
     <properties>
         <java.version>11</java.version>
         <maven.compiler.source>11</maven.compiler.source>
@@ -63,15 +64,7 @@ Copyright(c) 2020 Futurewei Cloud
         <module>services/pseudo_controller</module>
     </modules>
     <packaging>pom</packaging>
-    <dependencyManagement>
-      <dependencies>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-core</artifactId>
-            <version>1.23.0</version>
-        </dependency>
-       </dependencies>
-    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>com.futurewei.arion</groupId>
