@@ -64,7 +64,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
-import java.net.URL;
+import java.net.*;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -146,12 +146,17 @@ public class ncm_test {
     static int arion_port_inbound_operation = 8300;
     static final int DEFAULT_VLAN_ID = 1;
     static JSONObject arion_data_json_object;
+    // if true, pings should be executed as bash command; otherwise, pings should be executed as ssh commands.
+    boolean is_aca_node_one_local = false;
 
     public ncm_test(){
         System.out.println("Start of NCM Test!");
     }
 
-    public void run_test_against_ncm(){
+    public void run_test_against_ncm() throws SocketException {
+        ArrayList<String> local_ips = getNonLoopbackIPAddressList(true,true);
+        // if on the same host, execute bash command; otherwise, execute ssh command.
+        boolean is_aca_node_one_local = local_ips.contains(aca_node_one_ip);
         System.out.println("Test against Arion: " + test_against_aroin + " , Arion Wing IPs: " + Arrays.toString(arion_wing_ips) + ", Arion Wing Macs: "+ Arrays.toString(arion_wing_macs) +
                 ", ArionMaster IP: " + arion_master_ip + ", Arion Master REST port: " + arion_master_rest_port + ", Arion Master gRPC port: " + arion_master_grpc_port + ", Arion DP Controller IP: " + arion_dp_controller_ip);
         if (arion_wing_ips.length != arion_wing_macs.length) {
@@ -658,19 +663,22 @@ public class ncm_test {
 //            String pingee_ip = node_two_port_ips.get(i);
             String pingee_ip = node_two_port_ips.get(i);
             String ping_cmd = "docker exec " + pinger_container_name + " ping -I " + pinger_ip + " -c1 " + pingee_ip;
-            concurrent_ping_cmds.add(new concurrent_run_cmd(ping_cmd, aca_node_one_ip, user_name, password));
+            concurrent_ping_cmds.add(new concurrent_run_cmd(ping_cmd, aca_node_one_ip, user_name, password, is_aca_node_one_local));
 //            System.out.println("Ping command is added: [" + ping_cmd + "]");
         }
 
         System.out.println("Time to execute these ping commands concurrently");
 
+
+
         if(whether_to_create_containers_and_ping == CREATE_CONTAINER_AND_PING){
+
+
             // Execute the pings.
             for (concurrent_run_cmd cmd : concurrent_ping_cmds) {
                 if (user_chosen_ping_method == CONCURRENT_PING_MODE) {
-                    //concurrent
-                    Thread t = new Thread(cmd);
-                    t.start();
+                    //concurrent, now use the threadpool to execute.
+                    concurrent_create_containers_thread_pool.execute(cmd);
                 } else {
                     // sequential
                     cmd.run();
@@ -784,7 +792,7 @@ public class ncm_test {
                 // it pings every 0.001 second, or 1 millisecond, for 60 seconds
                 String background_ping_command = "docker exec " + port_ip_to_container_name.get(background_pinger) + " ping -I " + background_pinger + " -c 60000 -i  0.001 " + background_pingee + " > /home/user/background_ping_output.log";
                 System.out.println("Created background ping cmd: " + background_ping_command);
-                concurrent_run_cmd c = new concurrent_run_cmd(background_ping_command, aca_node_one_ip, user_name, password);
+                concurrent_run_cmd c = new concurrent_run_cmd(background_ping_command, aca_node_one_ip, user_name, password, is_aca_node_one_local);
                 backgroundPingExecutor.execute(c);
             }
         }
@@ -870,23 +878,57 @@ public class ncm_test {
         //        return success;
     }
 
+    private static ArrayList<String> getNonLoopbackIPAddressList(boolean preferIpv4, boolean preferIPv6) throws SocketException {
+        ArrayList<String> localIpList = new ArrayList<>();
+        Enumeration en = NetworkInterface.getNetworkInterfaces();
+        while (en.hasMoreElements()) {
+            NetworkInterface i = (NetworkInterface) en.nextElement();
+            for (Enumeration en2 = i.getInetAddresses(); en2.hasMoreElements();) {
+                InetAddress addr = (InetAddress) en2.nextElement();
+                if (!addr.isLoopbackAddress()) {
+                    if (addr instanceof Inet4Address) {
+                        if (preferIPv6) {
+                            continue;
+                        }
+                        System.out.println("Local IP address: " + addr.getHostAddress());
+                        localIpList.add(addr.getHostAddress());
+                    }
+                    if (addr instanceof Inet6Address) {
+                        if (preferIpv4) {
+                            continue;
+                        }
+                        System.out.println("Local IP address: " + addr.getHostAddress());
+                        localIpList.add((addr.getHostAddress()));
+                    }
+                }
+            }
+        }
+        return localIpList;
+    }
+
     class concurrent_run_cmd implements Runnable {
         String command_to_run, host, user_name, password;
+        boolean is_local;
 
         @Override
         public void run() {
-//            Vector<String> cmd_list = new Vector<>();
             System.out.println("Need to execute this command concurrently: [" + this.command_to_run + "]");
-//            cmd_list.add(this.command_to_run);
-//        pseudo_controller.execute_ssh_commands(cmd_list, host, user_name, password);
-            executeBashCommand(command_to_run);
+
+            if (this.is_local){
+                executeBashCommand(command_to_run);
+            }else{
+                Vector<String> cmd_list = new Vector<>();
+                cmd_list.add(this.command_to_run);
+                execute_ssh_commands(cmd_list, host, user_name, password);
+            }
         }
 
-        public concurrent_run_cmd(String cmd, String host, String user_name, String password) {
+        public concurrent_run_cmd(String cmd, String host, String user_name, String password, boolean is_local) {
             this.command_to_run = cmd;
             this.host = host;
             this.user_name = user_name;
             this.password = password;
+            this.is_local = is_local;
         }
 
     }
