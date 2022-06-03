@@ -153,10 +153,15 @@ public class ncm_test {
         System.out.println("Start of NCM Test!");
     }
 
-    public void run_test_against_ncm() throws SocketException {
-        ArrayList<String> local_ips = getNonLoopbackIPAddressList(true,true);
+    public void run_test_against_ncm() {
+        try {
+            ArrayList<String> local_ips = getNonLoopbackIPAddressList(true,true);
+            is_aca_node_one_local = local_ips.contains(aca_node_one_ip);
+        }catch (SocketException e){
+            System.err.println("Get this error when trying to collect localhost IPs: " + e.getMessage());
+            return;
+        }
         // if on the same host, execute bash command; otherwise, execute ssh command.
-        boolean is_aca_node_one_local = local_ips.contains(aca_node_one_ip);
         System.out.println("Test against Arion: " + test_against_aroin + " , Arion Wing IPs: " + Arrays.toString(arion_wing_ips) + ", Arion Wing Macs: "+ Arrays.toString(arion_wing_macs) +
                 ", ArionMaster IP: " + arion_master_ip + ", Arion Master REST port: " + arion_master_rest_port + ", Arion Master gRPC port: " + arion_master_grpc_port + ", Arion DP Controller IP: " + arion_dp_controller_ip);
         if (arion_wing_ips.length != arion_wing_macs.length) {
