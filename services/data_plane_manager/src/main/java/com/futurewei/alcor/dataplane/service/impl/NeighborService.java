@@ -16,7 +16,6 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.dataplane.service.impl;
 
 import com.futurewei.alcor.common.db.CacheException;
-import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.dataplane.cache.NeighborCache;
 import com.futurewei.alcor.dataplane.cache.PortHostInfoCache;
 import com.futurewei.alcor.dataplane.cache.SubnetPortsCacheV2;
@@ -59,6 +58,9 @@ public class NeighborService extends ResourceService {
 
     @Autowired
     private RouterService routerService;
+
+    @Autowired
+    private ArionWingService arionWingService;
 
     private static String NEIGHBOR_STATE_L2_PREFIX = "L2/";
     private static String NEIGHBOR_STATE_L3_PREFIX = "L3/";
@@ -106,6 +108,8 @@ public class NeighborService extends ResourceService {
         fixedIpBuilder.setSubnetId(portHostInfo.getSubnetId());
         fixedIpBuilder.setIpAddress(portHostInfo.getPortIp());
         fixedIpBuilder.setNeighborType(neighborType);
+        var subnetEntity = subnetPortsCache.getSubnetPorts(portHostInfo.getSubnetId());
+        fixedIpBuilder.setArionGroup(arionWingService.getArionGroup(subnetEntity.getTunnelId().intValue(), subnetEntity.getCidr()));
         neighborConfigBuilder.addFixedIps(fixedIpBuilder.build());
         //TODO:setAllowAddressPairs
         //neighborConfigBuilder.setAllowAddressPairs();

@@ -7,24 +7,24 @@ import java.util.Objects;
 import java.util.StringJoiner;
 
 public class ArionWing implements Node {
-    private final String dc;
-    private final String ip;
-    private final String mac;
-    private final int port;
+    private String group;
+    private String ip;
+    private String mac;
+    private int port;
 
-    public ArionWing(String ip, String mac, int port) {
-        this("", ip, mac, port);
+    public ArionWing() {
+
     }
 
-    public ArionWing(String dc, String ip, String mac, int port) {
-        this.dc = dc != null ? dc : "";
+    public ArionWing(String group, String ip, String mac, int port) {
+        this.group = group != null ? group : "";
         this.mac = mac;
         this.ip = ip != null ? ip : "";
         this.port = port;
     }
 
-    public String getDc() {
-        return dc;
+    public String getGroup() {
+        return group;
     }
 
     public String getIp() {
@@ -39,7 +39,7 @@ public class ArionWing implements Node {
 
     @Override
     public String getKey() {
-        return String.format("%s:%s:%s", dc, ip, port);
+        return getGroup();
     }
 
     @Override
@@ -48,26 +48,26 @@ public class ArionWing implements Node {
         if (this == o) return true;
         if (!(o instanceof ArionWing)) return false;
         ArionWing that = (ArionWing) o;
-        return port == that.port &&
-                Objects.equals(dc, that.dc) &&
-                Objects.equals(ip, that.ip) &&
-                Objects.equals(mac, that.mac);
+        return getPort() == that.getPort() &&
+                Objects.equals(getGroup(), that.getGroup()) &&
+                Objects.equals(getIp(), that.getIp()) &&
+                Objects.equals(getMac(), that.getMac());
     }
 
     @Override
     @Generated
     public int hashCode() {
-        return Objects.hash(dc, ip, mac, port);
+        return Objects.hash(getGroup(), getIp(), getMac(), getPort());
     }
 
     @Override
     @Generated
     public String toString() {
         return new StringJoiner(", ", ArionWing.class.getSimpleName() + "[", "]")
-                .add("dc='" + dc + "'")
-                .add("ip='" + ip + "'")
-                .add("ip='" + mac + "'")
-                .add("port=" + port)
+                .add("dc='" + getGroup() + "'")
+                .add("ip='" + getIp() + "'")
+                .add("ip='" + getMac() + "'")
+                .add("port=" + getPort())
                 .toString();
     }
 }

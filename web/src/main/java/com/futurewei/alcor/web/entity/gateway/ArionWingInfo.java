@@ -8,54 +8,27 @@ Copyright(c) 2020 Futurewei Cloud
     to whom the Software is furnished to do so, subject to the following conditions:
 
     The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-    
+
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
+package com.futurewei.alcor.web.entity.gateway;
 
-syntax = "proto3";
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
-package alcor.schema;
+@Data
+public class ArionWingInfo {
+    private String group;
+    private String ip;
+    private String mac;
+    private int vni;
 
-option java_package = "com.futurewei.alcor.schema";
-option java_outer_classname = "Neighbor";
-
-import "common.proto";
-
-enum NeighborType { 
-    L2 = 0; // the default type
-    L3 = 1;
-}
-
-message NeighborConfiguration {
-    uint32 revision_number = 1;
-
-    string request_id = 2;
-    string id = 3;
-    UpdateType update_type = 4; // DELTA (default) or FULL
-    string vpc_id = 5;
-    string name = 6;
-    string mac_address = 7;
-    string host_ip_address = 8;
-
-    message FixedIp {
-        NeighborType neighbor_type = 1;
-        string subnet_id = 2;
-        string ip_address = 3;
-        string arion_group = 4;
+    public ArionWingInfo(String group, String ip, String mac, int vni) {
+        this.group = group;
+        this.ip = ip;
+        this.mac = mac;
+        this.vni = vni;
     }
-
-    message AllowAddressPair {
-        string ip_address = 1;
-        string mac_address = 2;
-    }
-
-    repeated FixedIp fixed_ips = 9;
-    repeated AllowAddressPair allow_address_pairs = 10;
-}
-
-message NeighborState {
-    OperationType operation_type = 1;
-    NeighborConfiguration configuration = 2;
 }
