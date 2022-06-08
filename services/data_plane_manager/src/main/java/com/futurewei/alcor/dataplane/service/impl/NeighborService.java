@@ -110,6 +110,7 @@ public class NeighborService extends ResourceService {
         fixedIpBuilder.setNeighborType(neighborType);
         var subnetEntity = subnetPortsCache.getSubnetPorts(portHostInfo.getSubnetId());
         fixedIpBuilder.setArionGroup(arionWingService.getArionGroup(subnetEntity.getTunnelId().intValue(), subnetEntity.getCidr()));
+        fixedIpBuilder.setTunnelId(subnetEntity.getTunnelId().intValue());
         neighborConfigBuilder.addFixedIps(fixedIpBuilder.build());
         //TODO:setAllowAddressPairs
         //neighborConfigBuilder.setAllowAddressPairs();
