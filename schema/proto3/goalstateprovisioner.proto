@@ -64,6 +64,7 @@ message NeighborRulesRequest {
 
 message RoutingRulesRequest {
     uint32 format_version = 1;
+
     string request_id = 2;
 
     message NeighborRule {
