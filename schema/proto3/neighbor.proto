@@ -45,6 +45,7 @@ message NeighborConfiguration {
         string ip_address = 3;
         string arion_group = 4;
         uint32 tunnel_id = 5;
+        string mac_address = 6;
     }
 
     message AllowAddressPair {
