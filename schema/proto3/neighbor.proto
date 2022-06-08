@@ -53,6 +53,7 @@ message NeighborConfiguration {
 
     repeated FixedIp fixed_ips = 9;
     repeated AllowAddressPair allow_address_pairs = 10;
+    uint32 tunnel_id = 11;
 }
 
 message NeighborState {
