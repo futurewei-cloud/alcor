@@ -81,13 +81,7 @@ public class ArionWingService {
                     ring.remove(node);
                 }
             }
-
             keysInCache.removeAll(keys);
-
-
-            for (var key : keysInCache) {
-                System.out.println(key);
-            }
             for (var key : keysInCache) {
                 ring.add(SimpleNode.of(key));
             }
