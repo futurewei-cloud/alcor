@@ -54,10 +54,6 @@ service GoalStateProvisioner {
     }
 }
 
-service Watch {
-    rpc Watch (stream ArionWingRequest) returns (stream NeighborState) {
-    }
-}
 
 message NeighborRulesRequest {
     uint32 format_version = 1;
@@ -84,10 +80,6 @@ message RoutingRulesRequest {
     repeated NeighborRule neighborRules = 3;
 }
 
-message ArionWingRequest {
-    string vni = 1;
-    string ip = 2;
-}
 
 message HostRequest {
     uint32 format_version = 1;
