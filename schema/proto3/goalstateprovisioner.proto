@@ -54,7 +54,7 @@ service GoalStateProvisioner {
     }
 
 
-    rpc RequestNeighborState (ArionWingRequest) returns (NeighborRulesRequest) {
+    rpc RequestNeighborState (stream ArionWingRequest) returns (stream NeighborRulesRequest) {
     }
 }
 
