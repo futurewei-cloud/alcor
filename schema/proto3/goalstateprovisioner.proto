@@ -55,11 +55,11 @@ service GoalStateProvisioner {
 }
 
 service Watch {
-    rpc RequestNeighborState (stream ArionWingRequest) returns (stream NeighborRules) {
+    rpc RequestNeighborState (stream ArionWingRequest) returns (stream NeighborState) {
     }
 }
 
-message NeighborRules {
+message NeighborRulesRequest {
     uint32 format_version = 1;
     string request_id = 2;
 
