@@ -22,8 +22,8 @@ option java_package = "com.futurewei.alcor.schema";
 
 import "neighbor.proto";
 
-service WatchNetworkConfig {
-  rpc WatchNeighborRule (stream ArionWingRequest) returns (stream NeighborState) {
+service Watch {
+  rpc Watch (stream ArionWingRequest) returns (stream NeighborState) {
   }
 }
 
