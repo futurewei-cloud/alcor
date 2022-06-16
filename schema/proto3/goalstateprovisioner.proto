@@ -55,7 +55,7 @@ service GoalStateProvisioner {
 }
 
 service Watch {
-    rpc RequestNeighborState (stream ArionWingRequest) returns (stream NeighborState) {
+    rpc Watch (stream ArionWingRequest) returns (stream NeighborState) {
     }
 }
 
