@@ -53,6 +53,9 @@ service GoalStateProvisioner {
     rpc RequestGoalStates (HostRequest) returns (HostRequestReply) {
     }
 
+
+    rpc RequestNeighborState (ArionWingRequest) returns (NeighborRulesRequest) {
+    }
 }
 
 message NeighborRulesRequest {
@@ -78,6 +81,11 @@ message RoutingRulesRequest {
     }
 
     repeated NeighborRule neighborRules = 3;
+}
+
+message ArionWingRequest {
+    string vni = 1;
+    string ip = 2;
 }
 
 message HostRequest {
