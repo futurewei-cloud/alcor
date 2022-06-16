@@ -52,8 +52,9 @@ service GoalStateProvisioner {
     // this is for ACA->NCM
     rpc RequestGoalStates (HostRequest) returns (HostRequestReply) {
     }
+}
 
-
+service Watch {
     rpc RequestNeighborState (stream ArionWingRequest) returns (stream NeighborRulesRequest) {
     }
 }
