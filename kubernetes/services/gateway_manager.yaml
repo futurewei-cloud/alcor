@@ -16,6 +16,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: gateway-configmap
+  namespace: default
 data:
   application.properties: |
     ignite.thin.client.enable=true
@@ -49,6 +50,7 @@ metadata:
   labels:
     app: gatewaymanager
   name: gatewaymanager
+  namespace: default
 spec:
   selector:
     matchLabels:
@@ -86,6 +88,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: gatewaymanager-service
+  namespace: default
   labels:
     name: gatewaymanager-service
 spec:

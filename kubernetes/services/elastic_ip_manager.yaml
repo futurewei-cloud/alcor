@@ -16,6 +16,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: eip-configmap
+  namespace: default
 data:
   application.properties: |
     microservices.port.service.url=http://portmanager-service.default.svc.cluster.local:9006
@@ -41,6 +42,7 @@ metadata:
   labels:
     app: eipmanager
   name: eipmanager
+  namespace: default
 spec:
   selector:
     matchLabels:
@@ -78,6 +80,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: eipmanager-service
+  namespace: default
   labels:
     name: eipmanager-service
 spec:
