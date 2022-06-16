@@ -59,6 +59,15 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
     // prints out UUID and time, when sending a GoalState to any of the monitorHosts
     private ArrayList<String> monitorHosts;
 
+    @Value("${arionGateway.enabled:false}")
+    private boolean arionGatwayEnabled;
+
+    @Value("${arionGateway.server:127.0.0.1}")
+    private String arionMasterServer;
+
+    @Value("${arionGateway.port:9090}")
+    private int arionMasterPort;
+
     @Value("${microservices.connectTimeout:300}")
     private String connectTimeout;
 
@@ -71,6 +80,9 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         List<String> results = new ArrayList<>();
         for (UnicastGoalStateV2 unicastGoalState : unicastGoalStates) {
             goalStateBuilder = getGoalState(goalStateBuilder, unicastGoalState);
+        }
+        if (arionGatwayEnabled) {
+            doSendGoalStateToArionMaster(goalStateBuilder);
         }
         doSendGoalState(goalStateBuilder.build(), finishLatch, results);
 
@@ -149,8 +161,8 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         return null;
     }
 
-    private GrpcChannelStub createGrpcChannelStub(String hostIp) {
-        ManagedChannel channel = ManagedChannelBuilder.forAddress(hostIp, this.hostAgentPort)
+    private GrpcChannelStub createGrpcChannelStub(String hostIp, int port) {
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(hostIp, port)
                 .usePlaintext()
                 .keepAliveWithoutCalls(true)
                 .keepAliveTime(Long.MAX_VALUE, TimeUnit.SECONDS)
@@ -160,30 +172,31 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         return new GrpcChannelStub(channel, asyncStub);
     }
 
-    private GrpcChannelStub getOrCreateGrpcChannel(String hostIp) {
-        if (!this.hostIpGrpcChannelStubMap.containsKey(hostIp)) {
-            this.hostIpGrpcChannelStubMap.put(hostIp, createGrpcChannelStubArrayList(hostIp));
+    private GrpcChannelStub getOrCreateGrpcChannel(String hostIp, Integer port) {
+        if (!this.hostIpGrpcChannelStubMap.containsKey(hostIp + port)) {
+
+            this.hostIpGrpcChannelStubMap.put(hostIp + port, createGrpcChannelStubArrayList(hostIp, port));
             LOG.info("[getOrCreateGrpcChannel] Created a channel and stub to host IP: " + hostIp);
         }
         int usingChannelWithThisIndex = ThreadLocalRandom.current().nextInt(0, numberOfGrpcChannelPerHost);
-        ManagedChannel chan = this.hostIpGrpcChannelStubMap.get(hostIp).get(usingChannelWithThisIndex).channel;
+        ManagedChannel chan = this.hostIpGrpcChannelStubMap.get(hostIp + port).get(usingChannelWithThisIndex).channel;
         //checks the channel status, reconnects if the channel is IDLE
 
         ConnectivityState channelState = chan.getState(true);
         if (channelState != ConnectivityState.READY && channelState != ConnectivityState.CONNECTING && channelState != ConnectivityState.IDLE) {
-            GrpcChannelStub newChannelStub = createGrpcChannelStub(hostIp);
-            this.hostIpGrpcChannelStubMap.get(hostIp).set(usingChannelWithThisIndex, newChannelStub);
+            GrpcChannelStub newChannelStub = createGrpcChannelStub(hostIp, port);
+            this.hostIpGrpcChannelStubMap.get(hostIp + port).set(usingChannelWithThisIndex, newChannelStub);
             LOG.info("[getOrCreateGrpcChannel] Replaced a channel and stub to host IP: " + hostIp);
         }
         LOG.info("[getOrCreateGrpcChannel] Using channel and stub index " + usingChannelWithThisIndex + " to host IP: " + hostIp);
-        return this.hostIpGrpcChannelStubMap.get(hostIp).get(usingChannelWithThisIndex);
+        return this.hostIpGrpcChannelStubMap.get(hostIp + port).get(usingChannelWithThisIndex);
     }
 
-    private ArrayList<GrpcChannelStub> createGrpcChannelStubArrayList(String hostIp) {
+    private ArrayList<GrpcChannelStub> createGrpcChannelStubArrayList(String hostIp, int port) {
         long start = System.currentTimeMillis();
         ArrayList<GrpcChannelStub> arr = new ArrayList<>();
         for (int i = 0; i < numberOfGrpcChannelPerHost; i++) {
-            GrpcChannelStub channelStub = createGrpcChannelStub(hostIp);
+            GrpcChannelStub channelStub = createGrpcChannelStub(hostIp, port);
             // Using Linkerd load balance
             //warmUpChannelStub(channelStub, hostIp);
             arr.add(channelStub);
@@ -232,10 +245,34 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         return;
     }
 
+    private String doSendGoalStateToArionMaster (Goalstate.GoalStateV2.Builder goalStateV2) {
+        GrpcChannelStub channelStub = getOrCreateGrpcChannel(arionMasterServer, arionMasterPort);
+        GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub = channelStub.stub;
+        var neighborStateRequestBuilder = Goalstateprovisioner.NeighborRulesRequest.newBuilder();
+        neighborStateRequestBuilder.addAllNeigborstates(goalStateV2.getNeighborStatesMap().values());
+        asyncStub.pushGoalstates(neighborStateRequestBuilder.build(), new StreamObserver<Goalstateprovisioner.GoalStateOperationReply>() {
+            @Override
+            public void onNext(Goalstateprovisioner.GoalStateOperationReply goalStateOperationReply) {
+                LOG.info("Get response: " + goalStateOperationReply.toString());
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                LOG.info(throwable.getMessage());
+            }
+
+            @Override
+            public void onCompleted() {
+
+            }
+        });
+        return null;
+    }
+
     private String doSendGoalState(Goalstate.GoalStateV2 goalStateV2, CountDownLatch finishLatch, List<String> replies) {
         String hostIp = netwconfigmanagerGrpcServiceUrl;
         long start = System.currentTimeMillis();
-        GrpcChannelStub channelStub = getOrCreateGrpcChannel(hostIp);
+        GrpcChannelStub channelStub = getOrCreateGrpcChannel(hostIp, hostAgentPort);
         long chan_established = System.currentTimeMillis();
         LOG.info("[doSendGoalState] Established channel, elapsed Time in milli seconds: " + (chan_established - start));
         GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub = channelStub.stub;

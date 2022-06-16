@@ -53,6 +53,9 @@ public class DpmServiceImplV2 implements DpmService {
     @Value("${zetaGateway.enabled:false}")
     private boolean zetaGatwayEnabled;
 
+    @Value("${arionGateway.enabled:false}")
+    private boolean arionGatwayEnabled;
+
     @Autowired
     private ZetaGatewayClient zetaGatewayClient;
 
@@ -105,6 +108,9 @@ public class DpmServiceImplV2 implements DpmService {
     private PortHostInfoCache portHostInfoCache;
 
     @Autowired
+    private ArionWingService arionWingService;
+
+    @Autowired
     private DpmServiceImplV2(Config globalConfig) {
         this.goalStateMessageVersion = globalConfig.goalStateMessageVersion;
     }
@@ -139,6 +145,10 @@ public class DpmServiceImplV2 implements DpmService {
         neighborService.buildNeighborStatesL2(unicastGoalState, multicastGoalState, networkConfig.getOpType());
         if (networkConfig.getInternalRouterInfos() != null) {
             neighborService.buildNeighborStatesL3(networkConfig, unicastGoalState, multicastGoalState);
+        }
+
+        if (arionGatwayEnabled) {
+            arionWingService.buildArionGatewayState(networkConfig, unicastGoalState);
         }
 
         unicastGoalState.setGoalState(unicastGoalState.getGoalStateBuilder().build());
