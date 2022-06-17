@@ -30,5 +30,6 @@ service Watch {
 message ArionWingRequest {
   string vni = 1;
   string ip = 2;
-  string group = 3;
+  uint64 rev = 3;
+  string group = 4;
 }
