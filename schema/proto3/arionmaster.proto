@@ -22,10 +22,13 @@ option java_package = "com.futurewei.alcor.schema";
 
 import "common.proto";
 
+
 service Watch {
   rpc Watch (stream ArionWingRequest) returns (stream NeighborRule) {
   }
 }
+
+
 
 message ArionWingRequest {
   string vni = 1;
@@ -34,12 +37,16 @@ message ArionWingRequest {
   string group = 4;
 }
 
+
+
 message NeighborRule {
   OperationType operation_type = 1;
+
   string ip = 2;
   string hostip = 3;
   string mac = 4;
   uint32 tunnel_id = 5;
   string hostmac = 6;
   string arionwing_group = 7;
+  uint64 version = 8;
 }
