@@ -73,7 +73,7 @@ public class ArionWingService {
         if (!ring.getNodes().isEmpty()) {
             keys = ring.getNodes().stream().map(item -> item.getKey()).collect(Collectors.toSet());
         }
-        Set<String> keysInCache = arionWingCache.getAllArionGroup().keySet();
+        Set<String> keysInCache = arionWingCache.getAllArionGroup().values().stream().map(item -> item.getGroupName()).collect(Collectors.toSet());
         if (!keys.equals(keysInCache)) {
             keys.retainAll(keysInCache);
             for (SimpleNode node : ring.getNodes()) {
