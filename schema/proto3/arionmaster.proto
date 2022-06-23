@@ -24,10 +24,9 @@ import "common.proto";
 import "goalstateprovisioner.proto";
 import "neighbor.proto";
 
-service Watch {
 
-  rpc Watch (stream ArionWingRequest) returns (stream NeighborRule) {
-  }
+
+service ArionMasterService {
 
   rpc PushGoalstates (NeighborRulesRequest) returns (GoalStateOperationReply) {
   }
@@ -39,7 +38,11 @@ service Watch {
   }
 }
 
+service Watch {
 
+  rpc Watch (stream ArionWingRequest) returns (stream NeighborRule) {
+  }
+}
 
 message ArionWingRequest {
   string vni = 1;
