@@ -21,10 +21,21 @@ package alcor.schema;
 option java_package = "com.futurewei.alcor.schema";
 
 import "common.proto";
-
+import "goalstateprovisioner.proto";
+import "neighbor.proto";
 
 service Watch {
+
   rpc Watch (stream ArionWingRequest) returns (stream NeighborRule) {
+  }
+
+  rpc PushGoalstates (NeighborRulesRequest) returns (GoalStateOperationReply) {
+  }
+
+  rpc RequestGoalstates (HostRequest) returns (NeighborRulesResponse) {
+  }
+
+  rpc RequestGoalstateStream (stream HostRequest) returns (stream NeighborRulesResponse) {
   }
 }
 
@@ -49,4 +60,21 @@ message NeighborRule {
   string hostmac = 6;
   string arionwing_group = 7;
   uint64 version = 8;
+}
+
+message NeighborRulesRequest {
+  uint32 format_version = 1;
+  string request_id = 2;
+
+  repeated NeighborState neigborstates = 3;
+}
+
+message NeighborRulesResponse {
+  uint32 format_version = 1;
+
+  message NeighborRuleReply {
+    string request_id = 1;
+    NeighborRule neighborrule = 2;
+  }
+  repeated NeighborRuleReply neighborrules = 2;
 }

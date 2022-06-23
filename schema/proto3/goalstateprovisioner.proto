@@ -22,7 +22,6 @@ option java_package = "com.futurewei.alcor.schema";
 
 import "common.proto";
 import "goalstate.proto";
-import "neighbor.proto";
 
 service GoalStateProvisioner {
 
@@ -37,9 +36,6 @@ service GoalStateProvisioner {
     rpc PushNetworkResourceStates (GoalState) returns (GoalStateOperationReply) {
     }
 
-    rpc PushGoalstates (NeighborRulesRequest) returns (GoalStateOperationReply) {
-    }
-
     // similar to PushGoalStatesStream with streaming GoalStateV2 and streaming GoalStateOperationReply
     // this is for DPM->NCM, and NCM->ACA
     rpc PushGoalStatesStream (stream GoalStateV2) returns (stream GoalStateOperationReply) {
@@ -52,14 +48,6 @@ service GoalStateProvisioner {
     // this is for ACA->NCM
     rpc RequestGoalStates (HostRequest) returns (HostRequestReply) {
     }
-}
-
-
-message NeighborRulesRequest {
-    uint32 format_version = 1;
-    string request_id = 2;
-
-    repeated NeighborState neigborstates = 3;
 }
 
 message RoutingRulesRequest {
