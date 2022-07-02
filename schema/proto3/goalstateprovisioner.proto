@@ -54,25 +54,6 @@ service GoalStateProvisioner {
     }
 }
 
-message RoutingRulesRequest {
-    uint32 format_version = 1;
-
-    string request_id = 2;
-
-    message NeighborRule {
-        OperationType operation_type = 1;
-        string ip = 2;
-        string hostip = 3;
-        string mac = 4;
-        uint32 tunnel_id = 5;
-        string hostmac = 6;
-        string arionwing_group = 7;
-    }
-
-    repeated NeighborRule neighborRules = 3;
-}
-
-
 message HostRequest {
     uint32 format_version = 1;
 
