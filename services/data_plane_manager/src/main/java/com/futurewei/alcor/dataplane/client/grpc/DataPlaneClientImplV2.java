@@ -21,12 +21,10 @@ import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.config.Config;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalStateV2;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
-import com.futurewei.alcor.dataplane.service.impl.ArionWingService;
 import com.futurewei.alcor.schema.*;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import io.grpc.stub.AbstractStub;
 import io.grpc.stub.StreamObserver;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
@@ -169,10 +167,6 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
                 .keepAliveWithoutCalls(true)
                 .keepAliveTime(Long.MAX_VALUE, TimeUnit.SECONDS)
                 .build();
-        if (port == arionMasterPort) {
-            ArionMasterServiceGrpc.ArionMasterServiceStub arionMasterServiceStub = ArionMasterServiceGrpc.newStub(channel);
-            return new GrpcChannelStub(channel, arionMasterServiceStub);
-        }
         GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub = GoalStateProvisionerGrpc.newStub(channel);
 
         return new GrpcChannelStub(channel, asyncStub);
@@ -214,7 +208,7 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
 
     // try to warmup a gRPC channel and its stub, by sending an empty GoalState`.
     void warmUpChannelStub(GrpcChannelStub channelStub, String hostIp) {
-        GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub = (GoalStateProvisionerGrpc.GoalStateProvisionerStub)channelStub.stub;
+        GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub = channelStub.stub;
 
         StreamObserver<Goalstateprovisioner.GoalStateOperationReply> responseObserver = new StreamObserver<>() {
             @Override
@@ -253,8 +247,8 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
 
     private String doSendGoalStateToArionMaster (Goalstate.GoalStateV2.Builder goalStateV2) {
         GrpcChannelStub channelStub = getOrCreateGrpcChannel(arionMasterServer, arionMasterPort);
-        ArionMasterServiceGrpc.ArionMasterServiceStub asyncStub = (ArionMasterServiceGrpc.ArionMasterServiceStub)channelStub.stub;
-        var neighborStateRequestBuilder = Arionmaster.NeighborRulesRequest.newBuilder();
+        GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub = channelStub.stub;
+        var neighborStateRequestBuilder = Goalstateprovisioner.NeighborRulesRequest.newBuilder();
         neighborStateRequestBuilder.addAllNeigborstates(goalStateV2.getNeighborStatesMap().values());
         asyncStub.pushGoalstates(neighborStateRequestBuilder.build(), new StreamObserver<Goalstateprovisioner.GoalStateOperationReply>() {
             @Override
@@ -281,7 +275,7 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         GrpcChannelStub channelStub = getOrCreateGrpcChannel(hostIp, hostAgentPort);
         long chan_established = System.currentTimeMillis();
         LOG.info("[doSendGoalState] Established channel, elapsed Time in milli seconds: " + (chan_established - start));
-        GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub = (GoalStateProvisionerGrpc.GoalStateProvisionerStub)channelStub.stub;
+        GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub = channelStub.stub;
 
         long stub_established = System.currentTimeMillis();
         LOG.info("[doSendGoalState] Established stub, elapsed Time after channel established in milli seconds: " + (stub_established - chan_established));
@@ -331,9 +325,9 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
 
     private class GrpcChannelStub {
         public ManagedChannel channel;
-        public AbstractStub stub;
+        public GoalStateProvisionerGrpc.GoalStateProvisionerStub stub;
 
-        public GrpcChannelStub(ManagedChannel channel, AbstractStub stub) {
+        public GrpcChannelStub(ManagedChannel channel, GoalStateProvisionerGrpc.GoalStateProvisionerStub stub) {
             this.channel = channel;
             this.stub = stub;
         }
@@ -414,10 +408,10 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
 
 
                 if (goalStateBuilder.containsRouterStates(unicastGoalStateV2.getHostIp() + "/" + entry.getKey())) {
-                   Router.RouterConfiguration.Builder routerConfigurationBuilder = goalStateBuilder.getRouterStatesMap().get(unicastGoalStateV2.getHostIp() + "/" + entry.getKey()).getConfiguration().toBuilder();
-                   routerConfigurationBuilder.addAllSubnetRoutingTables(entry.getValue().getConfiguration().getSubnetRoutingTablesList());
-                   Router.RouterState.Builder routerStateBuilder = goalStateBuilder.getRouterStatesMap().get(unicastGoalStateV2.getHostIp() + "/" + entry.getKey()).toBuilder();
-                   routerStateBuilder.setConfiguration(routerConfigurationBuilder);
+                    Router.RouterConfiguration.Builder routerConfigurationBuilder = goalStateBuilder.getRouterStatesMap().get(unicastGoalStateV2.getHostIp() + "/" + entry.getKey()).getConfiguration().toBuilder();
+                    routerConfigurationBuilder.addAllSubnetRoutingTables(entry.getValue().getConfiguration().getSubnetRoutingTablesList());
+                    Router.RouterState.Builder routerStateBuilder = goalStateBuilder.getRouterStatesMap().get(unicastGoalStateV2.getHostIp() + "/" + entry.getKey()).toBuilder();
+                    routerStateBuilder.setConfiguration(routerConfigurationBuilder);
                 } else {
                     goalStateBuilder.putRouterStates(unicastGoalStateV2.getHostIp() + "/" + entry.getKey(), entry.getValue());
                 }
