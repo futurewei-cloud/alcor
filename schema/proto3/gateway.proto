@@ -29,7 +29,7 @@ enum GatewayType {
     TGW = 2;    // Transit Gateway
     IGW = 3;    // Internet Gateway
     NGW = 4;    // NAT Gateway
-    ARION=5;
+    ARION = 5;
 }
 
 message GatewayConfiguration {

@@ -22,6 +22,7 @@ option java_package = "com.futurewei.alcor.schema";
 
 import "common.proto";
 import "goalstate.proto";
+import "neighbor.proto";
 
 service GoalStateProvisioner {
 
@@ -47,6 +48,9 @@ service GoalStateProvisioner {
     // Results consist of a list of HostRequestOperationStatus, and each status is a reply to each request in the input
     // this is for ACA->NCM
     rpc RequestGoalStates (HostRequest) returns (HostRequestReply) {
+    }
+
+    rpc PushGoalstates (NeighborRulesRequest) returns (GoalStateOperationReply) {
     }
 }
 
@@ -99,6 +103,13 @@ message HostRequestReply {
 
     // Total operation time (in microseconds)
     uint32 total_operation_time = 3;
+}
+
+message NeighborRulesRequest {
+    uint32 format_version = 1;
+    string request_id = 2;
+
+    repeated NeighborState neigborstates = 3;
 }
 
 message GoalStateOperationReply {
