@@ -16,7 +16,6 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.dataplane.service.impl;
 
 import com.futurewei.alcor.common.db.CacheException;
-import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.dataplane.cache.NeighborCache;
 import com.futurewei.alcor.dataplane.cache.PortHostInfoCache;
 import com.futurewei.alcor.dataplane.cache.SubnetPortsCacheV2;
@@ -36,6 +35,7 @@ import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -59,6 +59,12 @@ public class NeighborService extends ResourceService {
 
     @Autowired
     private RouterService routerService;
+
+    @Autowired
+    private ArionWingService arionWingService;
+
+    @Value("${arionGateway.enabled:false}")
+    private boolean arionGatwayEnabled;
 
     private static String NEIGHBOR_STATE_L2_PREFIX = "L2/";
     private static String NEIGHBOR_STATE_L3_PREFIX = "L3/";
@@ -106,6 +112,11 @@ public class NeighborService extends ResourceService {
         fixedIpBuilder.setSubnetId(portHostInfo.getSubnetId());
         fixedIpBuilder.setIpAddress(portHostInfo.getPortIp());
         fixedIpBuilder.setNeighborType(neighborType);
+        if (arionGatwayEnabled) {
+            var subnetEntity = subnetPortsCache.getSubnetPorts(portHostInfo.getSubnetId());
+            fixedIpBuilder.setArionGroup(arionWingService.getArionGroup(subnetEntity.getTunnelId().intValue(), subnetEntity.getCidr()));
+            fixedIpBuilder.setTunnelId(subnetEntity.getTunnelId().intValue());
+        }
         neighborConfigBuilder.addFixedIps(fixedIpBuilder.build());
         //TODO:setAllowAddressPairs
         //neighborConfigBuilder.setAllowAddressPairs();

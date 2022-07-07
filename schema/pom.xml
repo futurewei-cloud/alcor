@@ -36,22 +36,22 @@
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-netty-shaded</artifactId>
-            <version>1.23.0</version>
+            <version>1.42.2</version>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-protobuf</artifactId>
-            <version>1.23.0</version>
+            <version>1.42.2</version>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-stub</artifactId>
-            <version>1.23.0</version>
+            <version>1.42.2</version>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>protoc-gen-grpc-java</artifactId>
-            <version>1.23.0</version>
+            <version>1.42.2</version>
             <type>pom</type>
         </dependency>
         <dependency>
@@ -62,7 +62,7 @@
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-testing</artifactId>
-            <version>1.23.0</version>
+            <version>1.42.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
