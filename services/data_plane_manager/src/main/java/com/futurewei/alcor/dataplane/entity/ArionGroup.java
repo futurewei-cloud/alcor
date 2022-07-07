@@ -8,56 +8,25 @@ Copyright(c) 2020 Futurewei Cloud
     to whom the Software is furnished to do so, subject to the following conditions:
 
     The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-    
+
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
+package com.futurewei.alcor.dataplane.entity;
 
-syntax = "proto3";
+public class ArionGroup {
+    String groupName;
 
-package alcor.schema;
-
-option java_package = "com.futurewei.alcor.schema";
-option java_outer_classname = "Neighbor";
-
-import "common.proto";
-
-enum NeighborType { 
-    L2 = 0; // the default type
-    L3 = 1;
-}
-
-message NeighborConfiguration {
-    uint32 revision_number = 1;
-
-    string request_id = 2;
-    string id = 3;
-    UpdateType update_type = 4; // DELTA (default) or FULL
-    string vpc_id = 5;
-    string name = 6;
-    string mac_address = 7;
-    string host_ip_address = 8;
-
-    message FixedIp {
-        NeighborType neighbor_type = 1;
-        string subnet_id = 2;
-        string ip_address = 3;
-        string arion_group = 4;
-        uint32 tunnel_id = 5;
-        string mac_address = 6;
+    public ArionGroup(String groupName) {
+        this.groupName = groupName;
     }
 
-    message AllowAddressPair {
-        string ip_address = 1;
-        string mac_address = 2;
+    public String getGroupName() {
+        return groupName;
     }
 
-    repeated FixedIp fixed_ips = 9;
-    repeated AllowAddressPair allow_address_pairs = 10;
-}
-
-message NeighborState {
-    OperationType operation_type = 1;
-    NeighborConfiguration configuration = 2;
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
+    }
 }

@@ -29,6 +29,7 @@ enum GatewayType {
     TGW = 2;    // Transit Gateway
     IGW = 3;    // Internet Gateway
     NGW = 4;    // NAT Gateway
+    ARION = 5;
 }
 
 message GatewayConfiguration {
@@ -50,8 +51,17 @@ message GatewayConfiguration {
         uint32 port_inband_operation = 1;
     }
 
+    message arion {
+            string vpc_id = 1;
+            uint32 vni = 2;
+            string subnet_id = 3;
+            // port for in-band (same NIC channel) operation
+            uint32 port_inband_operation = 4;
+    }
+
     oneof extra_info {
         zeta zeta_info = 6;
+        arion arion_info = 7;
     }
 }
 
