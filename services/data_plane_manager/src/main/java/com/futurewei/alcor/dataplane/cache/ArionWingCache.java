@@ -33,7 +33,10 @@ import java.util.Set;
 @ComponentScan(value="com.futurewei.alcor.common.db")
 public class ArionWingCache {
 
+    // arionWingCache store Arion wing meta data. key is Arion Wing hash code and value is Arion wing meta data.
     private ICache<String, ArionWing> arionWingCache;
+
+    // arionWingGroupCache store Arion group meta data. key is Arion wing group name, value is Arion wing meta data.
     private ICache<String, ArionGroup> arionWingGroupCache;
     private CacheFactory cacheFactory;
 

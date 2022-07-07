@@ -25,6 +25,12 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+
+/*
+This controller provide api for Arion master input group and Arion wing information.
+It used for Arion wing Consistent Hash. Could be deprecated once Arion Master could be made self-contained
+ */
+
 @Slf4j
 @RestController
 @ComponentScan(value = "com.futurewei.alcor.common.stats")
