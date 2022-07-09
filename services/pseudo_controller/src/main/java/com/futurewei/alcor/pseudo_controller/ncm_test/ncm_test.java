@@ -130,6 +130,7 @@ public class ncm_test {
     static String mac_port_prefix = "00:00:01:";//"6c:dd:ee:";
     static String project_id = "alcor_testing_project";
     static SortedMap<String, String> ip_mac_map = new TreeMap<>();
+    static SortedMap<String, SortedMap<String, String>> subnet_prefix_to_ip_mac_map = new TreeMap<>();
     static Vector<String> aca_node_one_commands = new Vector<>();
     static Vector<String> aca_node_two_commands = new Vector<>();
     static SortedMap<String, String> port_ip_to_host_ip_map = new TreeMap<>();
@@ -149,6 +150,10 @@ public class ncm_test {
     // if true, pings should be executed as bash command; otherwise, pings should be executed as ssh commands.
     boolean is_aca_node_one_local = false;
 
+    static int number_of_subnets = 2;
+    static ArrayList<String> subnets_ips_ports_ip_prefix = new ArrayList<>();
+    static ArrayList<String> subnets_macs_ports_mac_third_octects = new ArrayList<>();
+
     public ncm_test(){
         System.out.println("Start of NCM Test!");
     }
@@ -161,6 +166,7 @@ public class ncm_test {
             System.err.println("Get this error when trying to collect localhost IPs: " + e.getMessage());
             return;
         }
+        int number_of_gws_each_subnet_gets = 0;
         // if on the same host, execute bash command; otherwise, execute ssh command.
         System.out.println("Test against Arion: " + test_against_aroin + " , Arion Wing IPs: " + Arrays.toString(arion_wing_ips) + ", Arion Wing Macs: "+ Arrays.toString(arion_wing_macs) +
                 ", ArionMaster IP: " + arion_master_ip + ", Arion Master REST port: " + arion_master_rest_port + ", Arion Master gRPC port: " + arion_master_grpc_port + ", Arion DP Controller IP: " + arion_dp_controller_ip);
@@ -179,9 +185,13 @@ public class ncm_test {
                 return;
             }
             arion_gw_ip_macs = (JSONArray) arion_data_json_object.get("gws");
+            number_of_gws_each_subnet_gets = (int) Math.ceil(arion_gw_ip_macs.size() / number_of_subnets);
             setup_arion_gateway_cluster_and_nodes();
         }
-        System.out.println("There are "+ number_of_vpcs+" VPCs, ACA node one has "+ ports_to_generate_on_aca_node_one + " ports per VPC;\nACA node two has "+ports_to_generate_on_aca_node_two+" ports per VPC. \nTotal ports per VPC: "+(ports_to_generate_on_aca_node_one + ports_to_generate_on_aca_node_two));
+        System.out.println("There are "+ number_of_vpcs+" VPCs, " + number_of_subnets + " subnets, ACA node one has "+ ports_to_generate_on_aca_node_one + " ports per VPC/subnet;\n" +
+                "ACA node two has "+ports_to_generate_on_aca_node_two+" ports per VPC/subnet. \n" +
+                "Total ports per VPC/subnet: "+(ports_to_generate_on_aca_node_one + ports_to_generate_on_aca_node_two) +
+                "\nEach subnet gets " + number_of_gws_each_subnet_gets + " gws");
         generate_ip_macs(ports_to_generate_on_aca_node_one + ports_to_generate_on_aca_node_two);
         create_containers_on_both_hosts_concurrently();
         System.out.println("aca_node_one_ip: " + aca_node_one_ip + "\naca_node_two_ip: " + aca_node_two_ip + "\nuser name: " + user_name + "\npassword: " + password);
@@ -191,11 +201,11 @@ public class ncm_test {
         System.out.println("Trying to build the GoalStateV2 for " + (ports_to_generate_on_aca_node_one + ports_to_generate_on_aca_node_two) + " Ports");
 
 
-        com.futurewei.alcor.schema.Goalstate.GoalStateV2.Builder GoalState_builder_one = com.futurewei.alcor.schema.Goalstate.GoalStateV2.newBuilder();
-        com.futurewei.alcor.schema.Goalstate.GoalStateV2.Builder GoalState_builder_two = com.futurewei.alcor.schema.Goalstate.GoalStateV2.newBuilder();
-        com.futurewei.alcor.schema.Goalstate.HostResources.Builder host_resource_builder_node_one = com.futurewei.alcor.schema.Goalstate.HostResources.newBuilder();
-        com.futurewei.alcor.schema.Goalstate.HostResources.Builder host_resource_builder_node_two = com.futurewei.alcor.schema.Goalstate.HostResources.newBuilder();
-        com.futurewei.alcor.schema.Goalstate.HostResources.Builder host_resource_builder_node_one_port_one_neighbor = com.futurewei.alcor.schema.Goalstate.HostResources.newBuilder();
+        Goalstate.GoalStateV2.Builder GoalState_builder_one = Goalstate.GoalStateV2.newBuilder();
+        Goalstate.GoalStateV2.Builder GoalState_builder_two = Goalstate.GoalStateV2.newBuilder();
+        Goalstate.HostResources.Builder host_resource_builder_node_one = Goalstate.HostResources.newBuilder();
+        Goalstate.HostResources.Builder host_resource_builder_node_two = Goalstate.HostResources.newBuilder();
+        Goalstate.HostResources.Builder host_resource_builder_node_one_port_one_neighbor = Goalstate.HostResources.newBuilder();
 
         // a new Goalstate and its builder for Arion master; should have only neigbhor states.
         com.futurewei.arion.schema.Goalstateprovisioner.RoutingRulesRequest.Builder routing_rule_request_builder = com.futurewei.arion.schema.Goalstateprovisioner.RoutingRulesRequest.newBuilder();
@@ -206,121 +216,200 @@ public class ncm_test {
             // generate VPC ID and Subnet ID for the current VPC
             int current_vpc_tunnel_id = 21 + vpc_number -1;
             String current_vpc_id = vpc_id_1.substring(0, vpc_id_1.length()-3)+String.format("%03d", (vpc_number));
-            String current_subnet_id = subnet_id_1.substring(0,  subnet_id_1.length()-3) + String.format("%03d", (vpc_number));
-            System.out.println("Current vpc_id: " + current_vpc_id + ", current subnet id: " + current_subnet_id);
-            // Generate three unique octets for each VPC
-            // instead of using the same mac_port_prefix for all ports
-            String mac_first_octet, mac_second_octet, mac_third_octet;
+            Vpc.VpcConfiguration.Builder vpc_configuration_builder = Vpc.VpcConfiguration.newBuilder();
 
-            mac_first_octet = Integer.toHexString(vpc_number / 10000);
-            mac_second_octet = Integer.toHexString((vpc_number % 10000) / 100 );
-            mac_third_octet = Integer.toHexString(vpc_number % 100);
+            for( int subnet_number = 1 ; subnet_number <= number_of_subnets ; subnet_number ++){
+                String current_subnet_id = subnet_id_1.substring(0,  subnet_id_1.length()-3) + String.format("%03d", (vpc_number));
+                String current_subnet_ip_prefix = subnets_ips_ports_ip_prefix.get(subnet_number);
+                ArrayList<String> ports_ips_for_current_subnet = (ArrayList<String>) ip_mac_map.keySet().stream().filter(ip -> ip.substring(0,2).equals(current_subnet_ip_prefix));
+                System.out.println("Current vpc_id: " + current_vpc_id + ", current subnet id: " + current_subnet_id);
+                System.out.println("For current_subnet_ip_prefix [" + current_subnet_ip_prefix + "], we have " + ports_ips_for_current_subnet.size() + " ports:\n" + ports_ips_for_current_subnet);
 
-            String current_vpc_mac_prefix = mac_first_octet + ":" + mac_second_octet + ":" + mac_third_octet + ":";
+                // Generate three unique octets for each VPC
+                // instead of using the same mac_port_prefix for all ports
+                String mac_first_octet, mac_second_octet, mac_third_octet;
+
+                mac_first_octet = Integer.toHexString(vpc_number / 10000);
+                mac_second_octet = Integer.toHexString((vpc_number % 10000) / 100 );
+                // not auto auto generaing the third octect, as now it is now related to the number_of_subnets.
+//            mac_third_octet = Integer.toHexString(vpc_number % 100);
+
+                String current_vpc_mac_prefix = mac_first_octet + ":" + mac_second_octet + ":";
 
             /*
              generate port states for the current VPC, currently all VPCs has the same number ports, and these ports'
              IP range and mac range will be the same.
             */
-            for (String port_ip : ip_mac_map.keySet()) {
-                String host_ip = port_ip_to_host_ip_map.get(port_ip);
-                String port_id = port_ip_to_id_map.get(port_ip);
-                // replace the first 3 digits of the port id with the current vpc_number,
-                // if vpc_number == 1 then the first 3 digits of this port_id will be "001"
-                String vpc_port_id = String.format("%03d", (vpc_number)) + port_id.substring(3);
-                String port_mac = ip_mac_map.get(port_ip).replaceFirst(mac_port_prefix, current_vpc_mac_prefix);
-                // if it's on node 1, we don't add neighbor info here,
-                // start of setting up port 1 on aca node 1
-                com.futurewei.alcor.schema.Port.PortState.Builder new_port_states = com.futurewei.alcor.schema.Port.PortState.newBuilder();
+                for (String port_ip : ports_ips_for_current_subnet) {
+                    String host_ip = port_ip_to_host_ip_map.get(port_ip);
+                    String port_id = port_ip_to_id_map.get(port_ip);
+                    // replace the first 3 digits of the port id with the current vpc_number,
+                    // if vpc_number == 1 then the first 3 digits of this port_id will be "001"
+                    String vpc_port_id = String.format("%02d", (vpc_number)) + String.format("%02d", subnet_number) + port_id.substring(4);
+                    String port_mac = ip_mac_map.get(port_ip).replaceFirst("00:00:"/*mac_port_prefix*/, current_vpc_mac_prefix);
+                    // if it's on node 1, we don't add neighbor info here,
+                    // start of setting up port 1 on aca node 1
+                    Port.PortState.Builder new_port_states = Port.PortState.newBuilder();
 
-                new_port_states.setOperationType(com.futurewei.alcor.schema.Common.OperationType.CREATE);
+                    new_port_states.setOperationType(Common.OperationType.CREATE);
 
-                // fill in port state structs for port 1
-                com.futurewei.alcor.schema.Port.PortConfiguration.Builder config = new_port_states.getConfigurationBuilder();
-                config.
-                        setRevisionNumber(2).
-                        setUpdateType(com.futurewei.alcor.schema.Common.UpdateType.FULL).
-                        setId(vpc_port_id).
-                        setVpcId(current_vpc_id).
-                        setName(("tap" + vpc_port_id).substring(0, 14)).
-                        setAdminStateUp(true).
-                        setMacAddress(port_mac);
-                com.futurewei.alcor.schema.Port.PortConfiguration.FixedIp.Builder fixedIpBuilder = com.futurewei.alcor.schema.Port.PortConfiguration.FixedIp.newBuilder();
-                fixedIpBuilder.setSubnetId(current_subnet_id);
-                fixedIpBuilder.setIpAddress(port_ip);
-                config.addFixedIps(fixedIpBuilder.build());
-                com.futurewei.alcor.schema.Port.PortConfiguration.SecurityGroupId securityGroupId = com.futurewei.alcor.schema.Port.PortConfiguration.SecurityGroupId.newBuilder().setId("2").build();
-                config.addSecurityGroupIds(securityGroupId);
+                    // fill in port state structs for port 1
+                    Port.PortConfiguration.Builder config = new_port_states.getConfigurationBuilder();
+                    config.
+                            setRevisionNumber(2).
+                            setUpdateType(Common.UpdateType.FULL).
+                            setId(vpc_port_id).
+                            setVpcId(current_vpc_id).
+                            setName(("tap" + vpc_port_id).substring(0, 14)).
+                            setAdminStateUp(true).
+                            setMacAddress(port_mac);
+                    Port.PortConfiguration.FixedIp.Builder fixedIpBuilder = Port.PortConfiguration.FixedIp.newBuilder();
+                    fixedIpBuilder.setSubnetId(current_subnet_id);
+                    fixedIpBuilder.setIpAddress(port_ip);
+                    config.addFixedIps(fixedIpBuilder.build());
+                    Port.PortConfiguration.SecurityGroupId securityGroupId = Port.PortConfiguration.SecurityGroupId.newBuilder().setId("2").build();
+                    config.addSecurityGroupIds(securityGroupId);
 
-                new_port_states.setConfiguration(config.build());
+                    new_port_states.setConfiguration(config.build());
 
-                com.futurewei.alcor.schema.Port.PortState port_state_one = new_port_states.build();
-                com.futurewei.alcor.schema.Goalstate.ResourceIdType.Builder port_one_resource_Id_builder = com.futurewei.alcor.schema.Goalstate.ResourceIdType.newBuilder();
-                port_one_resource_Id_builder.setType(Common.ResourceType.PORT).setId(port_state_one.getConfiguration().getId());
-                com.futurewei.alcor.schema.Goalstate.ResourceIdType port_one_resource_id = port_one_resource_Id_builder.build();
+                    Port.PortState port_state_one = new_port_states.build();
+                    Goalstate.ResourceIdType.Builder port_one_resource_Id_builder = Goalstate.ResourceIdType.newBuilder();
+                    port_one_resource_Id_builder.setType(Common.ResourceType.PORT).setId(port_state_one.getConfiguration().getId());
+                    Goalstate.ResourceIdType port_one_resource_id = port_one_resource_Id_builder.build();
 
-                // add a new neighbor state with CREATE
-                com.futurewei.alcor.schema.Neighbor.NeighborState.Builder new_neighborState_builder = com.futurewei.alcor.schema.Neighbor.NeighborState.newBuilder();
-                new_neighborState_builder.setOperationType(Common.OperationType.CREATE);
+                    // add a new neighbor state with CREATE
+                    Neighbor.NeighborState.Builder new_neighborState_builder = Neighbor.NeighborState.newBuilder();
+                    new_neighborState_builder.setOperationType(Common.OperationType.CREATE);
 
-                // fill in neighbor state structs of port 3
-                com.futurewei.alcor.schema.Neighbor.NeighborConfiguration.Builder NeighborConfiguration_builder = com.futurewei.alcor.schema.Neighbor.NeighborConfiguration.newBuilder();
-                NeighborConfiguration_builder.setRevisionNumber(2);
-                NeighborConfiguration_builder.setVpcId(current_vpc_id);
-                NeighborConfiguration_builder.setId(vpc_port_id + "_n");
-                NeighborConfiguration_builder.setMacAddress(port_mac);
-                NeighborConfiguration_builder.setHostIpAddress(host_ip);
+                    // fill in neighbor state structs of port 3
+                    Neighbor.NeighborConfiguration.Builder NeighborConfiguration_builder = Neighbor.NeighborConfiguration.newBuilder();
+                    NeighborConfiguration_builder.setRevisionNumber(2);
+                    NeighborConfiguration_builder.setVpcId(current_vpc_id);
+                    NeighborConfiguration_builder.setId(vpc_port_id + "_n");
+                    NeighborConfiguration_builder.setMacAddress(port_mac);
+                    NeighborConfiguration_builder.setHostIpAddress(host_ip);
 
-                com.futurewei.alcor.schema.Neighbor.NeighborConfiguration.FixedIp.Builder neighbor_fixed_ip_builder = com.futurewei.alcor.schema.Neighbor.NeighborConfiguration.FixedIp.newBuilder();
-                neighbor_fixed_ip_builder.setNeighborType(Neighbor.NeighborType.L2);
-                neighbor_fixed_ip_builder.setSubnetId(current_subnet_id);
-                neighbor_fixed_ip_builder.setIpAddress(port_ip);
+                    Neighbor.NeighborConfiguration.FixedIp.Builder neighbor_fixed_ip_builder = Neighbor.NeighborConfiguration.FixedIp.newBuilder();
+                    neighbor_fixed_ip_builder.setNeighborType(Neighbor.NeighborType.L2);
+                    neighbor_fixed_ip_builder.setSubnetId(current_subnet_id);
+                    neighbor_fixed_ip_builder.setIpAddress(port_ip);
 
-                NeighborConfiguration_builder.addFixedIps(neighbor_fixed_ip_builder.build());
+                    NeighborConfiguration_builder.addFixedIps(neighbor_fixed_ip_builder.build());
 
-                new_neighborState_builder.setConfiguration(NeighborConfiguration_builder.build());
-                com.futurewei.alcor.schema.Neighbor.NeighborState neighborState_node_one = new_neighborState_builder.build();
+                    new_neighborState_builder.setConfiguration(NeighborConfiguration_builder.build());
+                    Neighbor.NeighborState neighborState_node_one = new_neighborState_builder.build();
 
-                // Need to include the Port state in all scenarios.
-                if (host_ip.equals(aca_node_one_ip)) {
-                    GoalState_builder_one.putPortStates(port_state_one.getConfiguration().getId(), port_state_one);
-
-                    host_resource_builder_node_one.addResources(port_one_resource_id);
-                } else {
-                    GoalState_builder_two.putPortStates(port_state_one.getConfiguration().getId(), port_state_one);
-
-                    host_resource_builder_node_two.addResources(port_one_resource_id);
-                }
-                if(test_against_aroin){
-                    // We should put the neighbor states into the goalstate to Arion Master.
-                    com.futurewei.arion.schema.Goalstateprovisioner.RoutingRulesRequest.RoutingRule.Builder current_routing_rule_builder = com.futurewei.arion.schema.Goalstateprovisioner.RoutingRulesRequest.RoutingRule.newBuilder();
-                    current_routing_rule_builder.setOperationType(com.futurewei.arion.schema.Common.OperationType.CREATE);
-                    current_routing_rule_builder.setIp(port_ip);
-                    current_routing_rule_builder.setHostip(host_ip);
-                    current_routing_rule_builder.setMac(port_mac);
-                    current_routing_rule_builder.setTunnelId(current_vpc_tunnel_id);
-                    current_routing_rule_builder.setHostmac(host_ip.equals(aca_node_one_ip)? aca_node_one_mac : aca_node_two_mac);
-                    routing_rule_request_builder.addRoutingRules(current_routing_rule_builder.build());
-
-                }else{
-                    // NOT test against Arion; we should put the neigbhor states into the goalstate to NCM.
+                    // Need to include the Port state in all scenarios.
                     if (host_ip.equals(aca_node_one_ip)) {
-                        // if this port is on host_one, then it is a neighbor for ports on host_two
+                        GoalState_builder_one.putPortStates(port_state_one.getConfiguration().getId(), port_state_one);
 
-                        GoalState_builder_two.putNeighborStates(neighborState_node_one.getConfiguration().getId(), neighborState_node_one);
-                        com.futurewei.alcor.schema.Goalstate.ResourceIdType resource_id_type_neighbor_node_one = com.futurewei.alcor.schema.Goalstate.ResourceIdType.newBuilder().
-                                setType(com.futurewei.alcor.schema.Common.ResourceType.NEIGHBOR).setId(neighborState_node_one.getConfiguration().getId()).build();
-                        host_resource_builder_node_two.addResources(resource_id_type_neighbor_node_one);
+                        host_resource_builder_node_one.addResources(port_one_resource_id);
                     } else {
-                        // if this port is on host_two, then it is a neighbor for ports on host_one
-                        GoalState_builder_two.putNeighborStates(neighborState_node_one.getConfiguration().getId(), neighborState_node_one);
-                        com.futurewei.alcor.schema.Goalstate.ResourceIdType resource_id_type_neighbor_node_one = com.futurewei.alcor.schema.Goalstate.ResourceIdType.newBuilder().
-                                setType(com.futurewei.alcor.schema.Common.ResourceType.NEIGHBOR).setId(neighborState_node_one.getConfiguration().getId()).build();
-                        host_resource_builder_node_one_port_one_neighbor.addResources(resource_id_type_neighbor_node_one);
+                        GoalState_builder_two.putPortStates(port_state_one.getConfiguration().getId(), port_state_one);
+
+                        host_resource_builder_node_two.addResources(port_one_resource_id);
                     }
-                }
+                    if(test_against_aroin){
+                        // TODO: Update gRPC schema with Arion-Master and change the following code.
+                        // We should put the neighbor states into the goalstate to Arion Master.
+                        com.futurewei.arion.schema.Goalstateprovisioner.RoutingRulesRequest.RoutingRule.Builder current_routing_rule_builder = com.futurewei.arion.schema.Goalstateprovisioner.RoutingRulesRequest.RoutingRule.newBuilder();
+                        current_routing_rule_builder.setOperationType(com.futurewei.arion.schema.Common.OperationType.CREATE);
+                        current_routing_rule_builder.setIp(port_ip);
+                        current_routing_rule_builder.setHostip(host_ip);
+                        current_routing_rule_builder.setMac(port_mac);
+                        current_routing_rule_builder.setTunnelId(current_vpc_tunnel_id);
+                        current_routing_rule_builder.setHostmac(host_ip.equals(aca_node_one_ip)? aca_node_one_mac : aca_node_two_mac);
+                        routing_rule_request_builder.addRoutingRules(current_routing_rule_builder.build());
+
+                    }else{
+                        // NOT test against Arion; we should put the neigbhor states into the goalstate to NCM.
+                        if (host_ip.equals(aca_node_one_ip)) {
+                            // if this port is on host_one, then it is a neighbor for ports on host_two
+
+                            GoalState_builder_two.putNeighborStates(neighborState_node_one.getConfiguration().getId(), neighborState_node_one);
+                            Goalstate.ResourceIdType resource_id_type_neighbor_node_one = Goalstate.ResourceIdType.newBuilder().
+                                    setType(Common.ResourceType.NEIGHBOR).setId(neighborState_node_one.getConfiguration().getId()).build();
+                            host_resource_builder_node_two.addResources(resource_id_type_neighbor_node_one);
+                        } else {
+                            // if this port is on host_two, then it is a neighbor for ports on host_one
+                            GoalState_builder_two.putNeighborStates(neighborState_node_one.getConfiguration().getId(), neighborState_node_one);
+                            Goalstate.ResourceIdType resource_id_type_neighbor_node_one = Goalstate.ResourceIdType.newBuilder().
+                                    setType(Common.ResourceType.NEIGHBOR).setId(neighborState_node_one.getConfiguration().getId()).build();
+                            host_resource_builder_node_one_port_one_neighbor.addResources(resource_id_type_neighbor_node_one);
+                        }
+                    }
 
 //                System.out.println("Finished port state for port [" + port_ip + "] on host: [" + host_ip + "]");
+                }
+                // fill in subnet state structs
+                Subnet.SubnetState.Builder new_subnet_states = Subnet.SubnetState.newBuilder();
+
+                new_subnet_states.setOperationType(Common.OperationType.INFO);
+
+                Subnet.SubnetConfiguration.Builder subnet_configuration_builder = Subnet.SubnetConfiguration.newBuilder();
+
+                subnet_configuration_builder.setRevisionNumber(2);
+                subnet_configuration_builder.setVpcId(current_vpc_id);
+                subnet_configuration_builder.setId(current_subnet_id);
+                String current_subnet_cidr = current_subnet_ip_prefix + "0.0.0/24";
+                subnet_configuration_builder.setCidr(current_subnet_cidr/*"10.0.0.0/24"*/);
+                subnet_configuration_builder.setTunnelId(current_vpc_tunnel_id);
+                subnet_configuration_builder.setGateway(Subnet.SubnetConfiguration.Gateway.newBuilder().setIpAddress("0.0.0.0").setMacAddress("6c:dd:ee:0:0:40").build());
+
+                new_subnet_states.setConfiguration(subnet_configuration_builder.build());
+
+                Subnet.SubnetState subnet_state_for_both_nodes = new_subnet_states.build();
+
+
+                GoalState_builder_one.putSubnetStates(subnet_state_for_both_nodes.getConfiguration().getId(), subnet_state_for_both_nodes);
+//        GoalState_builder_one.putSubnetStates(subnet_state_for_both_nodes_two.getConfiguration().getId(), subnet_state_for_both_nodes_two);
+                GoalState_builder_two.putSubnetStates(subnet_state_for_both_nodes.getConfiguration().getId(), subnet_state_for_both_nodes);
+//        GoalState_builder_two.putSubnetStates(subnet_state_for_both_nodes_two.getConfiguration().getId(), subnet_state_for_both_nodes_two);
+                Goalstate.ResourceIdType subnet_resource_id_type = Goalstate.ResourceIdType.newBuilder()
+                        .setType(Common.ResourceType.SUBNET).setId(subnet_state_for_both_nodes.getConfiguration().getId()).build();
+
+                host_resource_builder_node_one.addResources(subnet_resource_id_type);
+                host_resource_builder_node_two.addResources(subnet_resource_id_type);
+                host_resource_builder_node_one_port_one_neighbor.addResources(subnet_resource_id_type);
+
+                // put gateway information in the goalstates, each subnet should have one gateway state.
+                if (test_against_aroin){
+                    Gateway.GatewayState.Builder new_gateway_state_builder = Gateway.GatewayState.newBuilder();
+                    new_gateway_state_builder.setOperationType(Common.OperationType.CREATE);
+                    Gateway.GatewayConfiguration.Builder gateway_configuration_builder = Gateway.GatewayConfiguration.newBuilder();
+                    String current_gateway_id = "tc-gateway-"+vpc_number;
+                    vpc_configuration_builder.addGatewayIds(current_gateway_id);
+                    gateway_configuration_builder.setId(current_gateway_id);
+                    gateway_configuration_builder.setRequestId("tc-gateway-request-"+vpc_number);
+                    gateway_configuration_builder.setGatewayType(Gateway.GatewayType.ARION/*ZETA*/);
+                    Gateway.GatewayConfiguration.arion.Builder arion_builder = Gateway.GatewayConfiguration.arion.newBuilder();
+                    arion_builder.setVpcId(current_vpc_id);
+                    arion_builder.setVni(current_vpc_tunnel_id);
+                    arion_builder.setPortInbandOperation(arion_port_inbound_operation);
+                    gateway_configuration_builder.setArionInfo(arion_builder.build());
+                    // switch to arion, instead of zeta.
+//                    Gateway.GatewayConfiguration.zeta.Builder zeta_builder = Gateway.GatewayConfiguration.zeta.newBuilder();
+//                    zeta_builder.setPortInbandOperation(arion_port_inbound_operation);
+//                    gateway_configuration_builder.setZetaInfo(zeta_builder.build());
+                    for(int i = 0 ; i < number_of_gws_each_subnet_gets ; i ++){
+                        JSONObject current_gw = (JSONObject) arion_gw_ip_macs.get(((subnet_number - 1) * number_of_gws_each_subnet_gets) + i);
+                        String current_arion_wing_ip = (String) current_gw.get("ip");
+                        String current_arion_wing_mac = (String) current_gw.get("mac");
+                        Gateway.GatewayConfiguration.destination.Builder destination_builder = Gateway.GatewayConfiguration.destination.newBuilder();
+                        destination_builder.setIpAddress(current_arion_wing_ip);
+                        destination_builder.setMacAddress(current_arion_wing_mac);
+                        gateway_configuration_builder.addDestinations(destination_builder.build());
+                        System.out.println("Adding GW destination with IP: " + current_arion_wing_ip + " and MAC:"+current_arion_wing_mac + " to subnet " + current_subnet_id);
+                    }
+                    new_gateway_state_builder.setConfiguration(gateway_configuration_builder.build());
+                    Gateway.GatewayState current_gateway_state_for_both_nodes = new_gateway_state_builder.build();
+                    GoalState_builder_one.putGatewayStates(current_gateway_state_for_both_nodes.getConfiguration().getId(),current_gateway_state_for_both_nodes);
+                    GoalState_builder_two.putGatewayStates(current_gateway_state_for_both_nodes.getConfiguration().getId(), current_gateway_state_for_both_nodes);
+                    Goalstate.ResourceIdType gateway_resource_id_type = Goalstate.ResourceIdType.newBuilder().setType(Common.ResourceType.GATEWAY).setId(current_gateway_state_for_both_nodes.getConfiguration().getId()).build();
+                    host_resource_builder_node_one.addResources(gateway_resource_id_type);
+                    host_resource_builder_node_two.addResources(gateway_resource_id_type);
+                    host_resource_builder_node_one_port_one_neighbor.addResources(gateway_resource_id_type);
+                }
             }
 
 //        Router.RouterState.Builder router_state_builder = Router.RouterState.newBuilder();
@@ -375,23 +464,7 @@ public class ncm_test {
 //                .build();
 //        host_resource_builder_node_two.addResources(resource_id_type_router_node_two);
 //        host_resource_builder_node_one.addResources(resource_id_type_router_node_two);
-            // fill in subnet state structs
-            com.futurewei.alcor.schema.Subnet.SubnetState.Builder new_subnet_states = com.futurewei.alcor.schema.Subnet.SubnetState.newBuilder();
 
-            new_subnet_states.setOperationType(com.futurewei.alcor.schema.Common.OperationType.INFO);
-
-            com.futurewei.alcor.schema.Subnet.SubnetConfiguration.Builder subnet_configuration_builder = com.futurewei.alcor.schema.Subnet.SubnetConfiguration.newBuilder();
-
-            subnet_configuration_builder.setRevisionNumber(2);
-            subnet_configuration_builder.setVpcId(current_vpc_id);
-            subnet_configuration_builder.setId(current_subnet_id);
-            subnet_configuration_builder.setCidr("10.0.0.0/24");
-            subnet_configuration_builder.setTunnelId(current_vpc_tunnel_id);
-            subnet_configuration_builder.setGateway(com.futurewei.alcor.schema.Subnet.SubnetConfiguration.Gateway.newBuilder().setIpAddress("0.0.0.0").setMacAddress("6c:dd:ee:0:0:40").build());
-
-            new_subnet_states.setConfiguration(subnet_configuration_builder.build());
-
-            com.futurewei.alcor.schema.Subnet.SubnetState subnet_state_for_both_nodes = new_subnet_states.build();
 
             // fill in subnet state structs
 //        Subnet.SubnetState.Builder new_subnet_states_two = Subnet.SubnetState.newBuilder();
@@ -414,10 +487,9 @@ public class ncm_test {
             // put the new subnet state of subnet 1 into the goalstatev2
 
             // fill in VPC state structs
-            com.futurewei.alcor.schema.Vpc.VpcState.Builder new_vpc_states = com.futurewei.alcor.schema.Vpc.VpcState.newBuilder();
-            new_vpc_states.setOperationType(com.futurewei.alcor.schema.Common.OperationType.INFO);
+            Vpc.VpcState.Builder new_vpc_states = Vpc.VpcState.newBuilder();
+            new_vpc_states.setOperationType(Common.OperationType.INFO);
 
-            com.futurewei.alcor.schema.Vpc.VpcConfiguration.Builder vpc_configuration_builder = com.futurewei.alcor.schema.Vpc.VpcConfiguration.newBuilder();
             vpc_configuration_builder.setCidr("10.0.0.0/16");
             vpc_configuration_builder.setId(current_vpc_id);
             vpc_configuration_builder.setName("test_vpc");
@@ -425,60 +497,19 @@ public class ncm_test {
             vpc_configuration_builder.setProjectId(project_id);
             vpc_configuration_builder.setRevisionNumber(2);
 
-            // put gateway information in the goalstates.
-            if (test_against_aroin){
-                com.futurewei.alcor.schema.Gateway.GatewayState.Builder new_gateway_state_builder = com.futurewei.alcor.schema.Gateway.GatewayState.newBuilder();
-                new_gateway_state_builder.setOperationType(com.futurewei.alcor.schema.Common.OperationType.CREATE);
-                com.futurewei.alcor.schema.Gateway.GatewayConfiguration.Builder gateway_configuration_builder = com.futurewei.alcor.schema.Gateway.GatewayConfiguration.newBuilder();
-                String current_gateway_id = "tc-gateway-"+vpc_number;
-                vpc_configuration_builder.addGatewayIds(current_gateway_id);
-                gateway_configuration_builder.setId(current_gateway_id);
-                gateway_configuration_builder.setRequestId("tc-gateway-request-"+vpc_number);
-                gateway_configuration_builder.setGatewayType(com.futurewei.alcor.schema.Gateway.GatewayType.ZETA);
-                com.futurewei.alcor.schema.Gateway.GatewayConfiguration.zeta.Builder zeta_builder = com.futurewei.alcor.schema.Gateway.GatewayConfiguration.zeta.newBuilder();
-                zeta_builder.setPortInbandOperation(arion_port_inbound_operation);
-                gateway_configuration_builder.setZetaInfo(zeta_builder.build());
-                for(int i = 0 ; i < arion_gw_ip_macs.size() ; i ++){
-                    JSONObject current_gw = (JSONObject) arion_gw_ip_macs.get(i);
-                    String current_arion_wing_ip = (String) current_gw.get("ip");
-                    String current_arion_wing_mac = (String) current_gw.get("mac");
-                    com.futurewei.alcor.schema.Gateway.GatewayConfiguration.destination.Builder destination_builder = com.futurewei.alcor.schema.Gateway.GatewayConfiguration.destination.newBuilder();
-                    destination_builder.setIpAddress(current_arion_wing_ip);
-                    destination_builder.setMacAddress(current_arion_wing_mac);
-                    gateway_configuration_builder.addDestinations(destination_builder.build());
-                    System.out.println("Adding GW destination with IP: " + current_arion_wing_ip + " and MAC:"+current_arion_wing_mac);
-                }
-                new_gateway_state_builder.setConfiguration(gateway_configuration_builder.build());
-                com.futurewei.alcor.schema.Gateway.GatewayState current_gateway_state_for_both_nodes = new_gateway_state_builder.build();
-                GoalState_builder_one.putGatewayStates(current_gateway_state_for_both_nodes.getConfiguration().getId(),current_gateway_state_for_both_nodes);
-                GoalState_builder_two.putGatewayStates(current_gateway_state_for_both_nodes.getConfiguration().getId(), current_gateway_state_for_both_nodes);
-                com.futurewei.alcor.schema.Goalstate.ResourceIdType gateway_resource_id_type = com.futurewei.alcor.schema.Goalstate.ResourceIdType.newBuilder().setType(com.futurewei.alcor.schema.Common.ResourceType.GATEWAY).setId(current_gateway_state_for_both_nodes.getConfiguration().getId()).build();
-                host_resource_builder_node_one.addResources(gateway_resource_id_type);
-                host_resource_builder_node_two.addResources(gateway_resource_id_type);
-                host_resource_builder_node_one_port_one_neighbor.addResources(gateway_resource_id_type);
-            }
+
 
             new_vpc_states.setConfiguration(vpc_configuration_builder.build());
-            com.futurewei.alcor.schema.Vpc.VpcState vpc_state_for_both_nodes = new_vpc_states.build();
+            Vpc.VpcState vpc_state_for_both_nodes = new_vpc_states.build();
 
-
-
-            GoalState_builder_one.putSubnetStates(subnet_state_for_both_nodes.getConfiguration().getId(), subnet_state_for_both_nodes);
-//        GoalState_builder_one.putSubnetStates(subnet_state_for_both_nodes_two.getConfiguration().getId(), subnet_state_for_both_nodes_two);
-            GoalState_builder_two.putSubnetStates(subnet_state_for_both_nodes.getConfiguration().getId(), subnet_state_for_both_nodes);
-//        GoalState_builder_two.putSubnetStates(subnet_state_for_both_nodes_two.getConfiguration().getId(), subnet_state_for_both_nodes_two);
             GoalState_builder_one.putVpcStates(vpc_state_for_both_nodes.getConfiguration().getId(), vpc_state_for_both_nodes);
             GoalState_builder_two.putVpcStates(vpc_state_for_both_nodes.getConfiguration().getId(), vpc_state_for_both_nodes);
 
-            com.futurewei.alcor.schema.Goalstate.ResourceIdType subnet_resource_id_type = com.futurewei.alcor.schema.Goalstate.ResourceIdType.newBuilder()
-                    .setType(com.futurewei.alcor.schema.Common.ResourceType.SUBNET).setId(subnet_state_for_both_nodes.getConfiguration().getId()).build();
 //        Goalstate.ResourceIdType subnet_resource_id_type_two = Goalstate.ResourceIdType.newBuilder()
 //                .setType(Common.ResourceType.SUBNET).setId(subnet_state_for_both_nodes_two.getConfiguration().getId()).build();
 
-            com.futurewei.alcor.schema.Goalstate.ResourceIdType vpc_resource_id_type = com.futurewei.alcor.schema.Goalstate.ResourceIdType.newBuilder().setType(com.futurewei.alcor.schema.Common.ResourceType.VPC).setId(vpc_state_for_both_nodes.getConfiguration().getId()).build();
-            host_resource_builder_node_one.addResources(subnet_resource_id_type);
-            host_resource_builder_node_two.addResources(subnet_resource_id_type);
-            host_resource_builder_node_one_port_one_neighbor.addResources(subnet_resource_id_type);
+            Goalstate.ResourceIdType vpc_resource_id_type = Goalstate.ResourceIdType.newBuilder().setType(Common.ResourceType.VPC).setId(vpc_state_for_both_nodes.getConfiguration().getId()).build();
+
 //        host_resource_builder_node_one.addResources(subnet_resource_id_type_two);
 //        host_resource_builder_node_two.addResources(subnet_resource_id_type_two);
 //        host_resource_builder_node_one_port_one_neighbor.addResources(subnet_resource_id_type_two);
@@ -502,12 +533,13 @@ public class ncm_test {
         GoalState_builder_one.putHostResources(aca_node_one_ip, host_resource_builder_node_one.build());
         GoalState_builder_two.putHostResources(aca_node_two_ip, host_resource_builder_node_two.build());
         GoalState_builder_two.putHostResources(aca_node_one_ip, host_resource_builder_node_one_port_one_neighbor.build());
-        com.futurewei.alcor.schema.Goalstate.GoalStateV2 message_one = GoalState_builder_one.build();
-        com.futurewei.alcor.schema.Goalstate.GoalStateV2 message_two = GoalState_builder_two.build();
+        Goalstate.GoalStateV2 message_one = GoalState_builder_one.build();
+        Goalstate.GoalStateV2 message_two = GoalState_builder_two.build();
 
-//        System.out.println("Built GoalState successfully, GoalStateV2 content for PORT1: \n" + message_one.toString() + "\n");
-//        System.out.println("Built GoalState successfully, GoalStateV2 content for PORT2: \n" + message_two.toString() + "\n");
+        System.out.println("Built GoalState successfully, GoalStateV2 content for PORT1: \n" + message_one.toString() + "\n");
         System.out.println("GoalStateV2 size in bytes for host1: \n" + message_one.getSerializedSize() + "\n");
+
+        System.out.println("Built GoalState successfully, GoalStateV2 content for PORT2: \n" + message_two.toString() + "\n");
         System.out.println("GoalStateV2 size in bytes for host2: \n" + message_two.getSerializedSize() + "\n");
 
         System.out.println("Time to call the GRPC functions");
@@ -536,7 +568,7 @@ public class ncm_test {
 
         ManagedChannel channel = ManagedChannelBuilder.forAddress(ncm_ip, ncm_port).usePlaintext().build();
         System.out.println("Constructed channel");
-        com.futurewei.alcor.schema.GoalStateProvisionerGrpc.GoalStateProvisionerStub stub = com.futurewei.alcor.schema.GoalStateProvisionerGrpc.newStub(/*tracingClientInterceptor.intercept*/(channel));
+        GoalStateProvisionerGrpc.GoalStateProvisionerStub stub = GoalStateProvisionerGrpc.newStub(/*tracingClientInterceptor.intercept*/(channel));
 //        Span parentSpan = tracer.activeSpan();
 //        Span span;
 //        if(parentSpan != null){
@@ -549,9 +581,9 @@ public class ncm_test {
 //        Scope cscope = tracer.scopeManager().activate(span);
 //        span.log("abcdefg");
         System.out.println("Created stub");
-        StreamObserver<com.futurewei.alcor.schema.Goalstateprovisioner.GoalStateOperationReply> message_observer = new StreamObserver<>() {
+        StreamObserver<Goalstateprovisioner.GoalStateOperationReply> message_observer = new StreamObserver<>() {
             @Override
-            public void onNext(com.futurewei.alcor.schema.Goalstateprovisioner.GoalStateOperationReply value) {
+            public void onNext(Goalstateprovisioner.GoalStateOperationReply value) {
                 finished_sending_goalstate_hosts_count ++ ;
                 System.out.println("onNext function with this GoalStateOperationReply: \n" + value.toString() + "\n");
             }
@@ -567,7 +599,7 @@ public class ncm_test {
             }
         };
         System.out.println("Created GoalStateOperationReply observer class");
-        io.grpc.stub.StreamObserver<com.futurewei.alcor.schema.Goalstate.GoalStateV2> response_observer = stub.pushGoalStatesStream(message_observer);
+        io.grpc.stub.StreamObserver<Goalstate.GoalStateV2> response_observer = stub.pushGoalStatesStream(message_observer);
         System.out.println("Connected the observers");
         response_observer.onNext(message_one);
         response_observer.onNext(message_two);
@@ -720,23 +752,41 @@ public class ncm_test {
 
     // Generates IP/MAC for host_many_per_host, and inserts them into the hashmap
     public static void generate_ip_macs(int amount_of_ports_to_generate) {
-        System.out.println("Need to generate " + amount_of_ports_to_generate + " ports");
+        System.out.println("There are " + number_of_subnets + " subnets, need to generate " + amount_of_ports_to_generate + " ports for each subnet.");
         int i = 2;
+
+
+        // The number of subnets shall not excess 256 - 10 = 246.
+        for (int s = 0 ; s < number_of_subnets ; s ++){
+            String current_subnet_ports_ip_prefix = String.valueOf(Integer.parseInt(ips_ports_ip_prefix) + s);
+            String current_subnet_ports_ip_third_octect = String.format("%02X", s);
+            System.out.println("The " + s + "th subnet has port IP prefix of " + current_subnet_ports_ip_prefix + ":, and the mac prefix of 00:00:"+current_subnet_ports_ip_third_octect);
+            subnets_ips_ports_ip_prefix.add(current_subnet_ports_ip_prefix);
+            subnets_macs_ports_mac_third_octects.add(current_subnet_ports_ip_third_octect);
+        }
         while (ip_mac_map.size() != amount_of_ports_to_generate) {
             if (i % 100 != 0) {
                 String ip_2nd_octet = Integer.toString(i / 10000);
                 String ip_3nd_octet = Integer.toString((i % 10000) / 100);
                 String ip_4nd_octet = Integer.toString(i % 100);
-                String ip_for_port = ips_ports_ip_prefix + "." + ip_2nd_octet + "." + ip_3nd_octet + "." + ip_4nd_octet;
-                String mac_for_port = mac_port_prefix + ip_2nd_octet + ":" + ip_3nd_octet + ":" + ip_4nd_octet;
-                String id_for_port = port_ip_template + ips_ports_ip_prefix + String.format("%03d", (i / 10000)) + String.format("%03d", ((i % 10000) / 100)) + String.format("%03d", (i % 100));
+                for (int j = 0 ; j < subnets_ips_ports_ip_prefix.size() ; j ++ ){
+                    String ip_for_port = subnets_ips_ports_ip_prefix.get(j) + "." + ip_2nd_octet + "." + ip_3nd_octet + "." + ip_4nd_octet;
+                    String mac_for_port = "00:00:" + subnets_macs_ports_mac_third_octects.get(j) + ":" + ip_2nd_octet + ":" + ip_3nd_octet + ":" + ip_4nd_octet;
+                    String id_for_port = port_ip_template + subnets_ips_ports_ip_prefix.get(j) + String.format("%03d", (i / 10000)) + String.format("%03d", ((i % 10000) / 100)) + String.format("%03d", (i % 100));
+                    ip_mac_map.put(ip_for_port, mac_for_port);
+                    port_ip_to_id_map.put(ip_for_port, id_for_port);
+                    System.out.println("Generated Port " + i + " with IP: [" + ip_for_port + "], ID :[ " + id_for_port + "] and MAC: [" + mac_for_port + "]");
+                }
+//                String ip_for_port = ips_ports_ip_prefix + "." + ip_2nd_octet + "." + ip_3nd_octet + "." + ip_4nd_octet;
+//                String mac_for_port = mac_port_prefix + ip_2nd_octet + ":" + ip_3nd_octet + ":" + ip_4nd_octet;
+//                String id_for_port = port_ip_template + ips_ports_ip_prefix + String.format("%03d", (i / 10000)) + String.format("%03d", ((i % 10000) / 100)) + String.format("%03d", (i % 100));
 //                System.out.println("Generated Port " + i + " with IP: [" + ip_for_port + "], ID :[ " + id_for_port + "] and MAC: [" + mac_for_port + "]");
-                ip_mac_map.put(ip_for_port, mac_for_port);
-                port_ip_to_id_map.put(ip_for_port, id_for_port);
+//                ip_mac_map.put(ip_for_port, mac_for_port);
+//                port_ip_to_id_map.put(ip_for_port, id_for_port);
             }
             i++;
         }
-        System.out.println("Finished generating " + amount_of_ports_to_generate + " ports, ip->mac map has "+ ip_mac_map.size() +" entries, ip->id map has "+port_ip_to_id_map.size()+" entries");
+        System.out.println("Finished generating " + amount_of_ports_to_generate + " ports for each subnet, ip->mac map has "+ ip_mac_map.size() +" entries, ip->id map has "+port_ip_to_id_map.size()+" entries");
     }
 
     private void create_containers_on_both_hosts_concurrently() {
