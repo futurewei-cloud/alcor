@@ -369,7 +369,7 @@ public class ncm_test {
                     Gateway.GatewayState.Builder new_gateway_state_builder = Gateway.GatewayState.newBuilder();
                     new_gateway_state_builder.setOperationType(Common.OperationType.CREATE);
                     Gateway.GatewayConfiguration.Builder gateway_configuration_builder = Gateway.GatewayConfiguration.newBuilder();
-                    String current_gateway_id = "tc-gateway-"+vpc_number;
+                    String current_gateway_id = "tc-gateway-"+vpc_number+"-"+subnet_number;
                     vpc_configuration_builder.addGatewayIds(current_gateway_id);
                     gateway_configuration_builder.setId(current_gateway_id);
                     gateway_configuration_builder.setRequestId("tc-gateway-request-"+vpc_number);
