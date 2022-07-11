@@ -208,9 +208,9 @@ public class ncm_test {
         Goalstate.HostResources.Builder host_resource_builder_node_one_port_one_neighbor = Goalstate.HostResources.newBuilder();
 
         // a new Goalstate and its builder for Arion master; should have only neigbhor states.
-        com.futurewei.arion.schema.Goalstateprovisioner.RoutingRulesRequest.Builder routing_rule_request_builder = com.futurewei.arion.schema.Goalstateprovisioner.RoutingRulesRequest.newBuilder();
-        routing_rule_request_builder.setFormatVersion(1);
-        routing_rule_request_builder.setRequestId("arion_routing_rule-" + (System.currentTimeMillis() / 1000L));
+        Goalstateprovisioner.NeighborRulesRequest.Builder arion_neighbor_rule_request_builder = Goalstateprovisioner.NeighborRulesRequest.newBuilder();
+        arion_neighbor_rule_request_builder.setFormatVersion(1);
+        arion_neighbor_rule_request_builder.setRequestId("arion_routing_rule-" + (System.currentTimeMillis() / 1000L));
 
         for (int vpc_number = 1 ; vpc_number <= number_of_vpcs ; vpc_number ++){
             // generate VPC ID and Subnet ID for the current VPC
@@ -310,17 +310,8 @@ public class ncm_test {
                         host_resource_builder_node_two.addResources(port_one_resource_id);
                     }
                     if(test_against_aroin){
-                        // TODO: Update gRPC schema with Arion-Master and change the following code.
                         // We should put the neighbor states into the goalstate to Arion Master.
-                        com.futurewei.arion.schema.Goalstateprovisioner.RoutingRulesRequest.RoutingRule.Builder current_routing_rule_builder = com.futurewei.arion.schema.Goalstateprovisioner.RoutingRulesRequest.RoutingRule.newBuilder();
-                        current_routing_rule_builder.setOperationType(com.futurewei.arion.schema.Common.OperationType.CREATE);
-                        current_routing_rule_builder.setIp(port_ip);
-                        current_routing_rule_builder.setHostip(host_ip);
-                        current_routing_rule_builder.setMac(port_mac);
-                        current_routing_rule_builder.setTunnelId(current_vpc_tunnel_id);
-                        current_routing_rule_builder.setHostmac(host_ip.equals(aca_node_one_ip)? aca_node_one_mac : aca_node_two_mac);
-                        routing_rule_request_builder.addRoutingRules(current_routing_rule_builder.build());
-
+                        arion_neighbor_rule_request_builder.addNeigborstates(neighborState_node_one);
                     }else{
                         // NOT test against Arion; we should put the neigbhor states into the goalstate to NCM.
                         if (host_ip.equals(aca_node_one_ip)) {
@@ -528,7 +519,7 @@ public class ncm_test {
         }
 
         // build the GroutingRuleRequest, to be sent to Arion Master
-        com.futurewei.arion.schema.Goalstateprovisioner.RoutingRulesRequest routing_rule_request = routing_rule_request_builder.build();
+        Goalstateprovisioner.NeighborRulesRequest arion_neighbor_state_request = arion_neighbor_rule_request_builder.build();
 
         GoalState_builder_one.putHostResources(aca_node_one_ip, host_resource_builder_node_one.build());
         GoalState_builder_two.putHostResources(aca_node_two_ip, host_resource_builder_node_two.build());
@@ -614,10 +605,10 @@ public class ncm_test {
 
         if (test_against_aroin){
 //            Span arion_span;
-            System.out.println("Now send the Routing Rule messages to Arion Master via gRPC");
+            System.out.println("Now send the Neighbor Rule messages to Arion Master via gRPC");
             String arion_address_without_http = arion_master_ip.replaceAll("http://", "");
             ManagedChannel arion_channel = ManagedChannelBuilder.forAddress(arion_address_without_http, arion_master_grpc_port).usePlaintext().build();
-            com.futurewei.arion.schema.GoalStateProvisionerGrpc.GoalStateProvisionerStub arion_stub = com.futurewei.arion.schema.GoalStateProvisionerGrpc.newStub(/*tracingClientInterceptor.intercept*/(arion_channel));
+            GoalStateProvisionerGrpc.GoalStateProvisionerStub arion_stub = GoalStateProvisionerGrpc.newStub(/*tracingClientInterceptor.intercept*/(arion_channel));
 //            if(parentSpan != null){
 //                arion_span = tracer.buildSpan("alcor-tc-send-gs").asChildOf(parentSpan.context()).start();
 //                System.out.println("[Test Controller] Got parent span: "+parentSpan.toString());
@@ -628,9 +619,9 @@ public class ncm_test {
 //            System.out.println("[Test Controller] Built child span: "+span.toString());
 //            Scope arion_scope = tracer.scopeManager().activate(span);
 //            span.log("random log line for Arion.");
-            StreamObserver<com.futurewei.arion.schema.Goalstateprovisioner.GoalStateOperationReply> arion_message_observer = new StreamObserver<>() {
+            StreamObserver<Goalstateprovisioner.GoalStateOperationReply> arion_message_observer = new StreamObserver<>() {
                 @Override
-                public void onNext(com.futurewei.arion.schema.Goalstateprovisioner.GoalStateOperationReply value) {
+                public void onNext(Goalstateprovisioner.GoalStateOperationReply value) {
                     finished_sending_goalstate_hosts_count ++ ;
                     System.out.println("FROM ARION: onNext function with this GoalStateOperationReply: \n" + value.toString() + "\n");
                 }
@@ -646,7 +637,7 @@ public class ncm_test {
                 }
             };
             System.out.println("FOR ARION: Created GoalStateOperationReply observer class");
-            arion_stub.pushGoalstates(routing_rule_request, arion_message_observer);
+            arion_stub.pushGoalstates(arion_neighbor_state_request, arion_message_observer);
             System.out.println("FOR ARION: Connected the observers");
 
             System.out.println("FOR ARION: After calling onNext");
@@ -659,6 +650,13 @@ public class ncm_test {
             HttpClient c = HttpClientBuilder.create().build();
             HttpGet getConnection = new HttpGet(default_setup_url);
             getConnection.setHeader("Content-Type", "application/json");
+            /* TODO: The following HTTP GET request returns a list of GWs, but we don't know which ArionNode has which GWs,
+            *  the Nodes info with which GWs belongs to this node was recently added to the GET /nodes API,
+            *  in order to achieve sharding, we should consider utilizing the GET /nodes API after calling the GET /default_setup API,
+            *  retrieve the ArionNode IPs and its GWs IPs/MACs, then assigning them to the GotewayStates accordingly.
+            * */
+
+
             try {
                 HttpResponse default_setup_response = c.execute(getConnection);
                 System.out.println("Get this /default_setup status code: " + default_setup_response.getStatusLine().getStatusCode() + "\nresponse: " + default_setup_response.toString());
