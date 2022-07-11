@@ -221,7 +221,7 @@ public class ncm_test {
             Vpc.VpcConfiguration.Builder vpc_configuration_builder = Vpc.VpcConfiguration.newBuilder();
 
             for( int subnet_number = 1 ; subnet_number <= number_of_subnets ; subnet_number ++){
-                String current_subnet_id = subnet_id_1.substring(0,  subnet_id_1.length()-3) + String.format("%03d", (vpc_number));
+                String current_subnet_id = subnet_id_1.substring(0,  subnet_id_1.length()-3) + String.format("%03d", (subnet_number));
                 String current_subnet_ip_prefix = subnets_ips_ports_ip_prefix.get(subnet_number - 1);
                 ArrayList<String> ports_ips_for_current_subnet = (ArrayList<String>) ip_mac_map.keySet().stream().filter(ip -> ip.substring(0,2).equals(current_subnet_ip_prefix)).collect(Collectors.toList());
                 System.out.println("Current vpc_id: " + current_vpc_id + ", current subnet id: " + current_subnet_id);
@@ -344,7 +344,7 @@ public class ncm_test {
                 subnet_configuration_builder.setRevisionNumber(2);
                 subnet_configuration_builder.setVpcId(current_vpc_id);
                 subnet_configuration_builder.setId(current_subnet_id);
-                String current_subnet_cidr = current_subnet_ip_prefix + "0.0.0/24";
+                String current_subnet_cidr = current_subnet_ip_prefix + ".0.0.0/24";
                 subnet_configuration_builder.setCidr(current_subnet_cidr/*"10.0.0.0/24"*/);
                 subnet_configuration_builder.setTunnelId(current_vpc_tunnel_id);
                 subnet_configuration_builder.setGateway(Subnet.SubnetConfiguration.Gateway.newBuilder().setIpAddress("0.0.0.0").setMacAddress("6c:dd:ee:0:0:40").build());
@@ -352,7 +352,6 @@ public class ncm_test {
                 new_subnet_states.setConfiguration(subnet_configuration_builder.build());
 
                 Subnet.SubnetState subnet_state_for_both_nodes = new_subnet_states.build();
-
 
                 GoalState_builder_one.putSubnetStates(subnet_state_for_both_nodes.getConfiguration().getId(), subnet_state_for_both_nodes);
 //        GoalState_builder_one.putSubnetStates(subnet_state_for_both_nodes_two.getConfiguration().getId(), subnet_state_for_both_nodes_two);
