@@ -378,6 +378,7 @@ public class ncm_test {
                     arion_builder.setVpcId(current_vpc_id);
                     arion_builder.setVni(current_vpc_tunnel_id);
                     arion_builder.setPortInbandOperation(arion_port_inbound_operation);
+                    arion_builder.setSubnetId(current_subnet_id);
                     gateway_configuration_builder.setArionInfo(arion_builder.build());
                     // switch to arion, instead of zeta.
 //                    Gateway.GatewayConfiguration.zeta.Builder zeta_builder = Gateway.GatewayConfiguration.zeta.newBuilder();
