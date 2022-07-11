@@ -799,6 +799,9 @@ public class ncm_test {
         // use a countdown latch to wait for the threads to finish.
         CountDownLatch latch = new CountDownLatch(ip_mac_map.keySet().size());
 
+        // a key set is a red-black tree, which is sorted by nature.
+        // So, we are we assign ports to one node interchangeably. For example, if the 0th port is assigned to node 1,
+        // then the 1th port will be assigned to node 2, and then the 2nd port is assigned to node 1, so and so forth...
         for (String port_ip : ip_mac_map.keySet()) {
             String port_mac = ip_mac_map.get(port_ip);
             String container_name = "test" + Integer.toString(i);
@@ -812,8 +815,8 @@ public class ncm_test {
             create_one_container_and_assign_IP_vlax_commands.add(ovs_set_vlan_cmd);
 
 //            int ip_last_octet = Integer.parseInt(port_ip.split("\\.")[3]);
-            if (node_one_port_ips.size() != ports_to_generate_on_aca_node_one * number_of_subnets) {
-//                System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + aca_node_one_ip + "]");
+            if ( i % 2 != 0/*node_one_port_ips.size() != ports_to_generate_on_aca_node_one * number_of_subnets*/) {
+                System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + aca_node_one_ip + "]");
                 node_one_port_ips.add(port_ip);
                 port_ip_to_host_ip_map.put(port_ip, aca_node_one_ip);
                 if(whether_to_create_containers_and_ping == CREATE_CONTAINER_AND_PING){
@@ -824,7 +827,7 @@ public class ncm_test {
                 }
                 background_pinger = port_ip;
             } else {
-//                System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + aca_node_two_ip + "]");
+                System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + aca_node_two_ip + "]");
                 node_two_port_ips.add(port_ip);
                 port_ip_to_host_ip_map.put(port_ip, aca_node_two_ip);
                 if(whether_to_create_containers_and_ping == CREATE_CONTAINER_AND_PING){
