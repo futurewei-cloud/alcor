@@ -223,7 +223,7 @@ public class ncm_test {
             for( int subnet_number = 1 ; subnet_number <= number_of_subnets ; subnet_number ++){
                 String current_subnet_id = subnet_id_1.substring(0,  subnet_id_1.length()-3) + String.format("%03d", (vpc_number));
                 String current_subnet_ip_prefix = subnets_ips_ports_ip_prefix.get(subnet_number);
-                ArrayList<String> ports_ips_for_current_subnet = ip_mac_map.keySet().stream().filter(ip -> ip.substring(0,2).equals(current_subnet_ip_prefix)).collect(Collectors.toList());
+                ArrayList<String> ports_ips_for_current_subnet = (ArrayList<String>) ip_mac_map.keySet().stream().filter(ip -> ip.substring(0,2).equals(current_subnet_ip_prefix)).collect(Collectors.toList());
                 System.out.println("Current vpc_id: " + current_vpc_id + ", current subnet id: " + current_subnet_id);
                 System.out.println("For current_subnet_ip_prefix [" + current_subnet_ip_prefix + "], we have " + ports_ips_for_current_subnet.size() + " ports:\n" + ports_ips_for_current_subnet);
 
