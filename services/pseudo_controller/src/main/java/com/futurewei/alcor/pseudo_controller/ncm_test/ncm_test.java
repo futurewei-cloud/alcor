@@ -764,7 +764,9 @@ public class ncm_test {
             subnets_ips_ports_ip_prefix.add(current_subnet_ports_ip_prefix);
             subnets_macs_ports_mac_third_octects.add(current_subnet_ports_ip_third_octect);
         }
-        while (ip_mac_map.size() != amount_of_ports_to_generate) {
+
+        //        Each subnet gets the same number of ports
+        while (ip_mac_map.size() != amount_of_ports_to_generate * number_of_subnets) {
             if (i % 100 != 0) {
                 String ip_2nd_octet = Integer.toString(i / 10000);
                 String ip_3nd_octet = Integer.toString((i % 10000) / 100);
