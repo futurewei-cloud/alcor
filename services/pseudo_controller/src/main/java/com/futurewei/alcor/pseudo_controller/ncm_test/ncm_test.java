@@ -295,6 +295,10 @@ public class ncm_test {
                     neighbor_fixed_ip_builder.setNeighborType(Neighbor.NeighborType.L2);
                     neighbor_fixed_ip_builder.setSubnetId(current_subnet_id);
                     neighbor_fixed_ip_builder.setIpAddress(port_ip);
+                    neighbor_fixed_ip_builder.setMacAddress(port_mac);
+                    neighbor_fixed_ip_builder.setTunnelId(current_vpc_tunnel_id);
+                    // set the arion gropu to subnet ID for now.
+                    neighbor_fixed_ip_builder.setArionGroup(current_subnet_id);
 
                     NeighborConfiguration_builder.addFixedIps(neighbor_fixed_ip_builder.build());
 
