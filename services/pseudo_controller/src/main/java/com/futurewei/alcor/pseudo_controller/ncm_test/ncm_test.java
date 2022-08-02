@@ -288,7 +288,7 @@ public class ncm_test {
                     NeighborConfiguration_builder.setRevisionNumber(2);
                     NeighborConfiguration_builder.setVpcId(current_vpc_id);
                     NeighborConfiguration_builder.setId(vpc_port_id + "_n");
-                    NeighborConfiguration_builder.setMacAddress(port_mac);
+                    NeighborConfiguration_builder.setMacAddress(host_ip == aca_node_one_ip ? aca_node_one_mac : aca_node_two_mac);
                     NeighborConfiguration_builder.setHostIpAddress(host_ip);
 
                     Neighbor.NeighborConfiguration.FixedIp.Builder neighbor_fixed_ip_builder = Neighbor.NeighborConfiguration.FixedIp.newBuilder();
