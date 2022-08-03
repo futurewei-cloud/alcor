@@ -109,10 +109,6 @@ public class ncm_test {
 
     @Value("${test_against_arion:false}")
     Boolean test_against_aroin;
-    @Value("${arion_wing_ips:[]}")
-    String[] arion_wing_ips;
-    @Value("${arion_wing_macs:[]}")
-    String[] arion_wing_macs;
     @Value("${arion_master_ip:arion_master_ip}")
     String arion_master_ip;
     @Value("${arion_rest_port:456}")
@@ -170,12 +166,8 @@ public class ncm_test {
         }
         int number_of_gws_each_subnet_gets = 0;
         // if on the same host, execute bash command; otherwise, execute ssh command.
-        System.out.println("Test against Arion: " + test_against_aroin + " , Arion Wing IPs: " + Arrays.toString(arion_wing_ips) + ", Arion Wing Macs: "+ Arrays.toString(arion_wing_macs) +
-                ", ArionMaster IP: " + arion_master_ip + ", Arion Master REST port: " + arion_master_rest_port + ", Arion Master gRPC port: " + arion_master_grpc_port + ", Arion DP Controller IP: " + arion_dp_controller_ip);
-        if (arion_wing_ips.length != arion_wing_macs.length) {
-            System.out.println("There are " + arion_wing_ips.length + " Wing IPs but there are "+ arion_wing_macs.length + "Wing MACs and the number's don't match. Please check your application.properties. Aborting.");
-            return;
-        }
+        System.out.println("Test against Arion: " + test_against_aroin + ", ArionMaster IP: " + arion_master_ip + ", Arion Master REST port: " + arion_master_rest_port + ", Arion Master gRPC port: " + arion_master_grpc_port + ", Arion DP Controller IP: " + arion_dp_controller_ip);
+
         String arion_master_restful_url = arion_master_ip+":"+arion_master_rest_port;
         if(test_against_aroin){
             InputStream is = com.futurewei.alcor.pseudo_controller.pseudo_controller.class.getResourceAsStream("/arion_data.json");
