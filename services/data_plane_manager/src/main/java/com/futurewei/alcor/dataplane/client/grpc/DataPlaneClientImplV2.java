@@ -62,10 +62,10 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
     @Value("${arionGateway.enabled:false}")
     private boolean arionGatwayEnabled;
 
-    @Value("${arionGateway.server:127.0.0.1}")
+    @Value("${arionMaster.server:127.0.0.1}")
     private String arionMasterServer;
 
-    @Value("${arionGateway.port:9090}")
+    @Value("${arionMaster.port:9090}")
     private int arionMasterPort;
 
     @Value("${microservices.connectTimeout:300}")

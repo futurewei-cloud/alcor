@@ -56,7 +56,9 @@ public class ArionWingService {
                 gatewayStateBuilder.getConfigurationBuilder().addDestinations(builder);
             }
             gatewayStateBuilder.getConfigurationBuilder().getArionInfoBuilder().setVni(vni);
-            gatewayStateBuilder.getConfigurationBuilder().getArionInfoBuilder().setSubnetId(subnet);
+            gatewayStateBuilder.getConfigurationBuilder().getArionInfoBuilder().setSubnetId(internalSubnetEntity.getId());
+            gatewayStateBuilder.getConfigurationBuilder().getArionInfoBuilder().setVpcId(internalSubnetEntity.getVpcId());
+            gatewayStateBuilder.getConfigurationBuilder().getArionInfoBuilder().setPortInbandOperation(8300);
             unicastGoalStateV2.getGoalStateBuilder().putGatewayStates(key, gatewayStateBuilder.build());
         }
     }
