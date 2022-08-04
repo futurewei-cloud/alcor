@@ -70,12 +70,14 @@ public class ArionWingService {
 
     public void getArionWings () throws CacheException {
         ring.getNodes().clear();
-        Set<String> keys = new HashSet<>();
-        if (!ring.getNodes().isEmpty()) {
-            keys = ring.getNodes().stream().map(item -> item.getKey()).collect(Collectors.toSet());
-        }
         Set<SimpleNode> keysInCache = arionWingCache.getAllArionGroup().values().stream().map(item -> SimpleNode.of(item.getGroupName())).collect(Collectors.toSet());
+        for (SimpleNode simpleNode : keysInCache) {
+            System.out.println("cache: " + simpleNode.getKey());
+        }
         ring.getNodes().addAll(keysInCache);
+        for (SimpleNode simpleNode : ring.getNodes()) {
+            System.out.println("hash: " + simpleNode.getKey());
+        }
     }
 
     public void createArionWingGroup (String resourcdId) throws CacheException {
