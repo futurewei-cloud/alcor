@@ -59,6 +59,7 @@ public class ArionWingService {
             gatewayStateBuilder.getConfigurationBuilder().getArionInfoBuilder().setVni(vni);
             gatewayStateBuilder.getConfigurationBuilder().getArionInfoBuilder().setSubnetId(internalSubnetEntity.getId());
             gatewayStateBuilder.getConfigurationBuilder().getArionInfoBuilder().setVpcId(internalSubnetEntity.getVpcId());
+            gatewayStateBuilder.getConfigurationBuilder().setGatewayType(Gateway.GatewayType.ARION);
             gatewayStateBuilder.getConfigurationBuilder().getArionInfoBuilder().setPortInbandOperation(8300);
             unicastGoalStateV2.getGoalStateBuilder().putGatewayStates(id, gatewayStateBuilder.build());
         }

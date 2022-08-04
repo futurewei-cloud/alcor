@@ -19,6 +19,7 @@
 package com.futurewei.alcor.dataplane.client.grpc;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.config.Config;
+import com.futurewei.alcor.dataplane.entity.ArionGroup;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalStateV2;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
 import com.futurewei.alcor.schema.*;
