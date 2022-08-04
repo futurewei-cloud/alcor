@@ -443,14 +443,11 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
             goalStateV2.getGatewayStatesMap().entrySet().forEach(item -> {
                 if (item.getValue().getConfiguration().hasArionInfo()) {
                     String vpcId = item.getValue().getConfiguration().getArionInfo().getVpcId();
-                    if (vpcId.equals(item.getKey())) {
-                        Vpc.VpcState.Builder vpcStateBuilder = Vpc.VpcState.newBuilder();
-
-                        vpcStateBuilder.mergeFrom(item.getValue());
-                        vpcStateBuilder.getConfigurationBuilder().addAllGatewayIds(gatewayIds);
-                        goalStateV2.getVpcStatesMap().put(vpcId, vpcStateBuilder.build());
-                    }
-
+                    var vpcStateBuilder = goalStateV2.getVpcStatesMap().get(vpcId).toBuilder();
+                    Vpc.VpcConfiguration.Builder vpcStateConfiguration = Vpc.VpcConfiguration.newBuilder();
+                    vpcStateConfiguration.addAllGatewayIds(gatewayIds);
+                    vpcStateBuilder.mergeConfiguration(vpcStateConfiguration.build());
+                    goalStateBuilder.putVpcStates(vpcId, vpcStateBuilder.build());
                 }
             });
             goalStateBuilder.putAllGatewayStates(goalStateV2.getGatewayStatesMap());
