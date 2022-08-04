@@ -440,10 +440,17 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
                 hostResourceBuilder.addResources(gatewayResourceIdType);
             });
             ArrayList<String> gatewayIds = new ArrayList<>(goalStateV2.getGatewayStatesMap().keySet());
-            goalStateV2.getGatewayStatesMap().values().forEach(item -> {
-                if (item.getConfiguration().hasArionInfo()) {
-                    String vpcId = item.getConfiguration().getArionInfo().getVpcId();
-                    goalStateV2.getVpcStatesMap().get(vpcId).getConfiguration().getGatewayIdsList().addAll(gatewayIds);
+            goalStateV2.getGatewayStatesMap().entrySet().forEach(item -> {
+                if (item.getValue().getConfiguration().hasArionInfo()) {
+                    String vpcId = item.getValue().getConfiguration().getArionInfo().getVpcId();
+                    if (vpcId.equals(item.getKey())) {
+                        Vpc.VpcState.Builder vpcStateBuilder = Vpc.VpcState.newBuilder();
+
+                        vpcStateBuilder.mergeFrom(item.getValue());
+                        vpcStateBuilder.getConfigurationBuilder().addAllGatewayIds(gatewayIds);
+                        goalStateV2.getVpcStatesMap().put(vpcId, vpcStateBuilder.build());
+                    }
+
                 }
             });
             goalStateBuilder.putAllGatewayStates(goalStateV2.getGatewayStatesMap());
