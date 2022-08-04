@@ -418,6 +418,8 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
             });
         }
 
+
+
         if (goalStateV2.getVpcStatesCount() > 0) {
             goalStateV2.getVpcStatesMap().keySet().forEach(key -> {
                 Goalstate.ResourceIdType vpcResourceIdType = Goalstate.ResourceIdType.newBuilder()
@@ -436,6 +438,13 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
                         .setId(key)
                         .build();
                 hostResourceBuilder.addResources(gatewayResourceIdType);
+            });
+            ArrayList<String> gatewayIds = new ArrayList<>(goalStateV2.getGatewayStatesMap().keySet());
+            goalStateV2.getGatewayStatesMap().values().forEach(item -> {
+                if (item.getConfiguration().hasArionInfo()) {
+                    String vpcId = item.getConfiguration().getArionInfo().getVpcId();
+                    goalStateV2.getVpcStatesMap().get(vpcId).getConfiguration().getGatewayIdsList().addAll(gatewayIds);
+                }
             });
             goalStateBuilder.putAllGatewayStates(goalStateV2.getGatewayStatesMap());
         }

@@ -54,11 +54,13 @@ public class ArionWingService {
                 builder.setMacAddress(arionWing.getMac());
                 gatewayStateBuilder.getConfigurationBuilder().addDestinations(builder);
             }
+            String id = UUID.randomUUID().toString();
+            gatewayStateBuilder.getConfigurationBuilder().setId(id);
             gatewayStateBuilder.getConfigurationBuilder().getArionInfoBuilder().setVni(vni);
             gatewayStateBuilder.getConfigurationBuilder().getArionInfoBuilder().setSubnetId(internalSubnetEntity.getId());
             gatewayStateBuilder.getConfigurationBuilder().getArionInfoBuilder().setVpcId(internalSubnetEntity.getVpcId());
             gatewayStateBuilder.getConfigurationBuilder().getArionInfoBuilder().setPortInbandOperation(8300);
-            unicastGoalStateV2.getGoalStateBuilder().putGatewayStates(key, gatewayStateBuilder.build());
+            unicastGoalStateV2.getGoalStateBuilder().putGatewayStates(id, gatewayStateBuilder.build());
         }
     }
 
@@ -71,13 +73,7 @@ public class ArionWingService {
     public void getArionWings () throws CacheException {
         ring.getNodes().clear();
         Set<SimpleNode> keysInCache = arionWingCache.getAllArionGroup().values().stream().map(item -> SimpleNode.of(item.getGroupName())).collect(Collectors.toSet());
-        for (SimpleNode simpleNode : keysInCache) {
-            System.out.println("cache: " + simpleNode.getKey());
-        }
         ring.addAll(keysInCache);
-        for (SimpleNode simpleNode : ring.getNodes()) {
-            System.out.println("hash: " + simpleNode.getKey());
-        }
     }
 
     public void createArionWingGroup (String resourcdId) throws CacheException {
