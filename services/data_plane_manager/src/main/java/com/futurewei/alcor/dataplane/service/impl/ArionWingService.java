@@ -74,7 +74,7 @@ public class ArionWingService {
         for (SimpleNode simpleNode : keysInCache) {
             System.out.println("cache: " + simpleNode.getKey());
         }
-        ring.getNodes().addAll(keysInCache);
+        ring.addAll(keysInCache);
         for (SimpleNode simpleNode : ring.getNodes()) {
             System.out.println("hash: " + simpleNode.getKey());
         }
