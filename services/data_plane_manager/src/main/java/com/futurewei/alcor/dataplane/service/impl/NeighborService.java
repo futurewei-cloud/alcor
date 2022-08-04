@@ -114,7 +114,7 @@ public class NeighborService extends ResourceService {
         fixedIpBuilder.setNeighborType(neighborType);
         if (arionGatwayEnabled) {
             var subnetEntity = subnetPortsCache.getSubnetPorts(portHostInfo.getSubnetId());
-            fixedIpBuilder.setArionGroup(arionWingService.getArionGroup(subnetEntity.getTunnelId().intValue(), subnetEntity.getCidr()));
+            fixedIpBuilder.setArionGroup(arionWingService.getArionGroup(subnetEntity.getSubnetId()));
             fixedIpBuilder.setTunnelId(subnetEntity.getTunnelId().intValue());
         }
         neighborConfigBuilder.addFixedIps(fixedIpBuilder.build());
