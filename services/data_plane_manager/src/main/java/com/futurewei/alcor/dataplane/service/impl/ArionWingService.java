@@ -75,7 +75,7 @@ public class ArionWingService {
 
 
     public void getArionWings () throws CacheException {
-        ring.getNodes().clear();
+        arionWingCache.getAllArionGroup().values().stream().map(item -> ring.remove(SimpleNode.of(item.getGroupName())));
         Set<SimpleNode> keysInCache = arionWingCache.getAllArionGroup().values().stream().map(item -> SimpleNode.of(item.getGroupName())).collect(Collectors.toSet());
         ring.addAll(keysInCache);
     }
