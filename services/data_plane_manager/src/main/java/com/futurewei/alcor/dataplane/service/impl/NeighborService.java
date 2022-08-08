@@ -17,6 +17,7 @@ package com.futurewei.alcor.dataplane.service.impl;
 
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.dataplane.cache.NeighborCache;
+import com.futurewei.alcor.dataplane.cache.NodeInfoCache;
 import com.futurewei.alcor.dataplane.cache.PortHostInfoCache;
 import com.futurewei.alcor.dataplane.cache.SubnetPortsCacheV2;
 import com.futurewei.alcor.dataplane.entity.*;
@@ -62,6 +63,9 @@ public class NeighborService extends ResourceService {
 
     @Autowired
     private ArionWingService arionWingService;
+
+    @Autowired
+    private NodeInfoCache nodeInfoCache;
 
     @Value("${arionGateway.enabled:false}")
     private boolean arionGatwayEnabled;
@@ -113,6 +117,7 @@ public class NeighborService extends ResourceService {
         fixedIpBuilder.setIpAddress(portHostInfo.getPortIp());
         fixedIpBuilder.setNeighborType(neighborType);
         if (arionGatwayEnabled) {
+            neighborConfigBuilder.setHostMacAddress(nodeInfoCache.getNodeInfoByNodeIp(portHostInfo.getHostIp()).get(0).getMacAddress());
             var subnetEntity = subnetPortsCache.getSubnetPorts(portHostInfo.getSubnetId());
             fixedIpBuilder.setArionGroup(arionWingService.getArionGroup(subnetEntity.getSubnetId()));
             fixedIpBuilder.setTunnelId(subnetEntity.getTunnelId().intValue());
