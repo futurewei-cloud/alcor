@@ -62,7 +62,7 @@ data:
     group.topic.to.multicast.topic.map=multicast-topic1:group-topic1,group-topic3 multicast-topic2:group-topic2,group-topic4
 
 
-    arionGateway.enabled = true
+    arionGateway.enabled = false
     arionMaster.server = 10.213.43.71
     arionMaster.port = 9090
 
