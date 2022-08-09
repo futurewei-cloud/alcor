@@ -67,9 +67,6 @@ public class ArionWingService {
 
     public String getArionGroup (String subnetId) {
         Optional<SimpleNode> group = ring.locate(subnetId);
-        for (SimpleNode simpleNode : ring.getNodes()) {
-            System.out.println("SimpleNode: " + simpleNode.getKey());
-        }
         return group.get().getKey();
     }
 
