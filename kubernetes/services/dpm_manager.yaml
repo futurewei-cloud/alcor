@@ -16,6 +16,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: dpm-configmap
+  namespace: default
 data:
   application.properties: |
     dataplane.grpc.port = 50001
@@ -61,8 +62,13 @@ data:
     group.topic.to.multicast.topic.map=multicast-topic1:group-topic1,group-topic3 multicast-topic2:group-topic2,group-topic4
 
 
+<<<<<<< HEAD
     arionGateway.enabled = true
     arionMaster.server = 10.213.43.71
+=======
+    arionGateway.enabled = false
+    arionMaster.server = 127.0.0.1
+>>>>>>> master
     arionMaster.port = 9090
 
     zetaGateway.enabled=false
@@ -84,6 +90,12 @@ data:
     opentracing.jaeger.enable-b3-propagation=true
     opentracing.jaeger.service-name=alcor-dpm
 
+    ####Path switch configuration####
+    path.mode=GRPC
+    #"GRPC", "MQ", "AUTO" are available.
+    path.UPPER_VPC_SIZE = 1000
+    path.LOWER_VPC_SIZE = 100
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -91,6 +103,7 @@ metadata:
   labels:
     app: dataplanemanager
   name: dataplanemanager
+  namespace: default
 spec:
   selector:
     matchLabels:
@@ -130,6 +143,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: dataplanemanager-service
+  namespace: default
   labels:
     name: dataplanemanager-service
 spec:

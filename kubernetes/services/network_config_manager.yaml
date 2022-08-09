@@ -16,6 +16,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: ncm-configmap
+  namespace: default
 data:
   application.properties: |
     dataplane.grpc.port = 50001
@@ -64,6 +65,7 @@ metadata:
   labels:
     app: netwconfigmanager
   name: netwconfigmanager
+  namespace: default
 spec:
   selector:
     matchLabels:
@@ -103,6 +105,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: netwconfigmanager-service
+  namespace: default
   labels:
     name: netwconfigmanager-service
 spec:

@@ -16,90 +16,65 @@ Copyright(c) 2020 Futurewei Cloud
 
 package com.futurewei.alcor.dataplane.entity;
 
+import com.futurewei.alcor.dataplane.exception.HostIdNotFound;
 import com.futurewei.alcor.dataplane.exception.VpcIdNotFound;
 import com.futurewei.alcor.schema.Goalstate.GoalStateV2;
 import com.futurewei.alcor.web.entity.dataplane.MulticastGoalStateByte;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class MulticastGoalStateV2{
-    private Set<String> hostIps;
-    private List<String> vpcIds;
-    private List<String> topics;
-    private List<String> subTopics;
+    //    Map of <hostIp, vpcId> pair for each GoalState
+    private Map<String, Set<String>> hostVpcMap;
 
     private GoalStateV2 goalState;
     private GoalStateV2.Builder goalStateBuilder;
 
     public MulticastGoalStateV2() {
-        hostIps = new HashSet<>();
-        goalStateBuilder = GoalStateV2.newBuilder();
+        this.goalStateBuilder = GoalStateV2.newBuilder();
+        this.hostVpcMap = new HashMap<>();
     }
 
-    public MulticastGoalStateV2(Set<String> hostIps, GoalStateV2 goalState) {
-        this.hostIps = hostIps;
+    public MulticastGoalStateV2(GoalStateV2 goalState) {
         this.goalState = goalState;
+        this.hostVpcMap = new HashMap<>();
     }
 
-    public MulticastGoalStateV2(Set<String> hostIps, List<String> vpcIds, GoalStateV2 goalState) {
-        this.hostIps = hostIps;
-        this.vpcIds = vpcIds;
+    public MulticastGoalStateV2(Map<String, Set<String>> hostVpcMap, GoalStateV2 goalState) {
+        this.hostVpcMap = hostVpcMap;
         this.goalState = goalState;
     }
 
     public Set<String> getHostIps() {
-        return hostIps;
+        return this.hostVpcMap.keySet();
     }
 
-    public void setHostIps(Set<String> hostIps) {
-        this.hostIps = hostIps;
+    public Map<String, Set<String>> getHostVpcMap() {
+        return hostVpcMap;
     }
 
-    public void addHostIp(String hostIp) {
-        if (this.hostIps == null) {
-            this.hostIps = new HashSet<>();
-        }
-        this.hostIps.add(hostIp);
-    }
-
-    public List<String> getVpcIds() {
-        return vpcIds;
-    }
-
-    public void setVpcIds (List<String> vpcIds) throws Exception {
-        if (vpcIds == null) {
+    public void setHostVpcMap(Map<String, Set<String>> hostVpcMap) throws Exception {
+        if (hostVpcMap == null) {
             throw new VpcIdNotFound();
         }
-        this.vpcIds = vpcIds;
+        this.hostVpcMap = hostVpcMap;
     }
 
-    public void addVpcId(String vpcId) throws Exception {
+    public void addHostVpcPair(String hostIp, String vpcId) throws Exception {
+        if (hostIp == null) {
+            throw new HostIdNotFound();
+        }
         if (vpcId == null) {
             throw new VpcIdNotFound();
         }
-        if (this.vpcIds == null) {
-            vpcIds = new ArrayList<String>();
+        if (this.hostVpcMap.get(hostIp) == null) {
+            this.hostVpcMap.put(hostIp, new HashSet<String>());
         }
-        this.vpcIds.add(vpcId);
+        this.hostVpcMap.get(hostIp).add(vpcId);
     }
 
-    public List<String> getTopics() {
-        return topics;
-    }
-
-    public void setTopics(List<String> topics) {
-        this.topics = topics;
-    }
-
-    public List<String> getSubTopics() {
-        return subTopics;
-    }
-
-    public void setSubTopics(List<String> subTopics) {
-        this.subTopics = subTopics;
+    public Set<String> getVpcIdSetByHostIp(String hostIp) {
+        return hostVpcMap.get(hostIp);
     }
 
     public GoalStateV2 getGoalState() {
@@ -116,14 +91,5 @@ public class MulticastGoalStateV2{
 
     public void setGoalStateBuilder(GoalStateV2.Builder goalStateBuilder) {
         this.goalStateBuilder = goalStateBuilder;
-    }
-
-    public MulticastGoalStateByte getMulticastGoalStateByte() {
-        MulticastGoalStateByte multicastGoalStateByte = new MulticastGoalStateByte();
-        multicastGoalStateByte.setNextTopics(this.topics);
-        multicastGoalStateByte.setNextSubTopics(this.subTopics);
-        multicastGoalStateByte.setGoalStateByte(this.goalState.toByteArray());
-
-        return multicastGoalStateByte;
     }
 }
