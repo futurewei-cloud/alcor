@@ -379,7 +379,7 @@ public class NeighborService extends ResourceService {
 
                                 multicastHostResourceBuilder.addResources(getRourceIdType(NEIGHBOR_STATE_L2_PREFIX + portHostInfo.getPortId()));
                             } else {
-                                multicastGoalStateV2.getHostIps().add(portHostInfo.getHostIp());
+                                multicastGoalStateV2.addHostVpcPair(portHostInfo.getHostIp(), portState.getConfiguration().getVpcId());
                                 if (arionGatwayEnabled) {
                                     Neighbor.NeighborState neighborState = buildNeighborState(NeighborEntry.NeighborType.L2, portHostInfo, operationType, portState.getConfiguration().getVpcId());
                                     neighborStateMap.put(NEIGHBOR_STATE_L2_PREFIX + neighborState.getConfiguration().getId(), neighborState);

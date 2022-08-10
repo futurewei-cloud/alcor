@@ -150,7 +150,7 @@ public class DpmServiceImplV2 implements DpmService {
         if (networkConfig.getInternalRouterInfos() != null) {
             neighborService.buildNeighborStatesL3(networkConfig, unicastGoalState, multicastGoalState);
         }
-        
+
         unicastGoalState.setGoalState(unicastGoalState.getGoalStateBuilder().build());
         unicastGoalState.setGoalStateBuilder(null);
         multicastGoalState.setGoalState(multicastGoalState.getGoalStateBuilder().build());
