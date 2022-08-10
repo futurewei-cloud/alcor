@@ -17,6 +17,7 @@ package com.futurewei.alcor.dataplane.service.impl;
 
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.dataplane.cache.NeighborCache;
+import com.futurewei.alcor.dataplane.cache.NodeInfoCache;
 import com.futurewei.alcor.dataplane.cache.PortHostInfoCache;
 import com.futurewei.alcor.dataplane.cache.SubnetPortsCacheV2;
 import com.futurewei.alcor.dataplane.entity.*;
@@ -62,6 +63,9 @@ public class NeighborService extends ResourceService {
 
     @Autowired
     private ArionWingService arionWingService;
+
+    @Autowired
+    private NodeInfoCache nodeInfoCache;
 
     @Value("${arionGateway.enabled:false}")
     private boolean arionGatwayEnabled;
@@ -113,8 +117,14 @@ public class NeighborService extends ResourceService {
         fixedIpBuilder.setIpAddress(portHostInfo.getPortIp());
         fixedIpBuilder.setNeighborType(neighborType);
         if (arionGatwayEnabled) {
+            if (nodeInfoCache.getNodeInfoByNodeIp(portHostInfo.getHostIp()).size() > 0) {
+                neighborConfigBuilder.setHostMacAddress(nodeInfoCache.getNodeInfoByNodeIp(portHostInfo.getHostIp()).get(0).getMacAddress());
+            } else {
+                LOG.debug("There is no node mac address for host " + portHostInfo);
+            }
+
             var subnetEntity = subnetPortsCache.getSubnetPorts(portHostInfo.getSubnetId());
-            fixedIpBuilder.setArionGroup(arionWingService.getArionGroup(subnetEntity.getTunnelId().intValue(), subnetEntity.getCidr()));
+            fixedIpBuilder.setArionGroup(arionWingService.getArionGroup(subnetEntity.getSubnetId()));
             fixedIpBuilder.setTunnelId(subnetEntity.getTunnelId().intValue());
         }
         neighborConfigBuilder.addFixedIps(fixedIpBuilder.build());
@@ -366,9 +376,14 @@ public class NeighborService extends ResourceService {
                             if (ips.contains(portHostInfo.getPortIp())) {
                                 Neighbor.NeighborState neighborState = buildNeighborState(NeighborEntry.NeighborType.L2, portHostInfo, operationType, portState.getConfiguration().getVpcId());
                                 neighborStateMap.put(NEIGHBOR_STATE_L2_PREFIX + neighborState.getConfiguration().getId(), neighborState);
+
                                 multicastHostResourceBuilder.addResources(getRourceIdType(NEIGHBOR_STATE_L2_PREFIX + portHostInfo.getPortId()));
                             } else {
-                                multicastGoalStateV2.addHostVpcPair(portHostInfo.getHostIp(), portState.getConfiguration().getVpcId());
+                                multicastGoalStateV2.getHostIps().add(portHostInfo.getHostIp());
+                                if (arionGatwayEnabled) {
+                                    Neighbor.NeighborState neighborState = buildNeighborState(NeighborEntry.NeighborType.L2, portHostInfo, operationType, portState.getConfiguration().getVpcId());
+                                    neighborStateMap.put(NEIGHBOR_STATE_L2_PREFIX + neighborState.getConfiguration().getId(), neighborState);
+                                }
                             }
                             unicastHostResourceBuilder.addResources(getRourceIdType(NEIGHBOR_STATE_L2_PREFIX + portHostInfo.getPortId()));
 
