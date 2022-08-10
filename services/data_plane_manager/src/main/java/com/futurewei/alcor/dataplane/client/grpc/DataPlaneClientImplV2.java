@@ -19,6 +19,7 @@
 package com.futurewei.alcor.dataplane.client.grpc;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.config.Config;
+import com.futurewei.alcor.dataplane.entity.ArionGroup;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalStateV2;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
 import com.futurewei.alcor.schema.*;
@@ -62,10 +63,10 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
     @Value("${arionGateway.enabled:false}")
     private boolean arionGatwayEnabled;
 
-    @Value("${arionGateway.server:127.0.0.1}")
+    @Value("${arionMaster.server:127.0.0.1}")
     private String arionMasterServer;
 
-    @Value("${arionGateway.port:9090}")
+    @Value("${arionMaster.port:9090}")
     private int arionMasterPort;
 
     @Value("${microservices.connectTimeout:300}")
@@ -418,6 +419,8 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
             });
         }
 
+
+
         if (goalStateV2.getVpcStatesCount() > 0) {
             goalStateV2.getVpcStatesMap().keySet().forEach(key -> {
                 Goalstate.ResourceIdType vpcResourceIdType = Goalstate.ResourceIdType.newBuilder()
@@ -436,6 +439,17 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
                         .setId(key)
                         .build();
                 hostResourceBuilder.addResources(gatewayResourceIdType);
+            });
+            ArrayList<String> gatewayIds = new ArrayList<>(goalStateV2.getGatewayStatesMap().keySet());
+            goalStateV2.getGatewayStatesMap().entrySet().forEach(item -> {
+                if (item.getValue().getConfiguration().hasArionInfo()) {
+                    String vpcId = item.getValue().getConfiguration().getArionInfo().getVpcId();
+                    var vpcStateBuilder = goalStateV2.getVpcStatesMap().get(vpcId).toBuilder();
+                    Vpc.VpcConfiguration.Builder vpcStateConfiguration = Vpc.VpcConfiguration.newBuilder();
+                    vpcStateConfiguration.addAllGatewayIds(gatewayIds);
+                    vpcStateBuilder.mergeConfiguration(vpcStateConfiguration.build());
+                    goalStateBuilder.putVpcStates(vpcId, vpcStateBuilder.build());
+                }
             });
             goalStateBuilder.putAllGatewayStates(goalStateV2.getGatewayStatesMap());
         }
