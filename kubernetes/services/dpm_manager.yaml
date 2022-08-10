@@ -63,7 +63,7 @@ data:
 
 
     arionGateway.enabled = false
-    arionMaster.server = 10.213.43.71
+    arionMaster.server = 127.0.0.1
     arionMaster.port = 9090
 
     zetaGateway.enabled=false
