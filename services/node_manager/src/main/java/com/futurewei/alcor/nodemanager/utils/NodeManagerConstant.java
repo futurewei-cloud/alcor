@@ -22,6 +22,7 @@ public class NodeManagerConstant {
     public static final String JSON_IP1 = "local_ip";
     public static final String JSON_MAC1 = "mac_address";
     public static final String JSON_VETH1 = "veth";
+    public static final  String JSON_BRVXLAN = "br-vxlan";
     public static final int GRPC_SERVER_PORT = 50001;
     public static final String JSON_NCM_ID = "ncm_id";
     public static final String JSON_NCM_URI = "ncm_uri";
