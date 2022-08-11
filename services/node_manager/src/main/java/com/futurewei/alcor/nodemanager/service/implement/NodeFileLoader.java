@@ -100,7 +100,7 @@ public class NodeFileLoader {
             node = new NodeInfo(id, name, ip, mac, veth, gRPCServerPort);
             node.setBrVxlan(brVxlan);
             String message = "";
-            if (node.validateIp(ip) == false || node.validateIp(brVxlan))
+            if (node.validateIp(ip) == false || node.validateIp(brVxlan) == false)
                 message = NodeManagerConstant.NODE_EXCEPTION_IP_FORMAT_INVALID;
             if (node.validateMac(mac) == false) ;
             {
