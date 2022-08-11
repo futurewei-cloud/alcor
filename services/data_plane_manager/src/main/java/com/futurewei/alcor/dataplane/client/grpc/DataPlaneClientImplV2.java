@@ -86,6 +86,7 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         if (arionGatwayEnabled) {
             doSendGoalStateToArionMaster(goalStateBuilder);
         }
+        System.out.println(goalStateBuilder.build());
         doSendGoalState(goalStateBuilder.build(), finishLatch, results);
 
         if (!finishLatch.await(Integer.parseInt(connectTimeout), TimeUnit.SECONDS)) {
@@ -143,20 +144,19 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         if (unicastGoalStates == null) {
             unicastGoalStates = new ArrayList<>();
         }
-        if (!arionGatwayEnabled) {
-            if (multicastGoalState != null &&
-                    multicastGoalState.getHostIps() != null &&
-                    multicastGoalState.getGoalState() != null) {
-                for (String hostIp: multicastGoalState.getHostIps()) {
-                    UnicastGoalStateV2 unicastGoalState = new UnicastGoalStateV2();
-                    unicastGoalState.setHostIp(hostIp);
-                    unicastGoalState.setGoalState(multicastGoalState.getGoalState());
 
-                    unicastGoalStates.add(unicastGoalState);
-                }
+        if (multicastGoalState != null &&
+                multicastGoalState.getHostIps() != null &&
+                multicastGoalState.getGoalState() != null) {
+            for (String hostIp: multicastGoalState.getHostIps()) {
+                UnicastGoalStateV2 unicastGoalState = new UnicastGoalStateV2();
+                unicastGoalState.setHostIp(hostIp);
+                unicastGoalState.setGoalState(multicastGoalState.getGoalState());
+
+                unicastGoalStates.add(unicastGoalState);
             }
         }
-
+        
         if (unicastGoalStates.size() > 0) {
             return sendGoalStates(unicastGoalStates);
         }
