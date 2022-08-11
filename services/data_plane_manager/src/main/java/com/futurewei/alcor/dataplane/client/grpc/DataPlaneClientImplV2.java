@@ -23,6 +23,7 @@ import com.futurewei.alcor.dataplane.entity.ArionGroup;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalStateV2;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
 import com.futurewei.alcor.schema.*;
+import com.google.protobuf.Message;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -142,16 +143,17 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         if (unicastGoalStates == null) {
             unicastGoalStates = new ArrayList<>();
         }
+        if (!arionGatwayEnabled) {
+            if (multicastGoalState != null &&
+                    multicastGoalState.getHostIps() != null &&
+                    multicastGoalState.getGoalState() != null) {
+                for (String hostIp: multicastGoalState.getHostIps()) {
+                    UnicastGoalStateV2 unicastGoalState = new UnicastGoalStateV2();
+                    unicastGoalState.setHostIp(hostIp);
+                    unicastGoalState.setGoalState(multicastGoalState.getGoalState());
 
-        if (multicastGoalState != null &&
-                multicastGoalState.getHostIps() != null &&
-                multicastGoalState.getGoalState() != null) {
-            for (String hostIp: multicastGoalState.getHostIps()) {
-                UnicastGoalStateV2 unicastGoalState = new UnicastGoalStateV2();
-                unicastGoalState.setHostIp(hostIp);
-                unicastGoalState.setGoalState(multicastGoalState.getGoalState());
-
-                unicastGoalStates.add(unicastGoalState);
+                    unicastGoalStates.add(unicastGoalState);
+                }
             }
         }
 
@@ -306,8 +308,11 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
                 finishLatch.countDown();
             }
         };
-
         StreamObserver<Goalstate.GoalStateV2> requestObserver = asyncStub.pushGoalStatesStream(responseObserver);
+        if (arionGatwayEnabled) {
+            goalStateV2 = goalStateV2.toBuilder().clearNeighborStates().build();
+        }
+
         try {
             requestObserver.onNext(goalStateV2);
         } catch (RuntimeException e) {
