@@ -121,7 +121,7 @@ public class NeighborService extends ResourceService {
             if (nodeInfoCache.getNodeInfoByNodeIp(portHostInfo.getHostIp()).size() > 0) {
                 NodeInfo nodeInfo = nodeInfoCache.getNodeInfoByNodeIp(portHostInfo.getHostIp()).get(0);
                 neighborConfigBuilder.setHostMacAddress(nodeInfo.getMacAddress());
-                neighborConfigBuilder.setHostIpAddress(nodeInfo.getBrVxlan());
+                neighborConfigBuilder.setHostIpAddress(nodeInfo.getDataPathIp());
             } else {
                 LOG.debug("There is no node mac address for host " + portHostInfo);
             }
