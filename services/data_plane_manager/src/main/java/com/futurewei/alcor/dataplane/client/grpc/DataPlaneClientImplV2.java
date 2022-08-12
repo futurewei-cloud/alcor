@@ -156,7 +156,7 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
                 unicastGoalStates.add(unicastGoalState);
             }
         }
-        
+
         if (unicastGoalStates.size() > 0) {
             return sendGoalStates(unicastGoalStates);
         }
