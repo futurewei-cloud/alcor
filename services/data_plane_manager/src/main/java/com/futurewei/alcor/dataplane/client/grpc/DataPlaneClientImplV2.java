@@ -23,6 +23,7 @@ import com.futurewei.alcor.dataplane.entity.ArionGroup;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalStateV2;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
 import com.futurewei.alcor.schema.*;
+import com.google.protobuf.Message;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -85,6 +86,7 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         if (arionGatwayEnabled) {
             doSendGoalStateToArionMaster(goalStateBuilder);
         }
+        System.out.println(goalStateBuilder.build());
         doSendGoalState(goalStateBuilder.build(), finishLatch, results);
 
         if (!finishLatch.await(Integer.parseInt(connectTimeout), TimeUnit.SECONDS)) {
@@ -306,8 +308,11 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
                 finishLatch.countDown();
             }
         };
-
         StreamObserver<Goalstate.GoalStateV2> requestObserver = asyncStub.pushGoalStatesStream(responseObserver);
+        if (arionGatwayEnabled) {
+            goalStateV2 = goalStateV2.toBuilder().clearNeighborStates().build();
+        }
+
         try {
             requestObserver.onNext(goalStateV2);
         } catch (RuntimeException e) {

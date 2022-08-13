@@ -94,11 +94,13 @@ public class NodeFileLoader {
         String ip = (String) nodeJson.get(NodeManagerConstant.JSON_IP1);
         String mac = (String) nodeJson.get(NodeManagerConstant.JSON_MAC1);
         String veth = (String) nodeJson.get(NodeManagerConstant.JSON_VETH1);
+        String dataPathIp = (String) nodeJson.get(NodeManagerConstant.JSON_DATAPATHIP);
         int gRPCServerPort = NodeManagerConstant.GRPC_SERVER_PORT;
         try {
             node = new NodeInfo(id, name, ip, mac, veth, gRPCServerPort);
+            node.setDataPathIp(dataPathIp);
             String message = "";
-            if (node.validateIp(ip) == false)
+            if (node.validateIp(ip) == false || node.validateIp(dataPathIp) == false)
                 message = NodeManagerConstant.NODE_EXCEPTION_IP_FORMAT_INVALID;
             if (node.validateMac(mac) == false) ;
             {
