@@ -82,6 +82,14 @@ public class ncm_test {
     @Value("${compute_node_macs}")
     static
     ArrayList<String> compute_node_macs;
+    @Value("${compute_node_user_names}")
+    static
+    ArrayList<String> compute_node_usernames;
+    @Value("${compute_node_passwords}")
+    static
+    ArrayList<String> compute_node_passwords;
+    @Value("${ports_to_generate_on_each_compute_node}")
+    ArrayList<Integer> ports_to_generate_on_each_compute_node;
     @Value("${node_one_ip:ip_one}")
     String aca_node_one_ip;
     @Value("${node_one_mac:mac_one}")
@@ -193,13 +201,14 @@ public class ncm_test {
             number_of_gws_each_subnet_gets = (int) Math.ceil(arion_gw_ip_macs.size() / number_of_subnets);
             setup_arion_gateway_cluster_and_nodes();
         }
-        System.out.println("There are "+ number_of_vpcs+" VPCs, " + number_of_subnets + " subnets, ACA node one has "+ ports_to_generate_on_aca_node_one + " ports per VPC/subnet;\n" +
-                "ACA node two has "+ports_to_generate_on_aca_node_two+" ports per VPC/subnet. \n" +
-                "Total ports per VPC/subnet: "+(ports_to_generate_on_aca_node_one + ports_to_generate_on_aca_node_two) +
-                "\nEach subnet gets " + number_of_gws_each_subnet_gets + " gws");
-        generate_ip_macs(ports_to_generate_on_aca_node_one + ports_to_generate_on_aca_node_two);
+        System.out.println("There are "+ number_of_vpcs+" VPCs, " + number_of_subnets  + "\nEach subnet gets " + number_of_gws_each_subnet_gets + " gws");
+        int total_amount_of_ports = 0;
+        for (int i = 0 ; i < ports_to_generate_on_each_compute_node.size(); i++){
+            total_amount_of_ports += ports_to_generate_on_each_compute_node.get(i);
+        }
+        generate_ip_macs(total_amount_of_ports);
         create_containers_on_both_hosts_concurrently();
-        System.out.println("Compute node IPs: " + compute_node_ips + "\nuser name: " + user_name + "\npassword: " + password);
+        System.out.println("Compute node IPs: " + compute_node_ips + "\nuser name: " + compute_node_usernames + "\npassword: " + compute_node_passwords);
 
         System.out.println("Containers setup done, now we gotta construct the GoalStateV2");
 
@@ -744,15 +753,28 @@ public class ncm_test {
         }
         List<concurrent_run_cmd> concurrent_ping_cmds = new ArrayList<>();
 
-        for (int i = 0; i < node_two_port_ips.size(); i++) {
-            String pinger_ip = node_one_port_ips.get(i % node_one_port_ips.size());
+        Vector<String> node_one_port_ips = compute_node_ip_to_ports.get(compute_node_ips.get(0));
+        Vector<String> node_last_port_ips = compute_node_ip_to_ports.get(compute_node_ips.get(compute_node_ips.size()-1));
+        String pinger_compute_node_user_name = compute_node_usernames.get(0);
+        String pinger_compute_node_password = compute_node_passwords.get(0);
+        for (int i = 0; i < node_one_port_ips.size(); i ++){
+            String pinger_ip = node_one_port_ips.get(i);
             String pinger_container_name = port_ip_to_container_name.get(pinger_ip);
 //            String pingee_ip = node_two_port_ips.get(i);
-            String pingee_ip = node_two_port_ips.get(i);
+            String pingee_ip = node_last_port_ips.get(i % node_last_port_ips.size());
             String ping_cmd = "docker exec " + pinger_container_name + " ping -I " + pinger_ip + " -c1 " + pingee_ip;
-            concurrent_ping_cmds.add(new concurrent_run_cmd(ping_cmd, aca_node_one_ip, user_name, password, is_aca_node_one_local));
+            concurrent_ping_cmds.add(new concurrent_run_cmd(ping_cmd, compute_node_ips.get(0), pinger_compute_node_user_name, pinger_compute_node_password, is_aca_node_one_local));
 //            System.out.println("Ping command is added: [" + ping_cmd + "]");
         }
+//        for (int i = 0; i < node_two_port_ips.size(); i++) {
+//            String pinger_ip = node_one_port_ips.get(i % node_one_port_ips.size());
+//            String pinger_container_name = port_ip_to_container_name.get(pinger_ip);
+////            String pingee_ip = node_two_port_ips.get(i);
+//            String pingee_ip = node_two_port_ips.get(i);
+//            String ping_cmd = "docker exec " + pinger_container_name + " ping -I " + pinger_ip + " -c1 " + pingee_ip;
+//            concurrent_ping_cmds.add(new concurrent_run_cmd(ping_cmd, aca_node_one_ip, user_name, password, is_aca_node_one_local));
+////            System.out.println("Ping command is added: [" + ping_cmd + "]");
+//        }
 
         System.out.println("Time to execute these ping commands concurrently");
 
@@ -849,6 +871,8 @@ public class ncm_test {
         // use a countdown latch to wait for the threads to finish.
         CountDownLatch latch = new CountDownLatch(ip_mac_map.keySet().size());
 
+        int current_compute_node_index = 0;
+        String compute_node_ip_for_this_port = compute_node_ips.get(current_compute_node_index);
         // a key set is a red-black tree, which is sorted by nature.
         // So, we are we assign ports to one node interchangeably. For example, if the 0th port is assigned to node 1,
         // then the 1th port will be assigned to node 2, and then the 2nd port is assigned to node 1, so and so forth...
@@ -864,12 +888,23 @@ public class ncm_test {
             create_one_container_and_assign_IP_vlax_commands.add(ovs_docker_add_port_cmd);
             create_one_container_and_assign_IP_vlax_commands.add(ovs_set_vlan_cmd);
 
-            String compute_node_ip_for_this_port = compute_node_ips.get( i % NUMBER_OF_NODES);
+//            String compute_node_ip_for_this_port = compute_node_ips.get( i % NUMBER_OF_NODES);
             System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + compute_node_ip_for_this_port + "]");
             port_ip_to_host_ip_map.put(port_ip, compute_node_ip_for_this_port);
+            compute_node_ip_to_ports.get(compute_node_ip_for_this_port).add(port_ip);
+            // if enough amount of ports is generated for this compute node, then we begin generating ports for the next one.
+            if (compute_node_ip_to_ports.get(compute_node_ip_for_this_port).size() >= ports_to_generate_on_each_compute_node.get(current_compute_node_index)) {
+                System.out.println("We have already generated [" + compute_node_ip_to_ports.get(compute_node_ip_for_this_port).size() + "] ports/containers for compute node ["
+                + compute_node_ip_for_this_port + "], it has reached its target amount [" + ports_to_generate_on_each_compute_node.get(current_compute_node_index) +
+                "], time to generate ports/containers for the next host."
+                );
+                current_compute_node_index ++;
+                compute_node_ip_for_this_port = compute_node_ips.get(current_compute_node_index);
+            }
             if(whether_to_create_containers_and_ping == CREATE_CONTAINER_AND_PING){
+                String finalCompute_node_ip_for_this_port = compute_node_ip_for_this_port;
                 concurrent_create_containers_thread_pool.execute(() -> {
-                    execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands, compute_node_ip_for_this_port, user_name, password);
+                    execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands, finalCompute_node_ip_for_this_port, compute_node_usernames.get(compute_node_ips.indexOf(compute_node_ip_for_this_port)), compute_node_passwords.get(compute_node_ips.indexOf(compute_node_ip_for_this_port)));
                     latch.countDown();
                 });
             }
@@ -919,7 +954,7 @@ public class ncm_test {
                 // it pings every 0.001 second, or 1 millisecond, for 60 seconds
                 String background_ping_command = "docker exec " + port_ip_to_container_name.get(background_pinger) + " ping -I " + background_pinger + " -c 60000 -i  0.001 " + background_pingee + " > /home/user/background_ping_output.log";
                 System.out.println("Created background ping cmd: " + background_ping_command);
-                concurrent_run_cmd c = new concurrent_run_cmd(background_ping_command, compute_node_ips.get(0), user_name, password, is_aca_node_one_local);
+                concurrent_run_cmd c = new concurrent_run_cmd(background_ping_command, compute_node_ips.get(0), compute_node_usernames.get(0), compute_node_passwords.get(0), is_aca_node_one_local);
                 backgroundPingExecutor.execute(c);
             }
         }
