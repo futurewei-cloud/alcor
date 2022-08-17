@@ -77,16 +77,12 @@ import com.futurewei.alcor.pseudo_controller.alcor_http_api_test.alcor_http_api_
 @Component
 public class ncm_test {
     @Value("#{'${compute_node_ips}'.split(',')}")
-    static
     ArrayList<String> compute_node_ips;
     @Value("#{'${compute_node_macs}'.split(',')}")
-    static
     ArrayList<String> compute_node_macs;
     @Value("#{'${compute_node_user_names}'.split(',')}")
-    static
     ArrayList<String> compute_node_usernames;
     @Value("#{'${compute_node_passwords}'.split(',')}")
-    static
     ArrayList<String> compute_node_passwords;
     @Value("#{'${ports_to_generate_on_each_compute_node}'.split(',')}")
     ArrayList<Integer> ports_to_generate_on_each_compute_node;
