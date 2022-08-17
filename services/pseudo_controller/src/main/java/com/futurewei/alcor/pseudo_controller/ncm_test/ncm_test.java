@@ -344,10 +344,16 @@ public class ncm_test {
                         arion_neighbor_rule_request_builder.addNeigborstates(neighborState_node_one);
                     }else{
                         // NOT test against Arion; we should put the neigbhor states into the goalstate to NCM.
-                        compute_node_ip_to_GoalStateV2_map.get(host_ip).putNeighborStates(neighborState_node_one.getConfiguration().getId(), neighborState_node_one);
-                        Goalstate.ResourceIdType resource_id_type_neighbor_node_one = Goalstate.ResourceIdType.newBuilder().
-                                setType(Common.ResourceType.NEIGHBOR).setId(neighborState_node_one.getConfiguration().getId()).build();
-                        compute_node_ip_to_host_resource_map.get(host_ip).addResources(resource_id_type_neighbor_node_one);
+                        compute_node_ips.forEach( ip -> {
+                            // only add this neighbor state to host other than the port's local host.
+                            if (ip != host_ip) {
+                                compute_node_ip_to_GoalStateV2_map.get(host_ip).putNeighborStates(neighborState_node_one.getConfiguration().getId(), neighborState_node_one);
+                                Goalstate.ResourceIdType resource_id_type_neighbor_node_one = Goalstate.ResourceIdType.newBuilder().
+                                        setType(Common.ResourceType.NEIGHBOR).setId(neighborState_node_one.getConfiguration().getId()).build();
+                                compute_node_ip_to_host_resource_map.get(host_ip).addResources(resource_id_type_neighbor_node_one);
+                            }
+                        });
+
 //                        if (host_ip.equals(aca_node_one_ip)) {
 //                            // if this port is on host_one, then it is a neighbor for ports on host_two
 //
@@ -904,7 +910,10 @@ public class ncm_test {
             if(whether_to_create_containers_and_ping == CREATE_CONTAINER_AND_PING){
                 String finalCompute_node_ip_for_this_port = compute_node_ip_for_this_port;
                 concurrent_create_containers_thread_pool.execute(() -> {
-                    execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands, finalCompute_node_ip_for_this_port, compute_node_usernames.get(compute_node_ips.indexOf(compute_node_ip_for_this_port)), compute_node_passwords.get(compute_node_ips.indexOf(compute_node_ip_for_this_port)));
+                    execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands,
+                            finalCompute_node_ip_for_this_port,
+                            compute_node_usernames.get(compute_node_ips.indexOf(finalCompute_node_ip_for_this_port)),
+                            compute_node_passwords.get(compute_node_ips.indexOf(finalCompute_node_ip_for_this_port)));
                     latch.countDown();
                 });
             }
