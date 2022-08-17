@@ -146,7 +146,7 @@ public class ncm_test {
     static SortedMap<String, String> port_ip_to_container_name = new TreeMap<>();
 
     // key is compute node IP, value is an array of port IPs on that compute node.
-    static TreeMap<String, Vector<String>> compute_node_ip_to_ports;
+    static TreeMap<String, Vector<String>> compute_node_ip_to_ports = new TreeMap<>();
     static Vector<String> node_one_port_ips = new Vector<>();
     static Vector<String> node_two_port_ips = new Vector<>();
     static final int CONCURRENT_PING_MODE = 0;
@@ -199,6 +199,11 @@ public class ncm_test {
         }
         System.out.println("There are "+ number_of_vpcs+" VPCs, " + number_of_subnets  + "\nEach subnet gets " + number_of_gws_each_subnet_gets + " gws");
         int total_amount_of_ports = 0;
+
+        compute_node_ips.forEach( ip -> {
+            compute_node_ip_to_ports.put(ip, new Vector<>());
+        });
+
         for (int i = 0 ; i < ports_to_generate_on_each_compute_node.size(); i++){
             total_amount_of_ports += ports_to_generate_on_each_compute_node.get(i);
         }
@@ -901,7 +906,9 @@ public class ncm_test {
                 "], time to generate ports/containers for the next host."
                 );
                 current_compute_node_index ++;
-                compute_node_ip_for_this_port = compute_node_ips.get(current_compute_node_index);
+                if (current_compute_node_index < compute_node_ips.size()){
+                    compute_node_ip_for_this_port = compute_node_ips.get(current_compute_node_index);
+                }
             }
             if(whether_to_create_containers_and_ping == CREATE_CONTAINER_AND_PING){
                 String finalCompute_node_ip_for_this_port = compute_node_ip_for_this_port;
