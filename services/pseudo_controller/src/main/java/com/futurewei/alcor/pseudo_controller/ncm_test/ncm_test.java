@@ -76,19 +76,19 @@ import com.futurewei.alcor.pseudo_controller.alcor_http_api_test.alcor_http_api_
 
 @Component
 public class ncm_test {
-    @Value("${compute_node_ips}")
+    @Value("#{'${compute_node_ips}'.split(',')}")
     static
     ArrayList<String> compute_node_ips;
-    @Value("${compute_node_macs}")
+    @Value("#{'${compute_node_macs}'.split(',')}")
     static
     ArrayList<String> compute_node_macs;
-    @Value("${compute_node_user_names}")
+    @Value("#{'${compute_node_user_names}'.split(',')}")
     static
     ArrayList<String> compute_node_usernames;
-    @Value("${compute_node_passwords}")
+    @Value("#{'${compute_node_passwords}'.split(',')}")
     static
     ArrayList<String> compute_node_passwords;
-    @Value("${ports_to_generate_on_each_compute_node}")
+    @Value("#{'${ports_to_generate_on_each_compute_node}'.split(',')}")
     ArrayList<Integer> ports_to_generate_on_each_compute_node;
     @Value("${node_one_ip:ip_one}")
     String aca_node_one_ip;
@@ -98,7 +98,7 @@ public class ncm_test {
     String aca_node_two_ip;
     @Value("${node_two_mac:mac_two}")
     String aca_node_two_mac;
-    static final int NUMBER_OF_NODES = compute_node_ips.size();//2;
+    static final int NUMBER_OF_NODES = 4;
     @Value("${ncm_ip:ip_three}")
     String ncm_ip;
     @Value("${ncm_port:123}")
