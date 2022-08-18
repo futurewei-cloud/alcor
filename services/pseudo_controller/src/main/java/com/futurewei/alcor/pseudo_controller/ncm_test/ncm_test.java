@@ -147,6 +147,8 @@ public class ncm_test {
 
     // key is compute node IP, value is an array of port IPs on that compute node.
     static TreeMap<String, Vector<String>> compute_node_ip_to_ports = new TreeMap<>();
+
+    static TreeMap<String, String> port_ip_to_subnet_id = new TreeMap<>();
     static Vector<String> node_one_port_ips = new Vector<>();
     static Vector<String> node_two_port_ips = new Vector<>();
     static final int CONCURRENT_PING_MODE = 0;
@@ -332,6 +334,7 @@ public class ncm_test {
                     // Need to include the Port state in all scenarios.
                     compute_node_ip_to_GoalStateV2_map.get(host_ip).putPortStates(port_state_one.getConfiguration().getId(), port_state_one);
                     compute_node_ip_to_host_resource_map.get(host_ip).addResources(port_one_resource_id);
+                    port_ip_to_subnet_id.put(port_ip, current_subnet_id);
 //                    if (host_ip.equals(aca_node_one_ip)) {
 //                        GoalState_builder_one.putPortStates(port_state_one.getConfiguration().getId(), port_state_one);
 //
@@ -766,14 +769,24 @@ public class ncm_test {
         Vector<String> node_last_port_ips = compute_node_ip_to_ports.get(compute_node_ips.get(compute_node_ips.size()-1));
         String pinger_compute_node_user_name = compute_node_usernames.get(0);
         String pinger_compute_node_password = compute_node_passwords.get(0);
-        for (int i = 0; i < node_one_port_ips.size(); i ++){
-            String pinger_ip = node_one_port_ips.get(i);
-            String pinger_container_name = port_ip_to_container_name.get(pinger_ip);
-//            String pingee_ip = node_two_port_ips.get(i);
-            String pingee_ip = node_last_port_ips.get(i % node_last_port_ips.size());
-            String ping_cmd = "docker exec " + pinger_container_name + " ping -I " + pinger_ip + " -c1 " + pingee_ip;
-            concurrent_ping_cmds.add(new concurrent_run_cmd(ping_cmd, compute_node_ips.get(0), pinger_compute_node_user_name, pinger_compute_node_password, is_aca_node_one_local));
+        for (int i = 0; i < node_last_port_ips.size(); i ++){
+            String pingee_ip = node_last_port_ips.get(i);
+            String pinger_ip = "";
+            for (String one_port_ip_on_node_one : node_one_port_ips) {
+                if (port_ip_to_subnet_id.get(one_port_ip_on_node_one) == port_ip_to_subnet_id.get(pingee_ip)) {
+                    pinger_ip = one_port_ip_on_node_one;
+                    break;
+                }
+            }
+            if (pinger_ip != "") {
+                String pinger_container_name = port_ip_to_container_name.get(pinger_ip);
+                String ping_cmd = "docker exec " + pinger_container_name + " ping -I " + pinger_ip + " -c1 " + pingee_ip;
+                concurrent_ping_cmds.add(new concurrent_run_cmd(ping_cmd, compute_node_ips.get(0), pinger_compute_node_user_name, pinger_compute_node_password, is_aca_node_one_local));
 //            System.out.println("Ping command is added: [" + ping_cmd + "]");
+            }else {
+                System.out.println("For port [" + pingee_ip + "], there is no corresponding port in same subnet on node one, thus skipping ping for this port.");
+            }
+
         }
 //        for (int i = 0; i < node_two_port_ips.size(); i++) {
 //            String pinger_ip = node_one_port_ips.get(i % node_one_port_ips.size());
