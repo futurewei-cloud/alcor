@@ -229,12 +229,6 @@ public class ncm_test {
                 }
         );
 
-//        Goalstate.GoalStateV2.Builder GoalState_builder_one = Goalstate.GoalStateV2.newBuilder();
-//        Goalstate.GoalStateV2.Builder GoalState_builder_two = Goalstate.GoalStateV2.newBuilder();
-//        Goalstate.HostResources.Builder host_resource_builder_node_one = Goalstate.HostResources.newBuilder();
-//        Goalstate.HostResources.Builder host_resource_builder_node_two = Goalstate.HostResources.newBuilder();
-//        Goalstate.HostResources.Builder host_resource_builder_node_one_port_one_neighbor = Goalstate.HostResources.newBuilder();
-
         // a new Goalstate and its builder for Arion master; should have only neigbhor states.
         Goalstateprovisioner.NeighborRulesRequest.Builder arion_neighbor_rule_request_builder = Goalstateprovisioner.NeighborRulesRequest.newBuilder();
         arion_neighbor_rule_request_builder.setFormatVersion(1);
@@ -335,15 +329,7 @@ public class ncm_test {
                     compute_node_ip_to_GoalStateV2_map.get(host_ip).putPortStates(port_state_one.getConfiguration().getId(), port_state_one);
                     compute_node_ip_to_host_resource_map.get(host_ip).addResources(port_one_resource_id);
                     port_ip_to_subnet_id.put(port_ip, current_subnet_id);
-//                    if (host_ip.equals(aca_node_one_ip)) {
-//                        GoalState_builder_one.putPortStates(port_state_one.getConfiguration().getId(), port_state_one);
-//
-//                        host_resource_builder_node_one.addResources(port_one_resource_id);
-//                    } else {
-//                        GoalState_builder_two.putPortStates(port_state_one.getConfiguration().getId(), port_state_one);
-//
-//                        host_resource_builder_node_two.addResources(port_one_resource_id);
-//                    }
+
                     if(test_against_aroin){
                         // We should put the neighbor states into the goalstate to Arion Master.
                         arion_neighbor_rule_request_builder.addNeigborstates(neighborState_node_one);
@@ -358,23 +344,7 @@ public class ncm_test {
                                 compute_node_ip_to_host_resource_map.get(host_ip).addResources(resource_id_type_neighbor_node_one);
                             }
                         });
-
-//                        if (host_ip.equals(aca_node_one_ip)) {
-//                            // if this port is on host_one, then it is a neighbor for ports on host_two
-//
-//                            GoalState_builder_two.putNeighborStates(neighborState_node_one.getConfiguration().getId(), neighborState_node_one);
-//                            Goalstate.ResourceIdType resource_id_type_neighbor_node_one = Goalstate.ResourceIdType.newBuilder().
-//                                    setType(Common.ResourceType.NEIGHBOR).setId(neighborState_node_one.getConfiguration().getId()).build();
-//                            host_resource_builder_node_two.addResources(resource_id_type_neighbor_node_one);
-//                        } else {
-//                            // if this port is on host_two, then it is a neighbor for ports on host_one
-//                            GoalState_builder_two.putNeighborStates(neighborState_node_one.getConfiguration().getId(), neighborState_node_one);
-//                            Goalstate.ResourceIdType resource_id_type_neighbor_node_one = Goalstate.ResourceIdType.newBuilder().
-//                                    setType(Common.ResourceType.NEIGHBOR).setId(neighborState_node_one.getConfiguration().getId()).build();
-//                            host_resource_builder_node_one_port_one_neighbor.addResources(resource_id_type_neighbor_node_one);
-//                        }
                     }
-
 //                System.out.println("Finished port state for port [" + port_ip + "] on host: [" + host_ip + "]");
                 }
                 // fill in subnet state structs
@@ -388,7 +358,7 @@ public class ncm_test {
                 subnet_configuration_builder.setVpcId(current_vpc_id);
                 subnet_configuration_builder.setId(current_subnet_id);
                 String current_subnet_cidr = current_subnet_ip_prefix + ".0.0.0/24";
-                subnet_configuration_builder.setCidr(current_subnet_cidr/*"10.0.0.0/24"*/);
+                subnet_configuration_builder.setCidr(current_subnet_cidr);
                 subnet_configuration_builder.setTunnelId(current_vpc_tunnel_id);
                 subnet_configuration_builder.setGateway(Subnet.SubnetConfiguration.Gateway.newBuilder().setIpAddress("0.0.0.0").setMacAddress("6c:dd:ee:0:0:40").build());
 
@@ -402,17 +372,6 @@ public class ncm_test {
                             .setType(Common.ResourceType.SUBNET).setId(subnet_state_for_both_nodes.getConfiguration().getId()).build();
                     compute_node_ip_to_host_resource_map.get(ip).addResources(subnet_resource_id_type);
                 });
-
-//                GoalState_builder_one.putSubnetStates(subnet_state_for_both_nodes.getConfiguration().getId(), subnet_state_for_both_nodes);
-////        GoalState_builder_one.putSubnetStates(subnet_state_for_both_nodes_two.getConfiguration().getId(), subnet_state_for_both_nodes_two);
-//                GoalState_builder_two.putSubnetStates(subnet_state_for_both_nodes.getConfiguration().getId(), subnet_state_for_both_nodes);
-////        GoalState_builder_two.putSubnetStates(subnet_state_for_both_nodes_two.getConfiguration().getId(), subnet_state_for_both_nodes_two);
-//                Goalstate.ResourceIdType subnet_resource_id_type = Goalstate.ResourceIdType.newBuilder()
-//                        .setType(Common.ResourceType.SUBNET).setId(subnet_state_for_both_nodes.getConfiguration().getId()).build();
-//
-//                host_resource_builder_node_one.addResources(subnet_resource_id_type);
-//                host_resource_builder_node_two.addResources(subnet_resource_id_type);
-//                host_resource_builder_node_one_port_one_neighbor.addResources(subnet_resource_id_type);
 
                 // put gateway information in the goalstates, each subnet should have one gateway state.
                 if (test_against_aroin){
@@ -451,87 +410,8 @@ public class ncm_test {
                         compute_node_ip_to_GoalStateV2_map.get(ip).putGatewayStates(current_gateway_state_for_both_nodes.getConfiguration().getId(),current_gateway_state_for_both_nodes);
                         compute_node_ip_to_host_resource_map.get(ip).addResources(gateway_resource_id_type);
                     });
-//                    GoalState_builder_one.putGatewayStates(current_gateway_state_for_both_nodes.getConfiguration().getId(),current_gateway_state_for_both_nodes);
-//                    GoalState_builder_two.putGatewayStates(current_gateway_state_for_both_nodes.getConfiguration().getId(), current_gateway_state_for_both_nodes);
-//                    host_resource_builder_node_one.addResources(gateway_resource_id_type);
-//                    host_resource_builder_node_two.addResources(gateway_resource_id_type);
-//                    host_resource_builder_node_one_port_one_neighbor.addResources(gateway_resource_id_type);
                 }
             }
-
-//        Router.RouterState.Builder router_state_builder = Router.RouterState.newBuilder();
-//
-//        Router.RouterConfiguration.Builder router_configuration_builder = Router.RouterConfiguration.newBuilder();
-//
-//        Router.RouterConfiguration.RoutingRule.Builder router_rule_builder = Router.RouterConfiguration.RoutingRule.newBuilder();
-//
-//        Router.RouterConfiguration.RoutingRuleExtraInfo.Builder routing_rule_extra_info_builder = Router.RouterConfiguration.RoutingRuleExtraInfo.newBuilder();
-//
-//        routing_rule_extra_info_builder
-//                .setDestinationType(Router.DestinationType.VPC_GW)
-//                .setNextHopMac("6c:dd:ee:0:0:40");
-//
-//        router_rule_builder
-//                .setId("tc_sample_routing_rule")
-//                .setName("tc_sample_routing_rule")
-//                .setDestination("10.0.0.0/24")
-//                .setNextHopIp(aca_node_one_ip)
-//                .setPriority(999)
-//                .setRoutingRuleExtraInfo(routing_rule_extra_info_builder.build());
-//
-//        Router.RouterConfiguration.SubnetRoutingTable.Builder subnet_routing_table_builder = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
-//        subnet_routing_table_builder
-//                .setSubnetId(subnet_id_1)
-//                .addRoutingRules(router_rule_builder.build());
-//
-//        Router.RouterConfiguration.SubnetRoutingTable.Builder subnet_routing_table_builder_two = Router.RouterConfiguration.SubnetRoutingTable.newBuilder();
-//        subnet_routing_table_builder_two
-//                .setSubnetId(subnet_id_2)
-//                .addRoutingRules(router_rule_builder.build());
-//
-//        router_configuration_builder
-//                .setRevisionNumber(777)
-//                .setRequestId("tc_sample_routing_rule"+"_rs")
-//                .setId("tc_sample_routing_rule"+"_r")
-//                .setUpdateType(Common.UpdateType.FULL)
-//                .setHostDvrMacAddress("6c:dd:ee:0:0:40")
-//                .addSubnetRoutingTables(subnet_routing_table_builder.build())
-//                .addSubnetRoutingTables(subnet_routing_table_builder_two.build());
-//
-//        router_state_builder
-//                .setOperationType(Common.OperationType.INFO)
-//                .setConfiguration(router_configuration_builder.build());
-//        Router.RouterState router_state = router_state_builder.build();
-//
-//        GoalState_builder_two.putRouterStates(router_state.getConfiguration().getId(), router_state);
-//        GoalState_builder_one.putRouterStates(router_state.getConfiguration().getId(), router_state);
-//        Goalstate.ResourceIdType resource_id_type_router_node_two = Goalstate.ResourceIdType.newBuilder().
-//                setType(Common.ResourceType.ROUTER)
-//                .setId(router_state.getConfiguration().getId())
-//                .build();
-//        host_resource_builder_node_two.addResources(resource_id_type_router_node_two);
-//        host_resource_builder_node_one.addResources(resource_id_type_router_node_two);
-
-
-            // fill in subnet state structs
-//        Subnet.SubnetState.Builder new_subnet_states_two = Subnet.SubnetState.newBuilder();
-//
-//        new_subnet_states_two.setOperationType(Common.OperationType.INFO);
-//
-//        Subnet.SubnetConfiguration.Builder subnet_configuration_builder_two = Subnet.SubnetConfiguration.newBuilder();
-//
-//        subnet_configuration_builder_two.setRevisionNumber(2);
-//        subnet_configuration_builder_two.setVpcId(vpc_id_1);
-//        subnet_configuration_builder_two.setId(subnet_id_2);
-//        subnet_configuration_builder_two.setCidr("10.0.0.0/24");
-//        subnet_configuration_builder_two.setTunnelId(22);
-//        subnet_configuration_builder_two.setGateway(Subnet.SubnetConfiguration.Gateway.newBuilder().setIpAddress("0.0.0.1").setMacAddress("6c:dd:ee:0:0:41").build());
-//
-//        new_subnet_states_two.setConfiguration(subnet_configuration_builder_two.build());
-//
-//        Subnet.SubnetState subnet_state_for_both_nodes_two = new_subnet_states_two.build();
-
-            // put the new subnet state of subnet 1 into the goalstatev2
 
             // fill in VPC state structs
             Vpc.VpcState.Builder new_vpc_states = Vpc.VpcState.newBuilder();
@@ -555,20 +435,6 @@ public class ncm_test {
                 compute_node_ip_to_host_resource_map.get(ip).addResources(vpc_resource_id_type);
             });
 
-//            GoalState_builder_one.putVpcStates(vpc_state_for_both_nodes.getConfiguration().getId(), vpc_state_for_both_nodes);
-//            GoalState_builder_two.putVpcStates(vpc_state_for_both_nodes.getConfiguration().getId(), vpc_state_for_both_nodes);
-//
-////        Goalstate.ResourceIdType subnet_resource_id_type_two = Goalstate.ResourceIdType.newBuilder()
-////                .setType(Common.ResourceType.SUBNET).setId(subnet_state_for_both_nodes_two.getConfiguration().getId()).build();
-//
-//
-////        host_resource_builder_node_one.addResources(subnet_resource_id_type_two);
-////        host_resource_builder_node_two.addResources(subnet_resource_id_type_two);
-////        host_resource_builder_node_one_port_one_neighbor.addResources(subnet_resource_id_type_two);
-//            host_resource_builder_node_one.addResources(vpc_resource_id_type);
-//            host_resource_builder_node_two.addResources(vpc_resource_id_type);
-//            host_resource_builder_node_one_port_one_neighbor.addResources(vpc_resource_id_type);
-
             if(test_against_aroin){
                 JSONObject current_vpc_json_object = new JSONObject();
                 current_vpc_json_object.put("vpc_id", current_vpc_id);
@@ -586,17 +452,6 @@ public class ncm_test {
         compute_node_ips.forEach(ip -> {
             compute_node_ip_to_GoalStateV2_map.get(ip).putHostResources(ip, compute_node_ip_to_host_resource_map.get(ip).build());
         });
-//        GoalState_builder_one.putHostResources(aca_node_one_ip, host_resource_builder_node_one.build());
-//        GoalState_builder_two.putHostResources(aca_node_two_ip, host_resource_builder_node_two.build());
-//        GoalState_builder_two.putHostResources(aca_node_one_ip, host_resource_builder_node_one_port_one_neighbor.build());
-//        Goalstate.GoalStateV2 message_one = GoalState_builder_one.build();
-//        Goalstate.GoalStateV2 message_two = GoalState_builder_two.build();
-
-//        System.out.println("Built GoalState successfully, GoalStateV2 content for PORT1: \n" + message_one.toString() + "\n");
-//        System.out.println("GoalStateV2 size in bytes for host1: \n" + message_one.getSerializedSize() + "\n");
-//
-//        System.out.println("Built GoalState successfully, GoalStateV2 content for PORT2: \n" + message_two.toString() + "\n");
-//        System.out.println("GoalStateV2 size in bytes for host2: \n" + message_two.getSerializedSize() + "\n");
 
         System.out.println("Time to call the GRPC functions");
         // Use tracer and interceptor to trace grpc calls.
@@ -788,15 +643,6 @@ public class ncm_test {
             }
 
         }
-//        for (int i = 0; i < node_two_port_ips.size(); i++) {
-//            String pinger_ip = node_one_port_ips.get(i % node_one_port_ips.size());
-//            String pinger_container_name = port_ip_to_container_name.get(pinger_ip);
-////            String pingee_ip = node_two_port_ips.get(i);
-//            String pingee_ip = node_two_port_ips.get(i);
-//            String ping_cmd = "docker exec " + pinger_container_name + " ping -I " + pinger_ip + " -c1 " + pingee_ip;
-//            concurrent_ping_cmds.add(new concurrent_run_cmd(ping_cmd, aca_node_one_ip, user_name, password, is_aca_node_one_local));
-////            System.out.println("Ping command is added: [" + ping_cmd + "]");
-//        }
 
         System.out.println("Time to execute these ping commands concurrently");
 
@@ -873,12 +719,6 @@ public class ncm_test {
                     port_ip_to_id_map.put(ip_for_port, id_for_port);
                     System.out.println("Generated Port " + i + " with IP: [" + ip_for_port + "], ID :[ " + id_for_port + "] and MAC: [" + mac_for_port + "]");
                 }
-//                String ip_for_port = ips_ports_ip_prefix + "." + ip_2nd_octet + "." + ip_3nd_octet + "." + ip_4nd_octet;
-//                String mac_for_port = mac_port_prefix + ip_2nd_octet + ":" + ip_3nd_octet + ":" + ip_4nd_octet;
-//                String id_for_port = port_ip_template + ips_ports_ip_prefix + String.format("%03d", (i / 10000)) + String.format("%03d", ((i % 10000) / 100)) + String.format("%03d", (i % 100));
-//                System.out.println("Generated Port " + i + " with IP: [" + ip_for_port + "], ID :[ " + id_for_port + "] and MAC: [" + mac_for_port + "]");
-//                ip_mac_map.put(ip_for_port, mac_for_port);
-//                port_ip_to_id_map.put(ip_for_port, id_for_port);
             }
             i++;
         }
@@ -953,58 +793,6 @@ public class ncm_test {
                 i++;
             }
         }
-//        // a key set is a red-black tree, which is sorted by nature.
-//        // So, we are we assign ports to one node interchangeably. For example, if the 0th port is assigned to node 1,
-//        // then the 1th port will be assigned to node 2, and then the 2nd port is assigned to node 1, so and so forth...
-//        for (String port_ip : ip_mac_map.keySet()) {
-//            String port_mac = ip_mac_map.get(port_ip);
-//            String container_name = "test" + Integer.toString(i);
-//            port_ip_to_container_name.put(port_ip, container_name);
-//            String create_container_cmd = "docker run -itd --name " + container_name + " --net=none --label test=ACA busybox sh";
-//            String ovs_docker_add_port_cmd = "sudo ovs-docker add-port br-int eth0 " + container_name + " --ipaddress=" + port_ip + "/16 --macaddress=" + port_mac;
-//            String ovs_set_vlan_cmd = "sudo ovs-docker set-vlan br-int eth0 " + container_name + " 1";
-//            Vector<String> create_one_container_and_assign_IP_vlax_commands = new Vector<>();
-//            create_one_container_and_assign_IP_vlax_commands.add(create_container_cmd);
-//            create_one_container_and_assign_IP_vlax_commands.add(ovs_docker_add_port_cmd);
-//            create_one_container_and_assign_IP_vlax_commands.add(ovs_set_vlan_cmd);
-//
-////            String compute_node_ip_for_this_port = compute_node_ips.get( i % NUMBER_OF_NODES);
-//            System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + compute_node_ip_for_this_port + "]");
-//            port_ip_to_host_ip_map.put(port_ip, compute_node_ip_for_this_port);
-//            compute_node_ip_to_ports.get(compute_node_ip_for_this_port).add(port_ip);
-//
-//            if(whether_to_create_containers_and_ping == CREATE_CONTAINER_AND_PING){
-//                String finalCompute_node_ip_for_this_port = compute_node_ip_for_this_port;
-//                concurrent_create_containers_thread_pool.execute(() -> {
-//                    execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands,
-//                            finalCompute_node_ip_for_this_port,
-//                            compute_node_usernames.get(compute_node_ips.indexOf(finalCompute_node_ip_for_this_port)),
-//                            compute_node_passwords.get(compute_node_ips.indexOf(finalCompute_node_ip_for_this_port)));
-//                    latch.countDown();
-//                });
-//            }
-//
-//            // if enough amount of ports is generated for this compute node, then we begin generating ports for the next one.
-//            if (compute_node_ip_to_ports.get(compute_node_ip_for_this_port).size() >= ports_to_generate_on_each_compute_node.get(current_compute_node_index) * number_of_subnets) {
-//                System.out.println("We have already generated [" + compute_node_ip_to_ports.get(compute_node_ip_for_this_port).size() + "] ports/containers for compute node ["
-//                        + compute_node_ip_for_this_port + "], it has reached its target amount [" + ports_to_generate_on_each_compute_node.get(current_compute_node_index) +
-//                        "], time to generate ports/containers for the next host."
-//                );
-//                current_compute_node_index ++;
-//                if (current_compute_node_index < compute_node_ips.size()){
-//                    compute_node_ip_for_this_port = compute_node_ips.get(current_compute_node_index);
-//                }
-//            }
-//
-//            if (compute_node_ip_for_this_port == compute_node_ips.get(0)){
-//                // this is a pinger
-//                background_pinger = port_ip;
-//            }else {
-//                // this is a pingee
-//                background_pingee = port_ip;
-//            }
-//            i++;
-//        }
 
         if(whether_to_create_containers_and_ping == CREATE_CONTAINER_AND_PING){
             try {
