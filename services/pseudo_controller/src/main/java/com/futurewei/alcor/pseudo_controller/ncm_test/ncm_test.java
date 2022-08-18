@@ -94,7 +94,7 @@ public class ncm_test {
     String aca_node_two_ip;
     @Value("${node_two_mac:mac_two}")
     String aca_node_two_mac;
-    static final int NUMBER_OF_NODES = 4;
+    final int NUMBER_OF_NODES = compute_node_ips.size();
     @Value("${ncm_ip:ip_three}")
     String ncm_ip;
     @Value("${ncm_port:123}")
@@ -208,7 +208,7 @@ public class ncm_test {
             total_amount_of_ports += ports_to_generate_on_each_compute_node.get(i);
         }
         generate_ip_macs(total_amount_of_ports);
-        create_containers_on_both_hosts_concurrently();
+        create_containers_on_both_hosts_concurrently(total_amount_of_ports);
         System.out.println("Compute node IPs: " + compute_node_ips + "\nuser name: " + compute_node_usernames + "\npassword: " + compute_node_passwords);
 
         System.out.println("Containers setup done, now we gotta construct the GoalStateV2");
@@ -870,7 +870,7 @@ public class ncm_test {
         System.out.println("Finished generating " + amount_of_ports_to_generate + " ports for each subnet, ip->mac map has "+ ip_mac_map.size() +" entries, ip->id map has "+port_ip_to_id_map.size()+" entries");
     }
 
-    private void create_containers_on_both_hosts_concurrently() {
+    private void create_containers_on_both_hosts_concurrently(int total_amount_of_ports_per_subnet) {
         System.out.println("Creating containers on both hosts, ip_mac_map has " + ip_mac_map.keySet().size() + "keys");
         int i = 1;
         String background_pinger = "";
@@ -880,80 +880,116 @@ public class ncm_test {
 
         int current_compute_node_index = 0;
         String compute_node_ip_for_this_port = compute_node_ips.get(current_compute_node_index);
-        // a key set is a red-black tree, which is sorted by nature.
-        // So, we are we assign ports to one node interchangeably. For example, if the 0th port is assigned to node 1,
-        // then the 1th port will be assigned to node 2, and then the 2nd port is assigned to node 1, so and so forth...
-        for (String port_ip : ip_mac_map.keySet()) {
-            String port_mac = ip_mac_map.get(port_ip);
-            String container_name = "test" + Integer.toString(i);
-            port_ip_to_container_name.put(port_ip, container_name);
-            String create_container_cmd = "docker run -itd --name " + container_name + " --net=none --label test=ACA busybox sh";
-            String ovs_docker_add_port_cmd = "sudo ovs-docker add-port br-int eth0 " + container_name + " --ipaddress=" + port_ip + "/16 --macaddress=" + port_mac;
-            String ovs_set_vlan_cmd = "sudo ovs-docker set-vlan br-int eth0 " + container_name + " 1";
-            Vector<String> create_one_container_and_assign_IP_vlax_commands = new Vector<>();
-            create_one_container_and_assign_IP_vlax_commands.add(create_container_cmd);
-            create_one_container_and_assign_IP_vlax_commands.add(ovs_docker_add_port_cmd);
-            create_one_container_and_assign_IP_vlax_commands.add(ovs_set_vlan_cmd);
+        ArrayList<String> port_ip_arrayList = new ArrayList<>();
+        port_ip_arrayList.addAll(ip_mac_map.keySet());
+
+        // each subnet has the same number of ports.
+        for (int j = 0 ; j < total_amount_of_ports_per_subnet ; j ++){
+            for (int k = 0 ; k < number_of_subnets ; k ++) {
+                // using this way in order to get a port from each subnet to add on a compute node
+                // trying to spread the ports in different subnets evenly on each compute node.
+                String port_ip = port_ip_arrayList.get(total_amount_of_ports_per_subnet * number_of_subnets + j);
+                String port_mac = ip_mac_map.get(port_ip);
+                String container_name = "test" + Integer.toString(i);
+                port_ip_to_container_name.put(port_ip, container_name);
+                String create_container_cmd = "docker run -itd --name " + container_name + " --net=none --label test=ACA busybox sh";
+                String ovs_docker_add_port_cmd = "sudo ovs-docker add-port br-int eth0 " + container_name + " --ipaddress=" + port_ip + "/16 --macaddress=" + port_mac;
+                String ovs_set_vlan_cmd = "sudo ovs-docker set-vlan br-int eth0 " + container_name + " 1";
+                Vector<String> create_one_container_and_assign_IP_vlax_commands = new Vector<>();
+                create_one_container_and_assign_IP_vlax_commands.add(create_container_cmd);
+                create_one_container_and_assign_IP_vlax_commands.add(ovs_docker_add_port_cmd);
+                create_one_container_and_assign_IP_vlax_commands.add(ovs_set_vlan_cmd);
 
 //            String compute_node_ip_for_this_port = compute_node_ips.get( i % NUMBER_OF_NODES);
-            System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + compute_node_ip_for_this_port + "]");
-            port_ip_to_host_ip_map.put(port_ip, compute_node_ip_for_this_port);
-            compute_node_ip_to_ports.get(compute_node_ip_for_this_port).add(port_ip);
-            // if enough amount of ports is generated for this compute node, then we begin generating ports for the next one.
-            if (compute_node_ip_to_ports.get(compute_node_ip_for_this_port).size() >= ports_to_generate_on_each_compute_node.get(current_compute_node_index)) {
-                System.out.println("We have already generated [" + compute_node_ip_to_ports.get(compute_node_ip_for_this_port).size() + "] ports/containers for compute node ["
-                + compute_node_ip_for_this_port + "], it has reached its target amount [" + ports_to_generate_on_each_compute_node.get(current_compute_node_index) +
-                "], time to generate ports/containers for the next host."
-                );
-                current_compute_node_index ++;
-                if (current_compute_node_index < compute_node_ips.size()){
-                    compute_node_ip_for_this_port = compute_node_ips.get(current_compute_node_index);
-                }
-            }
-            if(whether_to_create_containers_and_ping == CREATE_CONTAINER_AND_PING){
-                String finalCompute_node_ip_for_this_port = compute_node_ip_for_this_port;
-                concurrent_create_containers_thread_pool.execute(() -> {
-                    execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands,
-                            finalCompute_node_ip_for_this_port,
-                            compute_node_usernames.get(compute_node_ips.indexOf(finalCompute_node_ip_for_this_port)),
-                            compute_node_passwords.get(compute_node_ips.indexOf(finalCompute_node_ip_for_this_port)));
-                    latch.countDown();
-                });
-            }
+                System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + compute_node_ip_for_this_port + "]");
+                port_ip_to_host_ip_map.put(port_ip, compute_node_ip_for_this_port);
+                compute_node_ip_to_ports.get(compute_node_ip_for_this_port).add(port_ip);
 
-            if (compute_node_ip_for_this_port == compute_node_ips.get(0)){
-                // this is a pinger
-                background_pinger = port_ip;
-            }else {
-                // this is a pingee
-                background_pingee = port_ip;
+                if(whether_to_create_containers_and_ping == CREATE_CONTAINER_AND_PING){
+                    String finalCompute_node_ip_for_this_port = compute_node_ip_for_this_port;
+                    concurrent_create_containers_thread_pool.execute(() -> {
+                        execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands,
+                                finalCompute_node_ip_for_this_port,
+                                compute_node_usernames.get(compute_node_ips.indexOf(finalCompute_node_ip_for_this_port)),
+                                compute_node_passwords.get(compute_node_ips.indexOf(finalCompute_node_ip_for_this_port)));
+                        latch.countDown();
+                    });
+                }
+
+                // if enough amount of ports is generated for this compute node, then we begin generating ports for the next one.
+                if (compute_node_ip_to_ports.get(compute_node_ip_for_this_port).size() >= ports_to_generate_on_each_compute_node.get(current_compute_node_index) * number_of_subnets) {
+                    System.out.println("We have already generated [" + compute_node_ip_to_ports.get(compute_node_ip_for_this_port).size() + "] ports/containers for compute node ["
+                            + compute_node_ip_for_this_port + "], it has reached its target amount [" + ports_to_generate_on_each_compute_node.get(current_compute_node_index) +
+                            "], time to generate ports/containers for the next host."
+                    );
+                    current_compute_node_index ++;
+                    if (current_compute_node_index < compute_node_ips.size()){
+                        compute_node_ip_for_this_port = compute_node_ips.get(current_compute_node_index);
+                    }
+                }
+
+                if (compute_node_ip_for_this_port == compute_node_ips.get(0)){
+                    // this is a pinger
+                    background_pinger = port_ip;
+                }else {
+                    // this is a pingee
+                    background_pingee = port_ip;
+                }
+                i++;
             }
-//            int ip_last_octet = Integer.parseInt(port_ip.split("\\.")[3]);
-//            if ( i % 2 != 0/*node_one_port_ips.size() != ports_to_generate_on_aca_node_one * number_of_subnets*/) {
-//                System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + aca_node_one_ip + "]");
-//                node_one_port_ips.add(port_ip);
-//                port_ip_to_host_ip_map.put(port_ip, aca_node_one_ip);
-//                if(whether_to_create_containers_and_ping == CREATE_CONTAINER_AND_PING){
-//                    concurrent_create_containers_thread_pool.execute(() -> {
-//                        execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands, aca_node_one_ip, user_name, password);
-//                        latch.countDown();
-//                    });
+        }
+//        // a key set is a red-black tree, which is sorted by nature.
+//        // So, we are we assign ports to one node interchangeably. For example, if the 0th port is assigned to node 1,
+//        // then the 1th port will be assigned to node 2, and then the 2nd port is assigned to node 1, so and so forth...
+//        for (String port_ip : ip_mac_map.keySet()) {
+//            String port_mac = ip_mac_map.get(port_ip);
+//            String container_name = "test" + Integer.toString(i);
+//            port_ip_to_container_name.put(port_ip, container_name);
+//            String create_container_cmd = "docker run -itd --name " + container_name + " --net=none --label test=ACA busybox sh";
+//            String ovs_docker_add_port_cmd = "sudo ovs-docker add-port br-int eth0 " + container_name + " --ipaddress=" + port_ip + "/16 --macaddress=" + port_mac;
+//            String ovs_set_vlan_cmd = "sudo ovs-docker set-vlan br-int eth0 " + container_name + " 1";
+//            Vector<String> create_one_container_and_assign_IP_vlax_commands = new Vector<>();
+//            create_one_container_and_assign_IP_vlax_commands.add(create_container_cmd);
+//            create_one_container_and_assign_IP_vlax_commands.add(ovs_docker_add_port_cmd);
+//            create_one_container_and_assign_IP_vlax_commands.add(ovs_set_vlan_cmd);
+//
+////            String compute_node_ip_for_this_port = compute_node_ips.get( i % NUMBER_OF_NODES);
+//            System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + compute_node_ip_for_this_port + "]");
+//            port_ip_to_host_ip_map.put(port_ip, compute_node_ip_for_this_port);
+//            compute_node_ip_to_ports.get(compute_node_ip_for_this_port).add(port_ip);
+//
+//            if(whether_to_create_containers_and_ping == CREATE_CONTAINER_AND_PING){
+//                String finalCompute_node_ip_for_this_port = compute_node_ip_for_this_port;
+//                concurrent_create_containers_thread_pool.execute(() -> {
+//                    execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands,
+//                            finalCompute_node_ip_for_this_port,
+//                            compute_node_usernames.get(compute_node_ips.indexOf(finalCompute_node_ip_for_this_port)),
+//                            compute_node_passwords.get(compute_node_ips.indexOf(finalCompute_node_ip_for_this_port)));
+//                    latch.countDown();
+//                });
+//            }
+//
+//            // if enough amount of ports is generated for this compute node, then we begin generating ports for the next one.
+//            if (compute_node_ip_to_ports.get(compute_node_ip_for_this_port).size() >= ports_to_generate_on_each_compute_node.get(current_compute_node_index) * number_of_subnets) {
+//                System.out.println("We have already generated [" + compute_node_ip_to_ports.get(compute_node_ip_for_this_port).size() + "] ports/containers for compute node ["
+//                        + compute_node_ip_for_this_port + "], it has reached its target amount [" + ports_to_generate_on_each_compute_node.get(current_compute_node_index) +
+//                        "], time to generate ports/containers for the next host."
+//                );
+//                current_compute_node_index ++;
+//                if (current_compute_node_index < compute_node_ips.size()){
+//                    compute_node_ip_for_this_port = compute_node_ips.get(current_compute_node_index);
 //                }
+//            }
+//
+//            if (compute_node_ip_for_this_port == compute_node_ips.get(0)){
+//                // this is a pinger
 //                background_pinger = port_ip;
-//            } else {
-//                System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + aca_node_two_ip + "]");
-//                node_two_port_ips.add(port_ip);
-//                port_ip_to_host_ip_map.put(port_ip, aca_node_two_ip);
-//                if(whether_to_create_containers_and_ping == CREATE_CONTAINER_AND_PING){
-//                    concurrent_create_containers_thread_pool.execute(() -> {
-//                        execute_ssh_commands(create_one_container_and_assign_IP_vlax_commands, aca_node_two_ip, user_name, password);
-//                        latch.countDown();
-//                    });
-//                }
+//            }else {
+//                // this is a pingee
 //                background_pingee = port_ip;
 //            }
-            i++;
-        }
+//            i++;
+//        }
 
         if(whether_to_create_containers_and_ping == CREATE_CONTAINER_AND_PING){
             try {
