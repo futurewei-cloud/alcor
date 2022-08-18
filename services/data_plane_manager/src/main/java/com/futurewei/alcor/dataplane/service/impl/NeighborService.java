@@ -29,6 +29,7 @@ import com.futurewei.alcor.web.entity.dataplane.InternalPortEntity;
 import com.futurewei.alcor.web.entity.dataplane.NeighborEntry;
 import com.futurewei.alcor.web.entity.dataplane.NeighborInfo;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
+import com.futurewei.alcor.web.entity.node.NodeInfo;
 import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.port.PortHostInfo;
 import com.futurewei.alcor.web.entity.route.InternalSubnetRoutingTable;
@@ -107,7 +108,7 @@ public class NeighborService extends ResourceService {
         neighborConfigBuilder.setVpcId(vpcId);
         //neighborConfigBuilder.setName();
         neighborConfigBuilder.setMacAddress(portHostInfo.getPortMac());
-        neighborConfigBuilder.setHostIpAddress(portHostInfo.getHostIp());
+
         Neighbor.NeighborType neighborType = Neighbor.NeighborType.valueOf(type.getType());
 
         //TODO:setNeighborHostDvrMac
@@ -118,7 +119,9 @@ public class NeighborService extends ResourceService {
         fixedIpBuilder.setNeighborType(neighborType);
         if (arionGatwayEnabled) {
             if (nodeInfoCache.getNodeInfoByNodeIp(portHostInfo.getHostIp()).size() > 0) {
-                neighborConfigBuilder.setHostMacAddress(nodeInfoCache.getNodeInfoByNodeIp(portHostInfo.getHostIp()).get(0).getMacAddress());
+                NodeInfo nodeInfo = nodeInfoCache.getNodeInfoByNodeIp(portHostInfo.getHostIp()).get(0);
+                neighborConfigBuilder.setHostMacAddress(nodeInfo.getMacAddress());
+                neighborConfigBuilder.setHostIpAddress(nodeInfo.getDataPathIp());
             } else {
                 LOG.debug("There is no node mac address for host " + portHostInfo);
             }
@@ -379,7 +382,7 @@ public class NeighborService extends ResourceService {
 
                                 multicastHostResourceBuilder.addResources(getRourceIdType(NEIGHBOR_STATE_L2_PREFIX + portHostInfo.getPortId()));
                             } else {
-                                multicastGoalStateV2.getHostIps().add(portHostInfo.getHostIp());
+                                multicastGoalStateV2.addHostVpcPair(portHostInfo.getHostIp(), portState.getConfiguration().getVpcId());
                                 if (arionGatwayEnabled) {
                                     Neighbor.NeighborState neighborState = buildNeighborState(NeighborEntry.NeighborType.L2, portHostInfo, operationType, portState.getConfiguration().getVpcId());
                                     neighborStateMap.put(NEIGHBOR_STATE_L2_PREFIX + neighborState.getConfiguration().getId(), neighborState);

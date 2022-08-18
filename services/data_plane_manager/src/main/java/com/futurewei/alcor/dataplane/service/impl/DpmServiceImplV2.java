@@ -142,13 +142,13 @@ public class DpmServiceImplV2 implements DpmService {
         dhcpService.buildDhcpStates(networkConfig, unicastGoalState);
         routerService.buildRouterStates(networkConfig, unicastGoalState);
 
+        if (arionGatwayEnabled) {
+            arionWingService.buildArionGatewayState(networkConfig, unicastGoalState);
+        }
+
         neighborService.buildNeighborStatesL2(unicastGoalState, multicastGoalState, networkConfig.getOpType());
         if (networkConfig.getInternalRouterInfos() != null) {
             neighborService.buildNeighborStatesL3(networkConfig, unicastGoalState, multicastGoalState);
-        }
-
-        if (arionGatwayEnabled) {
-            arionWingService.buildArionGatewayState(networkConfig, unicastGoalState);
         }
 
         unicastGoalState.setGoalState(unicastGoalState.getGoalStateBuilder().build());
