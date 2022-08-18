@@ -94,7 +94,7 @@ public class ncm_test {
     String aca_node_two_ip;
     @Value("${node_two_mac:mac_two}")
     String aca_node_two_mac;
-    final int NUMBER_OF_NODES = compute_node_ips.size();
+    int NUMBER_OF_NODES = 0;
     @Value("${ncm_ip:ip_three}")
     String ncm_ip;
     @Value("${ncm_port:123}")
@@ -207,6 +207,7 @@ public class ncm_test {
         for (int i = 0 ; i < ports_to_generate_on_each_compute_node.size(); i++){
             total_amount_of_ports += ports_to_generate_on_each_compute_node.get(i);
         }
+        NUMBER_OF_NODES = compute_node_ips.size();
         generate_ip_macs(total_amount_of_ports);
         create_containers_on_both_hosts_concurrently(total_amount_of_ports);
         System.out.println("Compute node IPs: " + compute_node_ips + "\nuser name: " + compute_node_usernames + "\npassword: " + compute_node_passwords);
