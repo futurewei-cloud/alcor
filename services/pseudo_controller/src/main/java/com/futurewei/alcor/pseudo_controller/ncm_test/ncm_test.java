@@ -705,6 +705,7 @@ public class ncm_test {
                 }
             };
             System.out.println("FOR ARION: Created GoalStateOperationReply observer class");
+            System.out.println("Arion Neighbor Message: \n" + arion_neighbor_state_request);
             arion_stub.pushGoalstates(arion_neighbor_state_request, arion_message_observer);
             System.out.println("FOR ARION: Connected the observers");
 
