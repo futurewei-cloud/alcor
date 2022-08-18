@@ -890,7 +890,7 @@ public class ncm_test {
             for (int k = 0 ; k < number_of_subnets ; k ++) {
                 // using this way in order to get a port from each subnet to add on a compute node
                 // trying to spread the ports in different subnets evenly on each compute node.
-                String port_ip = port_ip_arrayList.get(total_amount_of_ports_per_subnet * number_of_subnets + j);
+                String port_ip = port_ip_arrayList.get(total_amount_of_ports_per_subnet * k + j);
                 String port_mac = ip_mac_map.get(port_ip);
                 String container_name = "test" + Integer.toString(i);
                 port_ip_to_container_name.put(port_ip, container_name);
