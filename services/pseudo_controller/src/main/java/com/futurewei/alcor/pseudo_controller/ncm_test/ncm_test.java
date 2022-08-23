@@ -47,6 +47,10 @@ import io.jaegertracing.internal.samplers.ConstSampler;
 //import io.opentracing.Span;
 //import io.opentracing.Tracer;
 //import io.opentracing.contrib.grpc.TracingClientInterceptor;
+import io.opentracing.Scope;
+import io.opentracing.Span;
+import io.opentracing.Tracer;
+import io.opentracing.contrib.grpc.TracingClientInterceptor;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -65,6 +69,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.net.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -129,6 +134,8 @@ public class ncm_test {
     @Value("${arion_dp_controller_ip:arion_dp_controller_ip}")
     String arion_dp_controller_ip;
     JSONArray arion_gw_ip_macs;
+    @Value("${use_arion_agent:false}")
+    Boolean use_arion_agent;
 
     static String docker_ps_cmd = "docker ps";
     static String vpc_id_1 = "2b08a5bc-b718-11ea-b3de-111111111112";
@@ -168,6 +175,7 @@ public class ncm_test {
     static ArrayList<String> subnets_ips_ports_ip_prefix = new ArrayList<>();
     static ArrayList<String> subnets_macs_ports_mac_third_octects = new ArrayList<>();
 
+    static String DEFAULT_ARION_GROUP_NAME = "group1";
     public ncm_test(){
         System.out.println("Start of NCM Test!");
     }
@@ -196,11 +204,9 @@ public class ncm_test {
                 System.out.println("Unable to read from json data file: " + e.getMessage() + "\nAborting...");
                 return;
             }
-            arion_gw_ip_macs = (JSONArray) arion_data_json_object.get("gws");
-            number_of_gws_each_subnet_gets = (int) Math.ceil(arion_gw_ip_macs.size() / number_of_subnets);
             setup_arion_gateway_cluster_and_nodes();
         }
-        System.out.println("There are "+ number_of_vpcs+" VPCs, " + number_of_subnets  + "\nEach subnet gets " + number_of_gws_each_subnet_gets + " gws");
+        System.out.println("There are "+ number_of_vpcs+" VPCs, " + number_of_subnets);
         int total_amount_of_ports = 0;
 
         compute_node_ips.forEach( ip -> {
@@ -318,8 +324,8 @@ public class ncm_test {
                     neighbor_fixed_ip_builder.setIpAddress(port_ip);
                     neighbor_fixed_ip_builder.setMacAddress(port_mac);
                     neighbor_fixed_ip_builder.setTunnelId(current_vpc_tunnel_id);
-                    // set the arion gropu to subnet ID for now.
-                    neighbor_fixed_ip_builder.setArionGroup(current_subnet_id);
+                    // use only 1 group ID for now. Used to be current_subnet_id
+                    neighbor_fixed_ip_builder.setArionGroup(DEFAULT_ARION_GROUP_NAME);
 
                     NeighborConfiguration_builder.addFixedIps(neighbor_fixed_ip_builder.build());
 
@@ -468,30 +474,30 @@ public class ncm_test {
                 .withSampler(samplerConfiguration)
                 .withReporter(reporterConfiguration);
 
-//        Tracer tracer = configuration.getTracer();
-//        System.out.println("[Test Controller] Got this global tracer: "+tracer.toString());
+        Tracer tracer = configuration.getTracer();
+        System.out.println("[Test Controller] Got this global tracer: "+tracer.toString());
 
-//        TracingClientInterceptor tracingClientInterceptor = TracingClientInterceptor
-//                .newBuilder()
-//                .withTracer(tracer)
-//                .withVerbosity()
-//                .withStreaming()
-//                .build();
+        TracingClientInterceptor tracingClientInterceptor = TracingClientInterceptor
+                .newBuilder()
+                .withTracer(tracer)
+                .withVerbosity()
+                .withStreaming()
+                .build();
 
         ManagedChannel channel = ManagedChannelBuilder.forAddress(ncm_ip, ncm_port).usePlaintext().build();
         System.out.println("Constructed channel");
         GoalStateProvisionerGrpc.GoalStateProvisionerStub stub = GoalStateProvisionerGrpc.newStub(/*tracingClientInterceptor.intercept*/(channel));
-//        Span parentSpan = tracer.activeSpan();
-//        Span span;
-//        if(parentSpan != null){
-//            span = tracer.buildSpan("alcor-tc-send-gs").asChildOf(parentSpan.context()).start();
-//            System.out.println("[Test Controller] Got parent span: "+parentSpan.toString());
-//        }else{
-//            span = tracer.buildSpan("alcor-tc-send-gs").start();
-//        }
-//        System.out.println("[Test Controller] Built child span: "+span.toString());
-//        Scope cscope = tracer.scopeManager().activate(span);
-//        span.log("abcdefg");
+        Span parentSpan = tracer.activeSpan();
+        Span span;
+        if(parentSpan != null){
+            span = tracer.buildSpan("alcor-tc-send-gs").asChildOf(((Span) parentSpan).context()).start();
+            System.out.println("[Test Controller] Got parent span: "+parentSpan.toString());
+        }else{
+            span = tracer.buildSpan("alcor-tc-send-gs").start();
+        }
+        System.out.println("[Test Controller] Built child span: "+span.toString());
+        Scope cscope = tracer.scopeManager().activate(span);
+        span.log("abcdefg");
         System.out.println("Created stub");
         StreamObserver<Goalstateprovisioner.GoalStateOperationReply> message_observer = new StreamObserver<>() {
             @Override
@@ -529,24 +535,24 @@ public class ncm_test {
 
             System.out.println("Wait no longer than 6000 seconds until both goalstates are sent to both hosts.");
             Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == NUMBER_OF_NODES);
-//        span.finish();
-//        System.out.println("[Test Controller] Child span after finish: "+span.toString());
+            span.finish();
+        System.out.println("[Test Controller] Child span after finish: "+span.toString());
         }else {
-//            Span arion_span;
+            Span arion_span;
             System.out.println("Now send the Neighbor Rule messages to Arion Master via gRPC");
             String arion_address_without_http = arion_master_ip.replaceAll("http://", "");
             ManagedChannel arion_channel = ManagedChannelBuilder.forAddress(arion_address_without_http, arion_master_grpc_port).usePlaintext().build();
             GoalStateProvisionerGrpc.GoalStateProvisionerStub arion_stub = GoalStateProvisionerGrpc.newStub(/*tracingClientInterceptor.intercept*/(arion_channel));
-//            if(parentSpan != null){
-//                arion_span = tracer.buildSpan("alcor-tc-send-gs").asChildOf(parentSpan.context()).start();
-//                System.out.println("[Test Controller] Got parent span: "+parentSpan.toString());
-//            }else{
-//                arion_span = tracer.buildSpan("alcor-tc-send-gs").start();
-//            }
+            if(parentSpan != null){
+                arion_span = tracer.buildSpan("alcor-tc-send-gs").asChildOf(parentSpan.context()).start();
+                System.out.println("[Test Controller] Got parent span: "+parentSpan.toString());
+            }else{
+                arion_span = tracer.buildSpan("alcor-tc-send-gs").start();
+            }
             System.out.println("Constructed channel and span.");
-//            System.out.println("[Test Controller] Built child span: "+span.toString());
-//            Scope arion_scope = tracer.scopeManager().activate(span);
-//            span.log("random log line for Arion.");
+            System.out.println("[Test Controller] Built child span: "+span.toString());
+            Scope arion_scope = tracer.scopeManager().activate(span);
+            span.log("random log line for Arion.");
             StreamObserver<Goalstateprovisioner.GoalStateOperationReply> arion_message_observer = new StreamObserver<>() {
                 @Override
                 public void onNext(Goalstateprovisioner.GoalStateOperationReply value) {
@@ -573,7 +579,7 @@ public class ncm_test {
 
             System.out.println("For ARION: Wait no longer than 6000 seconds until Routing Rules are sent to Arion Master.");
             Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count >= 1 );
-            String default_setup_url = "http://"+ arion_dp_controller_ip + "/default_setup";
+            String default_setup_url = "http://"+ arion_dp_controller_ip + "/default_setup" + "/?use_arion_agent="+use_arion_agent.toString();
             String get_nodes_url = "http://"+ arion_dp_controller_ip + "/nodes";
             System.out.println("Calling Arion DP Controller at " + default_setup_url + " for default_setup.");
 
@@ -602,6 +608,28 @@ public class ncm_test {
                     String gw_ip = (String)current_gateway.get("ip");
                     String gw_mac = (String)current_gateway.get("mac");
                     System.out.println("Current Gateway IP:[" + gw_ip + "], Gateway MAC:[" + gw_mac + "]");
+                }
+
+                if (use_arion_agent) {
+                    System.out.println("Need to run the arion agent on each Arion Wing Node to program the EBPF Maps");
+                    JSONArray nodes = (JSONArray) arion_data_json_object.get("NODE_data");
+                    String current_time = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new java.util.Date());
+                    for (int i = 0 ; i < nodes.size() ; i ++) {
+                        JSONObject current_node = (JSONObject) nodes.get(i);
+                        String start_arion_agent_ssh_command = "sudo nohup " + (String) current_node.get("arion_agent_location") +
+                                " -d -a " + arion_master_ip + " -p " + arion_master_grpc_port + " -g " + DEFAULT_ARION_GROUP_NAME +
+                                " > /tmp/"+ current_time + ".log 2>&1 &";
+                        Vector<String> cmds = new Vector<>();
+                        cmds.add(start_arion_agent_ssh_command);
+                        execute_ssh_commands(cmds, (String) current_node.get("ip_control"), (String) current_node.get("id_control"), (String) current_node.get("pwd_control"));
+                    }
+                    try {
+                        TimeUnit.SECONDS.sleep(30);
+
+                    } catch (Exception e) {
+                        System.out.println("I can't sleep!!!!");
+
+                    }
                 }
 
                 HttpResponse get_nodes_response = c.execute(get_nodes_connection);

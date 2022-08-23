@@ -7,33 +7,7 @@
     "port_ibo": "8300",
     "overlay_type": "vxlan"
   },
-  "gws": [
-    {
-      "ip": "172.16.17.100",
-      "mac": "82:83:ac:10:11:64"
-    },
-    {
-      "ip": "172.16.17.101",
-      "mac": "82:83:ac:10:11:65"
-    },
-    {
-      "ip": "172.16.17.102",
-      "mac": "82:83:ac:10:11:66"
-    },
-    {
-      "ip": "172.16.17.103",
-      "mac": "82:83:ac:10:11:67"
-    },
-    {
-      "ip": "172.16.17.104",
-      "mac": "82:83:ac:10:11:68"
-    },
-    {
-      "ip": "172.16.17.105",
-      "mac": "82:83:ac:10:11:69"
-    }
-  ],
-  "NODE_data": [
+   "NODE_data": [
     {
       "zgc_id": "zgc_id",
       "description": "znode90",
@@ -44,7 +18,8 @@
       "inf_tenant": "ens4",
       "mac_tenant": "52:54:00:5e:99:ac",
       "inf_zgc": "ens3",
-      "mac_zgc": "52:54:00:f5:aa:52"
+      "mac_zgc": "52:54:00:f5:aa:52",
+      "arion_agent_location": "absolute_path_of_arion_agent_binary"
     },
     {
       "zgc_id": "zgc_id",
@@ -56,7 +31,8 @@
       "inf_tenant": "ens4",
       "mac_tenant": "52:54:00:5a:2a:01",
       "inf_zgc": "ens3",
-      "mac_zgc": "52:54:00:ed:60:ab"
+      "mac_zgc": "52:54:00:ed:60:ab",
+      "arion_agent_location": "absolute_path_of_arion_agent_binary"
     },
     {
       "zgc_id": "zgc_id",
@@ -68,7 +44,8 @@
       "inf_tenant": "ens4",
       "mac_tenant": "52:54:00:8b:04:15",
       "inf_zgc": "ens3",
-      "mac_zgc": "52:54:00:0f:51:3a"
+      "mac_zgc": "52:54:00:0f:51:3a",
+      "arion_agent_location": "absolute_path_of_arion_agent_binary"
     },
     {
       "zgc_id": "zgc_id",
@@ -80,7 +57,8 @@
       "inf_tenant": "ens4",
       "mac_tenant": "52:54:00:0a:2e:8b",
       "inf_zgc": "ens3",
-      "mac_zgc": "52:54:00:42:b4:e6"
+      "mac_zgc": "52:54:00:42:b4:e6",
+      "arion_agent_location": "absolute_path_of_arion_agent_binary"
     },
     {
       "zgc_id": "zgc_id",
@@ -92,7 +70,8 @@
       "inf_tenant": "ens4",
       "mac_tenant": "52:54:00:63:8f:4d",
       "inf_zgc": "ens3",
-      "mac_zgc": "52:54:00:38:52:89"
+      "mac_zgc": "52:54:00:38:52:89",
+      "arion_agent_location": "absolute_path_of_arion_agent_binary"
     },
     {
       "zgc_id": "zgc_id",
@@ -104,7 +83,8 @@
       "inf_tenant": "ens4",
       "mac_tenant": "52:54:00:99:03:ae",
       "inf_zgc": "ens3",
-      "mac_zgc": "52:54:00:3e:6c:e8"
+      "mac_zgc": "52:54:00:3e:6c:e8",
+      "arion_agent_location": "absolute_path_of_arion_agent_binary"
     }
   ]
 }
