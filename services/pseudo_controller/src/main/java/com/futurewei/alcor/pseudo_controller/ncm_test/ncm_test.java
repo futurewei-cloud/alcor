@@ -71,6 +71,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import com.futurewei.alcor.pseudo_controller.alcor_http_api_test.alcor_http_api_test;
 
@@ -512,25 +513,25 @@ public class ncm_test {
         System.out.println("Created GoalStateOperationReply observer class");
         io.grpc.stub.StreamObserver<Goalstate.GoalStateV2> response_observer = stub.pushGoalStatesStream(message_observer);
         System.out.println("Connected the observers");
-        compute_node_ips.forEach(ip -> {
-            Goalstate.GoalStateV2 goalstatev2_for_host = compute_node_ip_to_GoalStateV2_map.get(ip).build();
 
-            System.out.println("Built GoalState successfully for compute node: " + ip + ", GoalStateV2 content for host: \n" + goalstatev2_for_host.toString() + "\n");
-            System.out.println("GoalStateV2 size in bytes for compute node: " + ip + "\n" + goalstatev2_for_host.getSerializedSize() + "\n");
-            response_observer.onNext(goalstatev2_for_host);
-        });
-//        response_observer.onNext(message_one);
-//        response_observer.onNext(message_two);
+        // if only tests against NCM, then no need to call the arion related APIs, we can simply send the GoalStateV2 to NCM
+        if (!test_against_aroin) {
+            compute_node_ips.forEach(ip -> {
+                Goalstate.GoalStateV2 goalstatev2_for_host = compute_node_ip_to_GoalStateV2_map.get(ip).build();
 
-        System.out.println("After calling onNext");
-        response_observer.onCompleted();
+                System.out.println("Built GoalState successfully for compute node: " + ip + ", GoalStateV2 content for host: \n" + goalstatev2_for_host.toString() + "\n");
+                System.out.println("GoalStateV2 size in bytes for compute node: " + ip + "\n" + goalstatev2_for_host.getSerializedSize() + "\n");
+                response_observer.onNext(goalstatev2_for_host);
+            });
 
-        System.out.println("Wait no longer than 6000 seconds until both goalstates are sent to both hosts.");
-        Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == NUMBER_OF_NODES);
+            System.out.println("After calling onNext");
+            response_observer.onCompleted();
+
+            System.out.println("Wait no longer than 6000 seconds until both goalstates are sent to both hosts.");
+            Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == NUMBER_OF_NODES);
 //        span.finish();
 //        System.out.println("[Test Controller] Child span after finish: "+span.toString());
-
-        if (test_against_aroin){
+        }else {
 //            Span arion_span;
             System.out.println("Now send the Neighbor Rule messages to Arion Master via gRPC");
             String arion_address_without_http = arion_master_ip.replaceAll("http://", "");
@@ -573,11 +574,14 @@ public class ncm_test {
             System.out.println("For ARION: Wait no longer than 6000 seconds until Routing Rules are sent to Arion Master.");
             Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == (NUMBER_OF_NODES + 1) );
             String default_setup_url = "http://"+ arion_dp_controller_ip + "/default_setup";
+            String get_nodes_url = "http://"+ arion_dp_controller_ip + "/nodes";
             System.out.println("Calling Arion DP Controller at " + default_setup_url + " for default_setup.");
 
             HttpClient c = HttpClientBuilder.create().build();
             HttpGet getConnection = new HttpGet(default_setup_url);
+            HttpGet get_nodes_connection = new HttpGet(get_nodes_url);
             getConnection.setHeader("Content-Type", "application/json");
+            get_nodes_connection.setHeader("Content-Type", "application/json");
             /* TODO: The following HTTP GET request returns a list of GWs, but we don't know which ArionNode has which GWs,
             *  the Nodes info with which GWs belongs to this node was recently added to the GET /nodes API,
             *  in order to achieve sharding, we should consider utilizing the GET /nodes API after calling the GET /default_setup API,
@@ -599,6 +603,57 @@ public class ncm_test {
                     String gw_mac = (String)current_gateway.get("mac");
                     System.out.println("Current Gateway IP:[" + gw_ip + "], Gateway MAC:[" + gw_mac + "]");
                 }
+
+                HttpResponse get_nodes_response = c.execute(get_nodes_connection);
+                System.out.println("Get this /nodes status code: " + get_nodes_response.getStatusLine().getStatusCode() + "\nresponse: " + get_nodes_response.toString());
+                HttpEntity get_nodes_response_entity = get_nodes_response.getEntity();
+                String get_nodes_json_string = EntityUtils.toString(get_nodes_response_entity);
+                JSONArray nodes = (JSONArray) new JSONParser().parse(get_nodes_json_string);
+                JSONArray gws_ip_mac_json_array = new JSONArray();
+                for (int i = 0 ; i < nodes.size() ; i ++) {
+                    JSONObject current_arion_wing_node = (JSONObject) nodes.get(i);
+                    String node_ip = (String) current_arion_wing_node.get("ip_control");
+                    JSONArray current_arion_wing_node_gws_json_array = (JSONArray) current_arion_wing_node.get("gws");
+                    for (int j = 0 ; j < current_arion_wing_node_gws_json_array.size() ; j ++) {
+                        JSONObject current_gw_for_node = (JSONObject) current_arion_wing_node_gws_json_array.get(j);
+                        System.out.println("Arion Wing Node IP: " + node_ip + ", " + j + "th GW IP: " + (String) current_gw_for_node.get("ip") + ", MAC: " + (String) current_gw_for_node.get("mac"));
+                        gws_ip_mac_json_array.add(current_gw_for_node);
+                    }
+                }
+                arion_gw_ip_macs = gws_ip_mac_json_array;
+                number_of_gws_each_subnet_gets = (int) Math.ceil(arion_gw_ip_macs.size() / number_of_subnets);
+                int finalNumber_of_gws_each_subnet_gets = number_of_gws_each_subnet_gets;
+                compute_node_ips.forEach(ip -> {
+                    Goalstate.GoalStateV2.Builder current_gsv2_builder = compute_node_ip_to_GoalStateV2_map.get(ip);
+                    // Add the gws, retrived from the GET /nodes call, to the gateway states.
+                    int subnet_number = 1;
+                    for (String gatewa_state_id : current_gsv2_builder.getGatewayStatesMap().keySet()){
+                        Gateway.GatewayState gateway_state = current_gsv2_builder.getGatewayStatesMap().get(gatewa_state_id);
+                        gateway_state.getConfiguration().toBuilder().clearDestinations();
+                        for(int i = 0; i < finalNumber_of_gws_each_subnet_gets; i ++){
+                            JSONObject current_gw = (JSONObject) arion_gw_ip_macs.get(((subnet_number - 1) * finalNumber_of_gws_each_subnet_gets) + i);
+                            String current_arion_wing_ip = (String) current_gw.get("ip");
+                            String current_arion_wing_mac = (String) current_gw.get("mac");
+                            Gateway.GatewayConfiguration.destination.Builder destination_builder = Gateway.GatewayConfiguration.destination.newBuilder();
+                            destination_builder.setIpAddress(current_arion_wing_ip);
+                            destination_builder.setMacAddress(current_arion_wing_mac);
+                            gateway_state.getConfiguration().toBuilder().addDestinations(destination_builder.build());
+                            System.out.println("Adding GW destination with IP: " + current_arion_wing_ip + " and MAC:"+current_arion_wing_mac + " to subnet " + subnet_number);
+                        }
+                        subnet_number ++;
+                    }
+
+                    Goalstate.GoalStateV2 goalstatev2_for_host = compute_node_ip_to_GoalStateV2_map.get(ip).build();
+
+                    System.out.println("Built GoalState successfully for compute node: " + ip + ", GoalStateV2 content for host: \n" + goalstatev2_for_host.toString() + "\n");
+                    System.out.println("GoalStateV2 size in bytes for compute node: " + ip + "\n" + goalstatev2_for_host.getSerializedSize() + "\n");
+                    response_observer.onNext(goalstatev2_for_host);
+                    System.out.println("After calling onNext");
+                    response_observer.onCompleted();
+
+                    System.out.println("Wait no longer than 6000 seconds until both goalstates are sent to both hosts.");
+                    Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == NUMBER_OF_NODES);
+                });
             } catch (IOException | ParseException e) {
                 System.out.println("FROM ARION: Got error when calling /default_setup: " + e.getMessage() + ", aborting...");
                 e.printStackTrace();
