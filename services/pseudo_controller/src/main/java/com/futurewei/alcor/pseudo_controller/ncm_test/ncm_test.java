@@ -572,7 +572,7 @@ public class ncm_test {
             System.out.println("FOR ARION: After calling onNext");
 
             System.out.println("For ARION: Wait no longer than 6000 seconds until Routing Rules are sent to Arion Master.");
-            Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == (NUMBER_OF_NODES + 1) );
+            Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count >= 1 );
             String default_setup_url = "http://"+ arion_dp_controller_ip + "/default_setup";
             String get_nodes_url = "http://"+ arion_dp_controller_ip + "/nodes";
             System.out.println("Calling Arion DP Controller at " + default_setup_url + " for default_setup.");
@@ -652,7 +652,7 @@ public class ncm_test {
                     response_observer.onCompleted();
 
                     System.out.println("Wait no longer than 6000 seconds until both goalstates are sent to both hosts.");
-                    Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == NUMBER_OF_NODES);
+                    Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count >= (NUMBER_OF_NODES + 1));
                 });
             } catch (IOException | ParseException e) {
                 System.out.println("FROM ARION: Got error when calling /default_setup: " + e.getMessage() + ", aborting...");
