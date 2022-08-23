@@ -649,11 +649,10 @@ public class ncm_test {
                     System.out.println("GoalStateV2 size in bytes for compute node: " + ip + "\n" + goalstatev2_for_host.getSerializedSize() + "\n");
                     response_observer.onNext(goalstatev2_for_host);
                     System.out.println("After calling onNext");
-                    response_observer.onCompleted();
-
-                    System.out.println("Wait no longer than 6000 seconds until both goalstates are sent to both hosts.");
-                    Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count >= (NUMBER_OF_NODES + 1));
                 });
+                response_observer.onCompleted();
+                System.out.println("Wait no longer than 6000 seconds until both goalstates are sent to both hosts.");
+                Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count >= (NUMBER_OF_NODES + 1));
             } catch (IOException | ParseException e) {
                 System.out.println("FROM ARION: Got error when calling /default_setup: " + e.getMessage() + ", aborting...");
                 e.printStackTrace();
