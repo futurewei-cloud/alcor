@@ -665,7 +665,7 @@ public class ncm_test {
                             Gateway.GatewayConfiguration.destination.Builder destination_builder = Gateway.GatewayConfiguration.destination.newBuilder();
                             destination_builder.setIpAddress(current_arion_wing_ip);
                             destination_builder.setMacAddress(current_arion_wing_mac);
-                            gateway_state.getConfiguration().toBuilder().addDestinations(destination_builder.build());
+                            gateway_state.getConfiguration().toBuilder().addDestinations(destination_builder.build()).build();
                             System.out.println("Adding GW destination with IP: " + current_arion_wing_ip + " and MAC:"+current_arion_wing_mac + " to subnet " + subnet_number);
                         }
                         subnet_number ++;
