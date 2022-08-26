@@ -579,8 +579,8 @@ public class ncm_test {
 
             System.out.println("For ARION: Wait no longer than 6000 seconds until Routing Rules are sent to Arion Master.");
             Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count >= 1 );
-            String default_setup_url = "http://"+ arion_dp_controller_ip + "/default_setup" + "/?use_arion_agent="+use_arion_agent.toString();
-            String get_nodes_url = "http://"+ arion_dp_controller_ip + "/nodes";
+            String default_setup_url = "http://"+ arion_dp_controller_ip + ":5000/default_setup" + "/?use_arion_agent="+use_arion_agent.toString();
+            String get_nodes_url = "http://"+ arion_dp_controller_ip + ":5000/nodes";
             System.out.println("Calling Arion DP Controller at " + default_setup_url + " for default_setup.");
 
             HttpClient c = HttpClientBuilder.create().build();
