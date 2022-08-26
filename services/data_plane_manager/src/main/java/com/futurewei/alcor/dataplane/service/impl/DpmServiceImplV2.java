@@ -115,7 +115,7 @@ public class DpmServiceImplV2 implements DpmService {
         this.goalStateMessageVersion = globalConfig.goalStateMessageVersion;
     }
 
-    private synchronized UnicastGoalStateV2 buildUnicastGoalState(NetworkConfiguration networkConfig, String hostIp,
+    private UnicastGoalStateV2 buildUnicastGoalState(NetworkConfiguration networkConfig, String hostIp,
                                                    List<InternalPortEntity> portEntities,
                                                    MulticastGoalStateV2 multicastGoalState) throws Exception {
         UnicastGoalStateV2 unicastGoalState = new UnicastGoalStateV2();
@@ -128,13 +128,13 @@ public class DpmServiceImplV2 implements DpmService {
 
         Map<String, InternalSubnetPorts> internalSubnetPorts = subnetPortsCache.getSubnetPorts(networkConfig);
         Map<String, PortHostInfo> portHostInfoMap = portHostInfoCache.getPortHostInfo(networkConfig);
-
-        try(Transaction tx = subnetPortsCache.getTransaction().start()) {
-            subnetPortsCache.updateSubnetPorts(internalSubnetPorts);
-            portHostInfoCache.updatePortHostInfo(portHostInfoMap);
-            tx.commit();
+        synchronized (this) {
+            try(Transaction tx = subnetPortsCache.getTransaction().start()) {
+                subnetPortsCache.updateSubnetPorts(internalSubnetPorts);
+                portHostInfoCache.updatePortHostInfo(portHostInfoMap);
+                tx.commit();
+            }
         }
-
 
         vpcService.buildVpcStates(networkConfig, unicastGoalState);
         subnetService.buildSubnetStates(networkConfig, unicastGoalState);
