@@ -129,11 +129,7 @@ public class DpmServiceImplV2 implements DpmService {
         Map<String, InternalSubnetPorts> internalSubnetPorts = subnetPortsCache.getSubnetPorts(networkConfig);
         Map<String, PortHostInfo> portHostInfoMap = portHostInfoCache.getPortHostInfo(networkConfig);
         synchronized (this) {
-            try(Transaction tx = subnetPortsCache.getTransaction().start()) {
-                subnetPortsCache.updateSubnetPorts(internalSubnetPorts);
-                portHostInfoCache.updatePortHostInfo(portHostInfoMap);
-                tx.commit();
-            }
+
         }
 
         vpcService.buildVpcStates(networkConfig, unicastGoalState);
@@ -157,6 +153,16 @@ public class DpmServiceImplV2 implements DpmService {
         multicastGoalState.setGoalStateBuilder(null);
 
         return unicastGoalState;
+    }
+
+    private synchronized void insertPorts(InternalSubnetPorts internalSubnetPorts, Map<String, PortHostInfo> portHostInfoMap) {
+        try(Transaction tx = subnetPortsCache.getTransaction().start()) {
+            subnetPortsCache.updateSubnetPorts(internalSubnetPorts);
+            portHostInfoCache.updatePortHostInfo(portHostInfoMap);
+            tx.commit();
+        } catch (Exception e) {
+
+        }
     }
 
     private List<String> doCreatePortConfiguration(NetworkConfiguration networkConfig,
