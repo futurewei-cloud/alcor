@@ -69,7 +69,7 @@ Copyright(c) 2020 Futurewei Cloud
 
             <bean class="org.apache.ignite.configuration.CacheConfiguration">
                <!-- Set the cache name. -->
-               <property name="name" value="com.futurewei.alcor.dataplane.entity.PortHostInfo"/>
+               <property name="name" value="com.futurewei.alcor.web.entity.port.PortHostInfo"/>
                <!-- Set the cache mode. -->
                <property name="atomicityMode" value="TRANSACTIONAL"/>
                <!-- Other cache parameters. -->
