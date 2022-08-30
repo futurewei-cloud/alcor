@@ -6,7 +6,6 @@
 :email: zzhu@futurewei.com
 
 :toc: right
-:imagesdir: images
 
 ## Purpose
 
