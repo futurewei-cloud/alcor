@@ -94,8 +94,7 @@ public class NodeInfoCache {
     }
 
     @DurationStatistics
-    public synchronized List<NodeInfo> getNodeInfoByNodeIp(String nodeIp) throws Exception {
-        try (Transaction tx = nodeInfoCache.getTransaction().start()) {
+    public List<NodeInfo> getNodeInfoByNodeIp(String nodeIp) throws Exception {
             List<NodeInfo> result = new ArrayList<>();
 
             Map<String, Object[]> queryParams = new HashMap<>();
@@ -119,8 +118,6 @@ public class NodeInfoCache {
                 NodeInfo nodeInfo = new NodeInfo(entry.getValue());
                 result.add(nodeInfo);
             }
-            tx.commit();
             return result;
-        }
     }
 }
