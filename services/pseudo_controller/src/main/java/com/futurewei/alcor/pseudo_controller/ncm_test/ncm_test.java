@@ -579,7 +579,7 @@ public class ncm_test {
 
             System.out.println("For ARION: Wait no longer than 6000 seconds until Routing Rules are sent to Arion Master.");
             Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count >= 1 );
-            String default_setup_url = "http://"+ arion_dp_controller_ip + ":5000/default_setup" + "/?use_arion_agent="+use_arion_agent.toString();
+            String default_setup_url = "http://"+ arion_dp_controller_ip + ":5000/default_setup" + "?use_arion_agent="+use_arion_agent.toString();
             String get_nodes_url = "http://"+ arion_dp_controller_ip + ":5000/nodes";
             System.out.println("Calling Arion DP Controller at " + default_setup_url + " for default_setup.");
 
@@ -655,9 +655,9 @@ public class ncm_test {
                     Goalstate.GoalStateV2.Builder current_gsv2_builder = compute_node_ip_to_GoalStateV2_map.get(ip);
                     // Add the gws, retrived from the GET /nodes call, to the gateway states.
                     int subnet_number = 1;
+                    TreeMap<String, Gateway.GatewayState> new_gateway_states_for_host = new TreeMap<>();
                     for (String gatewa_state_id : current_gsv2_builder.getGatewayStatesMap().keySet()){
                         Gateway.GatewayState gateway_state = current_gsv2_builder.getGatewayStatesMap().get(gatewa_state_id);
-                        gateway_state.getConfiguration().toBuilder().clearDestinations();
                         for(int i = 0; i < finalNumber_of_gws_each_subnet_gets; i ++){
                             JSONObject current_gw = (JSONObject) arion_gw_ip_macs.get(((subnet_number - 1) * finalNumber_of_gws_each_subnet_gets) + i);
                             String current_arion_wing_ip = (String) current_gw.get("ip");
@@ -665,11 +665,16 @@ public class ncm_test {
                             Gateway.GatewayConfiguration.destination.Builder destination_builder = Gateway.GatewayConfiguration.destination.newBuilder();
                             destination_builder.setIpAddress(current_arion_wing_ip);
                             destination_builder.setMacAddress(current_arion_wing_mac);
-                            gateway_state.getConfiguration().toBuilder().addDestinations(destination_builder.build()).build();
+                            Gateway.GatewayConfiguration new_gw_config = gateway_state.getConfiguration().toBuilder().addDestinations(destination_builder.build()).build();
+                            Gateway.GatewayState new_gw_state = gateway_state.toBuilder().setConfiguration(new_gw_config).build();
+//                            current_gsv2_builder.removeGatewayStates(gatewa_state_id);
+//                            current_gsv2_builder.putGatewayStates(gatewa_state_id, new_gw_state);
+                            new_gateway_states_for_host.put(gatewa_state_id, new_gw_state);
                             System.out.println("Adding GW destination with IP: " + current_arion_wing_ip + " and MAC:"+current_arion_wing_mac + " to subnet " + subnet_number);
                         }
                         subnet_number ++;
                     }
+                    current_gsv2_builder.putAllGatewayStates(new_gateway_states_for_host);
 
                     Goalstate.GoalStateV2 goalstatev2_for_host = compute_node_ip_to_GoalStateV2_map.get(ip).build();
 
