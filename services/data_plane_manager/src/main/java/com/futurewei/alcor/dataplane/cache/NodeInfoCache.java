@@ -94,7 +94,7 @@ public class NodeInfoCache {
     }
 
     @DurationStatistics
-    public List<NodeInfo> getNodeInfoByNodeIp(String nodeIp) throws Exception {
+    public synchronized List<NodeInfo> getNodeInfoByNodeIp(String nodeIp) throws Exception {
         try (Transaction tx = nodeInfoCache.getTransaction().start()) {
             List<NodeInfo> result = new ArrayList<>();
 

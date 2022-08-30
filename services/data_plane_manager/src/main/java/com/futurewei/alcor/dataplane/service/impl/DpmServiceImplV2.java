@@ -153,15 +153,13 @@ public class DpmServiceImplV2 implements DpmService {
         return unicastGoalState;
     }
 
-    private void insertPorts(Map<String, InternalSubnetPorts> internalSubnetPorts, Map<String, PortHostInfo> portHostInfoMap) {
-        synchronized (DpmServiceImplV2.class) {
-            try(Transaction tx = subnetPortsCache.getTransaction().start()) {
-                subnetPortsCache.updateSubnetPorts(internalSubnetPorts);
-                portHostInfoCache.updatePortHostInfo(portHostInfoMap);
-                tx.commit();
-            } catch (Exception e) {
-                LOG.info(e.getMessage());
-            }
+    private synchronized void insertPorts(Map<String, InternalSubnetPorts> internalSubnetPorts, Map<String, PortHostInfo> portHostInfoMap) {
+        try(Transaction tx = subnetPortsCache.getTransaction().start()) {
+            subnetPortsCache.updateSubnetPorts(internalSubnetPorts);
+            portHostInfoCache.updatePortHostInfo(portHostInfoMap);
+            tx.commit();
+        } catch (Exception e) {
+            LOG.info(e.getMessage());
         }
     }
 
