@@ -47,9 +47,6 @@ import java.util.stream.Collectors;
 public class DpmServiceImplV2 implements DpmService {
     private static final Logger LOG = LoggerFactory.getLogger(DpmServiceImplV2.class);
 
-
-    private static Object object;
-
     private int goalStateMessageVersion;
     private DataPlaneManagerRestClient dataPlaneManagerRestClient;
 
@@ -157,7 +154,7 @@ public class DpmServiceImplV2 implements DpmService {
     }
 
     private void insertPorts(Map<String, InternalSubnetPorts> internalSubnetPorts, Map<String, PortHostInfo> portHostInfoMap) {
-        synchronized (object) {
+        synchronized (DpmServiceImplV2.class) {
             try(Transaction tx = subnetPortsCache.getTransaction().start()) {
                 subnetPortsCache.updateSubnetPorts(internalSubnetPorts);
                 portHostInfoCache.updatePortHostInfo(portHostInfoMap);
