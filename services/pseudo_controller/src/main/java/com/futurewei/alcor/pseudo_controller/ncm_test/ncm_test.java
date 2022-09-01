@@ -617,8 +617,8 @@ public class ncm_test {
                     for (int i = 0 ; i < nodes.size() ; i ++) {
                         JSONObject current_node = (JSONObject) nodes.get(i);
                         String start_arion_agent_ssh_command = "sudo nohup " + (String) current_node.get("arion_agent_location") +
-                                " -d -a " + arion_master_ip + " -p " + arion_master_grpc_port + " -g " + DEFAULT_ARION_GROUP_NAME +
-                                " > /tmp/"+ current_time + ".log 2>&1 &";
+                                " -d -a " + arion_address_without_http + " -p " + arion_master_grpc_port + " -g " + DEFAULT_ARION_GROUP_NAME +
+                                " > /tmp/ArionAgent.log 2>&1 &";
                         Vector<String> cmds = new Vector<>();
                         cmds.add(start_arion_agent_ssh_command);
                         execute_ssh_commands(cmds, (String) current_node.get("ip_control"), (String) current_node.get("id_control"), (String) current_node.get("pwd_control"));
