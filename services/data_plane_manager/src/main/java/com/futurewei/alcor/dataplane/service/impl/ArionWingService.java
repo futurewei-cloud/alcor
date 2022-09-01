@@ -40,13 +40,12 @@ public class ArionWingService {
         for (InternalSubnetEntity internalSubnetEntity : networkConfiguration.getSubnets()) {
             Gateway.GatewayState.Builder gatewayStateBuilder = Gateway.GatewayState.newBuilder();
             int vni = internalSubnetEntity.getTunnelId().intValue();
-            String subnet = internalSubnetEntity.getCidr();
-            String key = String.valueOf(vni) + "-" + subnet;
+            String key = internalSubnetEntity.getId();
             getArionWings();
-            Optional<SimpleNode> group = ring.locate(key);
+            String group = getArionGroup(key);
             Map<String, Object[]> queryParams =  new HashMap<>();
             Object[] value = new Object[1];
-            value[0] = group.get().getKey();
+            value[0] = group;
             queryParams.put("group", value);
             Collection<ArionWing> arionWings = arionWingCache.getAllSubnetPorts(queryParams).values();
             for (ArionWing arionWing : arionWings) {
@@ -55,37 +54,27 @@ public class ArionWingService {
                 builder.setMacAddress(arionWing.getMac());
                 gatewayStateBuilder.getConfigurationBuilder().addDestinations(builder);
             }
+            String id = UUID.randomUUID().toString();
+            gatewayStateBuilder.getConfigurationBuilder().setId(id);
             gatewayStateBuilder.getConfigurationBuilder().getArionInfoBuilder().setVni(vni);
-            gatewayStateBuilder.getConfigurationBuilder().getArionInfoBuilder().setSubnetId(subnet);
-            unicastGoalStateV2.getGoalStateBuilder().putGatewayStates(key, gatewayStateBuilder.build());
+            gatewayStateBuilder.getConfigurationBuilder().getArionInfoBuilder().setSubnetId(internalSubnetEntity.getId());
+            gatewayStateBuilder.getConfigurationBuilder().getArionInfoBuilder().setVpcId(internalSubnetEntity.getVpcId());
+            gatewayStateBuilder.getConfigurationBuilder().setGatewayType(Gateway.GatewayType.ARION);
+            gatewayStateBuilder.getConfigurationBuilder().getArionInfoBuilder().setPortInbandOperation(8300);
+            unicastGoalStateV2.getGoalStateBuilder().putGatewayStates(id, gatewayStateBuilder.build());
         }
     }
 
-    public String getArionGroup (int vni, String subnet) {
-        String key = String.valueOf(vni) + "-" + subnet;
-        Optional<SimpleNode> group = ring.locate(key);
+    public String getArionGroup (String subnetId) {
+        Optional<SimpleNode> group = ring.locate(subnetId);
         return group.get().getKey();
     }
 
-
     public void getArionWings () throws CacheException {
-        Set<String> keys = new HashSet<>();
-        if (!ring.getNodes().isEmpty()) {
-            keys = ring.getNodes().stream().map(item -> item.getKey()).collect(Collectors.toSet());
-        }
-        Set<String> keysInCache = arionWingCache.getAllArionGroup().values().stream().map(item -> item.getGroupName()).collect(Collectors.toSet());
-        if (!keys.equals(keysInCache)) {
-            keys.retainAll(keysInCache);
-            for (SimpleNode node : ring.getNodes()) {
-                if (!keys.contains(node.getKey())) {
-                    ring.remove(node);
-                }
-            }
-            keysInCache.removeAll(keys);
-            for (var key : keysInCache) {
-                ring.add(SimpleNode.of(key));
-            }
-        }
+        arionWingCache.getAllArionGroup().values().stream().map(item -> ring.remove(SimpleNode.of(item.getGroupName())));
+        Set<SimpleNode> keysInCache = arionWingCache.getAllArionGroup().values().stream().map(item -> SimpleNode.of(item.getGroupName())).collect(Collectors.toSet());
+        ring.addAll(keysInCache);
+
     }
 
     public void createArionWingGroup (String resourcdId) throws CacheException {

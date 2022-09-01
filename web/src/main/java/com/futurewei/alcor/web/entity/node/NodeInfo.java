@@ -60,6 +60,9 @@ public class NodeInfo implements Serializable {
     @QuerySqlField(index = true)
     private String ncm_id;
 
+    @JsonProperty("data-path-ip")
+    private String dataPathIp;
+
     // doesn't come in the Json version
     private String ncm_uri;
 
@@ -69,6 +72,7 @@ public class NodeInfo implements Serializable {
     public NodeInfo(NodeInfo nodeInfo) {
         this(nodeInfo.id, nodeInfo.name, nodeInfo.localIp, nodeInfo.macAddress, nodeInfo.veth, nodeInfo.gRPCServerPort, nodeInfo.hostDvrMac);
         this.ncm_id = nodeInfo.ncm_id;
+        this.dataPathIp = nodeInfo.dataPathIp;
     }
 
     public NodeInfo(String id, String name, String localIp, String macAddress, String veth, int gRPCServerPort) {
