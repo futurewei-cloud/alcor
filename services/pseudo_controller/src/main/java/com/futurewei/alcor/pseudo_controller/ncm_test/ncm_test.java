@@ -847,7 +847,7 @@ public class ncm_test {
                 // trying to spread the ports in different subnets evenly on each compute node.
                 String port_ip = port_ip_arrayList.get(total_amount_of_ports_per_subnet * k + j);
                 String port_mac = ip_mac_map.get(port_ip);
-                String container_name = "test" + Integer.toString(i);
+                String container_name = "test-" + port_ip;
                 port_ip_to_container_name.put(port_ip, container_name);
                 String create_container_cmd = "docker run -itd --name " + container_name + " --net=none --label test=ACA busybox sh";
                 String ovs_docker_add_port_cmd = "sudo ovs-docker add-port br-int eth0 " + container_name + " --ipaddress=" + port_ip + "/16 --macaddress=" + port_mac;
