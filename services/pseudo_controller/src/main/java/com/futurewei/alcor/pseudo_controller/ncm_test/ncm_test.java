@@ -658,6 +658,7 @@ public class ncm_test {
                     TreeMap<String, Gateway.GatewayState> new_gateway_states_for_host = new TreeMap<>();
                     for (String gatewa_state_id : current_gsv2_builder.getGatewayStatesMap().keySet()){
                         Gateway.GatewayState gateway_state = current_gsv2_builder.getGatewayStatesMap().get(gatewa_state_id);
+                        Gateway.GatewayConfiguration.Builder config_builder = gateway_state.getConfiguration().toBuilder();
                         for(int i = 0; i < finalNumber_of_gws_each_subnet_gets; i ++){
                             JSONObject current_gw = (JSONObject) arion_gw_ip_macs.get(((subnet_number - 1) * finalNumber_of_gws_each_subnet_gets) + i);
                             String current_arion_wing_ip = (String) current_gw.get("ip");
@@ -665,13 +666,11 @@ public class ncm_test {
                             Gateway.GatewayConfiguration.destination.Builder destination_builder = Gateway.GatewayConfiguration.destination.newBuilder();
                             destination_builder.setIpAddress(current_arion_wing_ip);
                             destination_builder.setMacAddress(current_arion_wing_mac);
-                            Gateway.GatewayConfiguration new_gw_config = gateway_state.getConfiguration().toBuilder().addDestinations(destination_builder.build()).build();
-                            Gateway.GatewayState new_gw_state = gateway_state.toBuilder().setConfiguration(new_gw_config).build();
-//                            current_gsv2_builder.removeGatewayStates(gatewa_state_id);
-//                            current_gsv2_builder.putGatewayStates(gatewa_state_id, new_gw_state);
-                            new_gateway_states_for_host.put(gatewa_state_id, new_gw_state);
+                            config_builder.addDestinations(destination_builder.build());
                             System.out.println("Adding GW destination with IP: " + current_arion_wing_ip + " and MAC:"+current_arion_wing_mac + " to subnet " + subnet_number);
                         }
+                        Gateway.GatewayState new_gw_state = gateway_state.toBuilder().setConfiguration(config_builder.build()).build();
+                        new_gateway_states_for_host.put(gatewa_state_id, new_gw_state);
                         subnet_number ++;
                     }
                     current_gsv2_builder.putAllGatewayStates(new_gateway_states_for_host);
