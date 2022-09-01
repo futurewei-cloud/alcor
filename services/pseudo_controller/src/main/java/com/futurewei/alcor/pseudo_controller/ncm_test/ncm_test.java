@@ -824,6 +824,21 @@ public class ncm_test {
         String compute_node_ip_for_this_port = compute_node_ips.get(current_compute_node_index);
         ArrayList<String> port_ip_arrayList = new ArrayList<>();
         port_ip_arrayList.addAll(ip_mac_map.keySet());
+        Collections.sort(port_ip_arrayList, new Comparator<String>() {
+            @Override
+            public int compare(String a, String b) {
+                int[] aOct = Arrays.stream(a.split("\\.")).mapToInt(Integer::parseInt).toArray();
+                int[] bOct = Arrays.stream(b.split("\\.")).mapToInt(Integer::parseInt).toArray();
+                int r = 0;
+                for (int i = 0; i < aOct.length && i < bOct.length; i++) {
+                    r = Integer.compare(aOct[i], bOct[i]);
+                    if (r != 0) {
+                        return r;
+                    }
+                }
+                return r;
+            }
+        });
 
         // each subnet has the same number of ports.
         for (int j = 0 ; j < total_amount_of_ports_per_subnet ; j ++){
