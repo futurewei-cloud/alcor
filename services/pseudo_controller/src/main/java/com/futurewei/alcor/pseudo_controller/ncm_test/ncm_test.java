@@ -315,14 +315,14 @@ public class ncm_test {
                     NeighborConfiguration_builder.setRevisionNumber(2);
                     NeighborConfiguration_builder.setVpcId(current_vpc_id);
                     NeighborConfiguration_builder.setId(vpc_port_id + "_n");
-                    NeighborConfiguration_builder.setMacAddress(compute_node_macs.get(compute_node_ips.indexOf(host_ip))/*host_ip == aca_node_one_ip ? aca_node_one_mac : aca_node_two_mac*/);
+                    NeighborConfiguration_builder.setMacAddress(port_mac);
                     NeighborConfiguration_builder.setHostIpAddress(host_ip);
+                    NeighborConfiguration_builder.setHostMacAddress(compute_node_macs.get(compute_node_ips.indexOf(host_ip))/*host_ip == aca_node_one_ip ? aca_node_one_mac : aca_node_two_mac*/);
 
                     Neighbor.NeighborConfiguration.FixedIp.Builder neighbor_fixed_ip_builder = Neighbor.NeighborConfiguration.FixedIp.newBuilder();
                     neighbor_fixed_ip_builder.setNeighborType(Neighbor.NeighborType.L2);
                     neighbor_fixed_ip_builder.setSubnetId(current_subnet_id);
                     neighbor_fixed_ip_builder.setIpAddress(port_ip);
-                    neighbor_fixed_ip_builder.setMacAddress(port_mac);
                     neighbor_fixed_ip_builder.setTunnelId(current_vpc_tunnel_id);
                     // use only 1 group ID for now. Used to be current_subnet_id
                     neighbor_fixed_ip_builder.setArionGroup(DEFAULT_ARION_GROUP_NAME);
