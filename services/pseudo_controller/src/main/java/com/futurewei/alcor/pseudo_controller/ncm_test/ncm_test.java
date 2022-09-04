@@ -92,6 +92,8 @@ public class ncm_test {
     ArrayList<String> compute_node_passwords;
     @Value("#{'${ports_to_generate_on_each_compute_node}'.split(',')}")
     ArrayList<Integer> ports_to_generate_on_each_compute_node;
+    @Value("#{'${aca_location_on_each_compute_node}'.split(',')}")
+    ArrayList<String> aca_location_on_each_compute_node;
     @Value("${node_one_ip:ip_one}")
     String aca_node_one_ip;
     @Value("${node_one_mac:mac_one}")
@@ -209,9 +211,26 @@ public class ncm_test {
         System.out.println("There are "+ number_of_vpcs+" VPCs, " + number_of_subnets);
         int total_amount_of_ports = 0;
 
-        compute_node_ips.forEach( ip -> {
-            compute_node_ip_to_ports.put(ip, new Vector<>());
-        });
+        for (int i = 0 ; i < compute_node_ips.size() ; i ++) {
+            compute_node_ip_to_ports.put(compute_node_ips.get(i), new Vector<>());
+            // also adding code to cleanup comopute nodes and starts ACAs.
+            String kill_aca_process_command = "sudo kill -9 $(pidof AlcorControlAgent)";
+            String cleanup_docker_containers_command = "docker rm -f $(docker ps --filter \"label=test=ACA\" -aq)";
+            String cleanup_ovs_bridges_command = "sudo ovs-vsctl del-br br-tun && sudo ovs-vsctl del-br br-int";
+            String start_alcor_control_agent_ssh_command = "sudo -b nohup " + aca_location_on_each_compute_node.get(i) +
+                    " -d -a " + ncm_ip + " -p " + ncm_port
+                    + " > /tmp/AlcorControlAgent.log 2>&1"
+                    ;
+            Vector<String> cmds = new Vector<>();
+            cmds.add(kill_aca_process_command);
+            cmds.add(cleanup_docker_containers_command);
+            cmds.add(cleanup_ovs_bridges_command);
+            cmds.add(start_alcor_control_agent_ssh_command);
+            int finalI = i;
+            new Thread(() -> {
+                execute_ssh_commands(cmds, compute_node_ips.get(finalI), compute_node_usernames.get(finalI), compute_node_passwords.get(finalI));
+            }).start();
+        }
 
         for (int i = 0 ; i < ports_to_generate_on_each_compute_node.size(); i++){
             total_amount_of_ports += ports_to_generate_on_each_compute_node.get(i);
