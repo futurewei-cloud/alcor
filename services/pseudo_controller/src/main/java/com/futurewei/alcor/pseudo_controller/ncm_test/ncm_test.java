@@ -226,10 +226,7 @@ public class ncm_test {
             cmds.add(cleanup_docker_containers_command);
             cmds.add(cleanup_ovs_bridges_command);
             cmds.add(start_alcor_control_agent_ssh_command);
-            int finalI = i;
-            new Thread(() -> {
-                execute_ssh_commands(cmds, compute_node_ips.get(finalI), compute_node_usernames.get(finalI), compute_node_passwords.get(finalI));
-            }).start();
+                execute_ssh_commands(cmds, compute_node_ips.get(i), compute_node_usernames.get(i), compute_node_passwords.get(i));
         }
 
         for (int i = 0 ; i < ports_to_generate_on_each_compute_node.size(); i++){
