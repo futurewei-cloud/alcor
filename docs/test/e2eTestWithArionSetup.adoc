@@ -86,6 +86,9 @@ sudo ovs-vsctl del-br br-tun
 sudo ovs-vsctl del-br br-int
 ```
 
+NOTE:
+In the latest test controller workflow, compute node cleanup and ACA starting are included, so users don't need to do this manually.
+
 ### Arion Master and Hazelcast
 
 Arion Master runs with a Hazelcast Database, and they run as standalone processes in this test. The following are the instructions to download, compile and run them:
@@ -107,6 +110,9 @@ Before starting a new round of test, make sure you shut down the current Arion M
 ### Arion Agent
 
 Arion Agent is the host Agent of each Arion Wing, like ACA is the host agent of each compute node. You can also consider building it on one of the Arion Wings, and then copy it to each wing, if you are positive that these wing machines share the same configuration. For this test, Arion Agent will be started by the Test Controller, so users don't run them directly. Please follow https://github.com/lfu-ps/arion-agent/blob/main/README.md[this instruction] to download and build Arion Agent.
+
+NOTE:
+In the latest test controller workflow, Arion Agent starting are included, so users don't need to do this manually.
 
 ### Arion DP Controller
 The Arion DP Controller runs on a Kubernetes cluster, please refer to https://github.com/futurewei-cloud/arion-dp/blob/main/docs/getting_started.md[this page] in order to use it.

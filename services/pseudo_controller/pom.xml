@@ -23,6 +23,12 @@
     </dependencyManagement>
     <dependencies>
         <dependency>
+            <groupId>com.futurewei.alcor</groupId>
+            <artifactId>common</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>io.jaegertracing</groupId>
             <artifactId>jaeger-tracerresolver</artifactId>
             <version>1.3.2</version>

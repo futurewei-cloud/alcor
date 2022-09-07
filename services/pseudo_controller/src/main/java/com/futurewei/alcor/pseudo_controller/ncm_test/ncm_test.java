@@ -75,8 +75,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import com.futurewei.alcor.common.logging.Logger;
+import com.futurewei.alcor.common.logging.LoggerFactory;
 
 import com.futurewei.alcor.pseudo_controller.alcor_http_api_test.alcor_http_api_test;
 
@@ -178,8 +181,11 @@ public class ncm_test {
     static ArrayList<String> subnets_macs_ports_mac_third_octects = new ArrayList<>();
 
     static String DEFAULT_ARION_GROUP_NAME = "group1";
+
+    private static final Logger logger = LoggerFactory.getLogger();
+
     public ncm_test(){
-        System.out.println("Start of NCM Test!");
+        logger.log(Level.INFO, "Start of NCM Test!");
     }
 
     public void run_test_against_ncm() {
@@ -195,7 +201,7 @@ public class ncm_test {
 
         String arion_master_restful_url = arion_master_ip+":"+arion_master_rest_port;
         if(test_against_aroin){
-            System.out.println("Test against Arion: " + test_against_aroin + ", ArionMaster IP: " + arion_master_ip + ", Arion Master REST port: " + arion_master_rest_port + ", Arion Master gRPC port: " + arion_master_grpc_port + ", Arion DP Controller IP: " + arion_dp_controller_ip);
+            logger.log(Level.INFO, "Test against Arion: " + test_against_aroin + ", ArionMaster IP: " + arion_master_ip + ", Arion Master REST port: " + arion_master_rest_port + ", Arion Master gRPC port: " + arion_master_grpc_port + ", Arion DP Controller IP: " + arion_dp_controller_ip);
             InputStream is = com.futurewei.alcor.pseudo_controller.pseudo_controller.class.getResourceAsStream("/arion_data.json");
             JSONParser jsonParser = new JSONParser();
             try {
@@ -203,12 +209,12 @@ public class ncm_test {
                 arion_data_json_object = (JSONObject)jsonParser.parse(reader);
                 reader.close();
             }catch (IOException | NullPointerException | ParseException e ){
-                System.out.println("Unable to read from json data file: " + e.getMessage() + "\nAborting...");
+                logger.log(Level.SEVERE, "Unable to read from json data file: " + e.getMessage() + "\nAborting...", e);
                 return;
             }
             setup_arion_gateway_cluster_and_nodes();
         }
-        System.out.println("There are "+ number_of_vpcs+" VPCs, " + number_of_subnets);
+        logger.log(Level.INFO, "There are "+ number_of_vpcs+" VPCs, " + number_of_subnets);
         int total_amount_of_ports = 0;
 
         for (int i = 0 ; i < compute_node_ips.size() ; i ++) {
@@ -235,11 +241,11 @@ public class ncm_test {
         NUMBER_OF_NODES = compute_node_ips.size();
         generate_ip_macs(total_amount_of_ports);
         create_containers_on_both_hosts_concurrently(total_amount_of_ports);
-        System.out.println("Compute node IPs: " + compute_node_ips + "\nuser name: " + compute_node_usernames + "\npassword: " + compute_node_passwords);
+        logger.log(Level.FINE, "Compute node IPs: " + compute_node_ips + "\nuser name: " + compute_node_usernames + "\npassword: " + compute_node_passwords);
 
-        System.out.println("Containers setup done, now we gotta construct the GoalStateV2");
+        logger.log(Level.INFO, "Containers setup done, now we gotta construct the GoalStateV2");
 
-        System.out.println("Trying to build the GoalStateV2 for " + (ports_to_generate_on_aca_node_one + ports_to_generate_on_aca_node_two) + " Ports");
+        logger.log(Level.INFO, "Trying to build the GoalStateV2 for " + (ports_to_generate_on_aca_node_one + ports_to_generate_on_aca_node_two) + " Ports in each subnet");
 
         TreeMap<String, Goalstate.GoalStateV2.Builder> compute_node_ip_to_GoalStateV2_map = new TreeMap<>();
         TreeMap<String, Goalstate.HostResources.Builder> compute_node_ip_to_host_resource_map = new TreeMap<>();
@@ -267,8 +273,8 @@ public class ncm_test {
                 String current_subnet_id = subnet_id_1.substring(0,  subnet_id_1.length()-3) + String.format("%03d", (subnet_number));
                 String current_subnet_ip_prefix = subnets_ips_ports_ip_prefix.get(subnet_number - 1);
                 ArrayList<String> ports_ips_for_current_subnet = (ArrayList<String>) ip_mac_map.keySet().stream().filter(ip -> ip.substring(0,2).equals(current_subnet_ip_prefix)).collect(Collectors.toList()); // lgtm [java/abstract-to-concrete-cast]
-                System.out.println("Current vpc_id: " + current_vpc_id + ", current subnet id: " + current_subnet_id);
-                System.out.println("For current_subnet_ip_prefix [" + current_subnet_ip_prefix + "], we have " + ports_ips_for_current_subnet.size() + " ports:\n" + ports_ips_for_current_subnet);
+                logger.log(Level.FINE, "Current vpc_id: " + current_vpc_id + ", current subnet id: " + current_subnet_id);
+                logger.log(Level.FINE, "For current_subnet_ip_prefix [" + current_subnet_ip_prefix + "], we have " + ports_ips_for_current_subnet.size() + " ports:\n" + ports_ips_for_current_subnet);
 
                 // Generate three unique octets for each VPC
                 // instead of using the same mac_port_prefix for all ports
@@ -368,7 +374,7 @@ public class ncm_test {
                             }
                         });
                     }
-//                System.out.println("Finished port state for port [" + port_ip + "] on host: [" + host_ip + "]");
+//                logger.log("Finished port state for port [" + port_ip + "] on host: [" + host_ip + "]");
                 }
                 // fill in subnet state structs
                 Subnet.SubnetState.Builder new_subnet_states = Subnet.SubnetState.newBuilder();
@@ -424,7 +430,7 @@ public class ncm_test {
                         destination_builder.setIpAddress(current_arion_wing_ip);
                         destination_builder.setMacAddress(current_arion_wing_mac);
                         gateway_configuration_builder.addDestinations(destination_builder.build());
-                        System.out.println("Adding GW destination with IP: " + current_arion_wing_ip + " and MAC:"+current_arion_wing_mac + " to subnet " + current_subnet_id);
+                        logger.log(Level.FINE, "Adding GW destination with IP: " + current_arion_wing_ip + " and MAC:"+current_arion_wing_mac + " to subnet " + current_subnet_id);
                     }
                     new_gateway_state_builder.setConfiguration(gateway_configuration_builder.build());
                     Gateway.GatewayState current_gateway_state_for_both_nodes = new_gateway_state_builder.build();
@@ -464,7 +470,7 @@ public class ncm_test {
                 //VNI == Tunnel ID
                 current_vpc_json_object.put("vni", current_vpc_tunnel_id);
                 JSONObject current_vpc_response = alcor_http_api_test.call_post_api_with_json(arion_master_restful_url + "/vpc", current_vpc_json_object);
-                System.out.println("Setup VPC: " + current_vpc_id + " response: " + current_vpc_response.toJSONString());
+                logger.log(Level.FINE, "Setup VPC: " + current_vpc_id + " response: " + current_vpc_response.toJSONString());
             }
         }
 
@@ -476,7 +482,7 @@ public class ncm_test {
             compute_node_ip_to_GoalStateV2_map.get(ip).putHostResources(ip, compute_node_ip_to_host_resource_map.get(ip).build());
         });
 
-        System.out.println("Time to call the GRPC functions");
+        logger.log(Level.FINE, "Time to call the GRPC functions");
         // Use tracer and interceptor to trace grpc calls.
         Configuration.SamplerConfiguration samplerConfiguration = Configuration.SamplerConfiguration
                 .fromEnv()
@@ -491,7 +497,7 @@ public class ncm_test {
                 .withReporter(reporterConfiguration);
 
         Tracer tracer = configuration.getTracer();
-        System.out.println("[Test Controller] Got this global tracer: "+tracer.toString());
+        logger.log(Level.FINE, "[Test Controller] Got this global tracer: "+tracer.toString());
 
         TracingClientInterceptor tracingClientInterceptor = TracingClientInterceptor
                 .newBuilder()
@@ -501,110 +507,110 @@ public class ncm_test {
                 .build();
 
         ManagedChannel channel = ManagedChannelBuilder.forAddress(ncm_ip, ncm_port).usePlaintext().build();
-        System.out.println("Constructed channel");
+        logger.log(Level.FINE, "Constructed channel");
         GoalStateProvisionerGrpc.GoalStateProvisionerStub stub = GoalStateProvisionerGrpc.newStub(/*tracingClientInterceptor.intercept*/(channel));
         Span parentSpan = tracer.activeSpan();
         Span span;
         if(parentSpan != null){
             span = tracer.buildSpan("alcor-tc-send-gs").asChildOf(((Span) parentSpan).context()).start();
-            System.out.println("[Test Controller] Got parent span: "+parentSpan.toString());
+            logger.log(Level.FINE, "[Test Controller] Got parent span: "+parentSpan.toString());
         }else{
             span = tracer.buildSpan("alcor-tc-send-gs").start();
         }
-        System.out.println("[Test Controller] Built child span: "+span.toString());
+        logger.log(Level.FINE, "[Test Controller] Built child span: "+span.toString());
         Scope cscope = tracer.scopeManager().activate(span);
         span.log("abcdefg");
-        System.out.println("Created stub");
+        logger.log(Level.FINE, "Created stub");
         StreamObserver<Goalstateprovisioner.GoalStateOperationReply> message_observer = new StreamObserver<>() {
             @Override
             public void onNext(Goalstateprovisioner.GoalStateOperationReply value) {
                 finished_sending_goalstate_hosts_count ++ ;
-                System.out.println("onNext function with this GoalStateOperationReply: \n" + value.toString() + "\n");
+                logger.log(Level.FINE, "onNext function with this GoalStateOperationReply: \n" + value.toString() + "\n");
             }
 
             @Override
             public void onError(Throwable t) {
-                System.out.println("onError function with this GoalStateOperationReply: \n" + t.getMessage() + "\n");
+                logger.log(Level.WARNING, "onError function with this GoalStateOperationReply: \n" + t.getMessage() + "\n", t);
             }
 
             @Override
             public void onCompleted() {
-                System.out.println("onCompleted");
+                logger.log(Level.FINE, "onCompleted");
             }
         };
-        System.out.println("Created GoalStateOperationReply observer class");
+        logger.log(Level.FINE, "Created GoalStateOperationReply observer class");
         io.grpc.stub.StreamObserver<Goalstate.GoalStateV2> response_observer = stub.pushGoalStatesStream(message_observer);
-        System.out.println("Connected the observers");
+        logger.log(Level.FINE, "Connected the observers");
 
         // if only tests against NCM, then no need to call the arion related APIs, we can simply send the GoalStateV2 to NCM
         if (!test_against_aroin) {
             compute_node_ips.forEach(ip -> {
                 Goalstate.GoalStateV2 goalstatev2_for_host = compute_node_ip_to_GoalStateV2_map.get(ip).build();
 
-                System.out.println("Built GoalState successfully for compute node: " + ip + ", GoalStateV2 content for host: \n" + goalstatev2_for_host.toString() + "\n");
-                System.out.println("GoalStateV2 size in bytes for compute node: " + ip + "\n" + goalstatev2_for_host.getSerializedSize() + "\n");
+                logger.log(Level.FINE, "Built GoalState successfully for compute node: " + ip + ", GoalStateV2 content for host: \n" + goalstatev2_for_host.toString() + "\n");
+                logger.log(Level.FINE, "GoalStateV2 size in bytes for compute node: " + ip + "\n" + goalstatev2_for_host.getSerializedSize() + "\n");
                 response_observer.onNext(goalstatev2_for_host);
             });
 
-            System.out.println("After calling onNext");
+            logger.log(Level.FINE, "After calling onNext");
             response_observer.onCompleted();
 
-            System.out.println("Wait no longer than 6000 seconds until both goalstates are sent to both hosts.");
+            logger.log(Level.INFO, "Wait no longer than 6000 seconds until all goalstates are sent to all hosts.");
             Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count == NUMBER_OF_NODES);
             span.finish();
-        System.out.println("[Test Controller] Child span after finish: "+span.toString());
+        logger.log(Level.FINE, "[Test Controller] Child span after finish: "+span.toString());
         }else {
             Span arion_span;
-            System.out.println("Now send the Neighbor Rule messages to Arion Master via gRPC");
+            logger.log(Level.INFO, "Now send the Neighbor Rule messages to Arion Master via gRPC");
             String arion_address_without_http = arion_master_ip.replaceAll("http://", "");
             ManagedChannel arion_channel = ManagedChannelBuilder.forAddress(arion_address_without_http, arion_master_grpc_port).usePlaintext().build();
             GoalStateProvisionerGrpc.GoalStateProvisionerStub arion_stub = GoalStateProvisionerGrpc.newStub(/*tracingClientInterceptor.intercept*/(arion_channel));
             if(parentSpan != null){
                 arion_span = tracer.buildSpan("alcor-tc-send-gs").asChildOf(parentSpan.context()).start();
-                System.out.println("[Test Controller] Got parent span: "+parentSpan.toString());
+                logger.log(Level.FINE, "[Test Controller] Got parent span: "+parentSpan.toString());
             }else{
                 arion_span = tracer.buildSpan("alcor-tc-send-gs").start();
             }
-            System.out.println("Constructed channel and span.");
-            System.out.println("[Test Controller] Built child span: "+span.toString());
+            logger.log(Level.FINE, "Constructed channel and span.");
+            logger.log(Level.FINE, "[Test Controller] Built child span: "+span.toString());
             Scope arion_scope = tracer.scopeManager().activate(span);
             span.log("random log line for Arion.");
             StreamObserver<Goalstateprovisioner.GoalStateOperationReply> arion_message_observer = new StreamObserver<>() {
                 @Override
                 public void onNext(Goalstateprovisioner.GoalStateOperationReply value) {
                     finished_sending_goalstate_hosts_count ++ ;
-                    System.out.println("FROM ARION: onNext function with this GoalStateOperationReply: \n" + value.toString() + "\n");
+                    logger.log(Level.FINE, "FROM ARION: onNext function with this GoalStateOperationReply: \n" + value.toString() + "\n");
                 }
 
                 @Override
                 public void onError(Throwable t) {
-                    System.out.println("FROM ARION: onError function with this GoalStateOperationReply: \n" + t.getMessage() + "\n");
+                    logger.log(Level.WARNING, "FROM ARION: onError function with this GoalStateOperationReply: \n" + t.getMessage() + "\n", t);
                 }
 
                 @Override
                 public void onCompleted() {
-                    System.out.println("FROM ARION: onCompleted");
+                    logger.log(Level.FINE, "FROM ARION: onCompleted");
                 }
             };
-            System.out.println("FOR ARION: Created GoalStateOperationReply observer class");
-            System.out.println("Arion Neighbor Message: \n" + arion_neighbor_state_request);
+            logger.log(Level.FINE, "FOR ARION: Created GoalStateOperationReply observer class");
+            logger.log(Level.FINE, "Arion Neighbor Message: \n" + arion_neighbor_state_request);
             arion_stub.pushGoalstates(arion_neighbor_state_request, arion_message_observer);
-            System.out.println("FOR ARION: Connected the observers");
+            logger.log(Level.FINE, "FOR ARION: Connected the observers");
 
-            System.out.println("FOR ARION: After calling onNext");
+            logger.log(Level.FINE, "FOR ARION: After calling onNext");
 
-            System.out.println("For ARION: Wait no longer than 6000 seconds until Routing Rules are sent to Arion Master.");
+            logger.log(Level.INFO, "For ARION: Wait no longer than 6000 seconds until Routing Rules are sent to Arion Master.");
             Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count >= 1 );
             String default_setup_url = "http://"+ arion_dp_controller_ip + ":5000/default_setup" + "?use_arion_agent="+use_arion_agent.toString();
             String get_nodes_url = "http://"+ arion_dp_controller_ip + ":5000/nodes";
-            System.out.println("Calling Arion DP Controller at " + default_setup_url + " for default_setup.");
+            logger.log(Level.INFO, "Calling Arion DP Controller at " + default_setup_url + " for default_setup.");
 
             HttpClient c = HttpClientBuilder.create().build();
             HttpGet getConnection = new HttpGet(default_setup_url);
             HttpGet get_nodes_connection = new HttpGet(get_nodes_url);
             getConnection.setHeader("Content-Type", "application/json");
             get_nodes_connection.setHeader("Content-Type", "application/json");
-            /* TODO: The following HTTP GET request returns a list of GWs, but we don't know which ArionNode has which GWs,
+            /* The following HTTP GET request returns a list of GWs, but we don't know which ArionNode has which GWs,
             *  the Nodes info with which GWs belongs to this node was recently added to the GET /nodes API,
             *  in order to achieve sharding, we should consider utilizing the GET /nodes API after calling the GET /default_setup API,
             *  retrieve the ArionNode IPs and its GWs IPs/MACs, then assigning them to the GotewayStates accordingly.
@@ -613,7 +619,7 @@ public class ncm_test {
 
             try {
                 HttpResponse default_setup_response = c.execute(getConnection);
-                System.out.println("Get this /default_setup status code: " + default_setup_response.getStatusLine().getStatusCode() + "\nresponse: " + default_setup_response.toString());
+                logger.log(Level.FINE, "Get this /default_setup status code: " + default_setup_response.getStatusLine().getStatusCode() + "\nresponse: " + default_setup_response.toString());
                 HttpEntity response_entity = default_setup_response.getEntity();
 
                 String json_string = EntityUtils.toString(response_entity);
@@ -623,11 +629,11 @@ public class ncm_test {
                     JSONObject current_gateway = (JSONObject) gws.get(i);
                     String gw_ip = (String)current_gateway.get("ip");
                     String gw_mac = (String)current_gateway.get("mac");
-                    System.out.println("Current Gateway IP:[" + gw_ip + "], Gateway MAC:[" + gw_mac + "]");
+                    logger.log(Level.FINE, "Current Gateway IP:[" + gw_ip + "], Gateway MAC:[" + gw_mac + "]");
                 }
 
                 if (use_arion_agent) {
-                    System.out.println("Need to run the arion agent on each Arion Wing Node to program the EBPF Maps");
+                    logger.log(Level.INFO, "Need to run the arion agent on each Arion Wing Node to program the EBPF Maps");
                     JSONArray nodes = (JSONArray) arion_data_json_object.get("NODE_data");
                     String current_time = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new java.util.Date());
                     for (int i = 0 ; i < nodes.size() ; i ++) {
@@ -646,13 +652,13 @@ public class ncm_test {
                         TimeUnit.SECONDS.sleep(30);
 
                     } catch (Exception e) {
-                        System.out.println("I can't sleep!!!!");
+                        logger.log(Level.WARNING, "I can't sleep!!!!", e);
 
                     }
                 }
 
                 HttpResponse get_nodes_response = c.execute(get_nodes_connection);
-                System.out.println("Get this /nodes status code: " + get_nodes_response.getStatusLine().getStatusCode() + "\nresponse: " + get_nodes_response.toString());
+                logger.log(Level.FINE, "Get this /nodes status code: " + get_nodes_response.getStatusLine().getStatusCode() + "\nresponse: " + get_nodes_response.toString());
                 HttpEntity get_nodes_response_entity = get_nodes_response.getEntity();
                 String get_nodes_json_string = EntityUtils.toString(get_nodes_response_entity);
                 JSONArray nodes = (JSONArray) new JSONParser().parse(get_nodes_json_string);
@@ -663,7 +669,7 @@ public class ncm_test {
                     JSONArray current_arion_wing_node_gws_json_array = (JSONArray) current_arion_wing_node.get("gws");
                     for (int j = 0 ; j < current_arion_wing_node_gws_json_array.size() ; j ++) {
                         JSONObject current_gw_for_node = (JSONObject) current_arion_wing_node_gws_json_array.get(j);
-                        System.out.println("Arion Wing Node IP: " + node_ip + ", " + j + "th GW IP: " + (String) current_gw_for_node.get("ip") + ", MAC: " + (String) current_gw_for_node.get("mac"));
+                        logger.log(Level.FINE, "Arion Wing Node IP: " + node_ip + ", " + j + "th GW IP: " + (String) current_gw_for_node.get("ip") + ", MAC: " + (String) current_gw_for_node.get("mac"));
                         gws_ip_mac_json_array.add(current_gw_for_node);
                     }
                 }
@@ -686,7 +692,7 @@ public class ncm_test {
                             destination_builder.setIpAddress(current_arion_wing_ip);
                             destination_builder.setMacAddress(current_arion_wing_mac);
                             config_builder.addDestinations(destination_builder.build());
-                            System.out.println("Adding GW destination with IP: " + current_arion_wing_ip + " and MAC:"+current_arion_wing_mac + " to subnet " + subnet_number);
+                            logger.log(Level.FINE, "Adding GW destination with IP: " + current_arion_wing_ip + " and MAC:"+current_arion_wing_mac + " to subnet " + subnet_number);
                         }
                         Gateway.GatewayState new_gw_state = gateway_state.toBuilder().setConfiguration(config_builder.build()).build();
                         new_gateway_states_for_host.put(gatewa_state_id, new_gw_state);
@@ -696,31 +702,29 @@ public class ncm_test {
 
                     Goalstate.GoalStateV2 goalstatev2_for_host = compute_node_ip_to_GoalStateV2_map.get(ip).build();
 
-                    System.out.println("Built GoalState successfully for compute node: " + ip + ", GoalStateV2 content for host: \n" + goalstatev2_for_host.toString() + "\n");
-                    System.out.println("GoalStateV2 size in bytes for compute node: " + ip + "\n" + goalstatev2_for_host.getSerializedSize() + "\n");
+                    logger.log(Level.FINE, "Built GoalState successfully for compute node: " + ip + ", GoalStateV2 content for host: \n" + goalstatev2_for_host.toString() + "\n");
+                    logger.log(Level.FINE, "GoalStateV2 size in bytes for compute node: " + ip + "\n" + goalstatev2_for_host.getSerializedSize() + "\n");
                     response_observer.onNext(goalstatev2_for_host);
-                    System.out.println("After calling onNext");
+                    logger.log(Level.FINE, "After calling onNext");
                 });
                 response_observer.onCompleted();
-                System.out.println("Wait no longer than 6000 seconds until both goalstates are sent to both hosts.");
+                logger.log(Level.INFO, "Wait no longer than 6000 seconds until both goalstates are sent to both hosts.");
                 Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count >= (NUMBER_OF_NODES + 1));
             } catch (IOException | ParseException e) {
-                System.out.println("FROM ARION: Got error when calling /default_setup: " + e.getMessage() + ", aborting...");
+                logger.log(Level.WARNING, "FROM ARION: Got error when calling /default_setup: " + e.getMessage() + ", aborting...", e);
                 e.printStackTrace();
                 return;
             }
-            System.out.println("For ARION: Wait no longer than 6000 seconds until Routing Rules are sent to Arion Master.");
-
         }
 
-        System.out.println("After the GRPC call, it's time to do the ping test");
+        logger.log(Level.INFO, "After the GRPC call, it's time to do the ping test");
 
-        System.out.println("Sleep 10 seconds before executing the ping");
+        logger.log(Level.INFO, "Sleep 10 seconds before executing the ping");
         try {
             TimeUnit.SECONDS.sleep(10);
 
         } catch (Exception e) {
-            System.out.println("I can't sleep!!!!");
+            logger.log(Level.WARNING, "I can't sleep!!!!", e);
 
         }
         List<concurrent_run_cmd> concurrent_ping_cmds = new ArrayList<>();
@@ -742,14 +746,14 @@ public class ncm_test {
                 String pinger_container_name = port_ip_to_container_name.get(pinger_ip);
                 String ping_cmd = "docker exec " + pinger_container_name + " ping -I " + pinger_ip + " -c1 " + pingee_ip;
                 concurrent_ping_cmds.add(new concurrent_run_cmd(ping_cmd, compute_node_ips.get(0), pinger_compute_node_user_name, pinger_compute_node_password, is_aca_node_one_local));
-//            System.out.println("Ping command is added: [" + ping_cmd + "]");
+//            logger.log("Ping command is added: [" + ping_cmd + "]");
             }else {
-                System.out.println("For port [" + pingee_ip + "], there is no corresponding port in same subnet on node one, thus skipping ping for this port.");
+                logger.log(Level.FINE, "For port [" + pingee_ip + "], there is no corresponding port in same subnet on node one, thus skipping ping for this port.");
             }
 
         }
 
-        System.out.println("Time to execute these ping commands concurrently");
+        logger.log(Level.INFO, "Time to execute these ping commands" + ((user_chosen_ping_method == CONCURRENT_PING_MODE) ? "conccurrently" : "sequentially"));
 
 
 
@@ -768,13 +772,13 @@ public class ncm_test {
             }
         }
 
-        System.out.println("End of the test controller");
+        logger.log(Level.INFO, "End of the test controller");
         channel.shutdown();
         try {
             TimeUnit.SECONDS.sleep(10);
 
         } catch (Exception e) {
-            System.out.println("I can't sleep!!!!");
+            logger.log(Level.WARNING, "I can't sleep!!!!", e);
 
         }
     }
@@ -784,20 +788,20 @@ public class ncm_test {
         JSONObject cluster_data = (JSONObject) arion_data_json_object.get("ZGC_data");
         String arion_master_restful_url = arion_master_ip + ":" + arion_master_rest_port;
         JSONObject cluster_response = alcor_http_api_test.call_post_api_with_json(arion_master_restful_url+"/gatewaycluster", cluster_data );
-        System.out.println("Setup Gateway Cluster response: " + cluster_response.toJSONString());
+        logger.log(Level.FINE, "Setup Gateway Cluster response: " + cluster_response.toJSONString());
 
         JSONArray nodes = (JSONArray) arion_data_json_object.get("NODE_data");
         for(int i = 0 ; i < nodes.size(); i ++){
             JSONObject current_node = (JSONObject) nodes.get(i);
             JSONObject current_node_response = alcor_http_api_test.call_post_api_with_json(arion_master_restful_url+"/arionnode", current_node);
-            System.out.println("Setup Gateway Node " + i + " response: " + current_node_response.toJSONString() /*+ "\nSleeping 10 seconds before setting up the next Arion Node..."*/);
+            logger.log(Level.FINE, "Setup Gateway Node " + i + " response: " + current_node_response.toJSONString() /*+ "\nSleeping 10 seconds before setting up the next Arion Node..."*/);
         }
         return;
     }
 
     // Generates IP/MAC for host_many_per_host, and inserts them into the hashmap
     public static void generate_ip_macs(int amount_of_ports_to_generate) {
-        System.out.println("There are " + number_of_subnets + " subnets, need to generate " + amount_of_ports_to_generate + " ports for each subnet.");
+        logger.log(Level.INFO, "There are " + number_of_subnets + " subnets, need to generate " + amount_of_ports_to_generate + " ports for each subnet.");
         int i = 2;
 
 
@@ -805,7 +809,7 @@ public class ncm_test {
         for (int s = 0 ; s < number_of_subnets ; s ++){
             String current_subnet_ports_ip_prefix = String.valueOf(Integer.parseInt(ips_ports_ip_prefix) + s);
             String current_subnet_ports_ip_third_octect = String.format("%02X", s);
-            System.out.println("The " + s + "th subnet has port IP prefix of " + current_subnet_ports_ip_prefix + ":, and the mac prefix of 00:00:"+current_subnet_ports_ip_third_octect);
+            logger.log(Level.FINE, "The " + s + "th subnet has port IP prefix of " + current_subnet_ports_ip_prefix + ":, and the mac prefix of 00:00:"+current_subnet_ports_ip_third_octect);
             subnets_ips_ports_ip_prefix.add(current_subnet_ports_ip_prefix);
             subnets_macs_ports_mac_third_octects.add(current_subnet_ports_ip_third_octect);
         }
@@ -822,16 +826,16 @@ public class ncm_test {
                     String id_for_port = port_ip_template + subnets_ips_ports_ip_prefix.get(j) + String.format("%03d", (i / 10000)) + String.format("%03d", ((i % 10000) / 100)) + String.format("%03d", (i % 100));
                     ip_mac_map.put(ip_for_port, mac_for_port);
                     port_ip_to_id_map.put(ip_for_port, id_for_port);
-                    System.out.println("Generated Port " + i + " with IP: [" + ip_for_port + "], ID :[ " + id_for_port + "] and MAC: [" + mac_for_port + "]");
+                    logger.log(Level.FINE, "Generated Port " + i + " with IP: [" + ip_for_port + "], ID :[ " + id_for_port + "] and MAC: [" + mac_for_port + "]");
                 }
             }
             i++;
         }
-        System.out.println("Finished generating " + amount_of_ports_to_generate + " ports for each subnet, ip->mac map has "+ ip_mac_map.size() +" entries, ip->id map has "+port_ip_to_id_map.size()+" entries");
+        logger.log(Level.INFO, "Finished generating " + amount_of_ports_to_generate + " ports for each subnet, ip->mac map has "+ ip_mac_map.size() +" entries, ip->id map has "+port_ip_to_id_map.size()+" entries");
     }
 
     private void create_containers_on_both_hosts_concurrently(int total_amount_of_ports_per_subnet) {
-        System.out.println("Creating containers on both hosts, ip_mac_map has " + ip_mac_map.keySet().size() + "keys");
+        logger.log(Level.INFO, "Creating containers on both hosts, ip_mac_map has " + ip_mac_map.keySet().size() + "keys");
         int i = 1;
         String background_pinger = "";
         String background_pingee = "";
@@ -842,6 +846,7 @@ public class ncm_test {
         String compute_node_ip_for_this_port = compute_node_ips.get(current_compute_node_index);
         ArrayList<String> port_ip_arrayList = new ArrayList<>();
         port_ip_arrayList.addAll(ip_mac_map.keySet());
+        //Sort port IPs
         Collections.sort(port_ip_arrayList, new Comparator<String>() {
             @Override
             public int compare(String a, String b) {
@@ -876,7 +881,7 @@ public class ncm_test {
                 create_one_container_and_assign_IP_vlax_commands.add(ovs_set_vlan_cmd);
 
 //            String compute_node_ip_for_this_port = compute_node_ips.get( i % NUMBER_OF_NODES);
-                System.out.println("i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + compute_node_ip_for_this_port + "]");
+                logger.log(Level.FINE, "i = " + i + " , assigning IP: [" + port_ip + "] to node: [" + compute_node_ip_for_this_port + "]");
                 port_ip_to_host_ip_map.put(port_ip, compute_node_ip_for_this_port);
                 compute_node_ip_to_ports.get(compute_node_ip_for_this_port).add(port_ip);
 
@@ -893,7 +898,7 @@ public class ncm_test {
 
                 // if enough amount of ports is generated for this compute node, then we begin generating ports for the next one.
                 if (compute_node_ip_to_ports.get(compute_node_ip_for_this_port).size() >= ports_to_generate_on_each_compute_node.get(current_compute_node_index) * number_of_subnets) {
-                    System.out.println("We have already generated [" + compute_node_ip_to_ports.get(compute_node_ip_for_this_port).size() + "] ports/containers for compute node ["
+                    logger.log(Level.FINE, "We have already generated [" + compute_node_ip_to_ports.get(compute_node_ip_for_this_port).size() + "] ports/containers for compute node ["
                             + compute_node_ip_for_this_port + "], it has reached its target amount [" + ports_to_generate_on_each_compute_node.get(current_compute_node_index) +
                             "], time to generate ports/containers for the next host."
                     );
@@ -924,13 +929,11 @@ public class ncm_test {
                 // start the background thread here doing the ping from 1 port to another, util the ping is successful.
                 // it pings every 0.001 second, or 1 millisecond, for 60 seconds
                 String background_ping_command = "docker exec " + port_ip_to_container_name.get(background_pinger) + " ping -I " + background_pinger + " -c 60000 -i  0.001 " + background_pingee + " > /home/user/background_ping_output.log";
-                System.out.println("Created background ping cmd: " + background_ping_command);
+                logger.log(Level.INFO, "Created background ping cmd: " + background_ping_command);
                 concurrent_run_cmd c = new concurrent_run_cmd(background_ping_command, compute_node_ips.get(0), compute_node_usernames.get(0), compute_node_passwords.get(0), is_aca_node_one_local);
                 backgroundPingExecutor.execute(c);
             }
         }
-
-        System.out.println("DONE creating containers on both hosts, host 1 has "+node_one_port_ips.size()+" ports, host 2 has "+node_two_port_ips.size()+" ports");
     }
 
     public static void execute_ssh_commands(Vector<String> commands, String host_ip, String host_user_name, String host_password) {
@@ -942,10 +945,10 @@ public class ncm_test {
             session.setPassword(host_password);
             session.setConfig(config);
             session.connect();
-            System.out.println("Connected");
+            logger.log(Level.FINE, "Connected");
             for (int j = 0; j < commands.size(); j++) {
                 String command = commands.get(j);
-                System.out.println("Start of executing command [" + command + "] on host: " + host_ip);
+                logger.log(Level.FINE, "Start of executing command [" + command + "] on host: " + host_ip);
                 Channel channel = session.openChannel("exec");
                 ((ChannelExec) channel).setCommand(command);
                 channel.setInputStream(null);
@@ -965,16 +968,16 @@ public class ncm_test {
                         System.out.print(new String(tmp, 0, i));
                     }
                     if (channel.isClosed()) {
-                        System.out.println("exit-status: " + channel.getExitStatus());
+                        logger.log(Level.FINE, "exit-status: " + channel.getExitStatus());
                         break;
                     }
                 }
-                System.out.println("End of executing command [" + command + "] on host: " + host_ip);
+                logger.log(Level.FINE, "End of executing command [" + command + "] on host: " + host_ip);
                 channel.disconnect();
             }
 
             session.disconnect();
-            System.out.println("DONE");
+            logger.log(Level.FINE, "DONE");
         } catch (Exception e) {
             System.err.println("Got this error: " + e.getMessage());
             e.printStackTrace();
@@ -983,7 +986,7 @@ public class ncm_test {
 
     public static void executeBashCommand(String command) {
 //        boolean success = false;
-        System.out.println("Executing BASH command:\n   " + command);
+        logger.log(Level.FINE, "Executing BASH command:\n   " + command);
         Runtime r = Runtime.getRuntime();
         // Use bash -c so we can handle things like multi commands separated by ; and
         // things like quotes, $, |, and \. My tests show that command comes as
@@ -999,7 +1002,7 @@ public class ncm_test {
             String line = "";
 
             while ((line = b.readLine()) != null) {
-                System.out.println(line);
+                logger.log(Level.INFO, line);
             }
 
             b.close();
@@ -1023,14 +1026,14 @@ public class ncm_test {
                         if (preferIPv6) {
                             continue;
                         }
-                        System.out.println("Local IP address: " + addr.getHostAddress());
+                        logger.log(Level.INFO, "Local IP address: " + addr.getHostAddress());
                         localIpList.add(addr.getHostAddress());
                     }
                     if (addr instanceof Inet6Address) {
                         if (preferIpv4) {
                             continue;
                         }
-                        System.out.println("Local IP address: " + addr.getHostAddress());
+                        logger.log(Level.INFO, "Local IP address: " + addr.getHostAddress());
                         localIpList.add((addr.getHostAddress()));
                     }
                 }
@@ -1045,7 +1048,7 @@ public class ncm_test {
 
         @Override
         public void run() {
-            System.out.println("Need to execute this command concurrently: [" + this.command_to_run + "]");
+            logger.log(Level.FINE, "Need to execute this command concurrently: [" + this.command_to_run + "]");
 
             if (this.is_local){
                 executeBashCommand(command_to_run);
