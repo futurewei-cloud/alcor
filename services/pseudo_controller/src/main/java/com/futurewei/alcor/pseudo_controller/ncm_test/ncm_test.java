@@ -597,7 +597,7 @@ public class ncm_test {
             logger.log(Level.INFO, "For ARION: Wait no longer than 6000 seconds until Routing Rules are sent to Arion Master.");
             Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count >= 1 );
             String arion_dp_controller_use_port_forwarding_string = dp_controller_use_port_forwarding? ":5000" : "";
-            String default_setup_url = "http://"+ arion_dp_controller_ip + arion_dp_controller_use_port_forwarding_string + "default_setup" + "?use_arion_agent="+use_arion_agent.toString();
+            String default_setup_url = "http://"+ arion_dp_controller_ip + arion_dp_controller_use_port_forwarding_string + "/default_setup" + "?use_arion_agent="+use_arion_agent.toString();
             String get_nodes_url = "http://"+ arion_dp_controller_ip + arion_dp_controller_use_port_forwarding_string + "/nodes";
             logger.log(Level.INFO, "Calling Arion DP Controller at " + default_setup_url + " for default_setup.");
 
