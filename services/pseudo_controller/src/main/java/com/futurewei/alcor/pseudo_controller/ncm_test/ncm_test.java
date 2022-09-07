@@ -43,10 +43,6 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import io.jaegertracing.Configuration;
 import io.jaegertracing.internal.samplers.ConstSampler;
-//import io.opentracing.Scope;
-//import io.opentracing.Span;
-//import io.opentracing.Tracer;
-//import io.opentracing.contrib.grpc.TracingClientInterceptor;
 import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
@@ -55,7 +51,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.awaitility.Awaitility;
@@ -64,7 +59,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -77,7 +71,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import com.futurewei.alcor.common.logging.Logger;
 import com.futurewei.alcor.common.logging.LoggerFactory;
 
@@ -130,6 +123,8 @@ public class ncm_test {
 
     @Value("${test_against_arion:false}")
     Boolean test_against_aroin;
+    @Value("${dp_controller_use_port_forwarding:false}")
+    Boolean dp_controller_use_port_forwarding;
     @Value("${arion_master_ip:arion_master_ip}")
     String arion_master_ip;
     @Value("${arion_rest_port:456}")
@@ -601,8 +596,9 @@ public class ncm_test {
 
             logger.log(Level.INFO, "For ARION: Wait no longer than 6000 seconds until Routing Rules are sent to Arion Master.");
             Awaitility.await().atMost(6000, TimeUnit.SECONDS).until(()-> finished_sending_goalstate_hosts_count >= 1 );
-            String default_setup_url = "http://"+ arion_dp_controller_ip + ":5000/default_setup" + "?use_arion_agent="+use_arion_agent.toString();
-            String get_nodes_url = "http://"+ arion_dp_controller_ip + ":5000/nodes";
+            String arion_dp_controller_use_port_forwarding_string = dp_controller_use_port_forwarding? ":5000" : "";
+            String default_setup_url = "http://"+ arion_dp_controller_ip + arion_dp_controller_use_port_forwarding_string + "default_setup" + "?use_arion_agent="+use_arion_agent.toString();
+            String get_nodes_url = "http://"+ arion_dp_controller_ip + arion_dp_controller_use_port_forwarding_string + "/nodes";
             logger.log(Level.INFO, "Calling Arion DP Controller at " + default_setup_url + " for default_setup.");
 
             HttpClient c = HttpClientBuilder.create().build();
