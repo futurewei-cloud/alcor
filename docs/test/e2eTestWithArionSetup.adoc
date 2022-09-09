@@ -16,7 +16,7 @@ The purpose of this doc is to illustrate, explain and to give a guide to those w
 ### Setup
 Below is a typical setup for this end-to-end test:
 
-image::images/aroin_e2e_setup.png["Arion Test Setup", width=900, link="images/aroin_e2e_setup.png"]
+image::images/arion_e2e_setup.png["Arion Test Setup", width=900, link="images/arion_e2e_setup.png"]
 
 There are three parts in this test setup:
 
@@ -27,14 +27,15 @@ There are three parts in this test setup:
 ### Test Workflow
 
 1. Test Controller reads its configuration file and generates metadata, such as how many VPCs, Subnets and ports(thus neighbors) to generate from this test.
-2. Test Controller creates the containers on compute nodes and assigns IPs/MACs for them.
-3. Test Controller sends RESTful requests to Arion Master for the gateway cluster, Arion Wings and also VPCs.
-4. Test Controller sends gRPC requests to Arion Master for the neighbors.
-5. Test Controller triggers Arion DP Controller's setup process, which sets up the Arion Wings and other needed metadata.
-6. Test Controller starts Arion Agent on each Arion Wing. Arion Agent GETs/WATCHes from the Hazelcast Database, retrieves neighbor information and programs each Arion Wing's local eBPF maps.
-7. Test Controller GETs the gateway information from the Arion DP Controller, and assigns gateways to different subnets accordingly, so that different Arion Wings can handle traffics from different subnets(sharding). Test Controller also assembles the Goalstate with the metadata for the VPCs, Subnets, Ports, Neighbors and Gateways, and sends it to NCM, who will then send the information to each compute nodes. The compute nodes, after receiving the Goalstates, finishes its local setup.
-8. Everything is ready, Test Controllers executes pings commands between different ports in the same subnet. The traffic will be directed to the desinated Arion Wing, based on the gateway rules we set up. The ping is supposed to go through.
-9. This is the end of the Test Controller.
+2. Test Controller cleans up compute nodes, and then starts ACA on each compute node.
+3. Test Controller creates the containers on compute nodes and assigns IPs/MACs for them.
+4. Test Controller sends RESTful requests to Arion Master for the gateway cluster, Arion Wings and also VPCs.
+5. Test Controller sends gRPC requests to Arion Master for the neighbors.
+6. Test Controller triggers Arion DP Controller's setup process, which sets up the Arion Wings and other needed metadata.
+7. Test Controller starts Arion Agent on each Arion Wing. Arion Agent GETs/WATCHes from the Hazelcast Database, retrieves neighbor information and programs each Arion Wing's local eBPF maps.
+8. Test Controller GETs the gateway information from the Arion DP Controller, and assigns gateways to different subnets accordingly, so that different Arion Wings can handle traffics from different subnets(sharding). Test Controller also assembles the Goalstate with the metadata for the VPCs, Subnets, Ports, Neighbors and Gateways, and sends it to NCM, who will then send the information to each compute nodes. The compute nodes, after receiving the Goalstates, finishes its local setup.
+9. Everything is ready, Test Controllers executes pings commands between different ports in the same subnet. The traffic will be directed to the desinated Arion Wing, based on the gateway rules we set up. The ping is supposed to go through.
+10. This is the end of the Test Controller.
 
 Example output for Test Controller will be provided below, at the `Test Controller` section.
 
@@ -164,6 +165,9 @@ The Test Controller is located at `alcor/services/pseudo_controller`. To configu
 3. Modify the  `src/main/resources/arion_data.json` according to your setup, mainly change the `NODE_data` section to the configuration of your Arion Wings.
 4. Compile the Test Controller in its folder (`alcor/services/pseudo_controller`), using command `mvn clean install`.
 5. Run the Test Controller using command ` mvn exec:java -D exec.mainClass=com.futurewei.alcor.pseudo_controller.pseudo_controller   -e`.
+
+Note:
+If you need to use the port forwarding for Arion DP Controller, please make sure you set the `dp_controller_use_port_forwarding` to `true`.
 
 Attaching an example output below, for users' reference:
 
