@@ -46,7 +46,7 @@ public class NodeTopicCache {
     }
 
     @DurationStatistics
-    public NodeTopicInfo getNodeTopicInfo(String nodeId) throws Exception {
+    public synchronized NodeTopicInfo getNodeTopicInfo(String nodeId) throws Exception {
         try (Transaction tx = nodeTopicInfoICache.getTransaction().start()) {
             NodeTopicInfo nodeTopicInfo = nodeTopicInfoICache.get(nodeId);
             if (nodeTopicInfo == null) {
@@ -66,7 +66,7 @@ public class NodeTopicCache {
     }
 
     @DurationStatistics
-    public NodeTopicInfo getNodeTopicInfoByNodeIp(String nodeIp) throws Exception {
+    public synchronized NodeTopicInfo getNodeTopicInfoByNodeIp(String nodeIp) throws Exception {
         try (Transaction tx = nodeTopicInfoICache.getTransaction().start()) {
             String nodeId = localCache.getNodeInfoByNodeIp(nodeIp).get(0).getId();
             NodeTopicInfo nodeTopicInfo = nodeTopicInfoICache.get(nodeId);

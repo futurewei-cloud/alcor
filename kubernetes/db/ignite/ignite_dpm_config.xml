@@ -42,7 +42,7 @@ Copyright(c) 2020 Futurewei Cloud
          <list>
             <bean class="org.apache.ignite.configuration.CacheConfiguration">
                <!-- Set the cache name. -->
-               <property name="name" value="com.futurewei.alcor.dataplane.entity.InternalPorts"/>
+               <property name="name" value="com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts"/>
                <!-- Set the cache mode. -->
                <property name="atomicityMode" value="TRANSACTIONAL"/>
                <!-- Other cache parameters. -->
@@ -51,34 +51,7 @@ Copyright(c) 2020 Futurewei Cloud
 
             <bean class="org.apache.ignite.configuration.CacheConfiguration">
                <!-- Set the cache name. -->
-               <property name="name" value="com.futurewei.alcor.dataplane.entity.InternalSubnets"/>
-               <!-- Set the cache mode. -->
-               <property name="atomicityMode" value="TRANSACTIONAL"/>
-               <!-- Other cache parameters. -->
-               <property name="cacheMode" value="PARTITIONED"/>
-            </bean>
-
-            <bean class="org.apache.ignite.configuration.CacheConfiguration">
-               <!-- Set the cache name. -->
-               <property name="name" value="com.futurewei.alcor.dataplane.entity.InternalSubnetPorts"/>
-               <!-- Set the cache mode. -->
-               <property name="atomicityMode" value="TRANSACTIONAL"/>
-               <!-- Other cache parameters. -->
-               <property name="cacheMode" value="PARTITIONED"/>
-            </bean>
-
-            <bean class="org.apache.ignite.configuration.CacheConfiguration">
-               <!-- Set the cache name. -->
-               <property name="name" value="com.futurewei.alcor.dataplane.entity.GatewayInfo"/>
-               <!-- Set the cache mode. -->
-               <property name="atomicityMode" value="TRANSACTIONAL"/>
-               <!-- Other cache parameters. -->
-               <property name="cacheMode" value="PARTITIONED"/>
-            </bean>
-
-            <bean class="org.apache.ignite.configuration.CacheConfiguration">
-               <!-- Set the cache name. -->
-               <property name="name" value="com.futurewei.alcor.dataplane.entity.VpcResourceMeta"/>
+               <property name="name" value="com.futurewei.alcor.web.entity.port.PortHostInfo"/>
                <!-- Set the cache mode. -->
                <property name="atomicityMode" value="TRANSACTIONAL"/>
                <!-- Other cache parameters. -->
