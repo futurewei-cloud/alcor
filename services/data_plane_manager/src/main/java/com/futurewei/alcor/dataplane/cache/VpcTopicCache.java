@@ -66,7 +66,7 @@ public class VpcTopicCache {
     }
 
     @DurationStatistics
-    public void addSubscribedNodeForVpc(String vpcId, String topic, String hostIp, String key) throws Exception {
+    public synchronized void addSubscribedNodeForVpc(String vpcId, String topic, String hostIp, String key) throws Exception {
         try (Transaction tx = vpcTopicInfoICache.getTransaction().start()) {
             VpcTopicInfo vpcTopicInfo = vpcTopicInfoICache.get(vpcId);
             if (vpcTopicInfo == null) {
@@ -79,7 +79,7 @@ public class VpcTopicCache {
     }
 
     @DurationStatistics
-    public void deleteNodeSubscribeInfo(String vpcId, String hostIp) throws Exception {
+    public synchronized void deleteNodeSubscribeInfo(String vpcId, String hostIp) throws Exception {
         try (Transaction tx = vpcTopicInfoICache.getTransaction().start()) {
             VpcTopicInfo vpcTopicInfo = vpcTopicInfoICache.get(vpcId);
             if (vpcTopicInfo != null) {
