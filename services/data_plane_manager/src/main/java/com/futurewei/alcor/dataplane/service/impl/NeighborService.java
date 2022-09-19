@@ -117,14 +117,15 @@ public class NeighborService extends ResourceService {
         fixedIpBuilder.setSubnetId(portHostInfo.getSubnetId());
         fixedIpBuilder.setIpAddress(portHostInfo.getPortIp());
         fixedIpBuilder.setNeighborType(neighborType);
+        if (nodeInfoCache.getNodeInfoByNodeIp(portHostInfo.getHostIp()).size() > 0) {
+            NodeInfo nodeInfo = nodeInfoCache.getNodeInfoByNodeIp(portHostInfo.getHostIp()).get(0);
+            neighborConfigBuilder.setHostMacAddress(nodeInfo.getMacAddress());
+            neighborConfigBuilder.setHostIpAddress(nodeInfo.getDataPathIp());
+        } else {
+            LOG.debug("There is no node mac address for host " + portHostInfo);
+        }
+
         if (arionGatwayEnabled) {
-            if (nodeInfoCache.getNodeInfoByNodeIp(portHostInfo.getHostIp()).size() > 0) {
-                NodeInfo nodeInfo = nodeInfoCache.getNodeInfoByNodeIp(portHostInfo.getHostIp()).get(0);
-                neighborConfigBuilder.setHostMacAddress(nodeInfo.getMacAddress());
-                neighborConfigBuilder.setHostIpAddress(nodeInfo.getDataPathIp());
-            } else {
-                LOG.debug("There is no node mac address for host " + portHostInfo);
-            }
 
             var subnetEntity = subnetPortsCache.getSubnetPorts(portHostInfo.getSubnetId());
             fixedIpBuilder.setArionGroup(arionWingService.getArionGroup(subnetEntity.getSubnetId()));
