@@ -172,7 +172,7 @@ If you need to use the port forwarding for Arion DP Controller, please make sure
 Attaching an example output below, for users' reference:
 
 ```
-Inserts test controller output here, showing expected behavior of the e2e test.
+https://github.com/futurewei-cloud/alcor/files/9610181/test_controller_with_arion.log
 ```
 
 
