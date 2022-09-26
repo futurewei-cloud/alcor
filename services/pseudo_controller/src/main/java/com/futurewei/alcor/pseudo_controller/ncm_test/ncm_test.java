@@ -813,16 +813,16 @@ public class ncm_test {
         //        Each subnet gets the same number of ports
         while (ip_mac_map.size() != amount_of_ports_to_generate * number_of_subnets) {
             if (i % 100 != 0) {
-                String ip_2nd_octet = Integer.toString(i / 10000);
-                String ip_3nd_octet = Integer.toString((i % 10000) / 100);
-                String ip_4nd_octet = Integer.toString(i % 100);
+                String ip_2nd_octet = Integer.toString(i / (255*255));
+                String ip_3nd_octet = Integer.toString((i % (255*255)) / 255);
+                String ip_4nd_octet = Integer.toString(i % 255);
                 for (int j = 0 ; j < subnets_ips_ports_ip_prefix.size() ; j ++ ){
                     String ip_for_port = subnets_ips_ports_ip_prefix.get(j) + "." + ip_2nd_octet + "." + ip_3nd_octet + "." + ip_4nd_octet;
-                    String mac_for_port = "00:00:" + subnets_macs_ports_mac_third_octects.get(j) + ":" + ip_2nd_octet + ":" + ip_3nd_octet + ":" + ip_4nd_octet;
+                    String mac_for_port = "00:00:" + subnets_macs_ports_mac_third_octects.get(j) + ":" + Integer.toHexString(i / (255*255)) + ":" + Integer.toHexString((i % (255*255)) / 255) + ":" + Integer.toHexString(i % 255);
                     String id_for_port = port_ip_template + subnets_ips_ports_ip_prefix.get(j) + String.format("%03d", (i / 10000)) + String.format("%03d", ((i % 10000) / 100)) + String.format("%03d", (i % 100));
                     ip_mac_map.put(ip_for_port, mac_for_port);
                     port_ip_to_id_map.put(ip_for_port, id_for_port);
-                    logger.log(Level.FINE, "Generated Port " + i + " with IP: [" + ip_for_port + "], ID :[ " + id_for_port + "] and MAC: [" + mac_for_port + "]");
+                    //logger.log(Level.FINE, "Generated Port " + i + " with IP: [" + ip_for_port + "], ID :[ " + id_for_port + "] and MAC: [" + mac_for_port + "]");
                 }
             }
             i++;
