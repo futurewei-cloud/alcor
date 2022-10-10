@@ -1,0 +1,90 @@
+{
+  "ZGC_data": {
+    "name": "ZGC_test106",
+    "description": "ZGC_test106",
+    "ip_start": "192.168.20.100",
+    "ip_end": "192.168.20.115",
+    "port_ibo": "8300",
+    "overlay_type": "vxlan"
+  },
+   "NODE_data": [
+    {
+      "zgc_id": "zgc_id",
+      "description": "znode90",
+      "name": "znode90",
+      "ip_control": "192.168.20.190",
+      "id_control": "ubuntu",
+      "pwd_control": "Lab12345",
+      "inf_tenant": "ens4",
+      "mac_tenant": "52:54:00:5e:99:ac",
+      "inf_zgc": "ens3",
+      "mac_zgc": "52:54:00:f5:aa:52",
+      "arion_agent_location": "absolute_path_of_arion_agent_binary"
+    },
+    {
+      "zgc_id": "zgc_id",
+      "description": "znode91",
+      "name": "znode91",
+      "ip_control": "192.168.20.191",
+      "id_control": "ubuntu",
+      "pwd_control": "Lab12345",
+      "inf_tenant": "ens4",
+      "mac_tenant": "52:54:00:5a:2a:01",
+      "inf_zgc": "ens3",
+      "mac_zgc": "52:54:00:ed:60:ab",
+      "arion_agent_location": "absolute_path_of_arion_agent_binary"
+    },
+    {
+      "zgc_id": "zgc_id",
+      "description": "znode92",
+      "name": "znode92",
+      "ip_control": "192.168.20.192",
+      "id_control": "ubuntu",
+      "pwd_control": "Lab12345",
+      "inf_tenant": "ens4",
+      "mac_tenant": "52:54:00:8b:04:15",
+      "inf_zgc": "ens3",
+      "mac_zgc": "52:54:00:0f:51:3a",
+      "arion_agent_location": "absolute_path_of_arion_agent_binary"
+    },
+    {
+      "zgc_id": "zgc_id",
+      "description": "znode93",
+      "name": "znode93",
+      "ip_control": "192.168.20.193",
+      "id_control": "ubuntu",
+      "pwd_control": "Lab12345",
+      "inf_tenant": "ens4",
+      "mac_tenant": "52:54:00:0a:2e:8b",
+      "inf_zgc": "ens3",
+      "mac_zgc": "52:54:00:42:b4:e6",
+      "arion_agent_location": "absolute_path_of_arion_agent_binary"
+    },
+    {
+      "zgc_id": "zgc_id",
+      "description": "znode94",
+      "name": "znode94",
+      "ip_control": "192.168.20.194",
+      "id_control": "ubuntu",
+      "pwd_control": "Lab12345",
+      "inf_tenant": "ens4",
+      "mac_tenant": "52:54:00:63:8f:4d",
+      "inf_zgc": "ens3",
+      "mac_zgc": "52:54:00:38:52:89",
+      "arion_agent_location": "absolute_path_of_arion_agent_binary"
+    },
+    {
+      "zgc_id": "zgc_id",
+      "description": "znode95",
+      "name": "znode95",
+      "ip_control": "192.168.20.195",
+      "id_control": "ubuntu",
+      "pwd_control": "Lab12345",
+      "inf_tenant": "ens4",
+      "mac_tenant": "52:54:00:99:03:ae",
+      "inf_zgc": "ens3",
+      "mac_zgc": "52:54:00:3e:6c:e8",
+      "arion_agent_location": "absolute_path_of_arion_agent_binary"
+    }
+  ]
+}

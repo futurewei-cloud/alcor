@@ -53,6 +53,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
@@ -60,7 +61,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -542,10 +542,10 @@ public class alcor_http_api_test {
         */
     }
 
-    private JSONObject call_post_api_with_json(String url, JSONObject parameter){
+    public static JSONObject call_post_api_with_json(String url, JSONObject parameter){
 //        System.out.println("Calling URL: " + url);
         JSONObject response_json = null;
-        HttpClient c = new DefaultHttpClient();
+        HttpClient c = HttpClientBuilder.create().build();
         HttpPost post = new HttpPost(url);
         post.setHeader("Content-Type", "application/json");
         String result = "";
@@ -555,7 +555,7 @@ public class alcor_http_api_test {
                     "application/json"));
             post.setEntity(s);
             HttpResponse httpResponse = c.execute(post);
-
+            System.out.println("Posting at " + url + " returned this status code: " + httpResponse.getStatusLine().getStatusCode());
             // Get the input stream
             HttpEntity response_entity = httpResponse.getEntity();
 
