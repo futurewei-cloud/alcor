@@ -90,14 +90,6 @@ public class ncm_test {
     ArrayList<Integer> ports_to_generate_on_each_compute_node;
     @Value("#{'${aca_location_on_each_compute_node}'.split(',')}")
     ArrayList<String> aca_location_on_each_compute_node;
-    @Value("${node_one_ip:ip_one}")
-    String aca_node_one_ip;
-    @Value("${node_one_mac:mac_one}")
-    String aca_node_one_mac;
-    @Value("${node_two_ip:ip_two}")
-    String aca_node_two_ip;
-    @Value("${node_two_mac:mac_two}")
-    String aca_node_two_mac;
     int NUMBER_OF_NODES = 0;
     @Value("${ncm_ip:ip_three}")
     String ncm_ip;
@@ -107,10 +99,6 @@ public class ncm_test {
     String user_name;
     @Value("${password:abcdefg}")
     String password;
-    @Value("${ports_node_one:1}")
-    int ports_to_generate_on_aca_node_one;
-    @Value("${ports_node_two:1}")
-    int ports_to_generate_on_aca_node_two;
     @Value("${ping_mode:1}")
     int user_chosen_ping_method;
     @Value("${background_ping:0}")
@@ -187,7 +175,7 @@ public class ncm_test {
         try {
             ArrayList<String> local_ips = getNonLoopbackIPAddressList(true,true);
             // if on the same host, execute bash command; otherwise, execute ssh command.
-            is_aca_node_one_local = local_ips.contains(compute_node_ips.get(0)/*aca_node_one_ip*/);
+            is_aca_node_one_local = local_ips.contains(compute_node_ips.get(0));
         }catch (SocketException e){
             System.err.println("Get this error when trying to collect localhost IPs: " + e.getMessage());
             return;
@@ -240,7 +228,7 @@ public class ncm_test {
 
         logger.log(Level.INFO, "Containers setup done, now we gotta construct the GoalStateV2");
 
-        logger.log(Level.INFO, "Trying to build the GoalStateV2 for " + (ports_to_generate_on_aca_node_one + ports_to_generate_on_aca_node_two) + " Ports in each subnet");
+        logger.log(Level.INFO, "Trying to build the GoalStateV2 for " + total_amount_of_ports + " Ports in each subnet");
 
         TreeMap<String, Goalstate.GoalStateV2.Builder> compute_node_ip_to_GoalStateV2_map = new TreeMap<>();
         TreeMap<String, Goalstate.HostResources.Builder> compute_node_ip_to_host_resource_map = new TreeMap<>();
@@ -334,7 +322,7 @@ public class ncm_test {
                     NeighborConfiguration_builder.setId(vpc_port_id + "_n");
                     NeighborConfiguration_builder.setMacAddress(port_mac);
                     NeighborConfiguration_builder.setHostIpAddress(host_ip);
-                    NeighborConfiguration_builder.setHostMacAddress(compute_node_macs.get(compute_node_ips.indexOf(host_ip))/*host_ip == aca_node_one_ip ? aca_node_one_mac : aca_node_two_mac*/);
+                    NeighborConfiguration_builder.setHostMacAddress(compute_node_macs.get(compute_node_ips.indexOf(host_ip)));
 
                     Neighbor.NeighborConfiguration.FixedIp.Builder neighbor_fixed_ip_builder = Neighbor.NeighborConfiguration.FixedIp.newBuilder();
                     neighbor_fixed_ip_builder.setNeighborType(Neighbor.NeighborType.L2);
