@@ -96,7 +96,7 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
         if (isDefaultSecurityGroup(securityGroup) && defaultSecurityGroup != null) {
             throw new DefaultSecurityGroupExists();
         }
-
+        System.out.println("test: " + securityGroupJson.getSecurityGroup().getSecurityGroupRules().toString());
         if (!isDefaultSecurityGroup(securityGroup)) {
             //Default security group not exists, create it
             if (defaultSecurityGroup == null) {
