@@ -60,7 +60,7 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
             securityGroupRules.add(securityGroupRule);
         }
 
-        securityGroup.setSecurityGroupRules(securityGroupRules);
+        securityGroup.getSecurityGroupRules().addAll(securityGroupRules);
     }
 
     private void createDefaultSecurityGroup(String tenantId, String projectId, String description) throws Exception {
@@ -96,7 +96,6 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
         if (isDefaultSecurityGroup(securityGroup) && defaultSecurityGroup != null) {
             throw new DefaultSecurityGroupExists();
         }
-        System.out.println("test: " + securityGroupJson.getSecurityGroup().getSecurityGroupRules().toString());
         if (!isDefaultSecurityGroup(securityGroup)) {
             //Default security group not exists, create it
             if (defaultSecurityGroup == null) {
