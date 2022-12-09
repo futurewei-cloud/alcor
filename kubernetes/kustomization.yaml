@@ -13,12 +13,12 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
 # DB
-- db/ignite_alcor_dpm.yaml
-- db/ignite_alcor_ip.yaml
-- db/ignite_alcor_mac.yaml
-- db/ignite_alcor_ncm.yaml
-- db/ignite_alcor_port.yaml
-- db/ignite_alcor.yaml
+- db/ignite/ignite_alcor_dpm.yaml
+- db/ignite/ignite_alcor_ip.yaml
+- db/ignite/ignite_alcor_mac.yaml
+- db/ignite/ignite_alcor_ncm.yaml
+- db/ignite/ignite_alcor_port.yaml
+- db/ignite/ignite_alcor.yaml
 
 # Services
 - services/api-gateway.yaml
