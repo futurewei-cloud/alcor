@@ -99,6 +99,7 @@ spec:
         - name: ignite-alcor-dpm-node
           image: ignite_alcor:lib8
           imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-ec", 'bash -ec "$IGNITE_HOME/run.sh &" && bash -ec "sleep 10 && /opt/ignite/apache-ignite/bin/control.sh --activate && tail -f /dev/null"']
           #resources:
             #requests:
               #cpu: "16"
