@@ -1,0 +1,45 @@
+
+
+                       Prasad Kommoju
+                    pkommoju@futurewei.com
+                Mon, Dec 13, 2021 11:55:49 AM
+
+Overview
+
+In view of stability, performance and useability problems presented by Ignite a search for a better alternative is in order. This document captures crucial properties of a few alternatives, these properties are hoped to solve the current variety with Ignite and not introduce some new problems of their own.
+
+1) RocksDB
+
+RocksDB is a very good KV, used by many other open/closed source projects and products as the storage engine.
+
+Strengths:
+
+a. Implementation in C++. No Garbage collection related issues.
+
+b. Solid and stable implementation, used by many products as storage engine.
+
+c. Good performance
+
+d. Optimized for SSD
+
+e. Embedded mode.
+
+
+Weaknesses:
+
+a. The interface is very low level forcing the user code to know and use locks, iterators, key comparators etc.,
+
+b. No support for secondary key access. Search will be fast only when search is on the key fields. All other searches will use linear search, slower.
+
+c. No support for automatic Replication. This affects availability, the application will be forced to deal with failovers by application managed replication.
+
+d. Not a distributed system thus not horizontally scalable.
+
+2) ArangoDB
+
+3) RethinkDB
+
+4) HazelCast
+
+5) *** RavenDB: restricted free
+

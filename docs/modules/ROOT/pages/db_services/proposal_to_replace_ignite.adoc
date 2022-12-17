@@ -1,0 +1,205 @@
+= Proposal to replace Ignite as Datastore in Alcor
+Prasad Kommoju pkommoju@futurewei.com
+2021-12-13
+:toc: right
+:imagesdir: ../../images
+
+== Overview
+
+In view of stability, performance and usability problems presented by Ignite a search for a better alternative is in order. This document captures crucial properties of a few alternatives, these properties are hoped to solve the current problems with Ignite and not introduce some new problems of their own.
+
+All of the alternatives considered are open sourced.
+
+== Questions about new data store features
+* Should it be partitioned: If partitioning and replication are not considered availability of the services is impacted but opens up many more choices, including the simple embedded data stores. Is this an option?
+* If partitioning is not considered, then how to scale a given micro-service?
+* Is secondary index access a critical feature?
+* Is eventual consistency a tolerable trade off?
+* Since many objects used in Alcor represent a Network or components of a network, a Network/Graph database suggests itself as a natural choice. But it changing the data model means a bigger code change and more time. Is this an option worth evaluating at this time?
+
+== Some clarifications
+* Eventual consistency is tolerable trade off in southbound plane, especially NCM.
+* If a pure embedded data store is selected, then some functionality relating to data consistency, sharing and synchronization will have to be programmed into the Alcor common module.
+
+
+== Embeddable and other databases to consider
+. H2
+. SQLite
+. UnQLite
+. Redis
+. Redisson
+. https://www.nutanix.dev/2021/10/04/chakrdb-a-distributed-rocksdb-born-in-the-cloud-part-1/
+. https://engineering.fb.com/2021/08/06/core-data/zippydb/
+. https://www.infoq.com/news/2021/09/microstream-5-is-open-source/
+. etcd
+. gigaspaces
+. whitedb
+. LMDB
+. EhCache
+
+
+
+== Comparision
+|===
+|Database       |RocksDB         |ArangoDB        |Hazlecast   |OrientDB|Microstream|Ehcache    | Ignite       |Etcd
+|Feature        |                |                |            |        |           |           |              |
+|License        |BSD             |Apache 2        |Apache 2    |Apache 2|EPL 2      |Apache 2   |Apache2       |Apache2
+|Data Model     |KV              |M/G/KV/SE/D/J/FT|KV/DG       |G/KV    |KV/G       |KV         |KV            |KV
+|Implementation |C++             |C++             |Java        |Java    |Java       |Java       |Java          |Go
+|Access         |C++/Java API    |AQL/GQL/Java    |Java/Rest   |Java    |Java       |Java       |Java, Rest    |gRPC/Java (8)
+|Partitioning   |No (1)          |Yes             |Yes         |Yes     |Yes        |Yes        |Yes           |Yes
+|Replication    |No (2)          |Yes             |Yes         |Yes     |Yes        |Yes (3)    |Yes           |Yes
+|Transactions   |Yes             |Yes             |1pc, 2pc    |Yes     |No (4)     |Yes        |Yes           |Yes (9)
+|Concurrency    |Yes             |Yes             |Yes         |Yes     |Yes        |Yes        |Yes           |Yes
+|ACID           |Yes             |Configurable    |IC - EC     |No      |Yes        |Yes        |Yes           |Yes
+|Secondary Index|No              |Yes             |Yes         |Yes     |No         |Yes        |Yes           |?
+|InMemory/Embed |Yes (I/E)       |Yes             |Yes         |?       |Yes        |Yes        |No            |?
+|Persistence    |Yes             |Yes             |Yes         |Yes     |Yes        |Yes        |Yes (v 2.11.1)|Yes
+|Watch/PubSub   |?               |?               |?           |?       |?          |Yes        |Yes           |Yes
+|SQL            |No              |No              |No (AQL)    |SQL Like|No         |No         |Yes           |?
+|Dependencies   |None            |??              |?           |?       |?          |No         |Many          |?
+|Footprint      |Small           |Small           |Medium/Large|Small   |Small      |Small      |Large         |?
+|Ease of use    |Simple          |?               |Not Simple  |Simple  |Simple (?) |Simple (?) |Not Simple    |?
+|Documentation  |?               |?               |?           |?       |?          |Not good   |Not good      |?
+|Request size(5)|?               |?               |?           |?       |?          |?          |?             |1.5MB (DC)
+|Maximum size(6)|?               |?               |?           |?       |?          |?          |?             |2GB - 8GB (7)
+|===
+
+* NOTES
+** License
+*** EPL: Eclipse Public License.
+
+** Footnotes
+*** ?. Unknown at this point, will have to be filled in later.
+*** 1. Single node partitioning only, no distribution.
+*** 2. No native replication but APIs to enable it.
+*** 3. Not transparent to client in that some configuration is required.
+*** 4. Each store by it self is atomic and multiple objects can be stored in one operation but this is not the same as envolping multiple store operations as an atomic operation.
+*** 5. Request size is the recommended, default, or maximum allowed size of one PUT/GET/POST request payload size.
+*** 6. Maximum database size.
+*** 7. 2GB default, 8GB Maximum suggested size.
+*** 8. Requies client side serialization and deserialization to and from ByteSequence.
+*** 9. Not easy to use. The if().Then().Else()... paradigm makes it difficult to mix DB operations and Java code.
+
+
+** Data model
+*** D: Document
+*** DG: In memory Datagrid
+*** J: JSON
+*** M: Multi Model
+*** G: Graph
+*** KV: Key-Value
+*** FT: Full Text
+
+** ACID
+*** IC: Immediate Consistency
+*** EC: Eventual Consistency
+
+** Transactions
+*** 1pc: One phase commit
+
+*** 2pc: Two phase commit
+
+** Request Size
+*** D: Default
+*** DC: Default but configurable
+
+== Breif notes about the data stores
+
+=== Redisson
+Based on Redis, provides Transactions. Supports asynchronous execution.
+
+==== Strengths
+. Transactions
+. Asynchronous execution
+. Partitioning but only available in PRO version
+
+==== Weaknesses
+
+
+=== LMDB
+Small memory footprint embedded KV store. It is used in OpenLDAP.
+
+==== Strengths
+. Widely used
+. Transactions, Concurrency, B+Tree indexing
+. One benchmark claims handling 10,000 concurrent client connections without any performance degradation
+
+==== Weaknesses
+. Mapping Java objects to JSON could impose serialization/de-serialization cost.
+. More on limitations: https://github.com/mozilla/rkv/issues/49
+. Stopped evaluation because of ByteBuffer <-> Object mapping problems.
+
+=== RocksDB
+RocksDB is a very good KV, used by many other open/closed source projects and products as the storage engine.
+
+==== Strengths
+. Implementation in C++. No Garbage collection related issues.
+. Solid and stable implementation, used by many products as storage engine.
+. Good performance
+. Optimized for SSD
+. Embedded mode.
+
+
+==== Weaknesses
+
+. The interface is very low level forcing the user code to know and use locks, iterators, key comparators etc.,
+. No support for secondary key access. Search will be fast only when search is on the key fields. All other searches will use linear search and will be much slower.
+. No support for automatic Replication. This affects availability, the application will be forced to deal with fail overs by application managed replication.
+. Not a distributed system thus not horizontally scaleable.
+. Limit on transaction size.
+
+== Microstream
+It is an im-memory Object Graph cache with persistence. Claims to be extremely fast.
+
+=== Streangths
+. Like Java Native persistence
+
+=== Weaknesses
+. Documentation is not detailed enough
+. Transcations are atomic per each store operation. This is a serious problem.
+
+
+=== ArangoDB
+==== Strengths
+. Implementation in C++. No Garbage collection related issues.
+. Multi model data store, including KV.
+. Easy deployment
+
+==== Weaknesses
+. Not as popular as Hazlecast
+. Uses RocksDB for storage
+
+
+=== Hazlecast
+
+==== Strengths
+. Very popular
+
+==== Weaknesses
+. Unknown
+
+=== OrientDB
+
+==== Strengths
+
+==== Weaknesses
+
+
+== Strategy to handle required but missing features
+* Secondary indices: Possible to handle within DB layer by building a KV entity directly or indirectly. Direct would increase the memory and storage requirements. Indirect method, building a KV using the secondary key as K and main K as V would reduce memory and storage requirements but will require two lookups and thus cost extra time.
+
+== Possible alternatives to evaluate
+ChakrDB and ZippyDB do not appear to be opensourced and therefore not viable. 
+
+== References
+. 1. Redisson: local cache and partitioned caches supported only in PRO version.
+.. https://github.com/redisson/redisson/wiki/14.-Integration%20with%20frameworks/#144-jcache-api-jsr-107-implementation
+
+== Problems
+* Ehcache (Cluster zip file)
+** Installation, startup and configuration of server are obscure.
+*** Instruction doesn't match what is in the downloaded zip file.
+**** You will then need to activate the cluster using activate command of config tool which is located under $KIT_DIR/tools/bin.
+** Persisting to disk proved hard without decent documentation.
+** Not continuing with evaluation (12/20/2021).
