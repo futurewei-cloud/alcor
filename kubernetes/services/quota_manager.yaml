@@ -79,7 +79,15 @@ spec:
           name: quotamanager-web
           imagePullPolicy: IfNotPresent
           command: ["java", "-jar", "/app/AlcorQuotaManager-0.1.0.jar", "--spring.config.location=/opt/jboss/application.properties"]
-          initContainers:
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: quota-volume
+              mountPath: /opt/jboss
+          envFrom:
+            - configMapRef:
+                name: quota-configmap
+      initContainers:
           - name: wait-for-ignite
             image: curlimages/curl
             args:
@@ -90,14 +98,6 @@ spec:
               while [ $(curl -sw '%{http_code}' "ignite-alcor-service.ignite-alcor.svc.cluster.local:8080/ignite?cmd=version" -o /dev/null) -ne 200 ]; do
                 sleep 15;
               done
-          ports:
-            - containerPort: 8080
-          volumeMounts:
-            - name: quota-volume
-              mountPath: /opt/jboss
-          envFrom:
-            - configMapRef:
-                name: quota-configmap
 ---
 apiVersion: v1
 kind: Service

@@ -67,17 +67,6 @@ spec:
           name: eipmanager-web
           imagePullPolicy: IfNotPresent
           command: ["java", "-jar", "/app/AlcorElasticIpManager-0.1.0.jar", "--spring.config.location=/etc/eip/application.properties"]
-          initContainers:
-          - name: wait-for-ignite
-            image: curlimages/curl
-            args:
-            - /bin/sh
-            - -c
-            - >
-              set -x;
-              while [ $(curl -sw '%{http_code}' "ignite-alcor-service.ignite-alcor.svc.cluster.local:8080/ignite?cmd=version" -o /dev/null) -ne 200 ]; do
-                sleep 15;
-              done
           ports:
             - containerPort: 8080
           volumeMounts:
@@ -86,6 +75,17 @@ spec:
           envFrom:
             - configMapRef:
                 name: eip-configmap
+      initContainers:
+        - name: wait-for-ignite
+          image: curlimages/curl
+          args:
+          - /bin/sh
+          - -c
+          - >
+            set -x;
+            while [ $(curl -sw '%{http_code}' "ignite-alcor-service.ignite-alcor.svc.cluster.local:8080/ignite?cmd=version" -o /dev/null) -ne 200 ]; do
+              sleep 15;
+            done
 ---
 apiVersion: v1
 kind: Service
