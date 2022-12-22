@@ -76,6 +76,17 @@ spec:
           name: macmanager-web
           imagePullPolicy: IfNotPresent
           command: ["java", "-jar", "/app/AlcorMacManager-0.1.0.jar", "--spring.config.location=/etc/mac/application.properties"]
+          initContainers:
+          - name: wait-for-ignite
+            image: curlimages/curl
+            args:
+            - /bin/sh
+            - -c
+            - >
+              set -x;
+              while [ $(curl -sw '%{http_code}' "ignite-alcor-mac-service.ignite-alcor-mac.svc.cluster.local:8080/ignite?cmd=version" -o /dev/null) -ne 200 ]; do
+                sleep 15;
+              done
           ports:
             - containerPort: 8080
           volumeMounts:

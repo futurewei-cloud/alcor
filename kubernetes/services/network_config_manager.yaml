@@ -91,6 +91,17 @@ spec:
           name: networkconfigmanager-web
           imagePullPolicy: IfNotPresent
           command: ["java", "-jar", "/app/AlcorNetworkConfigManager-0.1.0.jar", "--spring.config.location=/etc/ncm/application.properties"]
+          initContainers:
+          - name: wait-for-ignite
+            image: curlimages/curl
+            args:
+            - /bin/sh
+            - -c
+            - >
+              set -x;
+              while [ $(curl -sw '%{http_code}' "ignite-alcor-ncm-service.ignite-alcor-ncm.svc.cluster.local:8080/ignite?cmd=version" -o /dev/null) -ne 200 ]; do
+                sleep 15;
+              done
           ports:
             - containerPort: 8080
               protocol: TCP
