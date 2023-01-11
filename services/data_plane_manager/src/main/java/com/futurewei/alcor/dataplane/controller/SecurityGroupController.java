@@ -24,12 +24,15 @@ import com.futurewei.alcor.web.entity.gateway.ArionWingInfo;
 import com.futurewei.alcor.web.entity.route.RouteTable;
 import com.futurewei.alcor.web.entity.route.RouteTableWebJson;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRuleBulkJson;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRuleJson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.ws.rs.QueryParam;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -48,21 +51,29 @@ public class SecurityGroupController {
     @PostMapping({"/securitygrouprules"})
     @ResponseStatus(HttpStatus.CREATED)
     @DurationStatistics
-    public String createSecurityGroupRules(@RequestBody List<SecurityGroupRule> securityGroupRuleList) throws Exception {
-        securityGroupService.updateSecurityGroupRules(securityGroupRuleList);
+    public String createSecurityGroupRule(@RequestBody SecurityGroupRuleJson securityGroupRuleJson) throws Exception {
+        securityGroupService.updateSecurityGroupRule(securityGroupRuleJson);
+        return "Success created";
+    }
+
+    @PostMapping({"/securitygrouprules/bulk"})
+    @ResponseStatus(HttpStatus.CREATED)
+    @DurationStatistics
+    public String createSecurityGroupRules(@RequestBody SecurityGroupRuleBulkJson securityGroupRuleBulkJson) throws Exception {
+        securityGroupService.updateSecurityGroupRules(securityGroupRuleBulkJson);
         return "Success created";
     }
 
     @PutMapping({"/securitygrouprules"})
     @DurationStatistics
-    public String updateSecurityGroupRules(@PathVariable List<SecurityGroupRule> securityGroupRuleList) throws Exception {
-        securityGroupService.updateSecurityGroupRules(securityGroupRuleList);
+    public String updateSecurityGroupRules(@PathVariable SecurityGroupRuleJson securityGroupRuleJson) throws Exception {
+        securityGroupService.updateSecurityGroupRule(securityGroupRuleJson);
         return "Success updated";
     }
 
     @DeleteMapping({"/securitygrouprules/{resource_id}"})
     @DurationStatistics
-    public void deleteSecurityGroupRule(@PathVariable String resource_id) throws Exception {
+    public void deleteSecurityGroupRule(@RequestParam String resource_id) throws Exception {
         securityGroupService.deleteSecurityGroupRules(new ArrayList<>(){{add(resource_id);}});
     }
 

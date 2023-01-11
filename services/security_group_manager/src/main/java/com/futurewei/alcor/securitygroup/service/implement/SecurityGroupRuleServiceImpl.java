@@ -15,6 +15,7 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.securitygroup.service.implement;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.securitygroup.exception.RemoteSecurityGroupNotFound;
 import com.futurewei.alcor.securitygroup.exception.SecurityGroupNotFound;
@@ -22,15 +23,19 @@ import com.futurewei.alcor.securitygroup.exception.SecurityGroupRuleNotFound;
 import com.futurewei.alcor.securitygroup.repo.SecurityGroupRepository;
 import com.futurewei.alcor.securitygroup.service.SecurityGroupRuleService;
 import com.futurewei.alcor.web.entity.securitygroup.*;
+import org.asynchttpclient.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Executors;
 
 @Service
 public class SecurityGroupRuleServiceImpl implements SecurityGroupRuleService {
@@ -38,6 +43,14 @@ public class SecurityGroupRuleServiceImpl implements SecurityGroupRuleService {
 
     @Autowired
     SecurityGroupRepository securityGroupRepository;
+
+    @Autowired
+    ObjectMapper objectMapper;
+
+    @Value("${microservices.dataplane.service.url:#{\"\"}}")
+    private String dataplaneManagerUrl;
+
+
 
     @Override
     @DurationStatistics
@@ -61,8 +74,24 @@ public class SecurityGroupRuleServiceImpl implements SecurityGroupRuleService {
             securityGroupRule.setId(UUID.randomUUID().toString());
         }
 
-        securityGroupRepository.addSecurityGroupRule(securityGroup, securityGroupRule);
+        AsyncHttpClient client = Dsl.asyncHttpClient();
 
+        var request = Dsl.post(dataplaneManagerUrl).setBody(objectMapper.writeValueAsString(securityGroupRuleJson)).setHeader("Content-Type", "application/json");
+
+        ListenableFuture<Response> listenableFuture = client
+                .executeRequest(request);
+        listenableFuture.addListener(() -> {
+            Response response = null;
+            try {
+                response = listenableFuture.get();
+                if (response.getStatusCode() == HttpServletResponse.SC_CREATED) {
+                    securityGroupRepository.addSecurityGroupRule(securityGroup, securityGroupRule);
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }, Executors.newCachedThreadPool());
         LOG.info("Create security group rule success, securityGroupRuleJson: {}", securityGroupRuleJson);
 
         return securityGroupRuleJson;
@@ -86,7 +115,24 @@ public class SecurityGroupRuleServiceImpl implements SecurityGroupRuleService {
             }
         }
 
-        securityGroupRepository.addSecurityGroupRuleBulk(securityGroupRules);
+        AsyncHttpClient client = Dsl.asyncHttpClient();
+
+        var request = Dsl.post(dataplaneManagerUrl).setBody(objectMapper.writeValueAsString(securityGroupRuleBulkJson)).setHeader("Content-Type", "application/json");
+
+        ListenableFuture<Response> listenableFuture = client
+                .executeRequest(request);
+        listenableFuture.addListener(() -> {
+            Response response = null;
+            try {
+                response = listenableFuture.get();
+                if (response.getStatusCode() == HttpServletResponse.SC_CREATED) {
+                    securityGroupRepository.addSecurityGroupRuleBulk(securityGroupRules);
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }, Executors.newCachedThreadPool());
 
         LOG.info("Create security group rule bulk success, securityGroupRuleBulkJson: {}", securityGroupRuleBulkJson);
 
@@ -107,7 +153,26 @@ public class SecurityGroupRuleServiceImpl implements SecurityGroupRuleService {
             throw new SecurityGroupRuleNotFound();
         }
 
-        securityGroupRepository.deleteSecurityGroupRule(securityGroupRule);
+        AsyncHttpClient client = Dsl.asyncHttpClient();
+        Param param = new Param("resource_id", securityGroupRuleId);
+        List<Param> params = new ArrayList<>();
+        params.add(param);
+        var request = Dsl.delete(dataplaneManagerUrl).setQueryParams(params).setHeader("Content-Type", "application/json");
+
+        ListenableFuture<Response> listenableFuture = client
+                .executeRequest(request);
+        listenableFuture.addListener(() -> {
+            Response response = null;
+            try {
+                response = listenableFuture.get();
+                if (response.getStatusCode() == HttpServletResponse.SC_CREATED) {
+                    securityGroupRepository.deleteSecurityGroupRule(securityGroupRule);
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }, Executors.newCachedThreadPool());
 
         LOG.info("Delete security group rule success, securityGroupRuleId: {}", securityGroupRuleId);
     }

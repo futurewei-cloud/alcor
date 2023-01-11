@@ -23,6 +23,8 @@ option java_package = "com.futurewei.alcor.schema";
 import "common.proto";
 import "goalstate.proto";
 import "neighbor.proto";
+import "securitygroup.proto";
+import "port.proto";
 
 service GoalStateProvisioner {
 
@@ -50,7 +52,10 @@ service GoalStateProvisioner {
     rpc RequestGoalStates (HostRequest) returns (HostRequestReply) {
     }
 
-    rpc PushGoalstates (NeighborRulesRequest) returns (GoalStateOperationReply) {
+    rpc PushGoalstates (ArionGoalStateRequest) returns (GoalStateOperationReply) {
+    }
+
+    rpc PushSecurityGroupGoalState (SecurityGroupState) returns (GoalStateOperationReply) {
     }
 }
 
@@ -86,11 +91,12 @@ message HostRequestReply {
     uint32 total_operation_time = 3;
 }
 
-message NeighborRulesRequest {
+message ArionGoalStateRequest {
     uint32 format_version = 1;
     string request_id = 2;
 
     repeated NeighborState neigborstates = 3;
+    repeated PortState portstates = 4;
 }
 
 message GoalStateOperationReply {

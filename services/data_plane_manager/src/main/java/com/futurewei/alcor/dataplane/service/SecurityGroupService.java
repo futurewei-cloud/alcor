@@ -3,12 +3,16 @@ package com.futurewei.alcor.dataplane.service;
 import com.futurewei.alcor.common.db.CacheException;
 import com.futurewei.alcor.web.entity.securitygroup.PortBindingSecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRuleBulkJson;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRuleJson;
 
 import java.util.Collection;
 import java.util.List;
 
 public interface SecurityGroupService {
-    void updateSecurityGroupRules(List<SecurityGroupRule> securityGroupRuleList) throws Exception;
+    void updateSecurityGroupRule(SecurityGroupRuleJson securityGroupRuleJson) throws Exception;
+
+    void updateSecurityGroupRules(SecurityGroupRuleBulkJson securityGroupRuleBulkJson) throws Exception;
 
     void deleteSecurityGroupRules(List<String> securityGroupIds) throws Exception;
 
@@ -22,5 +26,5 @@ public interface SecurityGroupService {
 
     Collection<PortBindingSecurityGroup> getPortBindingSecurityGroupBySecurityGroupId(String securityGroupId) throws CacheException;
 
-    Collection<PortBindingSecurityGroup> getPortBindingSecurityGroupByPortId(String portId);
+    Collection<PortBindingSecurityGroup> getPortBindingSecurityGroupByPortId(String portId) throws CacheException;
 }

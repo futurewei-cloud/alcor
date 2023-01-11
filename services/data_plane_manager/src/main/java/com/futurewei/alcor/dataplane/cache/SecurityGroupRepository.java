@@ -20,6 +20,8 @@ import com.futurewei.alcor.common.db.CacheFactory;
 import com.futurewei.alcor.common.db.ICache;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRuleBulkJson;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRuleJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,9 +48,13 @@ public class SecurityGroupRepository {
     }
 
     @DurationStatistics
-    public synchronized void addSecurityGroupRules(List<SecurityGroupRule> securityGroupRules) throws Exception {
-        var securityGroupRuleMap = securityGroupRules.stream().collect(Collectors.toMap(SecurityGroupRule::getId, Function.identity()));
-        securityGroupRuleCache.putAll(securityGroupRuleMap);
+    public synchronized void addSecurityGroupRule(SecurityGroupRuleJson securityGroupRuleJson) throws Exception {
+        securityGroupRuleCache.put(securityGroupRuleJson.getSecurityGroupRule().getId(), securityGroupRuleJson.getSecurityGroupRule());
+    }
+    @DurationStatistics
+    public synchronized void addSecurityGroupRules(SecurityGroupRuleBulkJson securityGroupRuleBulkJson) throws Exception {
+        var securityGroupRules = securityGroupRuleBulkJson.getSecurityGroupRules().stream().collect(Collectors.toMap(SecurityGroupRule::getId, Function.identity()));
+        securityGroupRuleCache.putAll(securityGroupRules);
     }
 
     @DurationStatistics

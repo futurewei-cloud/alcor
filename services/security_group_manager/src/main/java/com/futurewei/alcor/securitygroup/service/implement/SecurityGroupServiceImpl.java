@@ -15,6 +15,8 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.securitygroup.service.implement;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.securitygroup.exception.*;
 import com.futurewei.alcor.securitygroup.repo.PortBindingSecurityGroupRepository;
@@ -23,12 +25,19 @@ import com.futurewei.alcor.securitygroup.service.SecurityGroupService;
 import com.futurewei.alcor.securitygroup.utils.TimeUtil;
 import com.futurewei.alcor.web.entity.securitygroup.PortBindingSecurityGroupsJson;
 import com.futurewei.alcor.web.entity.securitygroup.*;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.Dsl;
+import org.asynchttpclient.ListenableFuture;
+import org.asynchttpclient.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
+import java.util.concurrent.Executors;
 
 @Service
 public class SecurityGroupServiceImpl implements SecurityGroupService {
@@ -40,11 +49,17 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
     @Autowired
     private PortBindingSecurityGroupRepository portBindingSecurityGroupRepository;
 
+    @Autowired
+    ObjectMapper objectMapper;
+
+    @Value("${microservices.dataplane.service.url:#{\"\"}}")
+    private String dataplaneManagerUrl;
+
     private boolean isDefaultSecurityGroup(SecurityGroup securityGroup) {
         return "default".equals(securityGroup.getName());
     }
 
-    private void createDefaultSecurityGroupRules(SecurityGroup securityGroup, SecurityGroupRule.Direction direction) {
+    private void createDefaultSecurityGroupRules(SecurityGroup securityGroup, SecurityGroupRule.Direction direction) throws JsonProcessingException {
         List<SecurityGroupRule> securityGroupRules = new ArrayList<>();
         List<SecurityGroupRule.EtherType> etherTypes = Arrays.asList(SecurityGroupRule.EtherType.IPV4, SecurityGroupRule.EtherType.IPV6);
 
@@ -60,7 +75,28 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
             securityGroupRules.add(securityGroupRule);
         }
 
-        securityGroup.getSecurityGroupRules().addAll(securityGroupRules);
+        SecurityGroupRuleBulkJson securityGroupRuleJson = new SecurityGroupRuleBulkJson(securityGroupRules);
+
+        AsyncHttpClient client = Dsl.asyncHttpClient();
+
+        var request = Dsl.post(dataplaneManagerUrl).setBody(objectMapper.writeValueAsString(securityGroupRuleJson)).setHeader("Content-Type", "application/json");
+
+        ListenableFuture<Response> listenableFuture = client
+                .executeRequest(request);
+        listenableFuture.addListener(() -> {
+            Response response = null;
+            try {
+                response = listenableFuture.get();
+                if (response.getStatusCode() == HttpServletResponse.SC_CREATED) {
+                    securityGroup.getSecurityGroupRules().addAll(securityGroupRules);
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }, Executors.newCachedThreadPool());
+
+
     }
 
     private void createDefaultSecurityGroup(String tenantId, String projectId, String description) throws Exception {
@@ -70,6 +106,7 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
         defaultSecurityGroup.setProjectId(projectId);
         defaultSecurityGroup.setDescription(description);
         defaultSecurityGroup.setName("default");
+        defaultSecurityGroup.setSecurityGroupRules(new ArrayList<>());
 
         //Create default security group rules
         createDefaultSecurityGroupRules(defaultSecurityGroup, SecurityGroupRule.Direction.INGRESS);

@@ -17,7 +17,11 @@ package com.futurewei.alcor.web.entity.securitygroup;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class SecurityGroupRuleJson {
+import java.io.Serializable;
+
+public class SecurityGroupRuleJson implements Serializable {
+    private static final long serialVersionUID = 1234567L;
+
     @JsonProperty("security_group_rule")
     private SecurityGroupRule securityGroupRule;
 

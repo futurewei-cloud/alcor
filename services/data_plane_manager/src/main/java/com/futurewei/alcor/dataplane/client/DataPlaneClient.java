@@ -21,6 +21,7 @@ import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
 import com.futurewei.alcor.schema.Goalstate.GoalState;
 import com.futurewei.alcor.schema.Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus;
+import com.futurewei.alcor.schema.SecurityGroup;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -31,4 +32,5 @@ public interface DataPlaneClient <U, T> {
     List<String> sendGoalStates(List<U> unicastGoalStates) throws Exception;
     List<String> sendGoalStates(List<U> unicastGoalStates,
                                 T multicastGoalState) throws Exception;
+    List<String> sendGoalStates(SecurityGroup.SecurityGroupState securityGroupState) throws Exception;
 }
