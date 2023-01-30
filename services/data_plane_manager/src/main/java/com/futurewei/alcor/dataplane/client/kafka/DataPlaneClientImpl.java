@@ -22,6 +22,7 @@ import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner;
+import com.futurewei.alcor.schema.SecurityGroup;
 
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,11 @@ public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, Mu
 
     @Override
     public List<String> sendGoalStates(List<UnicastGoalState> unicastGoalStates, MulticastGoalState multicastGoalState) throws Exception {
+        return null;
+    }
+
+    @Override
+    public List<String> sendGoalStates(SecurityGroup.SecurityGroupState securityGroupState) throws Exception {
         return null;
     }
 }
