@@ -76,6 +76,8 @@ public class SecurityGroupTest extends MockIgniteServer {
         securityGroup.setProjectId(UnitTestConfig.projectId);
         securityGroup.setTenantId(UnitTestConfig.tenantId);
         securityGroup.setDescription(UnitTestConfig.securityGroupDescription);
+        List<SecurityGroupRule> securityGroupRules = new ArrayList<>();
+        securityGroup.setSecurityGroupRules(securityGroupRules);
 
         SecurityGroupJson securityGroupJson = new SecurityGroupJson(securityGroup);
 
@@ -97,6 +99,8 @@ public class SecurityGroupTest extends MockIgniteServer {
         securityGroup1.setProjectId(UnitTestConfig.projectId);
         securityGroup1.setTenantId(UnitTestConfig.tenantId);
         securityGroup1.setDescription(UnitTestConfig.securityGroupDescription);
+        List<SecurityGroupRule> securityGroupRules = new ArrayList<>();
+        securityGroup1.setSecurityGroupRules(securityGroupRules);
 
         SecurityGroup securityGroup2 = new SecurityGroup();
         securityGroup2.setId(UnitTestConfig.securityGroupId2);
@@ -104,6 +108,7 @@ public class SecurityGroupTest extends MockIgniteServer {
         securityGroup2.setProjectId(UnitTestConfig.projectId);
         securityGroup2.setTenantId(UnitTestConfig.tenantId);
         securityGroup2.setDescription(UnitTestConfig.securityGroupDescription2);
+        securityGroup2.setSecurityGroupRules(securityGroupRules);
 
         List<SecurityGroup> securityGroups = new ArrayList<>();
         securityGroups.add(securityGroup1);
