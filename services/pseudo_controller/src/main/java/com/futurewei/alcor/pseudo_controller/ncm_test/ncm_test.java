@@ -242,7 +242,7 @@ public class ncm_test {
         );
 
         // a new Goalstate and its builder for Arion master; should have only neigbhor states.
-        Goalstateprovisioner.NeighborRulesRequest.Builder arion_neighbor_rule_request_builder = Goalstateprovisioner.NeighborRulesRequest.newBuilder();
+        Goalstateprovisioner.ArionGoalStateRequest.Builder arion_neighbor_rule_request_builder = Goalstateprovisioner.ArionGoalStateRequest.newBuilder();
         arion_neighbor_rule_request_builder.setFormatVersion(1);
         arion_neighbor_rule_request_builder.setRequestId("arion_routing_rule-" + (System.currentTimeMillis() / 1000L));
 
@@ -458,7 +458,7 @@ public class ncm_test {
         }
 
         // build the GroutingRuleRequest, to be sent to Arion Master
-        Goalstateprovisioner.NeighborRulesRequest arion_neighbor_state_request = arion_neighbor_rule_request_builder.build();
+        Goalstateprovisioner.ArionGoalStateRequest arion_neighbor_state_request = arion_neighbor_rule_request_builder.build();
 
 
         compute_node_ips.forEach(ip -> {
