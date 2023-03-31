@@ -1,3 +1,5 @@
+"This Project has been archived by the owner, who is no longer providing support.  The project remains available to authorized users on a "read only" basis."
+
 [![Build Status](https://travis-ci.org/futurewei-cloud/alcor.svg?branch=master)](https://travis-ci.org/futurewei-cloud/alcor)
 [![codecov](https://codecov.io/gh/futurewei-cloud/alcor/branch/master/graph/badge.svg)](https://codecov.io/gh/futurewei-cloud/alcor)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
