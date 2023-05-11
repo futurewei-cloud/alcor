@@ -34,6 +34,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 @Service
 @ComponentScan(value = "com.futurewei.alcor.netwconfigmanager.cache")
@@ -81,12 +82,27 @@ public class GoalStatePersistenceServiceImpl implements GoalStatePersistenceServ
                 }
             }
             hostResourceMetadataCache.commit();
+            patchNeighbors(hostGoalStates);
         }
         return hostGoalStates;
     }
 
-    public Map<String, Neighbor.NeighborState> getNeighborStates(Set<String> resourceIds) throws Exception {
-        return resourceStateCache.getResourceStates(resourceIds);
+    public void patchNeighbors(Map<String, HostGoalState> hostGoalStates) throws Exception {
+        boolean isAttache = !hostGoalStates.values().parallelStream().anyMatch(hostGoalState -> hostGoalState.getGoalState().getPortStatesCount() > 0);
+        for (Map.Entry<String, HostGoalState> hostGoalState : hostGoalStates.entrySet()) {
+            if (isAttache || hostGoalState.getValue().getGoalState().getPortStatesCount() > 0) {
+                String hostIp = hostGoalState.getValue().getHostIp();
+                Goalstate.GoalStateV2 goalState = hostGoalState.getValue().getGoalState();
+                Set<String> resourceIds = goalState.getHostResourcesMap().get(hostIp).getResourcesList().stream().filter(resourceIdType -> resourceIdType.getType().equals(Common.ResourceType.NEIGHBOR)).map(resourceIdType -> resourceIdType.getId()).collect(Collectors.toSet());
+                Goalstate.GoalStateV2.Builder goalstateBuilder = Goalstate.GoalStateV2.newBuilder();
+                goalstateBuilder.mergeFrom(goalState);
+                Map<String, Neighbor.NeighborState> neighborStateMap = resourceStateCache.getResourceStates(resourceIds);
+                if (neighborStateMap.size() > 0) {
+                    goalstateBuilder.putAllNeighborStates(neighborStateMap);
+                }
+                hostGoalStates.put(hostGoalState.getKey(), new HostGoalState(hostIp, goalstateBuilder.build()));
+            }
+        }
     }
 
     @Override

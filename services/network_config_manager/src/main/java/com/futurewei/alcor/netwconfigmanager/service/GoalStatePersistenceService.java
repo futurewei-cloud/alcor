@@ -36,4 +36,6 @@ public interface GoalStatePersistenceService {
 
     Map<String, HostGoalState> updateGoalStates(Goalstate.GoalStateV2 goalStateV2) throws Exception;
 
+    void patchNeighbors(Map<String, HostGoalState> hostGoalStates) throws Exception;
+
 }
