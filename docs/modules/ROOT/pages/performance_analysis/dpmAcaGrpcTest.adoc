@@ -1,0 +1,237 @@
+= ALCOR CONTROL AGENT-ALCOR DATAPLANE MANAGER Test Report 
+Xiaodong Zhang <xzhang2@futurewei.com>
+v0.1, 2020-09-15
+:toc: right
+:imagesdir: ../../images
+
+*ALCOR CONTROL AGENT-ALCOR DATAPLANE MANAGER Test Report*
+
+**Abstract：**This document contains Alcor Dataplane Manager-Alcor Control Agent grpc performance test result and analysis
+
+[arabic]
+. *Environment description*
+
+[cols=",",options="header",]
+|===
+|*IP address* |
+|*A* |*10.213.43.162*
+|*B* |*10.213.43.163*
+|*C* |*10.213.43.164*
+|*D* |*10.213.43.166*
+|*E* |*10.213.43.187*
+|F |*10.213.43.188*
+|===
+
+[cols=",,",options="header",]
+|===
+|*Hardware Configuration:* | |
+| |*A, B, C, D, E running ALCOR CONTROL AGENT* |*F running as ALCOR DATAPLANE MANAGER*
+|*CPU* |40 cores |56 cores
+|*Model Name* |Intel(R) Xeon(R) CPU E5-2690 v2 @ 3.00GHz |Intel(R) Xeon(R) CPU E5-2697 v3 @ 2.60GHz
+|*cpu MHz* |2231.772 |2599.079
+|*Memory* |192GB |386GB
+|*Network* |NetXtreme BCM5719 Gigabit Ethernet PCIe (GB network) |82599ES 10-Gigabit SFI/SFP+ Network Connection
+|*Storage* |LSI raid (no ssd) |AVAGO (no ssd)
+|*Software Configuration:* | |
+|*System* |Ubuntu18 LTS |
+|*Server* |ALCOR CONTROL AGENT on A, B, C, D, E |
+|*Client* |ALCOR DATAPLANE MANAGER on F |
+|===
+
+[arabic, start=2]
+. *Test step:*
+
+F send goal state message to A-E at the same time concurrently after first warming up then wait for the response, goal state message is different in each payload
+
+On A-E there are 2600 ACA running on each box, ACA code has been revised to cut off the ovsdb and mq operations
+
+image::p1.png["Test Deployment",width=488,height=302]
+
+[arabic, start=3]
+. *Test results*
+same payload size about 22k each (8 neighbors each)
+[cols=",,,,,,,,",options="header",]
+|===
+|*Log Time Cost Summary (ms)* | | | | | | | |
+|*Thread* |*1 -1^st^* |*1-2^nd^* |*32 -1^st^* |*32-2^nd^* |*56 -1^st^* |*56-2^nd^* |*128 -1^st^* |*128-2^nd^*
+|*Average* |11.14 |10.37 |16.50 |14.40 |26.54 |25.60 |70.64 |61.54
+|*MIN* |9 |9 |10 |9 |10 |9 |10 |9
+|*MAX* |48 |18 |223 |116 |364 |160 |603 |352
+|*MEDIAN* |11 |10 |11 |11 |11 |11 |11 |11
+|*>AVERAGE* |28.88% |40.35% |21.48% |20.09% |21.80% |20.09% |21.03% |20.00%
+|*<AVERAGE* |71.12% |59.65% |78.52% |79.91% |78.20% |79.91% |78.97% |80.00%
+|*99% TILE* |13 |12 |67 |43 |107.04 |116.03 |331 |312
+|*95% TILE* |12 |12 |36 |31 |83 |89 |305 |277
+|*90% TILE* |12 |11 |32 |28 |78 |84 |292 |262
+|===  
+
+different payload sizes vary from 1 neighbor to 10000 neighbor(2MB) each
+
+*1WR+other OV-MAX+average*
+
+[cols=",,,,,,,,,",options="header",]
+|===
+|*1WR+other OV- Summary (ms)* | | | | | | | | |
+|*Thread* |*Average* |*MIN* |*MAX* |*MEDIAN* |*>AVERAGE* |*<AVERAGE* |*99% TILE* |*95% TILE* |*90% TILE*
+|1thread-10000 neighbors |247683.79 |55 |494571 |247767 |50.02% |49.98% |489695 |469885 |445171
+|56threads-10000 |95191.16 |321 |189348 |95136 |49.97% |50.03% |187976 |180442 |171017
+|64t-296 neighbors |2770.43972 |6 |5508 |2768 |49.95% |50.05% |5470.04 |5249 |4974.8
+|64t-596 neighbors|5535.235418 |13 |11003 |5536 |50.01% |49.99% |10929.16 |10488.2 |9937.4
+|64t-1196 neighbors|11098.09625 |33 |22058 |11096 |49.99% |50.01% |21920 |21022.4 |19928
+|64t-2696 neighbors|25071.42771 |71 |49821 |25072 |50.01% |49.99% |49493.2 |47496.4 |45006
+|64t-5395 neighbors|50201.73107 |253 |99695 |50218 |50.01% |49.99% |99015.32 |94986.6 |90036.8
+|64t-10000 neighbors |95923.25 |578 |190523 |95909 |49.98% |50.02% |188762 |181228 |171652
+|128t-10000 neighbors -9961 success |2734746.24 |46565 |5594098 |2715434 |49.63% |50.37% |5489436 |5215610 |4927763
+|*128t-10000 neighbors* |95916.16 |1384 |189431 |95898 |49.99% |50.01% |188713 |181143 |171737
+|*5120threads-9990 neighbors* |138147.48 |1158 |233183 |131662 |49.27% |50.73% |189697 |188972 |187884
+|*9900t-5395 success * |88211.46 |32607 |165891 |90100.5 |58.31% |41.69% |110381 |97727 |96985
+|*10000 threads-9961 success * |170505.16 |1429 |302362 |174740.5 |61.09% |38.91% |204086 |187064 |185778
+|===
+
+[arabic, start=4]
+. *Test results analysis*
+[loweralpha]
+.. {blank}
++
+____
+*System Resource Usage on F-- ALCOR DATAPLANE MANAGER (context switch)*
+____
+
+____
+image::p2.png["context swith Alcor DataPlane Manager",width=553,height=302]
+____
+
+[loweralpha, start=2]
+. {blank}
++
+____
+*Time Cost on F -- ALCOR DATAPLANE MANAGER round trip*
+____
+
+____
+image::omax.png["thread number of Alcor DataPlane Manager",width=553,height=302]
+____
+
+____
+*Time Cost on single execution max -- ALCOR DATAPLANE MANAGER round trip*
+____
+
+____
+image::jmax.png["thread number of single execution max time Alcor DataPlane Manager",width=553,height=302]
+____
+
+[loweralpha, start=3]
+. {blank}
++
+____
+*Time Cost Charts for round trip when thread number change on F*
+____
+
+single thread
+____
+image::1-1.png["1 thread",width=276,height=165]
+____
+
+single thread -- 2nd time
+____
+image::1-2.png["1 thread 2nd time",width=276,height=165]
+____
+
+32 threads
+____
+image::32-1.png["32 thread",width=262,height=156]
+____
+
+32 threads -- 2nd time
+____
+image::32-2.png["32 thread 2nd time",width=262,height=156]
+____
+
+56 threads
+____
+image::56-1.png["56 thread",width=262,height=156]
+____
+
+56 threads -- 2nd time
+____
+image::56-2.png["56 thread 2nd time",width=262,height=156]
+____
+
+128 threads
+____
+image::128-1.png["128 thread",width=262,height=156]
+____
+
+128 threads  -- 2nd time
+____
+image::128-2.png["128 thread 2nd time",width=262,height=156]
+____
+
+for 256 threads and below, the success rate is 100%
+
+
+for 512 threads above, the success rate is under 100%
+
+____
+* 10k neighbor, overall time cost for different concurrent thread number*
+____
+
+____
+image::1w-ov.png["10k neighbor, overall time cost for different concurrent thread number",width=553,height=302]
+____
+
+____
+* 10k neighbor, every connection time cost for different concurrent thread number*
+____
+
+____
+image::1w-ov-jc.png["10k neighbor, every connection time cost for different concurrent thread number",width=553,height=302]
+____
+
+
+____
+* when neighbor number changed, every connection time cost and overall time cost for different concurrent thread number*
+____
+
+____
+image::other-ov-jc.png[" when neighbor number changed, every connection time cost and overall time cost for different concurrent thread number",width=553,height=302]
+____
+
+____
+* when neighbor number changed, overall time cost for different concurrent thread number*
+____
+
+____
+image::other-ov.png["when neighbor number changed, overall time cost for different concurrent thread number",width=553,height=302]
+____
+
+____
+* here is details on each test box about every execution time cost *
+____
+
+____
+image::detail-jc.png["here is details on each test box about every execution time cost",width=1024,height=800]
+____
+
+[arabic, start=5]
+. *Test Conclusion*
+
+[loweralpha]
+. *Alcor DataPlane Manager could support more than 10k concurrent ACA grpc requests*
+. *Alcor DataPlane Manager runs well when from 32 threads up to 256 threads for the performance*
+. *A-E hardware configuration could run 2000 stable ACA instances on each box*
+
+[arabic, start=6]
+. *Problems for now*
+
+[arabic]
+
+[arabic, start=1]
+. *ALCOR CONTROL AGENT crash after several heavy test*
+
+Syslog does not say error on ALCOR CONTROL AGENT
+
+[arabic, start=2]
+. *io.grpc.StatusRuntimeException: UNAVAILABLE: Network closed for unknown reason*
+
+After reduce load on A-E, this issue is gone
