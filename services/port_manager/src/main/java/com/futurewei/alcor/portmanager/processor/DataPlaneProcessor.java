@@ -16,6 +16,7 @@ Copyright(c) 2020 Futurewei Cloud
 package com.futurewei.alcor.portmanager.processor;
 
 import com.futurewei.alcor.common.enumClass.StatusEnum;
+import com.futurewei.alcor.common.stats.DurationStatistics;
 import com.futurewei.alcor.common.utils.CommonUtil;
 import com.futurewei.alcor.common.utils.SpringContextUtil;
 import com.futurewei.alcor.portmanager.exception.GetNodeInfoException;
@@ -34,6 +35,7 @@ import com.futurewei.alcor.web.entity.port.PortEntity;
 import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
 import com.futurewei.alcor.web.entity.subnet.SubnetEntity;
 import com.futurewei.alcor.web.entity.vpc.VpcEntity;
+import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -307,6 +309,7 @@ public class DataPlaneProcessor extends AbstractProcessor {
         }
     }
 
+    @DurationStatistics
     private void updateNetworkConfig(PortContext context, NetworkConfiguration networkConfig) throws Exception {
         PortService portService = SpringContextUtil.getBean(PortService.class);
         if (networkConfig != null) {

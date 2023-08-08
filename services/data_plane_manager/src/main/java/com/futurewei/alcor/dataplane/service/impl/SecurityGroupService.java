@@ -15,6 +15,7 @@ Copyright(c) 2020 Futurewei Cloud
 */
 package com.futurewei.alcor.dataplane.service.impl;
 
+import com.futurewei.alcor.dataplane.cache.PortBindingSecurityGroupRepository;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalState;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
 import com.futurewei.alcor.dataplane.exception.*;
@@ -25,8 +26,10 @@ import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Port;
 import com.futurewei.alcor.schema.SecurityGroup.SecurityGroupConfiguration.Direction;
 import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
+import com.futurewei.alcor.web.entity.securitygroup.PortBindingSecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroup;
 import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRule;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -38,6 +41,11 @@ import java.util.stream.Collectors;
 
 @Service
 public class SecurityGroupService extends ResourceService {
+
+
+    @Autowired
+    private PortBindingSecurityGroupRepository portBindingSecurityGroupRepository;
+
     private SecurityGroup getSecurityGroup(NetworkConfiguration networkConfig, String securityGroupId) throws Exception {
         SecurityGroup result = null;
         for (SecurityGroup securityGroup: networkConfig.getSecurityGroups()) {
@@ -183,6 +191,12 @@ public class SecurityGroupService extends ResourceService {
                         .map(Port.PortConfiguration.SecurityGroupId::getId)
                         .collect(Collectors.toList()));
             }
+            var portBindingSecurityGroupList = securityGroupIdList.stream().map(securityGroupId -> {
+                PortBindingSecurityGroup portBindingSecurityGroup = new PortBindingSecurityGroup(portState.getConfiguration().getId(), securityGroupId.getId());
+                portBindingSecurityGroup.setId(portState.getConfiguration().getId() + securityGroupId.getId());
+                return portBindingSecurityGroup;
+            }).collect(Collectors.toList());
+            portBindingSecurityGroupRepository.addPortBindingSecurityGroup(portBindingSecurityGroupList);
         }
 
         for (String securityGroupId: securityGroupIds) {

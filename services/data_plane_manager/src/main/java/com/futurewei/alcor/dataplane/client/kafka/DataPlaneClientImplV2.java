@@ -21,6 +21,7 @@ package com.futurewei.alcor.dataplane.client.kafka;
 import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.entity.MulticastGoalStateV2;
 import com.futurewei.alcor.dataplane.entity.UnicastGoalStateV2;
+import com.futurewei.alcor.schema.SecurityGroup;
 
 import java.util.List;
 
@@ -32,6 +33,11 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
 
     @Override
     public List<String> sendGoalStates(List<UnicastGoalStateV2> unicastGoalStates, MulticastGoalStateV2 multicastGoalState) throws Exception {
+        return null;
+    }
+
+    @Override
+    public List<String> sendGoalStates(SecurityGroup.SecurityGroupState securityGroupState) throws Exception {
         return null;
     }
 }

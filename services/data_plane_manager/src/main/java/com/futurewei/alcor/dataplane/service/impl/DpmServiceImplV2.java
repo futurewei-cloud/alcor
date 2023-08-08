@@ -30,6 +30,7 @@ import com.futurewei.alcor.web.entity.dataplane.v2.NetworkConfiguration;
 import com.futurewei.alcor.web.entity.port.PortHostInfo;
 import com.futurewei.alcor.web.entity.route.InternalRouterInfo;
 import com.futurewei.alcor.web.entity.route.InternalSubnetRoutingTable;
+import com.futurewei.alcor.web.entity.securitygroup.SecurityGroupRuleJson;
 import com.futurewei.alcor.web.entity.subnet.InternalSubnetPorts;
 import com.futurewei.alcor.web.restclient.DataPlaneManagerRestClient;
 import org.slf4j.Logger;
@@ -292,6 +293,12 @@ public class DpmServiceImplV2 implements DpmService {
     private List<String> processSecurityGroupConfiguration(NetworkConfiguration networkConfig) throws Exception {
         return new ArrayList<>();
     }
+
+    private List<String> processSecurityGroupConfiguration(SecurityGroupRuleJson securityGroupRuleJson) throws Exception {
+
+        return new ArrayList<>();
+    }
+
 
     /**
      * This method get the subnet routing configuration from the NetworkConfiguration,

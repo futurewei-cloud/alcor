@@ -20,6 +20,7 @@ import com.futurewei.alcor.dataplane.client.DataPlaneClient;
 import com.futurewei.alcor.dataplane.entity.*;
 import com.futurewei.alcor.dataplane.exception.GroupTopicNotFound;
 import com.futurewei.alcor.dataplane.exception.MulticastTopicNotFound;
+import com.futurewei.alcor.schema.SecurityGroup;
 import com.futurewei.alcor.web.entity.dataplane.MulticastGoalStateByte;
 import com.futurewei.alcor.web.entity.dataplane.UnicastGoalStateByte;
 import org.apache.pulsar.client.api.Producer;
@@ -158,5 +159,10 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         failedHosts.addAll(createGoalState(multicastGoalState));
 
         return failedHosts;
+    }
+
+    @Override
+    public List<String> sendGoalStates(SecurityGroup.SecurityGroupState securityGroupState) throws Exception {
+        return null;
     }
 }

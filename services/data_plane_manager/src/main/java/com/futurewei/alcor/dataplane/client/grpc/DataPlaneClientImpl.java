@@ -23,6 +23,7 @@ import com.futurewei.alcor.schema.GoalStateProvisionerGrpc;
 import com.futurewei.alcor.schema.Goalstate;
 import com.futurewei.alcor.schema.Goalstateprovisioner.GoalStateOperationReply.GoalStateOperationStatus;
 import com.futurewei.alcor.schema.Goalstateprovisioner.GoalStateOperationReply;
+import com.futurewei.alcor.schema.SecurityGroup;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
@@ -86,6 +87,11 @@ public class DataPlaneClientImpl implements DataPlaneClient<UnicastGoalState, Mu
             return sendGoalStates(unicastGoalStates);
         }
 
+        return null;
+    }
+
+    @Override
+    public List<String> sendGoalStates(SecurityGroup.SecurityGroupState securityGroupState) throws Exception {
         return null;
     }
 

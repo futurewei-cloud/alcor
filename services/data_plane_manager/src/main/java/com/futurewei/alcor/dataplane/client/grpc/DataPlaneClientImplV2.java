@@ -164,6 +164,12 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
         return null;
     }
 
+    @Override
+    public List<String> sendGoalStates(SecurityGroup.SecurityGroupState securityGroupState) throws Exception {
+        doSendGoalStateToArionMaster(securityGroupState);
+        return new ArrayList<>();
+    }
+
     private GrpcChannelStub createGrpcChannelStub(String hostIp, int port) {
         ManagedChannel channel = ManagedChannelBuilder.forAddress(hostIp, port)
                 .usePlaintext()
@@ -251,9 +257,33 @@ public class DataPlaneClientImplV2 implements DataPlaneClient<UnicastGoalStateV2
     private String doSendGoalStateToArionMaster (Goalstate.GoalStateV2.Builder goalStateV2) {
         GrpcChannelStub channelStub = getOrCreateGrpcChannel(arionMasterServer, arionMasterPort);
         GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub = channelStub.stub;
-        var neighborStateRequestBuilder = Goalstateprovisioner.NeighborRulesRequest.newBuilder();
-        neighborStateRequestBuilder.addAllNeigborstates(goalStateV2.getNeighborStatesMap().values());
-        asyncStub.pushGoalstates(neighborStateRequestBuilder.build(), new StreamObserver<Goalstateprovisioner.GoalStateOperationReply>() {
+        var arionGoalStateBuilder = Goalstateprovisioner.ArionGoalStateRequest.newBuilder();
+        arionGoalStateBuilder.addAllNeigborstates(goalStateV2.getNeighborStatesMap().values());
+        arionGoalStateBuilder.addAllPortstates(goalStateV2.getPortStatesMap().values());
+
+        asyncStub.pushGoalstates(arionGoalStateBuilder.build(), new StreamObserver<Goalstateprovisioner.GoalStateOperationReply>() {
+            @Override
+            public void onNext(Goalstateprovisioner.GoalStateOperationReply goalStateOperationReply) {
+                LOG.info("Get response: " + goalStateOperationReply.toString());
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                LOG.info(throwable.getMessage());
+            }
+
+            @Override
+            public void onCompleted() {
+
+            }
+        });
+        return null;
+    }
+
+    private String doSendGoalStateToArionMaster (SecurityGroup.SecurityGroupState securityGroupState) {
+        GrpcChannelStub channelStub = getOrCreateGrpcChannel(arionMasterServer, arionMasterPort);
+        GoalStateProvisionerGrpc.GoalStateProvisionerStub asyncStub = channelStub.stub;
+        asyncStub.pushSecurityGroupGoalState(securityGroupState, new StreamObserver<Goalstateprovisioner.GoalStateOperationReply>() {
             @Override
             public void onNext(Goalstateprovisioner.GoalStateOperationReply goalStateOperationReply) {
                 LOG.info("Get response: " + goalStateOperationReply.toString());
