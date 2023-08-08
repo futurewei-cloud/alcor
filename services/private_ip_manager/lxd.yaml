@@ -1,0 +1,214 @@
+image:
+  name: ubuntu-disco-x86_64
+  distribution: ubuntu
+  release: bionic
+  description: |-
+    Ubuntu {{ image.release }}
+  architecture: x86_64
+
+source:
+  downloader: debootstrap
+  same_as: gutsy
+  url: http://archive.ubuntu.com/ubuntu
+  keyserver: keyserver.ubuntu.com
+  keys:
+  - 0x790BC7277767219C42C86F933B4FE6ACC0B21F32
+  - 0xf6ecb3762474eda9d21b7022871920d1991bc93c
+
+targets:
+  lxc:
+    create-message: |-
+      You just created an {{ image.description }} container.
+
+      To enable SSH, run: apt install openssh-server
+      No default root or user password are set by LXC.
+    config:
+    - type: all
+      before: 5
+      content: |-
+        lxc.include = LXC_TEMPLATE_CONFIG/ubuntu.common.conf
+
+    - type: user
+      before: 5
+      content: |-
+        lxc.include = LXC_TEMPLATE_CONFIG/ubuntu.userns.conf
+
+    - type: all
+      after: 4
+      content: |-
+        lxc.include = LXC_TEMPLATE_CONFIG/common.conf
+
+    - type: user
+      after: 4
+      content: |-
+        lxc.include = LXC_TEMPLATE_CONFIG/userns.conf
+
+    - type: all
+      content: |-
+        lxc.arch = {{ image.architecture_personality }}
+
+files:
+- path: /etc/hostname
+  generator: hostname
+
+- path: /etc/hosts
+  generator: hosts
+
+- path: /etc/resolvconf/resolv.conf.d/original
+  generator: remove
+
+- path: /etc/resolvconf/resolv.conf.d/tail
+  generator: remove
+
+- path: /etc/machine-id
+  generator: dump
+
+- path: /etc/user/profile
+  generator: copy
+  source: /etc/profile
+
+- path: /var/lib/dbus/machine-id
+  generator: remove
+
+- path: /etc/netplan/10-lxc.yaml
+  generator: dump
+  content: |-
+    network:
+      version: 2
+      ethernets:
+        eth0:
+          dhcp4: true
+          dhcp-identifier: mac
+  releases:
+  - bionic
+  - eoan
+  - focal
+  - groovy
+  - hirsute
+  - impish
+  - jammy
+  types:
+  - container
+  variants:
+  - default
+
+- path: /etc/netplan/10-lxc.yaml
+  generator: dump
+  content: |-
+    network:
+      version: 2
+      ethernets:
+        enp5s0:
+          dhcp4: true
+          dhcp-identifier: mac
+  releases:
+  - bionic
+  - eoan
+  - focal
+  - groovy
+  - hirsute
+  - impish
+  - jammy
+  types:
+  - vm
+  variants:
+  - default
+
+- name: meta-data
+  generator: cloud-init
+  variants:
+  - cloud
+
+- name: network-config
+  generator: cloud-init
+  variants:
+  - cloud
+
+- name: user-data
+  generator: cloud-init
+  variants:
+  - cloud
+
+- name: vendor-data
+  generator: cloud-init
+  variants:
+  - cloud
+
+- name: ext4
+  generator: fstab
+  types:
+  - vm
+
+- name: lxd-agent
+  generator: lxd-agent
+  types:
+  - vm
+
+- path: /etc/default/grub.d/50-lxd.cfg
+  generator: dump
+  content: |-
+    GRUB_RECORDFAIL_TIMEOUT=0
+    GRUB_TIMEOUT=0
+    GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_LINUX_DEFAULT} console=tty1 console=ttyS0"
+    GRUB_TERMINAL=console
+  types:
+  - vm
+
+- path: /etc/sudoers.d/90-lxd
+  generator: dump
+  mode: 0440
+  content: |-
+    # User rules for ubuntu
+    ubuntu ALL=(ALL) NOPASSWD:ALL
+  variants:
+    - default
+
+- path: /root/privateipmanager-0.1.0-SNAPSHOT.jar
+  generator: copy
+  source: ./target/privateipmanager-0.1.0-SNAPSHOT.jar
+
+- path: /root/ignite
+  generator: copy
+  source: ./ignite
+
+- path: /etc/systemd/system/pim.service
+  generator: copy
+  source: ./pim.service
+
+- path: /etc/systemd/system/ignite.service
+  generator: copy
+  source: ./ignite.service
+
+packages:
+  manager: apt
+  update: true
+  cleanup: true
+  sets:
+  - packages:
+    - openssh-client
+    - vim
+    - openjdk-11-jre
+    action: install
+
+  repositories:
+  - name: sources.list
+    url: |-
+      deb http://archive.ubuntu.com/ubuntu {{ image.release }} main restricted universe multiverse
+      deb http://archive.ubuntu.com/ubuntu {{ image.release }}-updates main restricted universe multiverse
+      deb http://security.ubuntu.com/ubuntu {{ image.release }}-security main restricted universe multiverse
+    architectures:
+    - amd64
+
+# TODO: actions part is provided by official but not working
+# actions:
+# - trigger: post-files
+#   action: |-
+#     #!/bin/bash
+#     chmod +x /root/ignite/bin/ignite.sh
+#     systemctl daemon-reload
+#     systemctl enable ignite
+#     systemctl enable dpm
+
+
+mappings:
+  architecture_map: debian
